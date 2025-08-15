@@ -4,7 +4,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Help",
+            "name": "Help",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--help"
@@ -19,7 +19,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Init",
+            "name": "Init",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "init"
@@ -34,7 +34,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Init (Force)",
+            "name": "Init (Force)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "init",
@@ -50,7 +50,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Default (Fusion)",
+            "name": "Fusion (All)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [],
             "console": "integratedTerminal",
@@ -63,7 +63,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Web Extensions",
+            "name": "Fusion (Web)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--extensions",
@@ -79,7 +79,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Backend Extensions",
+            "name": "Fusion (Backend)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--extensions",
@@ -95,7 +95,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Config Extensions",
+            "name": "Fusion (Config)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--extensions",
@@ -111,7 +111,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: CPP Extensions",
+            "name": "Fusion (CPP)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--extensions",
@@ -127,7 +127,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Scripts Extensions",
+            "name": "Fusion (Scripts)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--extensions",
@@ -143,7 +143,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Godot Extensions",
+            "name": "Fusion (Godot)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--extensions",
@@ -159,7 +159,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Custom Root (src/)",
+            "name": "Fusion (All src/)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--root",
