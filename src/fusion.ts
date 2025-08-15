@@ -37,10 +37,8 @@ export async function processFusion(
         const fusionFilePath = createFilePath(path.resolve(fusion.fusion_file));
         const startTime = new Date();
 
-        // Initialize log file
         await fs.writeFile(logFilePath, '');
 
-        // Determine which extensions to process
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
         console.log(`Processing ${extensions.length} file extensions from ${Object.keys(config.parsedFileExtensions).length} categories`);
         
@@ -50,13 +48,10 @@ export async function processFusion(
             return { success: false, message, logFilePath };
         }
 
-        // Initialize ignore filter instance
         const ig = ignoreLib();
-
-        // Get the root directory
         const rootDir = path.resolve(parsing.rootDirectory);
 
-        // Get .gitignore patterns if enabled
+        // Apply .gitignore patterns for filtering if enabled
         if (config.useGitIgnoreForExcludes) {
             const gitIgnorePath = path.join(rootDir, '.gitignore');
             if (await fs.pathExists(gitIgnorePath)) {
@@ -65,16 +60,14 @@ export async function processFusion(
             }
         }
 
-        // Add ignore patterns from config
         if (config.ignorePatterns && config.ignorePatterns.length > 0) {
-            // Filter out comments and empty lines, then add to ignore
             const patterns = config.ignorePatterns
                 .filter(pattern => pattern.trim() !== '' && !pattern.startsWith('#'))
                 .join('\n');
             ig.add(patterns);
         }
 
-        // Find all files with matching extensions
+        // Build glob pattern for file discovery
         const allExtensionsPattern = extensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
         const pattern = parsing.parseSubDirectories
             ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})`
@@ -83,8 +76,6 @@ export async function processFusion(
         let filePaths = await glob(pattern, { 
             nodir: true
         });
-        
-        // Filter out ignored files using the ignore instance
         const originalFileCount = filePaths.length;
         filePaths = filePaths.filter(file => {
             const relativePath = path.relative(rootDir, file);
@@ -99,7 +90,7 @@ export async function processFusion(
             return { success: false, message, logFilePath };
         }
 
-        // Get project and package name
+        // Extract project metadata for the fusion header
         const projectName = path.basename(process.cwd());
         let packageName = "";
         const packageJsonPath = path.join(process.cwd(), 'package.json');
@@ -114,20 +105,16 @@ export async function processFusion(
             }
         }
 
-        // Track extensions
+        // Track which extensions are actually used vs configured vs unknown
         const foundExtensions = new Set<string>();
         const otherExtensions = new Set<string>();
 
-        // Find all files in the project to check for other extensions
+        // Discover all file extensions in the project for reporting
         const allFilesPattern = parsing.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
         const allFiles = await glob(allFilesPattern, { nodir: true });
 
-        // Get all configured extensions
         const allConfiguredExtensions = Object.values(config.parsedFileExtensions).flat();
         const configuredExtensionSet = new Set(allConfiguredExtensions);
-
-        // Find other extensions in the project that aren't in the configured set
-        // and aren't in ignored directories
         for (const file of allFiles) {
             const relativePath = path.relative(rootDir, file);
             const ext = path.extname(file).toLowerCase();
@@ -137,14 +124,12 @@ export async function processFusion(
             }
         }
 
-        // Read file contents and calculate hashes
         const fileInfos: FileInfo[] = [];
         for (const filePath of filePaths) {
             try {
                 const content = await readFileContent(filePath);
                 const relativePath = path.relative(rootDir, filePath);
 
-                // Extract file extension
                 const fileExt = path.extname(filePath).toLowerCase();
                 foundExtensions.add(fileExt);
 
@@ -158,10 +143,9 @@ export async function processFusion(
             }
         }
 
-        // Sort fileInfos by path
         fileInfos.sort((a, b) => a.path.localeCompare(b.path));
 
-        // Build simplified fusion content
+        // Generate plain text fusion file (.txt)
         let fusionContent = `# Generated Project Fusion File\n`;
         if (packageName && packageName.toLowerCase() !== projectName.toLowerCase()) {
             fusionContent += `# Project: ${projectName} / ${packageName}\n`;
@@ -178,10 +162,9 @@ export async function processFusion(
             fusionContent += `${fileInfo.content}\n\n`;
         }
 
-        // Write fusion file (.txt)
         await writeFileContent(fusionFilePath, fusionContent);
         
-        // Generate and write markdown version (.md)
+        // Generate enhanced markdown version with syntax highlighting
         const mdFilePath = createFilePath(fusionFilePath.replace('.txt', '.md'));
         let mdContent = `# Generated Project Fusion File\n`;
         if (packageName && packageName.toLowerCase() !== projectName.toLowerCase()) {
@@ -193,14 +176,12 @@ export async function processFusion(
         mdContent += `**Files:** ${fileInfos.length}\n\n`;
         mdContent += `---\n\n`;
         
-        // Add table of contents
         mdContent += `## 📁 Table of Contents\n\n`;
         for (const fileInfo of fileInfos) {
             mdContent += `- [${fileInfo.path}](#${fileInfo.path.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`;
         }
         mdContent += `\n---\n\n`;
         
-        // Add file contents with syntax highlighting
         for (const fileInfo of fileInfos) {
             const fileExt = path.extname(fileInfo.path).toLowerCase();
             const language = getMarkdownLanguage(fileExt);
@@ -213,20 +194,13 @@ export async function processFusion(
         
         await writeFileContent(mdFilePath, mdContent);
 
-        // Prepare simplified extension information for log
-        let extensionsInfo = "";
-        extensionsInfo += `Parsed extensions: ${Array.from(foundExtensions).sort().join(', ')}\n`;
-
-        if (otherExtensions.size > 0) {
-            extensionsInfo += `Ignored extensions: ${Array.from(otherExtensions).sort().join(', ')}\n`;
-        }
-
-        // Write comprehensive summary
+        // Prepare success message and calculate processing metrics
         const message = `Fusion completed successfully. ${fileInfos.length} files processed.`;
         const endTime = new Date();
         const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
         
-        // Get all configured extensions that weren't found
+        // Generate comprehensive log summary
+        
         const ignoredExtensions = extensions.filter(ext => !Array.from(foundExtensions).includes(ext));
         
         await writeLog(logFilePath, `Status: Fusion completed successfully`, true);

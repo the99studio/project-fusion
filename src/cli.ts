@@ -10,7 +10,6 @@ import {
 
 const program = new Command();
 
-// Set version and description
 program
     .name('project-fusion')
     .description('Project Fusion - Efficient project file management and sharing')
@@ -18,17 +17,14 @@ program
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)');
 
-// Fusion command (explicit)
 program
     .command('fusion')
     .description('Run fusion process to merge project files')
     .action((options, command) => {
-        // Merge global options with command options
         const allOptions = { ...command.parent.opts(), ...options };
         runFusionCommand(allOptions);
     });
 
-// Init command
 program
     .command('init')
     .description('Initialize Project Fusion in the current directory')
@@ -37,12 +33,12 @@ program
         runInitCommand(options);
     });
 
-// Run fusion by default if no command was specified
+// Default behavior: run fusion if no command specified
+// This allows users to just type 'project-fusion' to run fusion
 async function runDefaultCommand() {
     const options: { extensions?: string; root?: string } = {};
     const args = process.argv.slice(2);
     
-    // Parse any options that might be present
     for (let i = 0; i < args.length; i++) {
         if (args[i] === '--extensions' && args[i + 1]) {
             options.extensions = args[i + 1];
@@ -55,16 +51,15 @@ async function runDefaultCommand() {
     await runFusionCommand(options);
 }
 
-// First, try to parse with commander.js for explicit commands
+// Command detection logic: check if user provided an explicit command
+// Otherwise, run fusion by default for better UX
 const args = process.argv.slice(2);
 const hasKnownCommand = args.some(arg => 
     ['init', 'fusion', '--help', '-h', '--version', '-v'].includes(arg)
 );
 
 if (hasKnownCommand) {
-    // Use commander.js for explicit commands and help
     program.parse(process.argv);
 } else {
-    // Use default fusion behavior
     await runDefaultCommand();
 }

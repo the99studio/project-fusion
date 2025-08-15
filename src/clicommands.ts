@@ -17,23 +17,19 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
     try {
         console.log(chalk.blue('🔄 Starting Fusion Process...'));
 
-        // Load config
         const config = await loadConfig();
 
-        // Override rootDirectory only if specified via CLI
         if (options.root) {
             config.parsing.rootDirectory = options.root;
             console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
         }
 
-        // Parse extension groups
         let extensionGroups: string[] | undefined;
         if (options.extensions) {
             extensionGroups = options.extensions.split(',').map(e => e.trim());
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
         }
 
-        // Run fusion
         const fusionOptions: FusionOptions = { extensionGroups };
         const result = await processFusion(config, fusionOptions);
 
@@ -43,7 +39,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             console.log(chalk.cyan(`   - ${result.fusionFilePath}`));
             console.log(chalk.cyan(`   - ${result.fusionFilePath.replace('.txt', '.md')}`));
 
-            // Copy to clipboard if enabled in config
+            // Clipboard integration: only copy if explicitly enabled in config
             if (config.fusion?.copyToClipboard !== false && result.fusionFilePath) {
                 try {
                     const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
@@ -75,7 +71,6 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
     try {
         console.log(chalk.blue('🔄 Initializing Project Fusion...'));
 
-        // Check if config already exists
         const configPath = path.resolve('./project-fusion.json');
         if (await fs.pathExists(configPath)) {
             if (!options.force) {
@@ -87,7 +82,6 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
             }
         }
 
-        // Create default config
         await fs.writeJson(configPath, defaultConfig, { spaces: 4 });
 
         console.log(chalk.green('✅ Project Fusion initialized successfully!'));

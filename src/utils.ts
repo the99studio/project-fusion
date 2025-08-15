@@ -80,7 +80,6 @@ export async function loadConfig(): Promise<Config> {
 
         const parsedConfig = JSON.parse(configContent);
 
-        // Validate with Zod schema
         try {
             const validatedConfig = ConfigSchemaV1.parse(parsedConfig);
             return validatedConfig;
@@ -116,11 +115,11 @@ export async function ensureDirectoryExists(directory: string): Promise<void> {
 }
 
 /**
- * Amélioration du système de logging - pour synchroniser terminal et fichier log
- * @param logFilePath Chemin du fichier log
- * @param content Contenu à logger
- * @param append Si true, ajoute au fichier existant
- * @param consoleOutput Si true, affiche également sur la console
+ * Write log content to file and optionally to console
+ * @param logFilePath Path to log file
+ * @param content Content to log
+ * @param append If true, append to existing file
+ * @param consoleOutput If true, also display on console
  */
 export async function writeLog(
     logFilePath: string,
@@ -136,13 +135,11 @@ export async function writeLog(
             await fs.writeFile(logFilePath, content + '\n');
         }
 
-        // Afficher aussi sur la console si demandé
         if (consoleOutput) {
             console.log(content);
         }
     } catch (error) {
         console.error('Error writing log:', error);
-        // Ne pas throw d'erreur pour ne pas interrompre le processus principal
     }
 }
 
@@ -196,11 +193,9 @@ export function getExtensionsFromGroups(
     groups?: string[]
 ): string[] {
     if (!groups || groups.length === 0) {
-        // If no groups specified, use all extension groups
         return Object.values(config.parsedFileExtensions).flat();
     }
 
-    // Get extensions from specified groups
     return groups.reduce((acc: string[], group: string) => {
         const extensions = config.parsedFileExtensions[group];
         if (extensions) {

@@ -38,19 +38,10 @@ const ParsingConfigSchema = z.object({
  * Complete configuration schema for version 1
  */
 export const ConfigSchemaV1 = z.object({
-    // Schema version (introduced in version 1)
     schemaVersion: z.literal(1),
-
-    // Core configuration sections
     fusion: FusionConfigSchema,
     parsedFileExtensions: ParsedFileExtensionsSchema,
     parsing: ParsingConfigSchema,
-
-    // Ignore patterns (integrated from .projectfusionignore)
     ignorePatterns: z.array(z.string()),
-
-    // Additional options
     useGitIgnoreForExcludes: z.boolean(),
 });
-
-// Type inferred from the schema is used directly via Config in types.ts

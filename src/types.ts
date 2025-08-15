@@ -2,10 +2,9 @@
  * Type definitions for the fusion functionality
  */
 
-// Branded types for better type safety
+// Branded type for file paths to prevent string mixing
 export type FilePath = string & { readonly __brand: unique symbol };
 
-// Helper functions for branded types
 export const createFilePath = (path: string): FilePath => path as FilePath;
 
 /**
@@ -51,7 +50,7 @@ export interface FusionOptions {
 }
 
 /**
- * Result of the fusion process - Using discriminated union for better type safety
+ * Discriminated union for fusion results - ensures type safety with success/failure states
  */
 export type FusionResult = 
     | {
