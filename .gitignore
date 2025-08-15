@@ -8,6 +8,10 @@ dist/
 build/
 *.tsbuildinfo
 
+# Testing and temporary files
+temp/
+*.tgz
+
 # Logs
 logs/
 *.log

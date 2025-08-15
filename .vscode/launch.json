@@ -171,6 +171,21 @@
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test NPM Package",
+            "program": "${workspaceFolder}/node_modules/.bin/node",
+            "args": [
+                "-e",
+                "const fs = require('fs'); const path = require('path'); const { execSync } = require('child_process'); console.log('🔧 Building project...'); execSync('npm run build', {stdio: 'inherit'}); console.log('📦 Creating package...'); execSync('npm pack', {stdio: 'inherit'}); const packageFile = execSync('ls project-fusion-*.tgz').toString().trim(); console.log('📂 Creating temp/package/ directory...'); fs.mkdirSync('temp/package', {recursive: true}); console.log('📤 Extracting package...'); execSync(`tar -xzf ${packageFile} -C temp/package --strip-components=1`, {stdio: 'inherit'}); console.log('📥 Installing dependencies...'); execSync('npm install --production', {cwd: 'temp/package', stdio: 'inherit'}); console.log('✅ Testing CLI...'); execSync('node dist/cli.js --help', {cwd: 'temp/package', stdio: 'inherit'}); console.log('🧪 Testing fusion...'); execSync('node dist/cli.js init --force', {cwd: 'temp/package', stdio: 'inherit'}); execSync('node dist/cli.js fusion', {cwd: 'temp/package', stdio: 'inherit'}); console.log('🧹 Cleaning up...'); fs.unlinkSync(packageFile); console.log('✨ Package test completed! Check temp/package/ for results.');"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
