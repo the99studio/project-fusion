@@ -27,29 +27,6 @@
             }
         },
         {
-            "label": "Watch",
-            "type": "shell",
-            "command": "npm",
-            "args": [
-                "run",
-                "dev"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            },
-            "problemMatcher": "$tsc-watch",
-            "isBackground": true,
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
-        },
-        {
             "label": "Clean",
             "type": "shell",
             "command": "npm",
@@ -108,6 +85,29 @@
                 "clear": false
             },
             "problemMatcher": "$tsc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Watch",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "dev"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": "$tsc-watch",
+            "isBackground": true,
             "options": {
                 "cwd": "${workspaceFolder}"
             }

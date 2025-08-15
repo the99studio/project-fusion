@@ -4,52 +4,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Help",
-            "program": "${workspaceFolder}/dist/cli.js",
-            "args": [
-                "--help"
-            ],
-            "console": "integratedTerminal",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Init",
-            "program": "${workspaceFolder}/dist/cli.js",
-            "args": [
-                "init"
-            ],
-            "console": "integratedTerminal",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Init (Force)",
-            "program": "${workspaceFolder}/dist/cli.js",
-            "args": [
-                "init",
-                "--force"
-            ],
-            "console": "integratedTerminal",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Fusion (All)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [],
@@ -63,11 +17,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Fusion (Web)",
+            "name": "Fusion (All src/)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
-                "--extensions",
-                "web"
+                "--root",
+                "./src"
             ],
             "console": "integratedTerminal",
             "skipFiles": [
@@ -127,22 +81,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Fusion (Scripts)",
-            "program": "${workspaceFolder}/dist/cli.js",
-            "args": [
-                "--extensions",
-                "scripts"
-            ],
-            "console": "integratedTerminal",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Fusion (Godot)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
@@ -159,11 +97,73 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Fusion (All src/)",
+            "name": "Fusion (Scripts)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
-                "--root",
-                "./src"
+                "--extensions",
+                "scripts"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Fusion (Web)",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "--extensions",
+                "web"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Help",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "--help"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Init",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "init"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Init (Force)",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "init",
+                "--force"
             ],
             "console": "integratedTerminal",
             "skipFiles": [
