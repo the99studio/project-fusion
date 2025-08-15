@@ -4,15 +4,10 @@ Project Fusion enables efficient project file management by merging multiple pro
 
 ## Installation
 
-Install Project Fusion globally with npm or pnpm:
+Install Project Fusion globally with npm:
 
 ```bash
-# Using npm
 npm install -g project-fusion
-
-# Using pnpm
-npm install -g pnpm
-pnpm add -g project-fusion
 ```
 
 ## Quick Start

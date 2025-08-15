@@ -20,7 +20,7 @@ project-fusion/
 
 ## Technology Stack
 - **TypeScript 5.9.2** (ES2022, NodeNext, strict mode)
-- **Node.js 18+**, **pnpm** package manager
+- **Node.js 18+**, **npm** package manager
 - **Zod 4.0.17** (schema validation), **Commander.js 14** (CLI)
 - **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**, **uuid**
 
@@ -28,12 +28,12 @@ project-fusion/
 
 ### Development Commands
 ```bash
-pnpm install        # Install dependencies
-pnpm build          # Build project
-pnpm dev            # Watch mode compilation
-pnpm typecheck      # Type checking
-pnpm clean          # Clean artifacts
-pnpm link --global  # Link CLI globally
+npm install        # Install dependencies
+npm run build      # Build project
+npm run dev        # Watch mode compilation
+npm run typecheck  # Type checking
+npm run clean      # Clean artifacts
+npm link           # Link CLI globally
 ```
 
 ### CLI Commands
@@ -44,8 +44,8 @@ project-fusion --help   # Show help
 ```
 
 ### Development Workflow
-1. Clone repo → `pnpm install` → `pnpm build` → `pnpm link --global`
-2. Edit `src/` files → `pnpm build` → test with linked CLI
+1. Clone repo → `npm install` → `npm run build` → `npm link`
+2. Edit `src/` files → `npm run build` → test with linked CLI
 3. Test in sample project: `project-fusion init` → `project-fusion fusion`
 
 ## Configuration Schema
@@ -158,7 +158,7 @@ Enable: `"useProjectFusionIgnoreForExcludes": true`
 
 ## NPM Publication
 1. Update version in `package.json`
-2. `pnpm build` → `npm pack --dry-run` → `npm publish`
+2. `npm run build` → `npm pack --dry-run` → `npm publish`
 3. Published: `dist/` directory as `project-fusion` package
 
 ## Features
