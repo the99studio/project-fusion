@@ -48,7 +48,8 @@ export const defaultConfig: Config = {
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
-        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
+        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
+        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"]
     },
     parsing: {
         parseSubDirectories: true,

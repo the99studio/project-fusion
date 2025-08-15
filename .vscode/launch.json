@@ -14,7 +14,6 @@
                 "<node_internals>/**"
             ],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "Build",
             "preLaunchTask": "Build"
         },
         {
@@ -85,6 +84,70 @@
             "args": [
                 "--extensions",
                 "backend"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Fusion: Config Extensions",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "--extensions",
+                "config"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Fusion: CPP Extensions",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "--extensions",
+                "cpp"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Fusion: Scripts Extensions",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "--extensions",
+                "scripts"
+            ],
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Fusion: Godot Extensions",
+            "program": "${workspaceFolder}/dist/cli.js",
+            "args": [
+                "--extensions",
+                "godot"
             ],
             "console": "integratedTerminal",
             "skipFiles": [

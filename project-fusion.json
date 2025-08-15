@@ -43,6 +43,14 @@
             ".ts",
             ".tsx",
             ".vue"
+        ],
+        "godot": [
+            ".gd",
+            ".cs",
+            ".tscn",
+            ".tres",
+            ".cfg",
+            ".import"
         ]
     },
     "parsing": {

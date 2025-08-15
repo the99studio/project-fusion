@@ -22,6 +22,7 @@ export const ParsedFileExtensionsSchema = z.object({
     cpp: z.array(z.string()),
     scripts: z.array(z.string()),
     web: z.array(z.string()),
+    godot: z.array(z.string()),
 }).and(z.record(z.string(), z.array(z.string())));
 
 /**
