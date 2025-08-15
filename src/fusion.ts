@@ -1,5 +1,5 @@
 /**
- * Core fusion functionality
+ * Fusion functionality
  */
 import fs from 'fs-extra';
 import { glob } from 'glob';
@@ -14,12 +14,12 @@ import {
     readFileContent,
     writeFileContent,
     writeLog
-} from '../coreutils.js';
+} from './utils.js';
 import {
     FileInfo,
     FusionOptions,
     FusionResult
-} from './corefusiontypes.js';
+} from './types.js';
 
 /**
  * Process fusion of files

@@ -1,5 +1,5 @@
 /**
- * Shared utilities for Project Fusion
+ * Utilities for Project Fusion
  */
 import crypto from 'crypto';
 import fs from 'fs-extra';
