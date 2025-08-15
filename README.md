@@ -268,7 +268,7 @@ To enable this feature, update your configuration:
 ## Distribution
 
 Project Fusion is available through:
-- **GitHub**: Source code and issue tracking at [github.com/GagaPlayerOne/project-fusion](https://github.com/GagaPlayerOne/project-fusion)
+- **GitHub**: Source code and issue tracking at [github.com/the99studio/project-fusion](https://github.com/the99studio/project-fusion)
 - **NPM**: Package distribution at [npmjs.com/package/project-fusion](https://www.npmjs.com/package/project-fusion)
 
 ## Future Improvements
@@ -319,7 +319,7 @@ We're planning several enhancements for Project Fusion:
 If you find Project Fusion useful, consider supporting its development through one of these options:
 
 ### Sponsorship Options
-- [GitHub Sponsors](https://github.com/sponsors/GagaPlayerOne)
+- [GitHub Sponsors](https://github.com/sponsors/the99studio)
 - [Open Collective](https://opencollective.com/projectfusion)
 - [Patreon](https://www.patreon.com/projectfusion)
 - [Buy Me a Coffee](https://www.buymeacoffee.com/projectfusion)

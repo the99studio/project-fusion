@@ -16,17 +16,17 @@
       "diff",
       "fusion"
     ],
-    "author": "GagaPlayerOne",
+    "author": "the99studio",
     "license": "MIT",
     "engines": {
       "node": ">=18.0.0"
     },
     "repository": {
       "type": "git",
-      "url": "https://github.com/GagaPlayerOne/ai-code-sync"
+      "url": "https://github.com/the99studio/project-fusion"
     },
     "bugs": {
-      "url": "https://github.com/GagaPlayerOne/ai-code-sync/issues"
+      "url": "https://github.com/the99studio/project-fusion/issues"
     },
-    "homepage": "https://github.com/GagaPlayerOne/ai-code-sync#readme"
+    "homepage": "https://github.com/the99studio/project-fusion#readme"
   }

@@ -20,7 +20,7 @@
     "fusion",
     "cli"
   ],
-  "author": "GagaPlayerOne",
+  "author": "the99studio",
   "license": "MIT",
   "dependencies": {
     "project-fusion-core": "workspace:*",

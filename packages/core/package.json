@@ -17,7 +17,7 @@
     "diff",
     "fusion"
   ],
-  "author": "GagaPlayerOne",
+  "author": "the99studio",
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.4.1",

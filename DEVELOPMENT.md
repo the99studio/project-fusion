@@ -11,7 +11,7 @@ This section provides instructions for developers who want to contribute to or m
 
 2. Clone the repository:
    ```bash
-   git clone https://github.com/GagaPlayerOne/project-fusion.git
+   git clone https://github.com/the99studio/project-fusion.git
    ```
    And navigate to it:
    ```bash

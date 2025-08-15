@@ -1,11 +1,11 @@
-# Contributing to AICodeSync
+# Contributing to Project Fusion
 
-Thank you for your interest in contributing to AICodeSync! This document provides some basic guidelines for contributing to this project.
+Thank you for your interest in contributing to Project Fusion! This document provides some basic guidelines for contributing to this project.
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/GagaPlayerOne/ai-code-sync.git`
+2. Clone your fork: `git clone https://github.com/the99studio/project-fusion.git`
 3. Create a new branch for your feature or bugfix: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Run tests if available
