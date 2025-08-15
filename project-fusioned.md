@@ -1,7 +1,7 @@
 # Generated Project Fusion File
 **Project:** project-fusion
 
-**Generated:** 2025-08-15T20:17:46.924Z
+**Generated:** 2025-08-15T20:35:16.716Z
 
 **Files:** 13
 
@@ -143,8 +143,6 @@ Use the **"Test NPM Package"** launch configuration in VS Code (F5) which automa
 - Builds the project
 - Creates and extracts test package to `temp/package/`
 - Installs dependencies and tests CLI functionality
-
-The test package is located at `temp/package/` after running the test.
 
 #### Manual Package Verification
 ```bash
@@ -404,7 +402,8 @@ npm install -g project-fusion
 
 ## Documentation
 
-- **[CLAUDE.md](./CLAUDE.md)** - Complete developer guide and technical documentation
+- **[CLAUDE.md](./CLAUDE.md)** - AI context and technical documentation for Claude AI
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development workflows, testing, and npm publication guide
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
 - **[LICENSE](./LICENSE)** - MIT License terms
 
