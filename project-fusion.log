@@ -1,10 +1,10 @@
 Status: Fusion completed successfully
-Start time: 2025-08-15T17:25:17.230Z
-End time: 2025-08-15T17:25:17.273Z
+Start time: 2025-08-15T17:29:36.643Z
+End time: 2025-08-15T17:29:36.686Z
 Duration: 0.04s
-Files found: 1360
+Files found: 1352
 Files processed successfully: 12 (0.9% of total files)
-Files found but filtered out: 1348 (99.1% of total files)
+Files found but filtered out: 1340 (99.1% of total files)
 File extensions actually processed:
   .json
   .md
@@ -41,7 +41,6 @@ Configured extensions with no matching files found:
   .tres
   .tscn
   .tsx
-  .txt
   .vue
   .xml
   .yaml

@@ -1,7 +1,7 @@
 # Generated Project Fusion File
 **Project:** project-fusion
 
-**Generated:** 2025-08-15T17:25:17.272Z
+**Generated:** 2025-08-15T17:29:36.685Z
 
 **Files:** 12
 
@@ -1060,7 +1060,7 @@ export const defaultConfig = {
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
         godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
-        doc: [".md", ".txt", ".rst", ".adoc"]
+        doc: [".md", ".rst", ".adoc"]
     },
     parsing: {
         parseSubDirectories: true,

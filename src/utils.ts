@@ -24,7 +24,7 @@ export const defaultConfig = {
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
         godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
-        doc: [".md", ".txt", ".rst", ".adoc"]
+        doc: [".md", ".rst", ".adoc"]
     },
     parsing: {
         parseSubDirectories: true,
