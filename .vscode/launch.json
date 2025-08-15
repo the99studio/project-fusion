@@ -6,9 +6,13 @@
             "request": "launch",
             "name": "Project Fusion: Help",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["--help"],
+            "args": [
+                "--help"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -16,9 +20,13 @@
             "request": "launch",
             "name": "Project Fusion: Init",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["init"],
+            "args": [
+                "init"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -26,9 +34,14 @@
             "request": "launch",
             "name": "Project Fusion: Init (Force)",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["init", "--force"],
+            "args": [
+                "init",
+                "--force"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -36,9 +49,13 @@
             "request": "launch",
             "name": "Project Fusion: Fusion",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["fusion"],
+            "args": [
+                "fusion"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -46,9 +63,15 @@
             "request": "launch",
             "name": "Project Fusion: Fusion Web",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["fusion", "--extensions", "web"],
+            "args": [
+                "fusion",
+                "--extensions",
+                "web"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -56,9 +79,15 @@
             "request": "launch",
             "name": "Project Fusion: Fusion Backend",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["fusion", "--extensions", "backend"],
+            "args": [
+                "fusion",
+                "--extensions",
+                "backend"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -66,9 +95,15 @@
             "request": "launch",
             "name": "Project Fusion: Fusion Custom Root",
             "program": "${workspaceFolder}/packages/cli/dist/cli.js",
-            "args": ["fusion", "--root", "./packages"],
+            "args": [
+                "fusion",
+                "--root",
+                "./packages"
+            ],
             "console": "integratedTerminal",
-            "skipFiles": ["<node_internals>/**"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "cwd": "${workspaceFolder}"
         }
     ]

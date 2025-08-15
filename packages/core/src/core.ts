@@ -3,8 +3,8 @@
  */
 
 // Export types
-export * from './fusion/corefusiontypes.js';
 export * from './applydiff/coreapplydifftypes.js';
+export * from './fusion/corefusiontypes.js';
 
 // Export schemas
 export * from './schema.js';

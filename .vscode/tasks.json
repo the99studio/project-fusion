@@ -5,7 +5,10 @@
             "label": "Build All",
             "type": "shell",
             "command": "pnpm",
-            "args": ["run", "build"],
+            "args": [
+                "run",
+                "build"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -27,7 +30,12 @@
             "label": "Build CLI",
             "type": "shell",
             "command": "pnpm",
-            "args": ["--filter", "cli", "run", "build"],
+            "args": [
+                "--filter",
+                "cli",
+                "run",
+                "build"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -46,7 +54,12 @@
             "label": "Build Core",
             "type": "shell",
             "command": "pnpm",
-            "args": ["--filter", "core", "run", "build"],
+            "args": [
+                "--filter",
+                "core",
+                "run",
+                "build"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -65,7 +78,11 @@
             "label": "Watch All",
             "type": "shell",
             "command": "pnpm",
-            "args": ["run", "build", "--watch"],
+            "args": [
+                "run",
+                "build",
+                "--watch"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -85,7 +102,10 @@
             "label": "Clean",
             "type": "shell",
             "command": "pnpm",
-            "args": ["run", "clean"],
+            "args": [
+                "run",
+                "clean"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -103,7 +123,9 @@
             "label": "Install Dependencies",
             "type": "shell",
             "command": "pnpm",
-            "args": ["install"],
+            "args": [
+                "install"
+            ],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -121,7 +143,10 @@
             "label": "Type Check",
             "type": "shell",
             "command": "pnpm",
-            "args": ["run", "typecheck"],
+            "args": [
+                "run",
+                "typecheck"
+            ],
             "group": "test",
             "presentation": {
                 "echo": true,

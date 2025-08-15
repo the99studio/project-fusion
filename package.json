@@ -4,29 +4,29 @@
     "description": "Tool for merging project files into a single file for easy sharing",
     "private": true,
     "scripts": {
-      "build": "pnpm --filter \"./packages/**\" build",
-      "test": "pnpm --filter \"./packages/**\" test",
-      "clean": "rm -rf packages/*/dist",
-      "lint": "pnpm --filter \"./packages/**\" lint"
+        "build": "pnpm --filter \"./packages/**\" build",
+        "test": "pnpm --filter \"./packages/**\" test",
+        "clean": "rm -rf packages/*/dist",
+        "lint": "pnpm --filter \"./packages/**\" lint"
     },
     "keywords": [
-      "code",
-      "merge",
-      "files",
-      "fusion",
-      "collaboration"
+        "code",
+        "merge",
+        "files",
+        "fusion",
+        "collaboration"
     ],
     "author": "the99studio",
     "license": "MIT",
     "engines": {
-      "node": ">=18.0.0"
+        "node": ">=18.0.0"
     },
     "repository": {
-      "type": "git",
-      "url": "https://github.com/the99studio/project-fusion"
+        "type": "git",
+        "url": "https://github.com/the99studio/project-fusion"
     },
     "bugs": {
-      "url": "https://github.com/the99studio/project-fusion/issues"
+        "url": "https://github.com/the99studio/project-fusion/issues"
     },
     "homepage": "https://github.com/the99studio/project-fusion#readme"
-  }
+}
