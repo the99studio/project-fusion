@@ -1,6 +1,6 @@
 Status: Fusion completed successfully
-Start time: 2025-08-15T16:49:30.991Z
-End time: 2025-08-15T16:49:31.035Z
+Start time: 2025-08-15T16:54:31.500Z
+End time: 2025-08-15T16:54:31.543Z
 Duration: 0.04s
 Files processed successfully: 9
 Files found but filtered out: 1260 (99.3% of total files)
@@ -44,11 +44,10 @@ Configured extensions with no matching files found:
 File extensions found in project but not configured for processing:
   .md
 Configuration used:
-  Root directory: /Users/gaetanchantebien/Git/project-fusion
+  Root directory: .
   Scan subdirectories: Yes
   Apply .gitignore rules: Yes
   Custom ignore patterns defined: 26 patterns
-    Examples: project-fusion.json, project-fusion.log, project-fusioned.txt...
 Output files generated:
-  Plain text format: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.txt
-  Markdown format: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.md
+  Plain text format: project-fusioned.txt
+  Markdown format: project-fusioned.md
