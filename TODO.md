@@ -1,40 +1,28 @@
-# Project Fusion Improvements TODO
+# Project Fusion TODO
 
-## High Priority
-- Add Zod for schema validation in config loading (core/package.json)
-- Replace custom diff implementation with the existing diff-match-patch library
-- Implement streaming for large file handling
-- Add Vitest for unit testing setup (root package.json)
-- Extract complex functions into separate utility files
-- Implement parallel file processing with Promise.all
+## 🔴 **PRIORITÉ 1** - Critical
 
-## Medium Priority
-- Add schema validation for all configuration objects
-- Memoize expensive calculations (similarity, hash functions)
-- Improve error handling with better error messages and recovery strategies
-- Standardize on async/await pattern throughout the codebase
-- Add basic unit tests for core functions
-- Simplify glob pattern construction for file finding
+- [ ] **Setup Vitest** - Add unit testing framework (replace placeholder tests)
+- [ ] **Implement .projectfusionignore** - Support for project-specific ignore patterns
+- [ ] **Add basic unit tests** - Core functions (utils, fusion, schema validation)
 
-## Lower Priority
-- Add more type safety with TypeScript strict null checks
-- Implement test coverage reporting
-- Clean up imports to avoid duplicate imports
-- Add documentation for public API functions
-- Create a facade pattern for core functionality
-- Improve logging with structured logging
-- Add benchmarking to measure performance improvements
+## 🟠 **PRIORITÉ 2** - Important  
 
-----
+- [ ] **Streaming for large files** - Handle huge projects without memory issues
+- [ ] **Config validation command** - `project-fusion --config-check` for debugging
+- [ ] **Enhanced error messages** - Better Zod validation feedback for config
+- [ ] **Apply diff functionality** - Implement reverse fusion (diff → files)
 
-#2. Savoir comment détecter un vieux project-fusion.json dans le projet si on a mis à jour le format de la configuration entre temps ?
-#4. Avoir des liens cliquables dans le fichier de fusion (faire des chemins de fichiers cliquables qui ouvrent le fichier dans l'éditeur par défaut)
-#5. Avoir un export project_files_fusioned.html (true par défaut mais désactivable dans project-fusion.json, on pourra faire une section "exports")
-#6. Avoir un export project_files_fusioned.pdf (true par défaut mais désactivable dans project-fusion.json, on pourra faire une section "exports")
-#7. Avoir un export project_files_fusioned.md (true par défaut mais désactivable dans project-fusion.json, on pourra faire une section "exports")
-#8. Tu m'avais dit ça un jour, ça voulait dire quoi pour toi ? Mise en Évidence de la Syntaxe: Ajouter la coloration syntaxique pour les fichiers et les diffs
+## 🟡 **PRIORITÉ 3** - Nice to Have
 
-C'est trié par ordre de priorité: Svp ne parlons que d'un seul point à la fois à chaque fois. Essayons de le résoudre ensemble. Puis quand je te donnerai le "go", on pourra passer au prochain. Parlons donc du #0.
+- [ ] **Test coverage reporting** - Metrics for code quality
+- [ ] **JSDoc API documentation** - Complete function documentation  
+- [ ] **AI attribution with UUID** - Use uuid dependency for AI collaboration tracking
+- [ ] **Performance benchmarking** - Measure and optimize processing speed
 
-----
+## 🔵 **PRIORITÉ 4** - Future Features
 
+- [ ] **Export formats** - HTML, PDF, MD outputs (configurable in project-fusion.json)
+- [ ] **Clickable file paths** - Links that open files in default editor
+- [ ] **Syntax highlighting** - Code coloration in fusion outputs
+- [ ] **Migration tool** - Handle old project-fusion.json format detection/upgrade

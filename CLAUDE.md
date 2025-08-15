@@ -14,9 +14,6 @@ project-fusion/
 │   ├── schema.ts               # Configuration schemas (Zod)
 │   ├── types.ts                # TypeScript type definitions
 │   └── utils.ts                # Utility functions
-├── dist/                       # Compiled JavaScript (generated)
-├── .project-fusion/            # Generated files (git-ignored)
-│   └── fusion/                 # Fusion output
 ├── project-fusion.json         # Configuration file
 ├── package.json                # Dependencies and scripts
 └── tsconfig.json               # TypeScript configuration
