@@ -37,6 +37,7 @@ npm install -g project-fusion
 ## Documentation
 
 - **[CLAUDE.md](./CLAUDE.md)** - Complete developer guide and technical documentation
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development workflows, testing, and npm publication guide
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
 - **[LICENSE](./LICENSE)** - MIT License terms
 
