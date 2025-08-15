@@ -1,0 +1,32 @@
+{
+    "name": "ai-code-sync",
+    "version": "0.0.1",
+    "description": "Tool for efficient project file management and sharing with AI assistants",
+    "private": true,
+    "scripts": {
+      "build": "pnpm --filter \"./packages/**\" build",
+      "test": "pnpm --filter \"./packages/**\" test",
+      "clean": "rm -rf packages/*/dist",
+      "lint": "pnpm --filter \"./packages/**\" lint"
+    },
+    "keywords": [
+      "ai",
+      "code",
+      "sync",
+      "diff",
+      "fusion"
+    ],
+    "author": "GagaPlayerOne",
+    "license": "MIT",
+    "engines": {
+      "node": ">=18.0.0"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/GagaPlayerOne/ai-code-sync"
+    },
+    "bugs": {
+      "url": "https://github.com/GagaPlayerOne/ai-code-sync/issues"
+    },
+    "homepage": "https://github.com/GagaPlayerOne/ai-code-sync#readme"
+  }

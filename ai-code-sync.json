@@ -1,0 +1,66 @@
+{
+  "aiAttribution": {
+    "commentBegin": "BEGIN - AI Generated @[timestamp] by [AIName] GUID=[Guid]",
+    "commentEnd": "END - AI Generated GUID=[Guid]",
+    "enabled": true
+  },
+  "applydiff": {
+    "applydiff_log": "apply_diff.log",
+    "diff_file": "project_files_diff.txt",
+    "directory": "./.ai-code-sync/applydiff"
+  },
+  "fusion": {
+    "directory": "./.ai-code-sync/fusion",
+    "fusion_file": "project_files_fusioned.txt",
+    "fusion_log": "fusion.log",
+    "copyToClipboard": true
+  },
+  "parsedFileExtensions": {
+    "backend": [
+      ".cs",
+      ".go",
+      ".java",
+      ".php",
+      ".py",
+      ".rb",
+      ".rs"
+    ],
+    "config": [
+      ".json",
+      ".toml",
+      ".xml",
+      ".yaml",
+      ".yml"
+    ],
+    "cpp": [
+      ".c",
+      ".cc",
+      ".cpp",
+      ".h",
+      ".hpp"
+    ],
+    "scripts": [
+      ".bat",
+      ".cmd",
+      ".ps1",
+      ".sh"
+    ],
+    "web": [
+      ".css",
+      ".html",
+      ".js",
+      ".jsx",
+      ".svelte",
+      ".ts",
+      ".tsx",
+      ".vue"
+    ]
+  },
+  "parsing": {
+    "parseSubDirectories": true,
+    "rootDirectory": "."
+  },
+  "schemaVersion": 1,
+  "useAICodeSyncIgnoreForExcludes": true,
+  "useGitIgnoreForExcludes": true
+}

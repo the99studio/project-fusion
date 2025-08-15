@@ -1,0 +1,56 @@
+# AICodeSync Improvements TODO
+
+## High Priority
+- Add Zod for schema validation in config loading (core/package.json)
+- Replace custom diff implementation with the existing diff-match-patch library
+- Implement streaming for large file handling
+- Add Vitest for unit testing setup (root package.json)
+- Extract complex functions into separate utility files
+- Implement parallel file processing with Promise.all
+
+## Medium Priority
+- Add schema validation for all configuration objects
+- Memoize expensive calculations (similarity, hash functions)
+- Improve error handling with better error messages and recovery strategies
+- Standardize on async/await pattern throughout the codebase
+- Add basic unit tests for core functions
+- Simplify glob pattern construction for file finding
+
+## Lower Priority
+- Add more type safety with TypeScript strict null checks
+- Implement test coverage reporting
+- Clean up imports to avoid duplicate imports
+- Add documentation for public API functions
+- Create a facade pattern for core functionality
+- Improve logging with structured logging
+- Add benchmarking to measure performance improvements
+
+----
+
+#2. Savoir comment détecter un vieux ai-co-sync.json dans le projet si on a mis à jour le format de la configuration entre temps ?
+#4. Avoir des liens cliquables dans le fichier de fusion (faire des chemins de fichiers cliquables qui ouvrent le fichier dans l'éditeur par défaut)
+#5. Avoir un export project_files_fusioned.html (true par défaut mais désactivable dans ai-code-sync.json, on pourra faire une section "exports")
+#6. Avoir un export project_files_fusioned.pdf (true par défaut mais désactivable dans ai-code-sync.json, on pourra faire une section "exports")
+#7. Avoir un export project_files_fusioned.md (true par défaut mais désactivable dans ai-code-sync.json, on pourra faire une section "exports")
+#8. Tu m'avais dit ça un jour, ça voulait dire quoi pour toi ? Mise en Évidence de la Syntaxe: Ajouter la coloration syntaxique pour les fichiers et les diffs
+
+C'est trié par ordre de priorité: Svp ne parlons que d'un seul point à la fois à chaque fois. Essayons de le résoudre ensemble. Puis quand je te donnerai le "go", on pourra passer au prochain. Parlons donc du #0.
+
+----
+
+Quick Wins inspirés de RepomiX
+
+Interface Web Simple:
+Ajouter un visualiseur web basique pour le fichier de fusion, permettant de naviguer facilement entre les fichiers
+
+Prévisualisation des Diffs:
+Créer une interface pour prévisualiser les changements avant de les appliquer
+
+Explorer l'Arborescence du Projet:
+Ajouter une représentation visuelle de l'arborescence des fichiers du projet
+
+Intégration avec un Serveur Local:
+Option pour exécuter un serveur web local qui affiche le contenu fusionné
+
+Filtres Interactifs:
+Interface utilisateur pour filtrer les fichiers par extension, répertoire ou motif

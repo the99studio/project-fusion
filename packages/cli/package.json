@@ -1,0 +1,37 @@
+{
+  "name": "ai-code-sync",
+  "version": "0.0.1",
+  "description": "CLI for AICodeSync",
+  "main": "dist/cli.js",
+  "type": "module",
+  "bin": {
+    "ai-code-sync": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": [
+    "ai",
+    "code",
+    "sync",
+    "diff",
+    "fusion",
+    "cli"
+  ],
+  "author": "GagaPlayerOne",
+  "license": "MIT",
+  "dependencies": {
+    "ai-code-sync-core": "workspace:*",
+    "clipboardy": "^3.0.0",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "fs-extra": "^11.3.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.13.5",
+    "typescript": "^5.7.3"
+  }
+}
