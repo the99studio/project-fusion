@@ -1,6 +1,6 @@
-# AI Code Sync files
-/.ai-code-sync/
-ai-code-sync.json
+# Project Fusion files
+/.project-fusion/
+project-fusion.json
 
 # Credentials and environment variables
 .env

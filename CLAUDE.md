@@ -421,12 +421,9 @@ To enable this feature, update your configuration:
 - No automatic directory creation (directories must exist)
 
 ## Future Improvements (Planned)
-- VS Code extension integration
 - Dependency-based file inclusion
 - Binary file support
-- Web interface
 - Enhanced fusion formats (JSON, XML)
-- Integration with IDEs
 
 ## Debugging Tips
 - Check logs in `.project-fusion/fusion/fusion.log`
