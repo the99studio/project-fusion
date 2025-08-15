@@ -10,9 +10,6 @@ importers:
 
   packages/cli:
     dependencies:
-      ai-code-sync-core:
-        specifier: workspace:*
-        version: link:../core
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -25,6 +22,9 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      project-fusion-core:
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@types/fs-extra':
         specifier: ^11.0.4
