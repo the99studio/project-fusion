@@ -4,7 +4,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Fusion (All)",
+            "name": "Fusion (Default)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [],
             "console": "integratedTerminal",

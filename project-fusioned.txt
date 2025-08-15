@@ -1,77 +1,65 @@
 # Generated Project Fusion File
 # Project: project-fusion
-# @2025-08-15T18:47:45.719Z
-# Files: 12
+# @2025-08-15T20:17:46.923Z
+# Files: 13
 
 <!-- ============================================================ -->
 <!-- FILE: CLAUDE.md                                              -->
 <!-- ============================================================ -->
-# Project Fusion - Developer Guide
+# Project Fusion - AI Context
+
+> 📖 **For Human Development**: See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed development workflows, testing procedures, and npm publication guide.
 
 ## Project Overview
 Project Fusion merges multiple project files into a single file for easy sharing and collaboration.
 
-## Project Structure
+## Essential Architecture
+- **TypeScript 5.9.2** ESM project with strict type checking
+- **CLI tool** built with Commander.js that generates .txt and .md fusion files
+- **Configuration-driven** with Zod validation and default fallbacks
+- **Multi-format output** with syntax highlighting and filtering
+
+## Core Files Structure
 ```
-project-fusion/
-├── src/                        # Source code
-│   ├── cli.ts                  # CLI entry point (Commander.js)
-│   ├── clicommands.ts          # Command implementations
-│   ├── fusion.ts               # Core fusion functionality  
-│   ├── types.ts                # TypeScript definitions (branded types)
-│   ├── schema.ts               # Zod configuration schemas
-│   ├── utils.ts                # Utilities (file ops, config, logging)
-│   └── index.ts                # Main exports
-├── project-fusion.json         # Configuration file
-└── package.json                # Dependencies and scripts
+src/
+├── cli.ts              # CLI entry point
+├── clicommands.ts      # Command implementations  
+├── fusion.ts           # Core fusion logic
+├── types.ts            # Type definitions (branded types)
+├── schema.ts           # Zod validation schemas
+├── utils.ts            # File operations & utilities
+└── index.ts            # Main exports
 ```
 
-## Technology Stack
-- **TypeScript 5.9.2** (ES2022, NodeNext, strict mode)
-- **Node.js 18+**, **npm** package manager
-- **Zod 4.0.17** (schema validation), **Commander.js 14** (CLI)
-- **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**
-
-## Commands & Development
-
-### Development Commands
+## Key Commands
 ```bash
-npm install        # Install dependencies
-npm run build      # Build project
-npm run dev        # Watch mode compilation
-npm run typecheck  # Type checking
-npm run clean      # Clean artifacts
-npm link           # Link CLI globally
+npm run build           # Build TypeScript → JavaScript
+npm run typecheck       # Type checking only
+project-fusion init     # Initialize config
+project-fusion fusion   # Run fusion process
 ```
 
-### CLI Commands
-```bash
-project-fusion init     # Initialize configuration
-project-fusion fusion   # Create fusion file
-project-fusion --help   # Show help
-```
+## Testing Directory
+**⚠️ Important**: All testing and temporary files MUST be created in `temp/` directory at project root. This includes:
+- Package testing: `temp/package/`
+- File generation tests: `temp/test-files/`
+- Any temporary artifacts: `temp/artifacts/`
 
-### Development Workflow
-1. Clone repo → `npm install` → `npm run build` → `npm link`
-2. Edit `src/` files → `npm run build` → test with linked CLI
-3. Test in sample project: `project-fusion init` → `project-fusion fusion`
+The `temp/` directory is gitignored and safe for any testing activities.
 
 ## Configuration Schema
 ```typescript
 {
-  schemaVersion: number
-  fusion: {
-    fusion_file: string
-    fusion_log: string  
-    copyToClipboard?: boolean
-  }
+  schemaVersion: 1
+  fusion: { fusion_file: string, fusion_log: string, copyToClipboard: boolean }
   parsedFileExtensions: {
-    web: string[]      // .js, .ts, .tsx, .vue, etc.
-    backend: string[]  // .py, .go, .java, .rs, etc.
-    config: string[]   // .json, .yaml, .toml, etc.
-    cpp: string[]      // .c, .cpp, .h, .hpp
-    scripts: string[]  // .sh, .bat, .ps1
-    godot: string[]    // .gd, .tscn, .tres
+    web: string[]       // .js, .ts, .tsx, .vue, etc.
+    backend: string[]   // .py, .go, .java, .rs, etc. 
+    config: string[]    // .json, .yaml, .toml, etc.
+    cpp: string[]       // .c, .cpp, .h, .hpp
+    scripts: string[]   // .sh, .bat, .ps1
+    godot: string[]     // .gd, .tscn, .tres
+    doc: string[]       // .md, .rst, .adoc
   }
   parsing: { rootDirectory: string, parseSubDirectories: boolean }
   ignorePatterns: string[]
@@ -79,134 +67,212 @@ project-fusion --help   # Show help
 }
 ```
 
-## Fusion File Formats
+## Core Workflow
+1. Load `project-fusion.json` config with Zod validation
+2. Scan files by extensions, apply .gitignore + custom ignore patterns
+3. Generate dual output:
+   - `project-fusioned.txt` - Plain text with separators
+   - `project-fusioned.md` - Markdown with syntax highlighting + TOC
 
-### Plain Text Format (.txt)
-```
-# Generated Project Fusion File
-# Project: name @2025-01-15T10:30:00.000Z
-# Files: 5
+## Key Implementation Details
+- **Branded types** (FilePath) prevent string confusion
+- **Discriminated unions** (FusionResult) for type-safe error handling  
+- **ESM modules** with strict TypeScript
+- **Configuration fallbacks** - uses defaults if config missing/invalid
+
+## Quick Reference
+- **Add extensions**: Update `src/schema.ts` + `src/utils.ts` default config
+- **Add commands**: Register in `src/cli.ts`, implement in `src/clicommands.ts`
+- **Modify output**: Edit `src/fusion.ts` processing logic
 
 <!-- ============================================================ -->
-<!-- FILE: /src/component.tsx                                     -->
+<!-- FILE: DEVELOPMENT.md                                         -->
 <!-- ============================================================ -->
-[file content here]
+# Project Fusion - Development Guide
 
-<!-- ============================================================ -->
-<!-- FILE: /src/utils.ts                                          -->
-<!-- ============================================================ -->
-[file content here]
+> 📋 **For Claude AI Context**: See [CLAUDE.md](./CLAUDE.md) for essential project information needed for development assistance.
+
+## 🚀 Development Workflow
+
+### Initial Setup
+```bash
+git clone https://github.com/the99studio/project-fusion.git
+cd project-fusion
+npm install
+npm run build
 ```
 
-### Markdown Format (.md)
-```markdown
-# Generated Project Fusion File
-**Project:** name
-**Generated:** 2025-01-15T10:30:00.000Z
-**Files:** 5
+### Testing the CLI
+Use VS Code launch configurations (F5) for easy testing:
+- **"Fusion (Default)"** - Default behavior (runs fusion)
+- **"Fusion (Web)"** - Test web extensions only
+- **"Help"** - Test CLI help
+- **"Init"** - Test project initialization
 
-## 📁 Table of Contents
-- [/src/component.tsx](#src-component-tsx)
-- [/src/utils.ts](#src-utils-ts)
+### Testing with Real Package
+For testing as if it were the real published package, see the [NPM Package Testing](#-npm-package-management) section below.
 
-## 📄 /src/component.tsx
-```tsx
-[file content with syntax highlighting]
+## 📦 NPM Package Management
+
+### Pre-Publication Testing
+
+Use the **"Test NPM Package"** launch configuration in VS Code (F5) which automatically:
+- Builds the project
+- Creates and extracts test package to `temp/package/`
+- Installs dependencies and tests CLI functionality
+
+The test package is located at `temp/package/` after running the test.
+
+#### Manual Package Verification
+```bash
+# Preview what will be published
+npm pack --dry-run
+
+# Create test package (if not using VS Code)
+npm pack  # Creates project-fusion-x.x.x.tgz
 ```
 
-## 📄 /src/utils.ts
-```typescript
-[file content with syntax highlighting]
-```
+#### Testing with Real Package Installation
+```bash
+# Install the test package globally
+npm install -g ./temp/package/
+
+# Test commands (acts like real published package)
+project-fusion --help
+project-fusion --version
+project-fusion init
+project-fusion        # Default: runs fusion
+project-fusion fusion
+
+# Uninstall when done testing
+npm uninstall -g project-fusion
 ```
 
-## Architecture Patterns
+### Publication Process
+
+```bash
+# 1. Final verification
+npm pack --dry-run
+
+# 2. Simulate publication (verifies authentication, package validity)
+npm publish --dry-run
+
+# 3. Create npm account and login (first time only)
+# Visit https://www.npmjs.com/signup to create account
+npm login
+
+# 4. Publish to npm
+npm publish
+
+# 5. Verify publication
+npm view project-fusion
+```
+
+## 🛠️ Development Patterns
+
+### Adding New File Extensions
+1. Update `src/schema.ts` - add to `ParsedFileExtensionsSchema`
+2. Update default config in `src/utils.ts` 
+3. Test with various projects
+
+### Adding New CLI Commands
+1. Register command in `src/cli.ts` (Commander.js)
+2. Implement in `src/clicommands.ts`
+3. Update help text and documentation
+
+### Modifying Fusion Output
+1. Edit `src/fusion.ts` processing logic
+2. Update types in `src/types.ts` if needed
+3. Test both .txt and .md output formats
+
+## 🧪 Testing Strategy
+
+### Manual Testing Checklist
+- [ ] `npm run build` - clean build
+- [ ] `npm run typecheck` - no type errors
+- [ ] CLI help works: `project-fusion --help`
+- [ ] Init works: `project-fusion init`
+- [ ] Fusion works: `project-fusion fusion`
+- [ ] Extension filtering works
+- [ ] .gitignore integration works
+- [ ] Output files are properly formatted
+- [ ] Package builds and installs correctly
+
+### Test Projects
+Use these types of projects for testing:
+- **Node.js/TypeScript** (like this project)
+- **Python projects** (test backend extensions)
+- **React/Vue projects** (test web extensions)
+- **Mixed projects** (multiple extension types)
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Build Errors:**
+```bash
+npm run clean && npm run build
+```
+
+**CLI Not Working After Changes:**
+```bash
+npm run build && npm link
+```
+
+**Package Contains Wrong Files:**
+- Check `package.json` `files` field
+- Use `npm pack --dry-run` to verify
+
+**TypeScript Errors:**
+```bash
+npm run typecheck
+# Fix errors in src/ files
+```
+
+### Performance Optimization
+- Large projects: Use specific extension groups
+- Memory issues: Configure ignore patterns properly
+- Speed: Use `.gitignore` for filtering
+
+## 📁 Directory Structure
+
+```
+project-fusion/
+├── src/                    # TypeScript source
+│   ├── cli.ts             # CLI entry point
+│   ├── clicommands.ts     # Command implementations
+│   ├── fusion.ts          # Core fusion logic
+│   ├── types.ts           # Type definitions
+│   ├── schema.ts          # Zod schemas
+│   ├── utils.ts           # Utilities
+│   └── index.ts           # Main exports
+├── dist/                  # Compiled JavaScript (gitignored)
+├── temp/                  # Testing directory (gitignored)
+├── CLAUDE.md              # AI context (essential info)
+├── DEVELOPMENT.md         # This file (human development)
+├── package.json           # NPM configuration
+└── tsconfig.json          # TypeScript configuration
+```
+
+## 🔗 Important Files
+
+- **CLAUDE.md** - Essential project context for AI assistance
+- **package.json** - NPM package configuration and scripts
+- **tsconfig.json** - TypeScript compilation settings
+- **.gitignore** - Git ignore patterns (includes `temp/`)
+- **.vscode/launch.json** - VS Code debugging/testing configurations
+
+## 🏗️ Architecture Notes
+
 - **ESM modules** with NodeNext resolution
-- **Branded types** (FilePath, FileHash) for type safety
-- **Discriminated unions** for FusionResult (success/failure)
-- **Zod runtime validation**, **async/await throughout**
+- **Branded types** for type safety (FilePath)
+- **Discriminated unions** for results (success/failure)
+- **Zod runtime validation** for configuration
 - **Separation of concerns**: CLI ↔ core logic ↔ utilities
 
-## File Processing Flow
-1. Load `project-fusion.json` config (Zod validation)
-2. Scan directory by file extensions + apply ignore rules
-3. Process each file and extract content
-4. Generate two output formats:
-   - `project-fusioned.txt` - Plain text with HTML-style separators
-   - `project-fusioned.md` - Markdown with syntax highlighting and TOC
-5. Optionally copy to clipboard (disabled by default)
+---
 
-## Common Development Tasks
-
-### Add File Extension
-1. Update `src/schema.ts` parsedFileExtensions
-2. Update default config in `src/utils.ts`
-
-### Add CLI Command  
-1. Register in `src/cli.ts` (Commander.js)
-2. Implement in `src/clicommands.ts`
-
-### Modify Fusion Format
-1. Edit `src/fusion.ts` processing logic
-2. Update types in `src/types.ts`
-
-## Security & Ignore Patterns
-Configure ignore patterns directly in `project-fusion.json`:
-```json
-{
-  "ignorePatterns": [
-    ".env*",
-    "**/credentials/*",
-    "**/secrets/*",
-    "*.pem",
-    "*.key",
-    "package-lock.json"
-  ]
-}
-```
-
-## NPM Publication
-1. Update version in `package.json`
-2. `npm run build` → `npm pack --dry-run` → `npm publish`
-3. Published: `dist/` directory as `project-fusion` package
-
-## Features
-
-### Dual Output Formats
-- **Plain Text (.txt)**: Universal compatibility with clear separators
-- **Markdown (.md)**: Enhanced readability with:
-  - Syntax highlighting for 50+ file types
-  - Clickable table of contents
-  - Organized sections with icons
-  - Automatic language detection for code blocks
-
-### Smart File Processing
-- Ignores patterns from `.gitignore` (configurable)
-- Custom ignore patterns in `project-fusion.json`
-- Organized file extensions by category
-- Efficient filtering with detailed statistics
-
-## Recent Improvements (2025)
-### ✅ State-of-the-Art TypeScript
-- Branded types (FilePath), discriminated unions
-- `const assertions`, `satisfies` operator, ~95% type coverage
-- Zero `any` types, async `loadConfig()`, unified type definitions
-
-### ✅ Code Quality  
-- Dead code eliminated, TypeScript 5.9.2, Zod 4.0.17
-- All packages updated, zero warnings/errors
-
-## Performance & Limitations
-- **Large files**: Configure extensions/exclusions appropriately
-- **Memory**: File size limited by available memory
-- **Text only**: No binary file support
-- **Paths**: UTF-8 encoding, cross-platform path handling
-
-## Debugging Tips
-- Check `.project-fusion/fusion/fusion.log`
-- Verify config with Zod validation
-- Test with small file sets first
-- Use specific extension groups for large projects
+*For AI assistance, always refer to [CLAUDE.md](./CLAUDE.md) first for project context.*
 
 <!-- ============================================================ -->
 <!-- FILE: package.json                                           -->

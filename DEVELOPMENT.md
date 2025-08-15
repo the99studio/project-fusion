@@ -1,87 +1,60 @@
 # Project Fusion - Development Guide
 
-> 📋 **For AI Context**: See [CLAUDE.md](./CLAUDE.md) for essential project information needed for development assistance.
+> 📋 **For Claude AI Context**: See [CLAUDE.md](./CLAUDE.md) for essential project information needed for development assistance.
 
 ## 🚀 Development Workflow
 
 ### Initial Setup
 ```bash
-git clone <repository>
+git clone https://github.com/the99studio/project-fusion.git
 cd project-fusion
 npm install
 npm run build
-npm link  # Link CLI globally for testing
-```
-
-### Development Commands
-```bash
-npm install        # Install dependencies
-npm run build      # Build project (TypeScript → JavaScript)
-npm run dev        # Watch mode compilation
-npm run typecheck  # Type checking only
-npm run clean      # Clean build artifacts
-npm link           # Link CLI globally for testing
 ```
 
 ### Testing the CLI
-```bash
-# After npm link, test anywhere:
-project-fusion init
-project-fusion fusion
-project-fusion --help
-```
+Use VS Code launch configurations (F5) for easy testing:
+- **"Fusion (Default)"** - Default behavior (runs fusion)
+- **"Fusion (Web)"** - Test web extensions only
+- **"Help"** - Test CLI help
+- **"Init"** - Test project initialization
+
+### Testing with Real Package
+For testing as if it were the real published package, see the [NPM Package Testing](#-npm-package-management) section below.
 
 ## 📦 NPM Package Management
 
 ### Pre-Publication Testing
 
-**⚠️ Always use the `temp/` directory for testing:**
+Use the **"Test NPM Package"** launch configuration in VS Code (F5) which automatically:
+- Builds the project
+- Creates and extracts test package to `temp/package/`
+- Installs dependencies and tests CLI functionality
 
-#### 1. Check Package Contents
+#### Manual Package Verification
 ```bash
 # Preview what will be published
 npm pack --dry-run
 
-# Create actual test package
+# Create test package (if not using VS Code)
 npm pack  # Creates project-fusion-x.x.x.tgz
 ```
 
-#### 2. Extract and Test Package
+#### Testing with Real Package Installation
 ```bash
-# Extract to temp directory for inspection
-mkdir -p temp/package-test
-tar -xzf project-fusion-*.tgz -C temp/package-test
+# Install the test package globally
+npm install -g ./temp/package/
 
-# Test the extracted package
-cd temp/package-test/package
-npm install --production
-node dist/cli.js --help
-
-# Test fusion functionality
-node dist/cli.js init
-node dist/cli.js fusion
-```
-
-#### 3. Local Installation Test
-```bash
-# Install from tarball locally
-npm install ./project-fusion-*.tgz -g
-
-# Test globally installed CLI
-project-fusion --version
+# Test commands (acts like real published package)
 project-fusion --help
+project-fusion --version
+project-fusion init
+project-fusion        # Default: runs fusion
+project-fusion fusion
 
-# Clean up
+# Uninstall when done testing
 npm uninstall -g project-fusion
-rm -rf temp/package-test
-rm project-fusion-*.tgz
 ```
-
-#### 4. VS Code Configuration
-Use the "Test NPM Package" launch configuration in VS Code to automatically:
-- Build the project
-- Create test package in `temp/package/`
-- Extract and test functionality
 
 ### Publication Process
 
@@ -89,10 +62,11 @@ Use the "Test NPM Package" launch configuration in VS Code to automatically:
 # 1. Final verification
 npm pack --dry-run
 
-# 2. Optional: dry run publish
+# 2. Simulate publication (verifies authentication, package validity)
 npm publish --dry-run
 
-# 3. Login to npm (first time only)
+# 3. Create npm account and login (first time only)
+# Visit https://www.npmjs.com/signup to create account
 npm login
 
 # 4. Publish to npm
