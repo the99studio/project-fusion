@@ -187,6 +187,22 @@
                 "<node_internals>/**"
             ],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Tests",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "test"
+            ],
+            "program": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
