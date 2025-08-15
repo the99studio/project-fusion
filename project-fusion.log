@@ -1,8 +1,9 @@
 Status: Fusion completed successfully
-Start time: 2025-08-15T16:54:31.500Z
-End time: 2025-08-15T16:54:31.543Z
+Start time: 2025-08-15T16:56:03.403Z
+End time: 2025-08-15T16:56:03.446Z
 Duration: 0.04s
-Files processed successfully: 9
+Files found: 1269
+Files processed successfully: 9 (0.7% of total files)
 Files found but filtered out: 1260 (99.3% of total files)
 File extensions actually processed:
   .json

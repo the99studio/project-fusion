@@ -234,7 +234,8 @@ export async function processFusion(
         await writeLog(logFilePath, `End time: ${formatTimestamp(endTime)}`, true);
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
         
-        await writeLog(logFilePath, `Files processed successfully: ${fileInfos.length}`, true);
+        await writeLog(logFilePath, `Files found: ${originalFileCount}`, true);
+        await writeLog(logFilePath, `Files processed successfully: ${fileInfos.length} (${((fileInfos.length / originalFileCount) * 100).toFixed(1)}% of total files)`, true);
         await writeLog(logFilePath, `Files found but filtered out: ${originalFileCount - fileInfos.length} (${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}% of total files)`, true);
         
         await writeLog(logFilePath, `File extensions actually processed:`, true);

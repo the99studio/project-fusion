@@ -1,7 +1,7 @@
 # Generated Project Fusion File
 **Project:** project-fusion
 
-**Generated:** 2025-08-15T16:54:31.542Z
+**Generated:** 2025-08-15T16:56:03.445Z
 
 **Files:** 9
 
@@ -510,7 +510,8 @@ export async function processFusion(
         await writeLog(logFilePath, `End time: ${formatTimestamp(endTime)}`, true);
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
         
-        await writeLog(logFilePath, `Files processed successfully: ${fileInfos.length}`, true);
+        await writeLog(logFilePath, `Files found: ${originalFileCount}`, true);
+        await writeLog(logFilePath, `Files processed successfully: ${fileInfos.length} (${((fileInfos.length / originalFileCount) * 100).toFixed(1)}% of total files)`, true);
         await writeLog(logFilePath, `Files found but filtered out: ${originalFileCount - fileInfos.length} (${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}% of total files)`, true);
         
         await writeLog(logFilePath, `File extensions actually processed:`, true);
