@@ -11,6 +11,7 @@ Install Project Fusion globally with npm or pnpm:
 npm install -g project-fusion
 
 # Using pnpm
+npm install -g pnpm
 pnpm add -g project-fusion
 ```
 
