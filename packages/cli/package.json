@@ -41,10 +41,7 @@
         "chalk": "^5.4.1",
         "commander": "^13.1.0",
         "fs-extra": "^11.3.0",
-        "glob": "^11.0.1",
-        "ignore": "^7.0.3",
-        "uuid": "^11.1.0",
-        "zod": "^3.22.4"
+        "project-fusion-core": "workspace:*"
     },
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",
