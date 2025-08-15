@@ -1,4 +1,4 @@
---- Fusion Process Started (2025-08-15T15:11:06.297Z) ---
+--- Fusion Process Started (2025-08-15T15:14:55.887Z) ---
 Processing extensions: .cs, .go, .java, .php, .py, .rb, .rs, .json, .toml, .xml, .yaml, .yml, .c, .cc, .cpp, .h, .hpp, .bat, .cmd, .ps1, .sh, .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue, .gd, .cs, .tscn, .tres, .cfg, .import
 Found 9 files to process.
 Processed: tsconfig.json
@@ -11,7 +11,7 @@ Processed: src/fusion.ts
 Processed: src/clicommands.ts
 Processed: src/cli.ts
 Fusion completed successfully. 9 files processed.
---- Fusion Process Completed (2025-08-15T15:11:06.386Z) ---
+--- Fusion Process Completed (2025-08-15T15:14:55.977Z) ---
 Parsed extensions: .json, .ts
 Ignored extensions: .md
 
@@ -19,14 +19,14 @@ Ignored extensions: .md
 === FUSION SUMMARY ===
 Total extensions configured: 35
 Extensions by category:
-  cpp: .c, .cc, .cpp, .h, .hpp
-  scripts: .bat, .cmd, .ps1, .sh
+  backend: .cs, .go, .java, .php, .py, .rb, .rs
   config: .json, .toml, .xml, .yaml, .yml
+  scripts: .bat, .cmd, .ps1, .sh
   web: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
   godot: .gd, .cs, .tscn, .tres, .cfg, .import
+  cpp: .c, .cc, .cpp, .h, .hpp
 
 File discovery:
-  backend: .cs, .go, .java, .php, .py, .rb, .rs
   Pattern used: /Users/gaetanchantebien/Git/project-fusion/**/*@(.cs|.go|.java|.php|.py|.rb|.rs|.json|.toml|.xml|.yaml|.yml|.c|.cc|.cpp|.h|.hpp|.bat|.cmd|.ps1|.sh|.css|.html|.js|.jsx|.svelte|.ts|.tsx|.vue|.gd|.cs|.tscn|.tres|.cfg|.import)
   Files found before filtering: 1269
   Files after ignore filtering: 9
