@@ -2,21 +2,30 @@
     "name": "project-fusion",
     "version": "0.0.1",
     "description": "CLI tool for merging project files into a single file for easy sharing",
-    "main": "dist/cli.js",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "type": "module",
     "bin": {
         "project-fusion": "dist/cli.js"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
     },
     "files": [
         "dist/**/*",
         "README.md",
         "LICENSE"
     ],
+    "sideEffects": false,
     "scripts": {
         "build": "tsc",
         "dev": "tsc --watch",
         "clean": "rm -rf dist",
-        "test": "echo \"Error: no test specified\" && exit 0",
+        "test": "vitest",
         "typecheck": "tsc --noEmit",
         "prepublishOnly": "npm run clean && npm run build"
     },
@@ -54,6 +63,7 @@
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^24.2.1",
-        "typescript": "^5.9.2"
+        "typescript": "^5.9.2",
+        "vitest": "^2.1.6"
     }
 }

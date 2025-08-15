@@ -3,9 +3,11 @@
  * Command-line interface for Project Fusion
  */
 import { Command } from 'commander';
+import pkg from '../package.json' with { type: 'json' };
 import {
     runFusionCommand,
-    runInitCommand
+    runInitCommand,
+    runConfigCheckCommand
 } from './clicommands.js';
 
 const program = new Command();
@@ -13,7 +15,7 @@ const program = new Command();
 program
     .name('project-fusion')
     .description('Project Fusion - Efficient project file management and sharing')
-    .version('0.0.1', '-v, --version')
+    .version(pkg.version, '-v, --version')
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)');
 
@@ -31,6 +33,13 @@ program
     .option('--force', 'Force initialization even if configuration already exists')
     .action((options) => {
         runInitCommand(options);
+    });
+
+program
+    .command('config-check')
+    .description('Validate project-fusion.json and display active groups/extensions')
+    .action(() => {
+        runConfigCheckCommand();
     });
 
 // Default behavior: run fusion if no command specified
@@ -55,7 +64,7 @@ async function runDefaultCommand() {
 // Otherwise, run fusion by default for better UX
 const args = process.argv.slice(2);
 const hasKnownCommand = args.some(arg => 
-    ['init', 'fusion', '--help', '-h', '--version', '-v'].includes(arg)
+    ['init', 'fusion', 'config-check', '--help', '-h', '--version', '-v'].includes(arg)
 );
 
 if (hasKnownCommand) {

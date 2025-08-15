@@ -208,11 +208,11 @@ export function getExtensionsFromGroups(
 }
 
 /**
- * Map file extensions to markdown code block languages
- * @param extension File extension (e.g., '.ts', '.json')
+ * Map file extensions and basenames to markdown code block languages
+ * @param extensionOrBasename File extension (e.g., '.ts', '.json') or basename (e.g., 'Makefile', 'Dockerfile')
  * @returns Markdown language identifier or empty string for text
  */
-export function getMarkdownLanguage(extension: string): string {
+export function getMarkdownLanguage(extensionOrBasename: string): string {
     const languageMap: Record<string, string> = {
         // Web
         '.js': 'javascript',
@@ -296,8 +296,28 @@ export function getMarkdownLanguage(extension: string): string {
         '.proto': 'protobuf',
         '.graphql': 'graphql',
         '.gql': 'graphql',
+        
+        // Files without extensions (by basename)
+        'Dockerfile': 'dockerfile',
+        'dockerfile': 'dockerfile',
+        'Makefile': 'makefile',
+        'makefile': 'makefile',
+        'CMakeLists.txt': 'cmake',
+        'Rakefile': 'ruby',
+        'Gemfile': 'ruby',
+        'Vagrantfile': 'ruby',
+        'Jenkinsfile': 'groovy',
+        '.gitignore': 'text',
+        '.gitattributes': 'text',
+        '.htaccess': 'apache',
+        'nginx.conf': 'nginx',
+        'requirements.txt': 'text',
+        'Cargo.lock': 'toml',
+        'Cargo.toml': 'toml',
+        'go.mod': 'go',
+        'go.sum': 'text',
     };
     
-    const lang = languageMap[extension.toLowerCase()];
+    const lang = languageMap[extensionOrBasename.toLowerCase()] || languageMap[extensionOrBasename];
     return lang || 'text';  // Default to 'text' for unknown extensions
 }

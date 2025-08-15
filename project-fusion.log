@@ -1,10 +1,10 @@
 Status: Fusion completed successfully
-Start time: 2025-08-15T20:35:16.633Z
-End time: 2025-08-15T20:35:16.717Z
-Duration: 0.08s
-Files found: 1161
-Files processed successfully: 13 (1.1% of total files)
-Files found but filtered out: 1148 (98.9% of total files)
+Start time: 2025-08-15T21:50:49.371Z
+End time: 2025-08-15T21:50:49.484Z
+Duration: 0.11s
+Files found: 1733
+Files processed successfully: 19 (1.1% of total files)
+Files found but filtered out: 1714 (98.9% of total files)
 File extensions actually processed:
   .json
   .md

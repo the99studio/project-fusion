@@ -74,7 +74,8 @@ export async function processFusion(
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
 
         let filePaths = await glob(pattern, { 
-            nodir: true
+            nodir: true,
+            follow: false
         });
         const originalFileCount = filePaths.length;
         filePaths = filePaths.filter(file => {
@@ -111,7 +112,7 @@ export async function processFusion(
 
         // Discover all file extensions in the project for reporting
         const allFilesPattern = parsing.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
-        const allFiles = await glob(allFilesPattern, { nodir: true });
+        const allFiles = await glob(allFilesPattern, { nodir: true, follow: false });
 
         const allConfiguredExtensions = Object.values(config.parsedFileExtensions).flat();
         const configuredExtensionSet = new Set(allConfiguredExtensions);
@@ -184,7 +185,8 @@ export async function processFusion(
         
         for (const fileInfo of fileInfos) {
             const fileExt = path.extname(fileInfo.path).toLowerCase();
-            const language = getMarkdownLanguage(fileExt);
+            const basename = path.basename(fileInfo.path);
+            const language = getMarkdownLanguage(fileExt || basename);
             
             mdContent += `## 📄 ${fileInfo.path}\n\n`;
             mdContent += `\`\`\`${language}\n`;
