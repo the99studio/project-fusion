@@ -1,0 +1,41 @@
+--- Fusion Process Started (2025-08-15T15:11:06.297Z) ---
+Processing extensions: .cs, .go, .java, .php, .py, .rb, .rs, .json, .toml, .xml, .yaml, .yml, .c, .cc, .cpp, .h, .hpp, .bat, .cmd, .ps1, .sh, .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue, .gd, .cs, .tscn, .tres, .cfg, .import
+Found 9 files to process.
+Processed: tsconfig.json
+Processed: package.json
+Processed: src/utils.ts
+Processed: src/types.ts
+Processed: src/schema.ts
+Processed: src/index.ts
+Processed: src/fusion.ts
+Processed: src/clicommands.ts
+Processed: src/cli.ts
+Fusion completed successfully. 9 files processed.
+--- Fusion Process Completed (2025-08-15T15:11:06.386Z) ---
+Parsed extensions: .json, .ts
+Ignored extensions: .md
+
+
+=== FUSION SUMMARY ===
+Total extensions configured: 35
+Extensions by category:
+  cpp: .c, .cc, .cpp, .h, .hpp
+  scripts: .bat, .cmd, .ps1, .sh
+  config: .json, .toml, .xml, .yaml, .yml
+  web: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
+  godot: .gd, .cs, .tscn, .tres, .cfg, .import
+
+File discovery:
+  backend: .cs, .go, .java, .php, .py, .rb, .rs
+  Pattern used: /Users/gaetanchantebien/Git/project-fusion/**/*@(.cs|.go|.java|.php|.py|.rb|.rs|.json|.toml|.xml|.yaml|.yml|.c|.cc|.cpp|.h|.hpp|.bat|.cmd|.ps1|.sh|.css|.html|.js|.jsx|.svelte|.ts|.tsx|.vue|.gd|.cs|.tscn|.tres|.cfg|.import)
+  Files found before filtering: 1269
+  Files after ignore filtering: 9
+  Filtering efficiency: 99.3% files filtered out
+
+Configuration used:
+  Root directory: /Users/gaetanchantebien/Git/project-fusion
+  Parse subdirectories: true
+  Use .gitignore: true
+  Ignore patterns count: 26
+======================
+

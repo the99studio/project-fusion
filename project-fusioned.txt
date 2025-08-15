@@ -1,29 +1,11 @@
 # Generated Project Fusion File
-**Project:** project-fusion
+# Project: project-fusion
+# @2025-08-15T15:11:06.385Z
+# Files: 9
 
-**Generated:** 2025-08-15T15:11:06.385Z
-
-**Files:** 9
-
----
-
-## 📁 Table of Contents
-
-- [package.json](#package-json)
-- [src/cli.ts](#src-cli-ts)
-- [src/clicommands.ts](#src-clicommands-ts)
-- [src/fusion.ts](#src-fusion-ts)
-- [src/index.ts](#src-index-ts)
-- [src/schema.ts](#src-schema-ts)
-- [src/types.ts](#src-types-ts)
-- [src/utils.ts](#src-utils-ts)
-- [tsconfig.json](#tsconfig-json)
-
----
-
-## 📄 package.json
-
-```json
+<!-- ============================================================ -->
+<!-- FILE: package.json                                           -->
+<!-- ============================================================ -->
 {
     "name": "project-fusion",
     "version": "0.0.1",
@@ -85,11 +67,10 @@
         "typescript": "^5.9.2"
     }
 }
-```
 
-## 📄 src/cli.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/cli.ts                                             -->
+<!-- ============================================================ -->
 #!/usr/bin/env node
 /**
  * Command-line interface for Project Fusion
@@ -160,11 +141,10 @@ if (hasKnownCommand) {
     // Use default fusion behavior
     await runDefaultCommand();
 }
-```
 
-## 📄 src/clicommands.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/clicommands.ts                                     -->
+<!-- ============================================================ -->
 /**
  * CLI commands implementation
  */
@@ -269,11 +249,10 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
         process.exit(1);
     }
 }
-```
 
-## 📄 src/fusion.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/fusion.ts                                          -->
+<!-- ============================================================ -->
 /**
  * Fusion functionality
  */
@@ -558,11 +537,10 @@ export async function processFusion(
         }
     }
 }
-```
 
-## 📄 src/index.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/index.ts                                           -->
+<!-- ============================================================ -->
 /**
  * Entry point for Project Fusion
  */
@@ -579,11 +557,10 @@ export * from './utils.js';
 // Export fusion functionality
 export { processFusion } from './fusion.js';
 
-```
 
-## 📄 src/schema.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/schema.ts                                          -->
+<!-- ============================================================ -->
 /**
  * Configuration schema definitions for Project Fusion
  */
@@ -640,11 +617,10 @@ export const ConfigSchemaV1 = z.object({
 
 // Type inferred from the schema
 export type ConfigV1 = z.infer<typeof ConfigSchemaV1>;
-```
 
-## 📄 src/types.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/types.ts                                           -->
+<!-- ============================================================ -->
 /**
  * Type definitions for the fusion functionality
  */
@@ -714,11 +690,10 @@ export type FusionResult =
         logFilePath?: FilePath;
         error?: Error;
     };
-```
 
-## 📄 src/utils.ts
-
-```typescript
+<!-- ============================================================ -->
+<!-- FILE: src/utils.ts                                           -->
+<!-- ============================================================ -->
 /**
  * Utilities for Project Fusion
  */
@@ -1049,11 +1024,10 @@ export function getMarkdownLanguage(extension: string): string {
     const lang = languageMap[extension.toLowerCase()];
     return lang || 'text';  // Default to 'text' for unknown extensions
 }
-```
 
-## 📄 tsconfig.json
-
-```json
+<!-- ============================================================ -->
+<!-- FILE: tsconfig.json                                          -->
+<!-- ============================================================ -->
 {
     "compilerOptions": {
         "target": "ES2022",
@@ -1071,5 +1045,4 @@ export function getMarkdownLanguage(extension: string): string {
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]
 }
-```
 
