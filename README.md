@@ -1,6 +1,6 @@
 # Project Fusion
 
-Project Fusion enables efficient project file management and sharing with AI assistants. It allows merging multiple files into a single file and applying changes using unified diff format.
+Project Fusion enables efficient project file management and sharing with AI assistants. It merges multiple project files into a single file for easy sharing and collaboration.
 
 ## Installation
 
@@ -28,18 +28,12 @@ pnpm add -g project-fusion
    ```
    This creates `.project-fusion/fusion/project_files_fusioned.txt`
 
-3. **Share the fusion file** with your AI assistant
-
-4. **Apply changes** from the AI's response:
-   ```bash
-   project-fusion applydiff
-   ```
+3. **Share the fusion file** with your AI assistant for collaboration
 
 ## Commands
 
 - `project-fusion init` - Initialize Project Fusion in current directory
 - `project-fusion fusion` - Create fusion file from project files
-- `project-fusion applydiff` - Apply AI-generated changes to project
 - `project-fusion --help` - Show help information
 
 ## Documentation
@@ -53,28 +47,16 @@ pnpm add -g project-fusion
 When sharing your code with an AI assistant:
 
 1. Run `project-fusion fusion` to create a merged file
-2. Share the generated file with your AI assistant using this prompt:
+2. Share the generated fusion file with your AI assistant
+3. Use the fusion file for code review, analysis, or collaboration
 
-```
-I'm sharing my project as a fusion file. Please respond with changes using the unified diff format:
-
-### /path/to/file.ext
-# Hash: [file_hash]
---- a/path/to/file.ext
-+++ b/path/to/file.ext
-@@ -line,count +line,count @@
-[diff content]
-```
-
-3. Copy the AI's response to `.project-fusion/applydiff/project_files_diff.txt`
-4. Run `project-fusion applydiff` to apply the changes
+The fusion file contains all your project files in a single, organized format that's easy for AI assistants to understand and work with.
 
 ## Configuration
 
 Project Fusion creates a `project-fusion.json` configuration file when you run `init`. You can customize:
 - File extensions to include
 - Directories to scan or ignore  
-- AI attribution settings
 - Output directories
 
 ## Distribution

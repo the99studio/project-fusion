@@ -8,9 +8,7 @@ import clipboardy from 'clipboardy';
 import { 
   loadConfig, 
   processFusion,
-  FusionOptions,
-  processApplyDiff,
-  ApplyDiffOptions
+  FusionOptions
 } from './core.js';
 import { 
   defaultConfig,
@@ -73,46 +71,6 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
   }
 }
 
-/**
- * Run the applydiff command
- * @param options Command options
- */
-export async function runApplyDiffCommand(options: { skipHashValidation?: boolean }): Promise<void> {
-  try {
-    console.log(chalk.blue('🔄 Starting Apply Diff Process...'));
-    
-    // Load config
-    const config = await loadConfig();
-    
-    // Run apply diff
-    const applyDiffOptions: ApplyDiffOptions = { 
-      skipHashValidation: options.skipHashValidation
-    };
-    
-    const result = await processApplyDiff(config, applyDiffOptions);
-    
-    if (result.success) {
-      console.log(chalk.green(`✅ ${result.message}`));
-      
-      if (result.changedFiles && result.changedFiles.length > 0) {
-        console.log(chalk.blue(`Changed files (${result.changedFiles.length}):`));
-        result.changedFiles.forEach(file => {
-          console.log(chalk.cyan(`  - ${file}`));
-        });
-      }
-      
-      console.log(chalk.gray(`📝 Log file available at: ${result.logFilePath}`));
-    } else {
-      console.log(chalk.red(`❌ ${result.message}`));
-      if (result.logFilePath) {
-        console.log(chalk.gray(`📝 Check log file for details: ${result.logFilePath}`));
-      }
-    }
-  } catch (error) {
-    console.error(chalk.red(`❌ Apply diff process failed: ${error}`));
-    process.exit(1);
-  }
-}
 
 /**
  * Run the init command to initialize the config
@@ -164,38 +122,6 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
     
     // Create directory structure
     await fs.ensureDir('./.project-fusion/fusion');
-    await fs.ensureDir('./.project-fusion/applydiff');
-    
-    // Create example diff file
-    const exampleDiffPath = path.join('./.project-fusion/applydiff', 'project_files_diff.txt.example');
-    const exampleDiffContent = `### /components/Button.tsx
-# Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
---- a/components/Button.tsx
-+++ b/components/Button.tsx
-@@ -1,3 +1,3 @@
--old button code
-+new button code
- unchanged line
--another old line
-+another new line
-
-### /components/Card.tsx [RENAME] /components/NewCard.tsx
-# Hash: f8c3bf28b236ed1d3644dd5b66728c3413679c7e6efcb2a79da143e9c6bb19d0
---- a/components/Card.tsx
-+++ b/components/NewCard.tsx
-@@ -1,2 +1,2 @@
--old card code
-+new card code
- unchanged line
-
-### /components/Header.tsx [NEW]
-export const Header = () => {
-  return <header>New Component</header>;
-};
-
-### /components/Footer.tsx [DELETE]
-`;
-    await fs.writeFile(exampleDiffPath, exampleDiffContent);
     
     // Create .projectfusionignore if it doesn't exist
     const ignoreFilePath = path.resolve('./.projectfusionignore');
@@ -207,8 +133,6 @@ export const Header = () => {
     console.log(chalk.blue('📁 Created:'));
     console.log(chalk.cyan('  - ./project-fusion.json'));
     console.log(chalk.cyan('  - ./.project-fusion/fusion/'));
-    console.log(chalk.cyan('  - ./.project-fusion/applydiff/'));
-    console.log(chalk.cyan('  - ./.project-fusion/applydiff/project_files_diff.txt.example'));
     console.log(chalk.cyan('  - ./.projectfusionignore'));
     
     console.log(chalk.blue('\n📝 Next steps:'));

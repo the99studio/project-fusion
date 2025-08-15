@@ -6,7 +6,6 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { 
   runFusionCommand, 
-  runApplyDiffCommand,
   runInitCommand 
 } from './clicommands.js';
 
@@ -26,15 +25,6 @@ program
   .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
   .action((options) => {
     runFusionCommand(options);
-  });
-
-// Apply diff command
-program
-  .command('applydiff')
-  .description('Apply changes from a diff file to the project')
-  .option('--skip-hash-validation', 'Skip file hash validation before applying changes')
-  .action((options) => {
-    runApplyDiffCommand(options);
   });
 
 // Init command

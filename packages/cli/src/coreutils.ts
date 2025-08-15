@@ -8,24 +8,9 @@ import { ConfigSchemaV1 } from './schema.js';
 import crypto from 'crypto';
 
 /**
- * Configuration for AI attribution
- */
-export interface AIAttributionConfig {
-  enabled: boolean;
-  commentBegin: string;
-  commentEnd: string;
-}
-
-/**
  * Main configuration interface
  */
 export interface Config {
-  aiAttribution: AIAttributionConfig;
-  applydiff: {
-    applydiff_log: string;
-    diff_file: string;
-    directory: string;
-  };
   fusion: {
     directory: string;
     fusion_file: string;
@@ -53,16 +38,6 @@ export interface Config {
  * Default configuration for Project Fusion
  */
 export const defaultConfig: Config = {
-  aiAttribution: {
-    commentBegin: "BEGIN - AI Generated @[timestamp] by [AIName] GUID=[Guid]",
-    commentEnd: "END - AI Generated GUID=[Guid]",
-    enabled: true
-  },
-  applydiff: {
-    applydiff_log: "apply_diff.log",
-    diff_file: "project_files_diff.txt",
-    directory: "./.project-fusion/applydiff"
-  },
   fusion: {
     directory: "./.project-fusion/fusion",
     fusion_file: "project_files_fusioned.txt",

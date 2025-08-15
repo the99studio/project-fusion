@@ -4,24 +4,6 @@
 import { z } from 'zod';
 
 /**
- * Schema for AI attribution configuration
- */
-export const AIAttributionSchema = z.object({
-  enabled: z.boolean(),
-  commentBegin: z.string(),
-  commentEnd: z.string(),
-});
-
-/**
- * Schema for apply diff configuration
- */
-export const ApplyDiffConfigSchema = z.object({
-  applydiff_log: z.string(),
-  diff_file: z.string(),
-  directory: z.string(),
-});
-
-/**
  * Schema for fusion configuration
  */
 export const FusionConfigSchema = z.object({
@@ -59,8 +41,6 @@ export const ConfigSchemaV1 = z.object({
   schemaVersion: z.literal(1),
   
   // Core configuration sections
-  aiAttribution: AIAttributionSchema,
-  applydiff: ApplyDiffConfigSchema,
   fusion: FusionConfigSchema,
   parsedFileExtensions: ParsedFileExtensionsSchema,
   parsing: ParsingConfigSchema,

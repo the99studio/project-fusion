@@ -1,7 +1,7 @@
 {
     "name": "project-fusion",
     "version": "0.0.1",
-    "description": "Tool for efficient project file management and sharing with AI assistants",
+    "description": "Tool for merging project files into a single file for AI collaboration",
     "private": true,
     "scripts": {
       "build": "pnpm --filter \"./packages/**\" build",

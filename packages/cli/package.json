@@ -1,7 +1,7 @@
 {
   "name": "project-fusion",
   "version": "0.0.1",
-  "description": "CLI for Project Fusion",
+  "description": "CLI tool for merging project files into a single file for AI collaboration",
   "main": "dist/cli.js",
   "type": "module",
   "bin": {

@@ -1,7 +1,7 @@
 # Project Fusion - Developer Guide for AI Assistants
 
 ## Project Overview
-Project Fusion is a tool for efficient project file management and sharing with AI assistants. It enables merging multiple files into a single file and applying changes using unified diff format.
+Project Fusion is a tool for efficient project file management and sharing with AI assistants. It merges multiple project files into a single file for easy sharing and collaboration.
 
 ## Project Structure
 ```
@@ -25,8 +25,7 @@ project-fusion/
 │       │   └── schema.ts       # Configuration schemas
 │       └── package.json
 ├── .project-fusion/            # Generated files (git-ignored)
-│   ├── fusion/                 # Fusion output
-│   └── applydiff/              # Diff files
+│   └── fusion/                 # Fusion output
 ├── project-fusion.json         # Configuration file
 ├── pnpm-workspace.yaml         # Workspace configuration
 └── tsconfig.base.json          # Base TypeScript config
@@ -61,7 +60,6 @@ pnpm clean        # Clean build artifacts
 ```bash
 project-fusion init        # Initialize project configuration
 project-fusion fusion      # Create fusion file from project
-project-fusion applydiff   # Apply diff file to project
 project-fusion --help      # Show help
 ```
 
@@ -107,31 +105,13 @@ export const helper = () => {
 };
 ```
 
-### AI Response Format
-When AI assistants respond with changes, they should use unified diff format:
-
-```
-### /src/components/Button.tsx
-# Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
---- a/src/components/Button.tsx
-+++ b/src/components/Button.tsx
-@@ -1,5 +1,6 @@
- import React from 'react';
-+import { useState } from 'react';
- 
--export const Button = () => {
--  return <button>Click me</button>;
-+export const Button = ({ onClick }) => {
-+  const [clicked, setClicked] = useState(false);
-+  return <button onClick={onClick}>Click me</button>;
- };
-```
-
-### File Operations
-- **Modified**: Use unified diff format as shown above
-- **New**: `### /path/to/file.tsx [NEW]` followed by full content
-- **Deleted**: `### /path/to/file.tsx [DELETE]`
-- **Renamed**: `### /old/path.tsx [RENAME] /new/path.tsx` with diff content
+### Using the Fusion File
+The fusion file can be used with AI assistants for:
+- Code review and analysis
+- Understanding project structure
+- Getting help with specific functionality
+- Documentation generation
+- Code suggestions and improvements
 
 ## Configuration Schema
 The project uses Zod for schema validation. Configuration is stored in `project-fusion.json`:
@@ -139,21 +119,11 @@ The project uses Zod for schema validation. Configuration is stored in `project-
 ```typescript
 {
   schemaVersion: number              // Config version
-  aiAttribution: {                   // AI code attribution
-    enabled: boolean
-    commentBegin: string
-    commentEnd: string
-  }
   fusion: {                          // Fusion settings
     directory: string
     fusion_file: string
     fusion_log: string
     copyToClipboard?: boolean
-  }
-  applydiff: {                       // Apply diff settings
-    directory: string
-    diff_file: string
-    applydiff_log: string
   }
   parsedFileExtensions: {            // File types to process
     web: string[]
@@ -175,13 +145,12 @@ The project uses Zod for schema validation. Configuration is stored in `project-
 
 ### Core Module (`packages/core`)
 - **corefusion.ts**: Handles file fusion process
-- **coreapplydiff.ts**: Applies unified diffs to files
 - **coreutils.ts**: Shared utilities (file operations, config management)
 - **schema.ts**: Zod schemas for configuration validation
 
 ### CLI Module (`packages/cli`)
 - **cli.ts**: Entry point, command registration
-- **clicommands.ts**: Command implementations (init, fusion, applydiff)
+- **clicommands.ts**: Command implementations (init, fusion)
 
 ## Architecture Patterns
 - **Monorepo Structure**: Using pnpm workspaces for package management
@@ -201,26 +170,17 @@ The project uses Zod for schema validation. Configuration is stored in `project-
 6. Write to `.project-fusion/fusion/project_files_fusioned.txt`
 7. Optionally copy to clipboard
 
-### Apply Diff Process
-1. Read diff file from `.project-fusion/applydiff/project_files_diff.txt`
-2. Parse unified diff format
-3. Handle operations: NEW, DELETE, RENAME, MODIFY
-4. Apply AI attribution if enabled
-5. Write changes to project files
-6. Log results to apply_diff.log
-
 ## Important Conventions
 - Use absolute paths internally
 - Preserve file encoding (UTF-8)
 - Generate SHA-256 hashes for file tracking
-- Support unified diff format (git-style)
 - Handle Windows and Unix path separators
 
 ## Error Handling
 - Configuration validation with Zod
 - File system error handling with fs-extra
 - Graceful failures with detailed error messages
-- Logging to fusion_log and applydiff_log files
+- Logging to fusion_log files
 
 ## Security Considerations
 - Respect .gitignore and .projectfusionignore files
@@ -252,6 +212,11 @@ When making changes:
 1. Add command in `packages/cli/src/cli.ts`
 2. Implement in `packages/cli/src/clicommands.ts`
 3. Update help text and documentation
+
+### Modifying Fusion Output Format
+1. Edit `packages/core/src/fusion/corefusion.ts`
+2. Update types in `corefusiontypes.ts`
+3. Test with sample files
 
 ## Dependencies to Note
 - **Node.js 18+**: Required for ES2022 features
@@ -331,7 +296,6 @@ When making changes:
    project-fusion --help
    project-fusion init
    project-fusion fusion
-   project-fusion applydiff
    ```
 
 ### Testing in a Sample Project
@@ -352,12 +316,7 @@ When making changes:
    project-fusion fusion
    ```
 
-4. Manually modify the generated diff file or create a test diff file
-
-5. Apply the changes:
-   ```bash
-   project-fusion applydiff
-   ```
+4. Verify the generated fusion file in `.project-fusion/fusion/`
 
 ### Useful Development Commands
 
@@ -456,24 +415,22 @@ To enable this feature, update your configuration:
 - **Use the `--extensions` parameter**: Focus only on relevant file types for your current task.
 
 ## Known Limitations
-- No automatic conflict resolution
 - No binary file support
 - No special character handling in file paths
 - Maximum file size depends on available memory
-- Requires manual copying of diff file to input directory
 - No automatic directory creation (directories must exist)
 
 ## Future Improvements (Planned)
 - VS Code extension integration
 - Direct AI assistant API integration
 - Dependency-based file inclusion
-- Conflict resolution mechanisms
 - Binary file support
 - Web interface
+- Enhanced fusion formats (JSON, XML)
 
 ## Debugging Tips
 - Check logs in `.project-fusion/fusion/fusion.log`
 - Verify configuration with schema validation
 - Use `--verbose` flag (when implemented)
 - Test with small file sets first
-- Validate diff format before applying
+- Verify fusion file output format
