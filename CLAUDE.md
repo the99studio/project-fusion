@@ -72,18 +72,45 @@ project-fusion --help   # Show help
 }
 ```
 
-## Fusion File Format
+## Fusion File Formats
+
+### Plain Text Format (.txt)
 ```
 # Generated Project Fusion File
-# Project: name @2025-01-15T10:30:00.000Z Files: 5
+# Project: name @2025-01-15T10:30:00.000Z
+# Files: 5
 
-### /src/component.tsx
-# Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+<!-- ============================================================ -->
+<!-- FILE: /src/component.tsx                                     -->
+<!-- ============================================================ -->
 [file content here]
 
-### /src/utils.ts  
-# Hash: f8c3bf28b236ed1d3644dd5b66728c3413679c7e6efcb2a79da143e9c6bb19d0
+<!-- ============================================================ -->
+<!-- FILE: /src/utils.ts                                          -->
+<!-- ============================================================ -->
 [file content here]
+```
+
+### Markdown Format (.md)
+```markdown
+# Generated Project Fusion File
+**Project:** name
+**Generated:** 2025-01-15T10:30:00.000Z
+**Files:** 5
+
+## 📁 Table of Contents
+- [/src/component.tsx](#src-component-tsx)
+- [/src/utils.ts](#src-utils-ts)
+
+## 📄 /src/component.tsx
+```tsx
+[file content with syntax highlighting]
+```
+
+## 📄 /src/utils.ts
+```typescript
+[file content with syntax highlighting]
+```
 ```
 
 ## Architecture Patterns
@@ -96,9 +123,11 @@ project-fusion --help   # Show help
 ## File Processing Flow
 1. Load `project-fusion.json` config (Zod validation)
 2. Scan directory by file extensions + apply ignore rules
-3. Generate SHA-256 hash per file + combine into fusion format
-4. Write to `.project-fusion/fusion/project_files_fusioned.txt`
-5. Optionally copy to clipboard
+3. Process each file and extract content
+4. Generate two output formats:
+   - `project-fusioned.txt` - Plain text with HTML-style separators
+   - `project-fusioned.md` - Markdown with syntax highlighting and TOC
+5. Optionally copy to clipboard (disabled by default)
 
 ## Common Development Tasks
 
@@ -132,9 +161,25 @@ Enable: `"useProjectFusionIgnoreForExcludes": true`
 2. `pnpm build` → `npm pack --dry-run` → `npm publish`
 3. Published: `dist/` directory as `project-fusion` package
 
+## Features
+
+### Dual Output Formats
+- **Plain Text (.txt)**: Universal compatibility with clear separators
+- **Markdown (.md)**: Enhanced readability with:
+  - Syntax highlighting for 50+ file types
+  - Clickable table of contents
+  - Organized sections with icons
+  - Automatic language detection for code blocks
+
+### Smart File Processing
+- Ignores patterns from `.gitignore` (configurable)
+- Custom ignore patterns in `project-fusion.json`
+- Organized file extensions by category
+- Efficient filtering with detailed statistics
+
 ## Recent Improvements (2025)
 ### ✅ State-of-the-Art TypeScript
-- Branded types (FilePath, FileHash), discriminated unions
+- Branded types (FilePath), discriminated unions
 - `const assertions`, `satisfies` operator, ~95% type coverage
 - Zero `any` types, async `loadConfig()`, unified type definitions
 
