@@ -8,7 +8,6 @@ import path from 'path';
 import {
     Config,
     calculateHash,
-    defaultProjectFusionIgnoreContent,
     ensureDirectoryExists,
     formatTimestamp,
     getExtensionsFromGroups,
@@ -34,11 +33,8 @@ export async function processFusion(
 ): Promise<FusionResult> {
     try {
         const { fusion, parsing } = config;
-        const logFilePath = path.join(fusion.directory, fusion.fusion_log);
-        const fusionFilePath = path.join(fusion.directory, fusion.fusion_file);
-
-        // Ensure directories exist
-        await ensureDirectoryExists(fusion.directory);
+        const logFilePath = path.resolve(fusion.fusion_log);
+        const fusionFilePath = path.resolve(fusion.fusion_file);
 
         // Clear previous log
         await writeLog(logFilePath, `--- Fusion Process Started (${formatTimestamp()}) ---`);
@@ -68,17 +64,13 @@ export async function processFusion(
             }
         }
 
-        // Get .projectfusionignore patterns if enabled
-        if (config.useProjectFusionIgnoreForExcludes) {
-            const projectFusionIgnorePath = path.join(rootDir, '.projectfusionignore');
-            if (await fs.pathExists(projectFusionIgnorePath)) {
-                const projectFusionIgnoreContent = await fs.readFile(projectFusionIgnorePath, 'utf8');
-                ig.add(projectFusionIgnoreContent);
-            }
-            else {
-                console.warn(`Ignore file not found at ${projectFusionIgnorePath}, using default value.`);
-                ig.add(defaultProjectFusionIgnoreContent);
-            }
+        // Add ignore patterns from config
+        if (config.ignorePatterns && config.ignorePatterns.length > 0) {
+            // Filter out comments and empty lines, then add to ignore
+            const patterns = config.ignorePatterns
+                .filter(pattern => pattern.trim() !== '' && !pattern.startsWith('#'))
+                .join('\n');
+            ig.add(patterns);
         }
 
         // Find all files with matching extensions
@@ -213,7 +205,7 @@ export async function processFusion(
         console.error(errorMessage);
 
         try {
-            const logFilePath = path.join(config.fusion.directory, config.fusion.fusion_log);
+            const logFilePath = path.resolve(config.fusion.fusion_log);
             await writeLog(logFilePath, errorMessage, true);
             await writeLog(logFilePath, `--- Fusion Process Failed (${formatTimestamp()}) ---`, true);
 

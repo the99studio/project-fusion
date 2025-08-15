@@ -14,12 +14,7 @@ const program = new Command();
 program
     .name('project-fusion')
     .description('Project Fusion - Efficient project file management and sharing')
-    .version('0.0.1', '-v, --version');
-
-// Fusion command
-program
-    .command('fusion')
-    .description('Merge project files into a single file for easy sharing')
+    .version('0.0.1', '-v, --version')
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
     .action((options) => {
@@ -35,9 +30,25 @@ program
         runInitCommand(options);
     });
 
-// Display help if no args provided
-if (process.argv.length < 3) {
-    program.outputHelp();
+// Run fusion by default if no command specified
+if (process.argv.length < 3 || (!process.argv.includes('init') && !process.argv.includes('--help') && !process.argv.includes('-h') && !process.argv.includes('--version') && !process.argv.includes('-v'))) {
+    // If no arguments or only options, run fusion
+    const args = process.argv.slice(2);
+    if (args.length === 0 || args.every(arg => arg.startsWith('--'))) {
+        const options: any = {};
+        // Parse any options that might be present
+        for (let i = 0; i < args.length; i++) {
+            if (args[i] === '--extensions' && args[i + 1]) {
+                options.extensions = args[i + 1];
+                i++;
+            } else if (args[i] === '--root' && args[i + 1]) {
+                options.root = args[i + 1];
+                i++;
+            }
+        }
+        runFusionCommand(options);
+        process.exit(0);
+    }
 }
 
 // Parse command line arguments

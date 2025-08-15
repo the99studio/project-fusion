@@ -11,8 +11,7 @@ import {
     processFusion
 } from './core.js';
 import {
-    defaultConfig,
-    defaultProjectFusionIgnoreContent
+    defaultConfig
 } from './coreutils.js';
 
 /**
@@ -91,53 +90,16 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
             }
         }
 
-        // Check if ignore file already exists
-        const projectFusionIgnorePath = path.resolve('./.projectfusionignore');
-        if (await fs.pathExists(projectFusionIgnorePath)) {
-            if (!options.force) {
-                console.log(chalk.yellow('⚠️ .projectfusionignore file already exists.'));
-                console.log(chalk.yellow('Use --force to override or delete .projectfusionignore and run init again.'));
-                process.exit(1);
-            } else {
-                console.log(chalk.yellow('⚠️ Overriding existing configuration file with --force option.'));
-            }
-        }
-
-        // Check if .project-fusion directory exists
-        const projectFusionDir = path.resolve('./.project-fusion');
-        if (await fs.pathExists(projectFusionDir)) {
-            if (!options.force) {
-                console.log(chalk.yellow('⚠️ The .project-fusion directory already exists.'));
-                console.log(chalk.yellow('Use --force to override or delete the directory and run init again.'));
-                process.exit(1);
-            } else {
-                console.log(chalk.yellow('⚠️ Using existing .project-fusion directory with --force option.'));
-                // Clean up directory contents but keep the directory
-                await fs.emptyDir(projectFusionDir);
-            }
-        }
-
         // Create default config
-        await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
-
-        // Create directory structure
-        await fs.ensureDir('./.project-fusion/fusion');
-
-        // Create .projectfusionignore if it doesn't exist
-        const ignoreFilePath = path.resolve('./.projectfusionignore');
-        if (!await fs.pathExists(ignoreFilePath)) {
-            await fs.writeFile(ignoreFilePath, defaultProjectFusionIgnoreContent);
-        }
+        await fs.writeJson(configPath, defaultConfig, { spaces: 4 });
 
         console.log(chalk.green('✅ Project Fusion initialized successfully!'));
         console.log(chalk.blue('📁 Created:'));
         console.log(chalk.cyan('  - ./project-fusion.json'));
-        console.log(chalk.cyan('  - ./.project-fusion/fusion/'));
-        console.log(chalk.cyan('  - ./.projectfusionignore'));
 
         console.log(chalk.blue('\n📝 Next steps:'));
         console.log(chalk.cyan('  1. Review project-fusion.json and adjust as needed'));
-        console.log(chalk.cyan('  2. Run fusion: project-fusion fusion'));
+        console.log(chalk.cyan('  2. Run fusion: project-fusion'));
     } catch (error) {
         console.error(chalk.red(`❌ Initialization failed: ${error}`));
         process.exit(1);

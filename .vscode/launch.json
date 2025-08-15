@@ -47,11 +47,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Fusion",
+            "name": "Project Fusion: Default (Fusion)",
             "program": "${workspaceFolder}/dist/cli.js",
-            "args": [
-                "fusion"
-            ],
+            "args": [],
             "console": "integratedTerminal",
             "skipFiles": [
                 "<node_internals>/**"
@@ -61,10 +59,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Fusion Web",
+            "name": "Project Fusion: Web Extensions",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
-                "fusion",
                 "--extensions",
                 "web"
             ],
@@ -77,10 +74,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Fusion Backend",
+            "name": "Project Fusion: Backend Extensions",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
-                "fusion",
                 "--extensions",
                 "backend"
             ],
@@ -93,12 +89,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Project Fusion: Fusion Custom Root",
+            "name": "Project Fusion: Custom Root (src/)",
             "program": "${workspaceFolder}/dist/cli.js",
             "args": [
-                "fusion",
                 "--root",
-                "./packages"
+                "./src"
             ],
             "console": "integratedTerminal",
             "skipFiles": [

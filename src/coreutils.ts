@@ -8,26 +8,10 @@ import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
 
 /**
- * Configuration for AI attribution
- */
-export interface AIAttributionConfig {
-    enabled: boolean;
-    commentBegin: string;
-    commentEnd: string;
-}
-
-/**
  * Main configuration interface
  */
 export interface Config {
-    aiAttribution: AIAttributionConfig;
-    applydiff: {
-        applydiff_log: string;
-        diff_file: string;
-        directory: string;
-    };
     fusion: {
-        directory: string;
         fusion_file: string;
         fusion_log: string;
         copyToClipboard: boolean;
@@ -44,29 +28,18 @@ export interface Config {
         parseSubDirectories: boolean;
         rootDirectory: string;
     };
-    schemaVersion: number;
-    useProjectFusionIgnoreForExcludes: boolean;
+    ignorePatterns: string[];
     useGitIgnoreForExcludes: boolean;
+    schemaVersion: number;
 }
 
 /**
  * Default configuration for Project Fusion
  */
 export const defaultConfig: Config = {
-    aiAttribution: {
-        commentBegin: "BEGIN - AI Generated @[timestamp] by [AIName] GUID=[Guid]",
-        commentEnd: "END - AI Generated GUID=[Guid]",
-        enabled: true
-    },
-    applydiff: {
-        applydiff_log: "apply_diff.log",
-        diff_file: "project_files_diff.txt",
-        directory: "./.project-fusion/applydiff"
-    },
     fusion: {
-        directory: "./.project-fusion/fusion",
-        fusion_file: "project_files_fusioned.txt",
-        fusion_log: "fusion.log",
+        fusion_file: "project-fusioned.txt",
+        fusion_log: "project-fusion.log",
         copyToClipboard: true
     },
     parsedFileExtensions: {
@@ -80,43 +53,50 @@ export const defaultConfig: Config = {
         parseSubDirectories: true,
         rootDirectory: "."
     },
-    schemaVersion: 1,
-    useProjectFusionIgnoreForExcludes: true,
-    useGitIgnoreForExcludes: true
+    ignorePatterns: [
+        "# Project Fusion files",
+        "project-fusion.json",
+        "project-fusion.log",
+        "project-fusioned.txt",
+        "",
+        "# Dependencies",
+        "node_modules/",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "yarn.lock",
+        "",
+        "# Build output",
+        "dist/",
+        "build/",
+        "*.min.js",
+        "*.min.css",
+        "",
+        "# Environment and secrets",
+        ".env",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "**/credentials/*",
+        "**/secrets/*",
+        "",
+        "# Logs",
+        "*.log",
+        "logs/",
+        "",
+        "# OS files",
+        ".DS_Store",
+        "Thumbs.db",
+        "",
+        "# IDE files",
+        ".vscode/",
+        ".idea/",
+        "*.swp",
+        "*.swo"
+    ],
+    useGitIgnoreForExcludes: true,
+    schemaVersion: 1
 };
 
-/**
- * Default .projectfusionignore content
- */
-export const defaultProjectFusionIgnoreContent = `# Project Fusion files
-/.project-fusion/
-project-fusion.json
-
-# Credentials and environment variables
-.env
-.env.*
-**/credentials/*
-
-# Secret configuration
-**/secrets/*
-**/config/secrets.json
-
-# Key files
-*.pem
-*.key
-
-# Package files
-package-lock.json
-pnpm-lock.yaml
-node_modules
-
-# Build output
-**/dist
-**/build
-
-# Log files
-*.log
-`;
 
 /**
  * Load config from file
