@@ -2,9 +2,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build All",
+            "label": "Build",
             "type": "shell",
-            "command": "pnpm",
+            "command": "npm",
             "args": [
                 "run",
                 "build"
@@ -27,61 +27,12 @@
             }
         },
         {
-            "label": "Build CLI",
+            "label": "Watch",
             "type": "shell",
-            "command": "pnpm",
-            "args": [
-                "--filter",
-                "cli",
-                "run",
-                "build"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            },
-            "problemMatcher": "$tsc",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
-        },
-        {
-            "label": "Build Core",
-            "type": "shell",
-            "command": "pnpm",
-            "args": [
-                "--filter",
-                "core",
-                "run",
-                "build"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            },
-            "problemMatcher": "$tsc",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
-        },
-        {
-            "label": "Watch All",
-            "type": "shell",
-            "command": "pnpm",
+            "command": "npm",
             "args": [
                 "run",
-                "build",
-                "--watch"
+                "dev"
             ],
             "group": "build",
             "presentation": {
@@ -101,7 +52,7 @@
         {
             "label": "Clean",
             "type": "shell",
-            "command": "pnpm",
+            "command": "npm",
             "args": [
                 "run",
                 "clean"
@@ -122,7 +73,7 @@
         {
             "label": "Install Dependencies",
             "type": "shell",
-            "command": "pnpm",
+            "command": "npm",
             "args": [
                 "install"
             ],
@@ -142,7 +93,7 @@
         {
             "label": "Type Check",
             "type": "shell",
-            "command": "pnpm",
+            "command": "npm",
             "args": [
                 "run",
                 "typecheck"

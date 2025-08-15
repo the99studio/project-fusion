@@ -5,7 +5,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Help",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "--help"
             ],
@@ -19,7 +19,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Init",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "init"
             ],
@@ -33,7 +33,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Init (Force)",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "init",
                 "--force"
@@ -48,7 +48,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Fusion",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "fusion"
             ],
@@ -62,7 +62,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Fusion Web",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "fusion",
                 "--extensions",
@@ -78,7 +78,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Fusion Backend",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "fusion",
                 "--extensions",
@@ -94,7 +94,7 @@
             "type": "node",
             "request": "launch",
             "name": "Project Fusion: Fusion Custom Root",
-            "program": "${workspaceFolder}/packages/cli/dist/cli.js",
+            "program": "${workspaceFolder}/dist/cli.js",
             "args": [
                 "fusion",
                 "--root",

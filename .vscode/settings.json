@@ -33,13 +33,13 @@
         "**/node_modules": true,
         "**/dist": true,
         "**/.project-fusion": true,
-        "**/pnpm-lock.yaml": true
+        "**/package-lock.json": true
     },
     "search.exclude": {
         "**/node_modules": true,
         "**/dist": true,
         "**/.project-fusion": true,
-        "**/pnpm-lock.yaml": true
+        "**/package-lock.json": true
     },
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features",

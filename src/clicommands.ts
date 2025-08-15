@@ -8,10 +8,12 @@ import path from 'path';
 import {
     FusionOptions,
     loadConfig,
-    processFusion,
+    processFusion
+} from './core.js';
+import {
     defaultConfig,
     defaultProjectFusionIgnoreContent
-} from 'project-fusion-core';
+} from './coreutils.js';
 
 /**
  * Run the fusion command
