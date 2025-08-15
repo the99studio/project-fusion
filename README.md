@@ -36,7 +36,7 @@ npm install -g project-fusion
 
 ## Documentation
 
-- **[CLAUDE.md](./CLAUDE.md)** - Complete developer guide and technical documentation
+- **[CLAUDE.md](./CLAUDE.md)** - AI context and technical documentation for Claude AI
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development workflows, testing, and npm publication guide
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
 - **[LICENSE](./LICENSE)** - MIT License terms
