@@ -32,14 +32,16 @@
     "files.exclude": {
         "**/node_modules": true,
         "**/dist": true,
-        "**/.project-fusion": true,
-        "**/package-lock.json": true
+        "**/package-lock.json": true,
+        "project-fusion.log": true,
+        "project-fusioned.txt": true
     },
     "search.exclude": {
         "**/node_modules": true,
         "**/dist": true,
-        "**/.project-fusion": true,
-        "**/package-lock.json": true
+        "**/package-lock.json": true,
+        "project-fusion.log": true,
+        "project-fusioned.txt": true
     },
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features",
