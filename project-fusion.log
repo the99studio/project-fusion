@@ -1,14 +1,16 @@
 Status: Fusion completed successfully
-Start time: 2025-08-15T16:56:03.403Z
-End time: 2025-08-15T16:56:03.446Z
+Start time: 2025-08-15T17:25:17.230Z
+End time: 2025-08-15T17:25:17.273Z
 Duration: 0.04s
-Files found: 1269
-Files processed successfully: 9 (0.7% of total files)
-Files found but filtered out: 1260 (99.3% of total files)
+Files found: 1360
+Files processed successfully: 12 (0.9% of total files)
+Files found but filtered out: 1348 (99.1% of total files)
 File extensions actually processed:
   .json
+  .md
   .ts
 Configured extensions with no matching files found:
+  .adoc
   .bat
   .c
   .cc
@@ -32,18 +34,18 @@ Configured extensions with no matching files found:
   .py
   .rb
   .rs
+  .rst
   .sh
   .svelte
   .toml
   .tres
   .tscn
   .tsx
+  .txt
   .vue
   .xml
   .yaml
   .yml
-File extensions found in project but not configured for processing:
-  .md
 Configuration used:
   Root directory: .
   Scan subdirectories: Yes

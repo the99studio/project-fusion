@@ -23,7 +23,8 @@ export const defaultConfig = {
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
-        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"]
+        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
+        doc: [".md", ".txt", ".rst", ".adoc"]
     },
     parsing: {
         parseSubDirectories: true,

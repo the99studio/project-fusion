@@ -51,6 +51,12 @@
             ".tres",
             ".cfg",
             ".import"
+        ],
+        "doc": [
+            ".md",
+            ".txt",
+            ".rst",
+            ".adoc"
         ]
     },
     "parsing": {

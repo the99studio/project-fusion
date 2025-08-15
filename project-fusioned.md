@@ -1,15 +1,17 @@
 # Generated Project Fusion File
 **Project:** project-fusion
 
-**Generated:** 2025-08-15T16:56:03.445Z
+**Generated:** 2025-08-15T17:25:17.272Z
 
-**Files:** 9
+**Files:** 12
 
 ---
 
 ## 📁 Table of Contents
 
+- [CLAUDE.md](#claude-md)
 - [package.json](#package-json)
+- [README.md](#readme-md)
 - [src/cli.ts](#src-cli-ts)
 - [src/clicommands.ts](#src-clicommands-ts)
 - [src/fusion.ts](#src-fusion-ts)
@@ -17,9 +19,215 @@
 - [src/schema.ts](#src-schema-ts)
 - [src/types.ts](#src-types-ts)
 - [src/utils.ts](#src-utils-ts)
+- [TODO.md](#todo-md)
 - [tsconfig.json](#tsconfig-json)
 
 ---
+
+## 📄 CLAUDE.md
+
+```markdown
+# Project Fusion - Developer Guide
+
+## Project Overview
+Project Fusion merges multiple project files into a single file for easy sharing and collaboration.
+
+## Project Structure
+```
+project-fusion/
+├── src/                        # Source code
+│   ├── cli.ts                  # CLI entry point (Commander.js)
+│   ├── clicommands.ts          # Command implementations
+│   ├── fusion.ts               # Core fusion functionality  
+│   ├── types.ts                # TypeScript definitions (branded types)
+│   ├── schema.ts               # Zod configuration schemas
+│   ├── utils.ts                # Utilities (file ops, config, logging)
+│   └── index.ts                # Main exports
+├── project-fusion.json         # Configuration file
+└── package.json                # Dependencies and scripts
+```
+
+## Technology Stack
+- **TypeScript 5.9.2** (ES2022, NodeNext, strict mode)
+- **Node.js 18+**, **npm** package manager
+- **Zod 4.0.17** (schema validation), **Commander.js 14** (CLI)
+- **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**, **uuid**
+
+## Commands & Development
+
+### Development Commands
+```bash
+npm install        # Install dependencies
+npm run build      # Build project
+npm run dev        # Watch mode compilation
+npm run typecheck  # Type checking
+npm run clean      # Clean artifacts
+npm link           # Link CLI globally
+```
+
+### CLI Commands
+```bash
+project-fusion init     # Initialize configuration
+project-fusion fusion   # Create fusion file
+project-fusion --help   # Show help
+```
+
+### Development Workflow
+1. Clone repo → `npm install` → `npm run build` → `npm link`
+2. Edit `src/` files → `npm run build` → test with linked CLI
+3. Test in sample project: `project-fusion init` → `project-fusion fusion`
+
+## Configuration Schema
+```typescript
+{
+  schemaVersion: number
+  fusion: {
+    fusion_file: string
+    fusion_log: string  
+    copyToClipboard?: boolean
+  }
+  parsedFileExtensions: {
+    web: string[]      // .js, .ts, .tsx, .vue, etc.
+    backend: string[]  // .py, .go, .java, .rs, etc.
+    config: string[]   // .json, .yaml, .toml, etc.
+    cpp: string[]      // .c, .cpp, .h, .hpp
+    scripts: string[]  // .sh, .bat, .ps1
+    godot: string[]    // .gd, .tscn, .tres
+  }
+  parsing: { rootDirectory: string, parseSubDirectories: boolean }
+  ignorePatterns: string[]
+  useGitIgnoreForExcludes: boolean
+  useProjectFusionIgnoreForExcludes: boolean
+}
+```
+
+## Fusion File Formats
+
+### Plain Text Format (.txt)
+```
+# Generated Project Fusion File
+# Project: name @2025-01-15T10:30:00.000Z
+# Files: 5
+
+<!-- ============================================================ -->
+<!-- FILE: /src/component.tsx                                     -->
+<!-- ============================================================ -->
+[file content here]
+
+<!-- ============================================================ -->
+<!-- FILE: /src/utils.ts                                          -->
+<!-- ============================================================ -->
+[file content here]
+```
+
+### Markdown Format (.md)
+```markdown
+# Generated Project Fusion File
+**Project:** name
+**Generated:** 2025-01-15T10:30:00.000Z
+**Files:** 5
+
+## 📁 Table of Contents
+- [/src/component.tsx](#src-component-tsx)
+- [/src/utils.ts](#src-utils-ts)
+
+## 📄 /src/component.tsx
+```tsx
+[file content with syntax highlighting]
+```
+
+## 📄 /src/utils.ts
+```typescript
+[file content with syntax highlighting]
+```
+```
+
+## Architecture Patterns
+- **ESM modules** with NodeNext resolution
+- **Branded types** (FilePath, FileHash) for type safety
+- **Discriminated unions** for FusionResult (success/failure)
+- **Zod runtime validation**, **async/await throughout**
+- **Separation of concerns**: CLI ↔ core logic ↔ utilities
+
+## File Processing Flow
+1. Load `project-fusion.json` config (Zod validation)
+2. Scan directory by file extensions + apply ignore rules
+3. Process each file and extract content
+4. Generate two output formats:
+   - `project-fusioned.txt` - Plain text with HTML-style separators
+   - `project-fusioned.md` - Markdown with syntax highlighting and TOC
+5. Optionally copy to clipboard (disabled by default)
+
+## Common Development Tasks
+
+### Add File Extension
+1. Update `src/schema.ts` parsedFileExtensions
+2. Update default config in `src/utils.ts`
+
+### Add CLI Command  
+1. Register in `src/cli.ts` (Commander.js)
+2. Implement in `src/clicommands.ts`
+
+### Modify Fusion Format
+1. Edit `src/fusion.ts` processing logic
+2. Update types in `src/types.ts`
+
+## Security & .projectfusionignore
+```
+# Example .projectfusionignore
+.env*
+**/credentials/*
+**/secrets/*
+*.pem
+*.key
+package-lock.json
+/.project-fusion/
+```
+Enable: `"useProjectFusionIgnoreForExcludes": true`
+
+## NPM Publication
+1. Update version in `package.json`
+2. `npm run build` → `npm pack --dry-run` → `npm publish`
+3. Published: `dist/` directory as `project-fusion` package
+
+## Features
+
+### Dual Output Formats
+- **Plain Text (.txt)**: Universal compatibility with clear separators
+- **Markdown (.md)**: Enhanced readability with:
+  - Syntax highlighting for 50+ file types
+  - Clickable table of contents
+  - Organized sections with icons
+  - Automatic language detection for code blocks
+
+### Smart File Processing
+- Ignores patterns from `.gitignore` (configurable)
+- Custom ignore patterns in `project-fusion.json`
+- Organized file extensions by category
+- Efficient filtering with detailed statistics
+
+## Recent Improvements (2025)
+### ✅ State-of-the-Art TypeScript
+- Branded types (FilePath), discriminated unions
+- `const assertions`, `satisfies` operator, ~95% type coverage
+- Zero `any` types, async `loadConfig()`, unified type definitions
+
+### ✅ Code Quality  
+- Dead code eliminated, TypeScript 5.9.2, Zod 4.0.17
+- All packages updated, zero warnings/errors
+
+## Performance & Limitations
+- **Large files**: Configure extensions/exclusions appropriately
+- **Memory**: File size limited by available memory
+- **Text only**: No binary file support
+- **Paths**: UTF-8 encoding, cross-platform path handling
+
+## Debugging Tips
+- Check `.project-fusion/fusion/fusion.log`
+- Verify config with Zod validation
+- Test with small file sets first
+- Use specific extension groups for large projects
+```
 
 ## 📄 package.json
 
@@ -85,6 +293,95 @@
         "typescript": "^5.9.2"
     }
 }
+```
+
+## 📄 README.md
+
+```markdown
+# Project Fusion
+
+Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates both plain text (.txt) and markdown (.md) versions with syntax highlighting for better readability.
+
+## Installation
+
+Install Project Fusion globally with npm:
+
+```bash
+npm install -g project-fusion
+```
+
+## Quick Start
+
+1. **Initialize** Project Fusion in your project directory:
+   ```bash
+   cd your-project-directory
+   project-fusion init
+   ```
+
+2. **Create fusion files** containing all your project files:
+   ```bash
+   project-fusion fusion
+   ```
+   This creates two files:
+   - `project-fusioned.txt` - Plain text format with clear file separators
+   - `project-fusioned.md` - Markdown format with syntax highlighting and table of contents
+
+3. **Share the fusion files** for collaboration or analysis (choose .txt for universal compatibility or .md for enhanced readability)
+
+## Commands
+
+- `project-fusion init` - Initialize Project Fusion in current directory
+- `project-fusion fusion` - Create fusion file from project files
+- `project-fusion --help` - Show help information
+
+## Documentation
+
+- **[CLAUDE.md](./CLAUDE.md)** - Complete developer guide and technical documentation
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
+- **[LICENSE](./LICENSE)** - MIT License terms
+
+## Usage Workflow
+
+When sharing your code:
+
+1. Run `project-fusion fusion` to create merged files
+2. Choose the appropriate format:
+   - **`.txt`** - Universal compatibility with clear HTML-style separators
+   - **`.md`** - Enhanced readability with syntax highlighting, clickable table of contents
+3. Share the fusion file with colleagues or collaborators
+4. Use for code review, AI analysis, documentation, or project overview
+
+The fusion files contain all your project files in a single, organized format that's easy to understand and work with.
+
+## Configuration
+
+Project Fusion creates a `project-fusion.json` configuration file when you run `init`. You can customize:
+- File extensions to include (organized by category: web, backend, config, etc.)
+- Directories to scan or ignore
+- Output file names and locations
+- Use of .gitignore patterns
+- Clipboard copying behavior
+
+### Supported File Extensions
+
+Project Fusion supports 35+ file extensions organized by category:
+- **Web**: .js, .jsx, .ts, .tsx, .html, .css, .vue, .svelte
+- **Backend**: .py, .rb, .java, .cs, .go, .rs, .php
+- **Config**: .json, .yaml, .yml, .toml, .xml
+- **Scripts**: .sh, .bat, .ps1, .cmd
+- **C/C++**: .c, .cpp, .h, .hpp
+- **Godot**: .gd, .tscn, .tres, .cfg
+
+The markdown output automatically applies appropriate syntax highlighting for each file type.
+
+## Distribution
+
+- **GitHub**: [github.com/the99studio/project-fusion](https://github.com/the99studio/project-fusion)
+- **NPM**: [npmjs.com/package/project-fusion](https://www.npmjs.com/package/project-fusion)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 ```
 
 ## 📄 src/cli.ts
@@ -626,6 +923,7 @@ export const ParsedFileExtensionsSchema = z.object({
     scripts: z.array(z.string()),
     web: z.array(z.string()),
     godot: z.array(z.string()),
+    doc: z.array(z.string()),
 }).and(z.record(z.string(), z.array(z.string())));
 
 /**
@@ -761,7 +1059,8 @@ export const defaultConfig = {
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
-        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"]
+        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
+        doc: [".md", ".txt", ".rst", ".adoc"]
     },
     parsing: {
         parseSubDirectories: true,
@@ -1067,6 +1366,35 @@ export function getMarkdownLanguage(extension: string): string {
     const lang = languageMap[extension.toLowerCase()];
     return lang || 'text';  // Default to 'text' for unknown extensions
 }
+```
+
+## 📄 TODO.md
+
+```markdown
+# Project Fusion TODO
+
+## 🔴 **PRIORITÉ 1** - Critical
+
+- [ ] **Setup Vitest** - Add unit testing framework (replace placeholder tests)
+- [ ] **Add basic unit tests** - Core functions (utils, fusion, schema validation)
+
+## 🟠 **PRIORITÉ 2** - Important  
+
+- [ ] **Streaming for large files** - Handle huge projects without memory issues
+- [ ] **Config validation command** - `project-fusion --config-check` for debugging
+- [ ] **Enhanced error messages** - Better Zod validation feedback for config
+
+## 🟡 **PRIORITÉ 3** - Nice to Have
+
+- [ ] **Test coverage reporting** - Metrics for code quality
+- [ ] **JSDoc API documentation** - Complete function documentation  
+- [ ] **AI attribution with UUID** - Use uuid dependency for AI collaboration tracking
+- [ ] **Performance benchmarking** - Measure and optimize processing speed
+
+## 🔵 **PRIORITÉ 4** - Future Features
+
+- [ ] **HTML/PDF exports** - Additional output formats beyond .txt and .md
+- [ ] **Migration tool** - Handle old project-fusion.json format detection/upgrade
 ```
 
 ## 📄 tsconfig.json
