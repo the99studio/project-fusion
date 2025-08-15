@@ -3,6 +3,7 @@
  */
 import crypto from 'crypto';
 import fs from 'fs-extra';
+import { promises as fsNative } from 'fs';
 import path from 'path';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
@@ -89,29 +90,30 @@ export const defaultConfig: Config = {
  * Load config from file
  * @returns The loaded configuration
  */
-export async function loadConfig(): Promise<Config> {
+export function loadConfig(): Config {
     try {
         const configPath = path.resolve('./project-fusion.json');
-        const configExists = await fs.pathExists(configPath);
-
-        if (!configExists) {
-            console.warn(`Config file not found at ${configPath}, using default configuration.`);
+        
+        let configContent: string;
+        try {
+            configContent = fs.readFileSync(configPath, 'utf8');
+        } catch (error) {
             return defaultConfig;
         }
 
-        const configContent = await fs.readFile(configPath, 'utf8');
         const parsedConfig = JSON.parse(configContent);
 
         // Validate with Zod schema
         try {
             const validatedConfig = ConfigSchemaV1.parse(parsedConfig);
             return validatedConfig;
-        } catch (zodError) {
+        } catch (zodError: any) {
             if (zodError instanceof z.ZodError) {
-                console.warn('Configuration validation failed (will use default config):', zodError.format());
+                console.error('Configuration validation failed (will use default config):', zodError.format());
             } else {
-                console.warn('Unknown validation error (will use default config):', zodError);
+                console.error('Unknown validation error (will use default config):', zodError);
             }
+            console.error('Parsed config that failed validation:', JSON.stringify(parsedConfig, null, 2));
             return defaultConfig;
         }
     } catch (error) {

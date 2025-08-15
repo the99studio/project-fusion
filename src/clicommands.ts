@@ -5,12 +5,9 @@ import chalk from 'chalk';
 import clipboardy from 'clipboardy';
 import fs from 'fs-extra';
 import path from 'path';
-import {
-    FusionOptions,
-    loadConfig,
-    processFusion,
-    defaultConfig
-} from './index.js';
+import { processFusion } from './fusion.js';
+import { FusionOptions } from './types.js';
+import { loadConfig, defaultConfig } from './utils.js';
 
 /**
  * Run the fusion command
@@ -21,7 +18,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
         console.log(chalk.blue('🔄 Starting Fusion Process...'));
 
         // Load config
-        const config = await loadConfig();
+        const config = loadConfig();
 
         // Override rootDirectory only if specified via CLI
         if (options.root) {

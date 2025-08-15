@@ -41,6 +41,7 @@ export async function processFusion(
 
         // Determine which extensions to process
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
+        console.log(`Extensions to process: ${extensions.join(', ')}`);
         if (extensions.length === 0) {
             const message = 'No file extensions to process.';
             await writeLog(logFilePath, message, true);
@@ -79,7 +80,10 @@ export async function processFusion(
             ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})`
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
 
-        let filePaths = await glob(pattern, { nodir: true });
+        let filePaths = await glob(pattern, { 
+            nodir: true,
+            ignore: ['**/node_modules/**', '**/dist/**', '**/.git/**']
+        });
 
         // Filter out ignored files using the ignore instance
         filePaths = filePaths.filter(file => {
