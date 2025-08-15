@@ -1,17 +1,54 @@
-Status: Success
-Start time: 2025-08-15T16:45:11.031Z
-End time: 2025-08-15T16:45:11.076Z
+Status: Fusion completed successfully
+Start time: 2025-08-15T16:49:30.991Z
+End time: 2025-08-15T16:49:31.035Z
 Duration: 0.04s
-Files processed: 9
-Files filtered out: 1260 (99.3%)
-Extensions found: .json, .ts
-Extensions ignored (not found): .bat, .c, .cc, .cfg, .cmd, .cpp, .cs, .cs, .css, .gd, .go, .h, .hpp, .html, .import, .java, .js, .jsx, .php, .ps1, .py, .rb, .rs, .sh, .svelte, .toml, .tres, .tscn, .tsx, .vue, .xml, .yaml, .yml
-Extensions in project but not configured: .md
-Configuration:
+Files processed successfully: 9
+Files found but filtered out: 1260 (99.3% of total files)
+File extensions actually processed:
+  .json
+  .ts
+Configured extensions with no matching files found:
+  .bat
+  .c
+  .cc
+  .cfg
+  .cmd
+  .cpp
+  .cs
+  .cs
+  .css
+  .gd
+  .go
+  .h
+  .hpp
+  .html
+  .import
+  .java
+  .js
+  .jsx
+  .php
+  .ps1
+  .py
+  .rb
+  .rs
+  .sh
+  .svelte
+  .toml
+  .tres
+  .tscn
+  .tsx
+  .vue
+  .xml
+  .yaml
+  .yml
+File extensions found in project but not configured for processing:
+  .md
+Configuration used:
   Root directory: /Users/gaetanchantebien/Git/project-fusion
-  Parse subdirectories: true
-  Use .gitignore: true
-  Custom ignore patterns: 26
-Output files:
-  Text: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.txt
-  Markdown: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.md
+  Scan subdirectories: Yes
+  Apply .gitignore rules: Yes
+  Custom ignore patterns defined: 26 patterns
+    Examples: project-fusion.json, project-fusion.log, project-fusioned.txt...
+Output files generated:
+  Plain text format: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.txt
+  Markdown format: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.md

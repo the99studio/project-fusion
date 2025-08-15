@@ -1,6 +1,6 @@
 # Generated Project Fusion File
 # Project: project-fusion
-# @2025-08-15T16:45:11.075Z
+# @2025-08-15T16:49:31.032Z
 # Files: 9
 
 <!-- ============================================================ -->
@@ -301,7 +301,7 @@ export async function processFusion(
         
         if (extensions.length === 0) {
             const message = 'No file extensions to process.';
-            await writeLog(logFilePath, `Status: Failed\nReason: ${message}`, true);
+            await writeLog(logFilePath, `Status: Fusion failed\nReason: ${message}`, true);
             return { success: false, message, logFilePath };
         }
 
@@ -350,7 +350,7 @@ export async function processFusion(
         if (filePaths.length === 0) {
             const message = 'No files found to process.';
             const endTime = new Date();
-            await writeLog(logFilePath, `Status: Failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2)}s`, true);
+            await writeLog(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2)}s`, true);
             return { success: false, message, logFilePath };
         }
 
@@ -484,27 +484,46 @@ export async function processFusion(
         // Get all configured extensions that weren't found
         const ignoredExtensions = extensions.filter(ext => !Array.from(foundExtensions).includes(ext));
         
-        await writeLog(logFilePath, `Status: Success`, true);
+        await writeLog(logFilePath, `Status: Fusion completed successfully`, true);
         await writeLog(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
         await writeLog(logFilePath, `End time: ${formatTimestamp(endTime)}`, true);
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
-        await writeLog(logFilePath, `Files processed: ${fileInfos.length}`, true);
-        await writeLog(logFilePath, `Files filtered out: ${originalFileCount - fileInfos.length} (${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}%)`, true);
-        await writeLog(logFilePath, `Extensions found: ${Array.from(foundExtensions).sort().join(', ')}`, true);
+        
+        await writeLog(logFilePath, `Files processed successfully: ${fileInfos.length}`, true);
+        await writeLog(logFilePath, `Files found but filtered out: ${originalFileCount - fileInfos.length} (${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}% of total files)`, true);
+        
+        await writeLog(logFilePath, `File extensions actually processed:`, true);
+        const foundExtArray = Array.from(foundExtensions).sort();
+        for (const ext of foundExtArray) {
+            await writeLog(logFilePath, `  ${ext}`, true);
+        }
+        
         if (ignoredExtensions.length > 0) {
-            await writeLog(logFilePath, `Extensions ignored (not found): ${ignoredExtensions.sort().join(', ')}`, true);
+            await writeLog(logFilePath, `Configured extensions with no matching files found:`, true);
+            for (const ext of ignoredExtensions.sort()) {
+                await writeLog(logFilePath, `  ${ext}`, true);
+            }
         }
+        
         if (otherExtensions.size > 0) {
-            await writeLog(logFilePath, `Extensions in project but not configured: ${Array.from(otherExtensions).sort().join(', ')}`, true);
+            await writeLog(logFilePath, `File extensions found in project but not configured for processing:`, true);
+            for (const ext of Array.from(otherExtensions).sort()) {
+                await writeLog(logFilePath, `  ${ext}`, true);
+            }
         }
-        await writeLog(logFilePath, `Configuration:`, true);
+        
+        await writeLog(logFilePath, `Configuration used:`, true);
         await writeLog(logFilePath, `  Root directory: ${rootDir}`, true);
-        await writeLog(logFilePath, `  Parse subdirectories: ${parsing.parseSubDirectories}`, true);
-        await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes}`, true);
-        await writeLog(logFilePath, `  Custom ignore patterns: ${config.ignorePatterns.length}`, true);
-        await writeLog(logFilePath, `Output files:`, true);
-        await writeLog(logFilePath, `  Text: ${fusionFilePath}`, true);
-        await writeLog(logFilePath, `  Markdown: ${fusionFilePath.replace('.txt', '.md')}`, true);
+        await writeLog(logFilePath, `  Scan subdirectories: ${parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
+        await writeLog(logFilePath, `  Apply .gitignore rules: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
+        await writeLog(logFilePath, `  Custom ignore patterns defined: ${config.ignorePatterns.length} pattern${config.ignorePatterns.length !== 1 ? 's' : ''}`, true);
+        if (config.ignorePatterns.length > 0) {
+            await writeLog(logFilePath, `    Examples: ${config.ignorePatterns.slice(0, 3).join(', ')}${config.ignorePatterns.length > 3 ? '...' : ''}`, true);
+        }
+        
+        await writeLog(logFilePath, `Output files generated:`, true);
+        await writeLog(logFilePath, `  Plain text format: ${fusionFilePath}`, true);
+        await writeLog(logFilePath, `  Markdown format: ${fusionFilePath.replace('.txt', '.md')}`, true);
 
         return {
             success: true,
@@ -519,7 +538,7 @@ export async function processFusion(
         try {
             const logFilePath = createFilePath(path.resolve(config.fusion.fusion_log));
             const endTime = new Date();
-            await writeLog(logFilePath, `Status: Failed\nError: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
+            await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
 
             return {
                 success: false,
