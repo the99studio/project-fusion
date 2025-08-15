@@ -172,10 +172,11 @@ export async function logError(
 
 /**
  * Format a timestamp
+ * @param date Optional date to format, defaults to current date
  * @returns Formatted timestamp
  */
-export function formatTimestamp(): string {
-    return new Date().toISOString();
+export function formatTimestamp(date?: Date): string {
+    return (date || new Date()).toISOString();
 }
 
 /**

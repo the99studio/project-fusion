@@ -35,9 +35,10 @@ export async function processFusion(
         const { fusion, parsing } = config;
         const logFilePath = createFilePath(path.resolve(fusion.fusion_log));
         const fusionFilePath = createFilePath(path.resolve(fusion.fusion_file));
+        const startTime = new Date();
 
-        // Clear previous log
-        await writeLog(logFilePath, `--- Fusion Process Started (${formatTimestamp()}) ---`);
+        // Clear previous log - start with clean summary
+        await writeLog(logFilePath, '');
 
         // Determine which extensions to process
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
@@ -45,11 +46,9 @@ export async function processFusion(
         
         if (extensions.length === 0) {
             const message = 'No file extensions to process.';
-            await writeLog(logFilePath, message, true);
+            await writeLog(logFilePath, `=== FUSION SUMMARY ===\nStatus: Failed\nReason: ${message}\n======================`, true);
             return { success: false, message, logFilePath };
         }
-
-        await writeLog(logFilePath, `Processing extensions: ${extensions.join(', ')}`, true);
 
         // Initialize ignore filter instance
         const ig = ignoreLib();
@@ -95,11 +94,10 @@ export async function processFusion(
 
         if (filePaths.length === 0) {
             const message = 'No files found to process.';
-            await writeLog(logFilePath, message, true);
+            const endTime = new Date();
+            await writeLog(logFilePath, `=== FUSION SUMMARY ===\nStatus: Failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2)}s\n======================`, true);
             return { success: false, message, logFilePath };
         }
-
-        await writeLog(logFilePath, `Found ${filePaths.length} files to process.`, true);
 
         // Get project and package name
         const projectName = path.basename(process.cwd());
@@ -154,8 +152,6 @@ export async function processFusion(
                     path: createFilePath(relativePath),
                     content
                 });
-
-                await writeLog(logFilePath, `Processed: ${relativePath}`, true);
             } catch (error) {
                 await writeLog(logFilePath, `Error processing file ${filePath}: ${error}`, true);
                 console.error(`Error processing file ${filePath}:`, error);
@@ -200,7 +196,6 @@ export async function processFusion(
         // Add table of contents
         mdContent += `## 📁 Table of Contents\n\n`;
         for (const fileInfo of fileInfos) {
-            const fileName = fileInfo.path.split('/').pop() || fileInfo.path;
             mdContent += `- [${fileInfo.path}](#${fileInfo.path.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`;
         }
         mdContent += `\n---\n\n`;
@@ -226,30 +221,41 @@ export async function processFusion(
             extensionsInfo += `Ignored extensions: ${Array.from(otherExtensions).sort().join(', ')}\n`;
         }
 
-        // Write success message and extension info to log
+        // Write comprehensive summary
         const message = `Fusion completed successfully. ${fileInfos.length} files processed.`;
-        await writeLog(logFilePath, message, true);
-        await writeLog(logFilePath, `--- Fusion Process Completed (${formatTimestamp()}) ---`, true);
-        await writeLog(logFilePath, extensionsInfo, true);
+        const endTime = new Date();
+        const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
         
-        // Add detailed summary
-        await writeLog(logFilePath, `\n=== FUSION SUMMARY ===`, true);
-        await writeLog(logFilePath, `Total extensions configured: ${extensions.length}`, true);
-        await writeLog(logFilePath, `Extensions by category:`, true);
-        Object.entries(config.parsedFileExtensions).forEach(([category, exts]) => {
-            writeLog(logFilePath, `  ${category}: ${exts.join(', ')}`, true);
-        });
-        await writeLog(logFilePath, `\nFile discovery:`, true);
-        await writeLog(logFilePath, `  Pattern used: ${pattern}`, true);
-        await writeLog(logFilePath, `  Files found before filtering: ${originalFileCount}`, true);
-        await writeLog(logFilePath, `  Files after ignore filtering: ${fileInfos.length}`, true);
-        await writeLog(logFilePath, `  Filtering efficiency: ${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}% files filtered out`, true);
-        await writeLog(logFilePath, `\nConfiguration used:`, true);
+        // Get all configured extensions that weren't found
+        const ignoredExtensions = extensions.filter(ext => !Array.from(foundExtensions).includes(ext));
+        
+        await writeLog(logFilePath, `=== FUSION SUMMARY ===`, true);
+        await writeLog(logFilePath, `\nStatus: Success`, true);
+        await writeLog(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
+        await writeLog(logFilePath, `End time: ${formatTimestamp(endTime)}`, true);
+        await writeLog(logFilePath, `Duration: ${duration}s`, true);
+        
+        await writeLog(logFilePath, `\nFiles processed: ${fileInfos.length}`, true);
+        await writeLog(logFilePath, `Files filtered out: ${originalFileCount - fileInfos.length} (${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}%)`, true);
+        
+        await writeLog(logFilePath, `\nExtensions found: ${Array.from(foundExtensions).sort().join(', ')}`, true);
+        if (ignoredExtensions.length > 0) {
+            await writeLog(logFilePath, `Extensions ignored (not found): ${ignoredExtensions.sort().join(', ')}`, true);
+        }
+        if (otherExtensions.size > 0) {
+            await writeLog(logFilePath, `Extensions in project but not configured: ${Array.from(otherExtensions).sort().join(', ')}`, true);
+        }
+        
+        await writeLog(logFilePath, `\nConfiguration:`, true);
         await writeLog(logFilePath, `  Root directory: ${rootDir}`, true);
         await writeLog(logFilePath, `  Parse subdirectories: ${parsing.parseSubDirectories}`, true);
         await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes}`, true);
-        await writeLog(logFilePath, `  Ignore patterns count: ${config.ignorePatterns.length}`, true);
-        await writeLog(logFilePath, `======================\n`, true);
+        await writeLog(logFilePath, `  Custom ignore patterns: ${config.ignorePatterns.length}`, true);
+        
+        await writeLog(logFilePath, `\nOutput files:`, true);
+        await writeLog(logFilePath, `  Text: ${fusionFilePath}`, true);
+        await writeLog(logFilePath, `  Markdown: ${fusionFilePath.replace('.txt', '.md')}`, true);
+        await writeLog(logFilePath, `\n======================`, true);
 
         return {
             success: true,
@@ -263,8 +269,8 @@ export async function processFusion(
 
         try {
             const logFilePath = createFilePath(path.resolve(config.fusion.fusion_log));
-            await writeLog(logFilePath, errorMessage, true);
-            await writeLog(logFilePath, `--- Fusion Process Failed (${formatTimestamp()}) ---`, true);
+            const endTime = new Date();
+            await writeLog(logFilePath, `=== FUSION SUMMARY ===\nStatus: Failed\nError: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}\n======================`, true);
 
             return {
                 success: false,
