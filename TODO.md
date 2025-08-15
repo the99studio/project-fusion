@@ -15,7 +15,6 @@
 
 - [ ] **Test coverage reporting** - Metrics for code quality
 - [ ] **JSDoc API documentation** - Complete function documentation  
-- [ ] **AI attribution with UUID** - Use uuid dependency for AI collaboration tracking
 - [ ] **Performance benchmarking** - Measure and optimize processing speed
 
 ## 🔵 **PRIORITÉ 4** - Future Features

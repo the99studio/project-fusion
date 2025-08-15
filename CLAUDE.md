@@ -22,7 +22,7 @@ project-fusion/
 - **TypeScript 5.9.2** (ES2022, NodeNext, strict mode)
 - **Node.js 18+**, **npm** package manager
 - **Zod 4.0.17** (schema validation), **Commander.js 14** (CLI)
-- **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**, **uuid**
+- **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**
 
 ## Commands & Development
 
