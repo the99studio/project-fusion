@@ -4,12 +4,10 @@
 
 // Branded types for better type safety
 export type FilePath = string & { readonly __brand: unique symbol };
-export type FileHash = string & { readonly __brand: unique symbol };
 export type FileExtension = `.${string}`;
 
 // Helper functions for branded types
 export const createFilePath = (path: string): FilePath => path as FilePath;
-export const createFileHash = (hash: string): FileHash => hash as FileHash;
 
 /**
  * Main configuration interface
@@ -44,7 +42,6 @@ export interface Config {
 export interface FileInfo {
     path: FilePath;
     content: string;
-    hash: FileHash;
 }
 
 /**

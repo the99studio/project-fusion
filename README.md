@@ -65,15 +65,6 @@ Project Fusion creates a `project-fusion.json` configuration file when you run `
 - **GitHub**: [github.com/the99studio/project-fusion](https://github.com/the99studio/project-fusion)
 - **NPM**: [npmjs.com/package/project-fusion](https://www.npmjs.com/package/project-fusion)
 
-## Support the Project
-
-If you find Project Fusion useful, consider supporting its development:
-
-- [GitHub Sponsors](https://github.com/sponsors/the99studio)
-- [Open Collective](https://opencollective.com/projectfusion)
-- [Patreon](https://www.patreon.com/projectfusion)
-- [Buy Me a Coffee](https://www.buymeacoffee.com/projectfusion)
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

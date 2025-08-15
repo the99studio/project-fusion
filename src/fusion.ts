@@ -6,8 +6,6 @@ import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import path from 'path';
 import {
-    calculateHash,
-    ensureDirectoryExists,
     formatTimestamp,
     getExtensionsFromGroups,
     readFileContent,
@@ -19,8 +17,7 @@ import {
     FileInfo,
     FusionOptions,
     FusionResult,
-    createFilePath,
-    createFileHash
+    createFilePath
 } from './types.js';
 
 /**
@@ -147,7 +144,6 @@ export async function processFusion(
             try {
                 const content = await readFileContent(filePath);
                 const relativePath = path.relative(rootDir, filePath);
-                const hash = calculateHash(content);
 
                 // Extract file extension
                 const fileExt = path.extname(filePath).toLowerCase();
@@ -155,11 +151,10 @@ export async function processFusion(
 
                 fileInfos.push({
                     path: createFilePath(relativePath),
-                    content,
-                    hash: createFileHash(hash)
+                    content
                 });
 
-                await writeLog(logFilePath, `Processed: ${relativePath} (Hash: ${hash})`, true);
+                await writeLog(logFilePath, `Processed: ${relativePath}`, true);
             } catch (error) {
                 await writeLog(logFilePath, `Error processing file ${filePath}: ${error}`, true);
                 console.error(`Error processing file ${filePath}:`, error);
@@ -180,8 +175,9 @@ export async function processFusion(
         fusionContent += `# Files: ${fileInfos.length}\n\n`;
 
         for (const fileInfo of fileInfos) {
-            fusionContent += `### ${fileInfo.path}\n`;
-            fusionContent += `# Hash: ${fileInfo.hash}\n`;
+            fusionContent += `<!-- ============================================================ -->\n`;
+            fusionContent += `<!-- FILE: ${fileInfo.path.padEnd(54)} -->\n`;
+            fusionContent += `<!-- ============================================================ -->\n`;
             fusionContent += `${fileInfo.content}\n\n`;
         }
 

@@ -1,7 +1,6 @@
 /**
  * Utilities for Project Fusion
  */
-import crypto from 'crypto';
 import fs from 'fs-extra';
 import path from 'path';
 import { z } from 'zod';
@@ -104,15 +103,6 @@ export async function loadConfig(): Promise<Config> {
 
         return defaultConfig;
     }
-}
-
-/**
- * Calculate SHA-256 hash of a string
- * @param content Content to hash
- * @returns SHA-256 hash
- */
-export function calculateHash(content: string): string {
-    return crypto.createHash('sha256').update(content).digest('hex');
 }
 
 /**
