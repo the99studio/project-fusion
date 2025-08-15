@@ -8,6 +8,7 @@ import path from 'path';
 import {
     formatTimestamp,
     getExtensionsFromGroups,
+    getMarkdownLanguage,
     readFileContent,
     writeFileContent,
     writeLog
@@ -181,8 +182,41 @@ export async function processFusion(
             fusionContent += `${fileInfo.content}\n\n`;
         }
 
-        // Write fusion file
+        // Write fusion file (.txt)
         await writeFileContent(fusionFilePath, fusionContent);
+        
+        // Generate and write markdown version (.md)
+        const mdFilePath = createFilePath(fusionFilePath.replace('.txt', '.md'));
+        let mdContent = `# Generated Project Fusion File\n`;
+        if (packageName && packageName.toLowerCase() !== projectName.toLowerCase()) {
+            mdContent += `**Project:** ${projectName} / ${packageName}\n\n`;
+        } else {
+            mdContent += `**Project:** ${projectName}\n\n`;
+        }
+        mdContent += `**Generated:** ${formatTimestamp()}\n\n`;
+        mdContent += `**Files:** ${fileInfos.length}\n\n`;
+        mdContent += `---\n\n`;
+        
+        // Add table of contents
+        mdContent += `## 📁 Table of Contents\n\n`;
+        for (const fileInfo of fileInfos) {
+            const fileName = fileInfo.path.split('/').pop() || fileInfo.path;
+            mdContent += `- [${fileInfo.path}](#${fileInfo.path.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`;
+        }
+        mdContent += `\n---\n\n`;
+        
+        // Add file contents with syntax highlighting
+        for (const fileInfo of fileInfos) {
+            const fileExt = path.extname(fileInfo.path).toLowerCase();
+            const language = getMarkdownLanguage(fileExt);
+            
+            mdContent += `## 📄 ${fileInfo.path}\n\n`;
+            mdContent += `\`\`\`${language}\n`;
+            mdContent += `${fileInfo.content}\n`;
+            mdContent += `\`\`\`\n\n`;
+        }
+        
+        await writeFileContent(mdFilePath, mdContent);
 
         // Prepare simplified extension information for log
         let extensionsInfo = "";
@@ -219,7 +253,7 @@ export async function processFusion(
 
         return {
             success: true,
-            message,
+            message: `${message} Created both .txt and .md versions.`,
             fusionFilePath,
             logFilePath
         };

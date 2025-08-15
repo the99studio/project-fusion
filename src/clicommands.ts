@@ -39,7 +39,9 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
 
         if (result.success) {
             console.log(chalk.green(`✅ ${result.message}`));
-            console.log(chalk.green(`📄 Fusion file created at: ${result.fusionFilePath}`));
+            console.log(chalk.green(`📄 Fusion files created at:`));
+            console.log(chalk.cyan(`   - ${result.fusionFilePath}`));
+            console.log(chalk.cyan(`   - ${result.fusionFilePath.replace('.txt', '.md')}`));
 
             // Copy to clipboard if enabled in config
             if (config.fusion?.copyToClipboard !== false && result.fusionFilePath) {

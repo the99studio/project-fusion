@@ -15,7 +15,7 @@ export const defaultConfig = {
     fusion: {
         fusion_file: "project-fusioned.txt",
         fusion_log: "project-fusion.log",
-        copyToClipboard: true
+        copyToClipboard: false
     },
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
@@ -33,6 +33,7 @@ export const defaultConfig = {
         "project-fusion.json",
         "project-fusion.log",
         "project-fusioned.txt",
+        "project-fusioned.md",
         "node_modules/",
         "package-lock.json",
         "pnpm-lock.yaml",
@@ -231,4 +232,99 @@ export function getExtensionsFromGroups(
         }
         return acc;
     }, []);
+}
+
+/**
+ * Map file extensions to markdown code block languages
+ * @param extension File extension (e.g., '.ts', '.json')
+ * @returns Markdown language identifier or empty string for text
+ */
+export function getMarkdownLanguage(extension: string): string {
+    const languageMap: Record<string, string> = {
+        // Web
+        '.js': 'javascript',
+        '.jsx': 'jsx',
+        '.ts': 'typescript',
+        '.tsx': 'tsx',
+        '.html': 'html',
+        '.css': 'css',
+        '.scss': 'scss',
+        '.sass': 'sass',
+        '.less': 'less',
+        '.vue': 'vue',
+        '.svelte': 'svelte',
+        
+        // Backend
+        '.py': 'python',
+        '.rb': 'ruby',
+        '.java': 'java',
+        '.cs': 'csharp',
+        '.go': 'go',
+        '.rs': 'rust',
+        '.php': 'php',
+        '.swift': 'swift',
+        '.kt': 'kotlin',
+        '.scala': 'scala',
+        '.r': 'r',
+        '.lua': 'lua',
+        '.perl': 'perl',
+        '.pl': 'perl',
+        
+        // Config
+        '.json': 'json',
+        '.yaml': 'yaml',
+        '.yml': 'yaml',
+        '.toml': 'toml',
+        '.xml': 'xml',
+        '.ini': 'ini',
+        '.env': 'bash',
+        
+        // Shell/Scripts
+        '.sh': 'bash',
+        '.bash': 'bash',
+        '.zsh': 'bash',
+        '.fish': 'bash',
+        '.ps1': 'powershell',
+        '.bat': 'batch',
+        '.cmd': 'batch',
+        
+        // C/C++
+        '.c': 'c',
+        '.h': 'c',
+        '.cpp': 'cpp',
+        '.cc': 'cpp',
+        '.cxx': 'cpp',
+        '.hpp': 'cpp',
+        '.hxx': 'cpp',
+        
+        // Database
+        '.sql': 'sql',
+        
+        // Documentation
+        '.md': 'markdown',
+        '.mdx': 'markdown',
+        '.rst': 'rst',
+        '.tex': 'latex',
+        
+        // Godot
+        '.gd': 'gdscript',
+        '.tscn': 'gdscript',
+        '.tres': 'gdscript',
+        '.cfg': 'ini',
+        '.import': 'ini',
+        
+        // Other
+        '.dockerfile': 'dockerfile',
+        '.Dockerfile': 'dockerfile',
+        '.makefile': 'makefile',
+        '.Makefile': 'makefile',
+        '.cmake': 'cmake',
+        '.gradle': 'gradle',
+        '.proto': 'protobuf',
+        '.graphql': 'graphql',
+        '.gql': 'graphql',
+    };
+    
+    const lang = languageMap[extension.toLowerCase()];
+    return lang || 'text';  // Default to 'text' for unknown extensions
 }

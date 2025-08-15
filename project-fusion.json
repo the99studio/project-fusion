@@ -2,7 +2,7 @@
     "fusion": {
         "fusion_file": "project-fusioned.txt",
         "fusion_log": "project-fusion.log",
-        "copyToClipboard": true
+        "copyToClipboard": false
     },
     "parsedFileExtensions": {
         "backend": [
@@ -61,6 +61,7 @@
         "project-fusion.json",
         "project-fusion.log",
         "project-fusioned.txt",
+        "project-fusioned.md",
         "node_modules/",
         "package-lock.json",
         "pnpm-lock.yaml",
