@@ -81,6 +81,58 @@ project-fusion --help      # Show help
 - Unit tests: `pnpm test` (placeholder, needs implementation)
 - Manual testing: Use linked CLI in test projects
 
+## User Workflow and File Formats
+
+### Fusion File Format
+The fusion process creates a single file containing all project files in this format:
+
+```
+# Generated Project Fusion File
+# Project: your-project-name
+# @2025-01-15T10:30:00.000Z
+# Files: 5
+
+### /src/components/Button.tsx
+# Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+import React from 'react';
+
+export const Button = () => {
+  return <button>Click me</button>;
+};
+
+### /src/utils/helper.ts
+# Hash: f8c3bf28b236ed1d3644dd5b66728c3413679c7e6efcb2a79da143e9c6bb19d0
+export const helper = () => {
+  console.log('Helper function');
+};
+```
+
+### AI Response Format
+When AI assistants respond with changes, they should use unified diff format:
+
+```
+### /src/components/Button.tsx
+# Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+--- a/src/components/Button.tsx
++++ b/src/components/Button.tsx
+@@ -1,5 +1,6 @@
+ import React from 'react';
++import { useState } from 'react';
+ 
+-export const Button = () => {
+-  return <button>Click me</button>;
++export const Button = ({ onClick }) => {
++  const [clicked, setClicked] = useState(false);
++  return <button onClick={onClick}>Click me</button>;
+ };
+```
+
+### File Operations
+- **Modified**: Use unified diff format as shown above
+- **New**: `### /path/to/file.tsx [NEW]` followed by full content
+- **Deleted**: `### /path/to/file.tsx [DELETE]`
+- **Renamed**: `### /old/path.tsx [RENAME] /new/path.tsx` with diff content
+
 ## Configuration Schema
 The project uses Zod for schema validation. Configuration is stored in `project-fusion.json`:
 
@@ -215,8 +267,212 @@ When making changes:
 - Binary file support
 - Web interface
 
+## Development Setup
+
+### Prerequisites for Development
+- Node.js 18+
+- pnpm (recommended package manager)
+- Git
+
+### Setup Development Environment
+
+1. Install pnpm globally if you don't have it yet:
+   ```bash
+   npm install -g pnpm
+   ```
+
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/the99studio/project-fusion.git
+   cd project-fusion
+   ```
+
+3. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+4. Build the project:
+   ```bash
+   pnpm build
+   ```
+
+5. Setup pnpm global bin folder:
+   ```bash
+   pnpm setup
+   ```
+   Then close VS Code and reopen it
+
+6. Link CLI globally for testing:
+   ```bash
+   cd packages/cli
+   pnpm link --global
+   ```
+
+   To remove the link later:
+   ```bash
+   pnpm unlink --global
+   ```
+
+7. Test the CLI:
+   ```bash
+   project-fusion --help
+   ```
+
+### Development Workflow
+
+1. Make changes to the code in the `packages` directory
+2. Rebuild the project:
+   ```bash
+   pnpm build
+   ```
+3. Test your changes:
+   ```bash
+   project-fusion --help
+   project-fusion init
+   project-fusion fusion
+   project-fusion applydiff
+   ```
+
+### Testing in a Sample Project
+
+1. Create or navigate to a test project:
+   ```bash
+   mkdir test-project
+   cd test-project
+   ```
+
+2. Initialize Project Fusion in the test project:
+   ```bash
+   project-fusion init
+   ```
+
+3. Test the fusion process:
+   ```bash
+   project-fusion fusion
+   ```
+
+4. Manually modify the generated diff file or create a test diff file
+
+5. Apply the changes:
+   ```bash
+   project-fusion applydiff
+   ```
+
+### Useful Development Commands
+
+- `pnpm install`: Install all dependencies
+- `pnpm build`: Build all packages
+- `pnpm --recursive update --latest`: Update dependencies to their latest version in each package.json of the project
+- `pnpm link --global`: Link the CLI globally for testing
+- `pnpm unlink --global`: Remove the global link
+
+## NPM Publication
+
+### Publishing to NPM
+
+When ready to publish a new version:
+
+1. **Update version numbers** in `packages/cli/package.json`
+
+2. **Build the project**:
+   ```bash
+   pnpm build
+   ```
+
+3. **Test the package locally**:
+   ```bash
+   cd packages/cli
+   npm pack --dry-run
+   ```
+
+4. **Publish to NPM**:
+   ```bash
+   cd packages/cli
+   npm publish
+   ```
+
+### Publication Notes
+
+- Only the `packages/cli` directory is published to NPM as `project-fusion`
+- The core functionality is bundled directly into the CLI package
+- All dependencies are resolved and included in the published package
+- The `files` field in package.json controls what gets published
+
+### Pre-publication Checklist
+
+- [ ] Version number updated
+- [ ] Build successful (`pnpm build`)
+- [ ] All tests pass
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated (if exists)
+- [ ] Git commit and tag created
+
+## Security Considerations
+- Respect .gitignore and .projectfusionignore files
+- No automatic handling of sensitive files
+- User must manually exclude credentials/secrets
+- No binary file support (text files only)
+
+### Security Best Practices
+- **Sensitive Data**: Project Fusion does not automatically filter out sensitive data. Be cautious about what files you include in your fusion.
+- **.projectfusionignore**: Use a `.projectfusionignore` file (similar to `.gitignore`) to exclude sensitive files and directories from being processed.
+- **API Keys and Credentials**: Never share files containing API keys, passwords, or other credentials with AI assistants.
+- **Personal Information**: Be mindful of including files that might contain personal information.
+
+Example `.projectfusionignore` file:
+```
+# Credentials and environment variables
+.env
+.env.*
+**/credentials/*
+
+# Secret configuration
+**/secrets/*
+**/config/secrets.json
+
+# Key files
+*.pem
+*.key
+
+# Package files
+package-lock.json
+
+# Directories to exclude
+/.project-fusion/
+```
+
+To enable this feature, update your configuration:
+```json
+{
+  "useProjectFusionIgnoreForExcludes": true
+}
+```
+
+## Performance Considerations
+
+- **File size limits**: Be aware that AI assistants have limits on the amount of data they can process. Configure your extensions and exclusions appropriately.
+- **For large projects**: Consider using more specific extension groups to reduce the total size of the fusion file.
+- **Use the `--extensions` parameter**: Focus only on relevant file types for your current task.
+
+## Known Limitations
+- No automatic conflict resolution
+- No binary file support
+- No special character handling in file paths
+- Maximum file size depends on available memory
+- Requires manual copying of diff file to input directory
+- No automatic directory creation (directories must exist)
+
+## Future Improvements (Planned)
+- VS Code extension integration
+- Direct AI assistant API integration
+- Dependency-based file inclusion
+- Conflict resolution mechanisms
+- Binary file support
+- Web interface
+
 ## Debugging Tips
-- Check logs in `.ai-code-sync/fusion/fusion.log`
+- Check logs in `.project-fusion/fusion/fusion.log`
 - Verify configuration with schema validation
 - Use `--verbose` flag (when implemented)
 - Test with small file sets first

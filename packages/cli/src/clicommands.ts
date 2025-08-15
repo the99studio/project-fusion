@@ -11,11 +11,11 @@ import {
   FusionOptions,
   processApplyDiff,
   ApplyDiffOptions
-} from 'project-fusion-core/dist/core.js';
+} from './core.js';
 import { 
   defaultConfig,
   defaultProjectFusionIgnoreContent
-} from 'project-fusion-core/dist/coreutils.js';
+} from './coreutils.js';
 
 /**
  * Run the fusion command
