@@ -6,7 +6,6 @@ import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import path from 'path';
 import {
-    Config,
     calculateHash,
     ensureDirectoryExists,
     formatTimestamp,
@@ -16,9 +15,12 @@ import {
     writeLog
 } from './utils.js';
 import {
+    Config,
     FileInfo,
     FusionOptions,
-    FusionResult
+    FusionResult,
+    createFilePath,
+    createFileHash
 } from './types.js';
 
 /**
@@ -33,8 +35,8 @@ export async function processFusion(
 ): Promise<FusionResult> {
     try {
         const { fusion, parsing } = config;
-        const logFilePath = path.resolve(fusion.fusion_log);
-        const fusionFilePath = path.resolve(fusion.fusion_file);
+        const logFilePath = createFilePath(path.resolve(fusion.fusion_log));
+        const fusionFilePath = createFilePath(path.resolve(fusion.fusion_file));
 
         // Clear previous log
         await writeLog(logFilePath, `--- Fusion Process Started (${formatTimestamp()}) ---`);
@@ -152,9 +154,9 @@ export async function processFusion(
                 foundExtensions.add(fileExt);
 
                 fileInfos.push({
-                    path: relativePath,
+                    path: createFilePath(relativePath),
                     content,
-                    hash
+                    hash: createFileHash(hash)
                 });
 
                 await writeLog(logFilePath, `Processed: ${relativePath} (Hash: ${hash})`, true);
@@ -230,7 +232,7 @@ export async function processFusion(
         console.error(errorMessage);
 
         try {
-            const logFilePath = path.resolve(config.fusion.fusion_log);
+            const logFilePath = createFilePath(path.resolve(config.fusion.fusion_log));
             await writeLog(logFilePath, errorMessage, true);
             await writeLog(logFilePath, `--- Fusion Process Failed (${formatTimestamp()}) ---`, true);
 

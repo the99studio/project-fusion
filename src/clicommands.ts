@@ -6,7 +6,7 @@ import clipboardy from 'clipboardy';
 import fs from 'fs-extra';
 import path from 'path';
 import { processFusion } from './fusion.js';
-import { FusionOptions } from './types.js';
+import { FusionOptions, Config } from './types.js';
 import { loadConfig, defaultConfig } from './utils.js';
 
 /**
@@ -18,7 +18,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
         console.log(chalk.blue('🔄 Starting Fusion Process...'));
 
         // Load config
-        const config = loadConfig();
+        const config = await loadConfig();
 
         // Override rootDirectory only if specified via CLI
         if (options.root) {

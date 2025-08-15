@@ -3,41 +3,16 @@
  */
 import crypto from 'crypto';
 import fs from 'fs-extra';
-import { promises as fsNative } from 'fs';
 import path from 'path';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
+import { Config } from './types.js';
 
-/**
- * Main configuration interface
- */
-export interface Config {
-    fusion: {
-        fusion_file: string;
-        fusion_log: string;
-        copyToClipboard: boolean;
-    };
-    parsedFileExtensions: {
-        backend: string[];
-        config: string[];
-        cpp: string[];
-        scripts: string[];
-        web: string[];
-        [key: string]: string[];
-    };
-    parsing: {
-        parseSubDirectories: boolean;
-        rootDirectory: string;
-    };
-    ignorePatterns: string[];
-    useGitIgnoreForExcludes: boolean;
-    schemaVersion: number;
-}
 
 /**
  * Default configuration for Project Fusion
  */
-export const defaultConfig: Config = {
+export const defaultConfig = {
     fusion: {
         fusion_file: "project-fusioned.txt",
         fusion_log: "project-fusion.log",
@@ -84,20 +59,20 @@ export const defaultConfig: Config = {
     ],
     useGitIgnoreForExcludes: true,
     schemaVersion: 1
-};
+} as const satisfies Config;
 
 
 /**
  * Load config from file
  * @returns The loaded configuration
  */
-export function loadConfig(): Config {
+export async function loadConfig(): Promise<Config> {
     try {
         const configPath = path.resolve('./project-fusion.json');
         
         let configContent: string;
         try {
-            configContent = fs.readFileSync(configPath, 'utf8');
+            configContent = await fs.readFile(configPath, 'utf8');
         } catch (error) {
             return defaultConfig;
         }
@@ -108,7 +83,7 @@ export function loadConfig(): Config {
         try {
             const validatedConfig = ConfigSchemaV1.parse(parsedConfig);
             return validatedConfig;
-        } catch (zodError: any) {
+        } catch (zodError: unknown) {
             if (zodError instanceof z.ZodError) {
                 console.error('Configuration validation failed (will use default config):', zodError.format());
             } else {

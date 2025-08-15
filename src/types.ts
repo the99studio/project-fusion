@@ -2,42 +2,49 @@
  * Type definitions for the fusion functionality
  */
 
-/**
- * Configuration for the fusion process
- */
-export interface FusionConfig {
-    directory: string;
-    fusion_file: string;
-    fusion_log: string;
-}
+// Branded types for better type safety
+export type FilePath = string & { readonly __brand: unique symbol };
+export type FileHash = string & { readonly __brand: unique symbol };
+export type FileExtension = `.${string}`;
+
+// Helper functions for branded types
+export const createFilePath = (path: string): FilePath => path as FilePath;
+export const createFileHash = (hash: string): FileHash => hash as FileHash;
 
 /**
- * Configuration for parsed file extensions
+ * Main configuration interface
  */
-export interface ParsedFileExtensionsConfig {
-    backend: string[];
-    config: string[];
-    cpp: string[];
-    scripts: string[];
-    web: string[];
-    [key: string]: string[];
-}
-
-/**
- * Configuration for parsing
- */
-export interface ParsingConfig {
-    parseSubDirectories: boolean;
-    rootDirectory: string;
+export interface Config {
+    fusion: {
+        fusion_file: string;
+        fusion_log: string;
+        copyToClipboard: boolean;
+    };
+    parsedFileExtensions: {
+        backend: string[];
+        config: string[];
+        cpp: string[];
+        scripts: string[];
+        web: string[];
+        godot: string[];
+        [key: string]: string[];
+    };
+    parsing: {
+        parseSubDirectories: boolean;
+        rootDirectory: string;
+    };
+    ignorePatterns: string[];
+    useGitIgnoreForExcludes: boolean;
+    schemaVersion: number;
 }
 
 /**
  * Information about a file for fusion
  */
 export interface FileInfo {
-    path: string;
+    path: FilePath;
     content: string;
-    hash: string;
+    hash: FileHash;
 }
 
 /**
@@ -48,12 +55,18 @@ export interface FusionOptions {
 }
 
 /**
- * Result of the fusion process
+ * Result of the fusion process - Using discriminated union for better type safety
  */
-export interface FusionResult {
-    success: boolean;
-    message: string;
-    fusionFilePath?: string;
-    logFilePath?: string;
-    error?: Error;
-}
+export type FusionResult = 
+    | {
+        success: true;
+        message: string;
+        fusionFilePath: FilePath;
+        logFilePath: FilePath;
+    }
+    | {
+        success: false;
+        message: string;
+        logFilePath?: FilePath;
+        error?: Error;
+    };

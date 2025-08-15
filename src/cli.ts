@@ -39,7 +39,7 @@ program
 
 // Run fusion by default if no command was specified
 async function runDefaultCommand() {
-    const options: any = {};
+    const options: { extensions?: string; root?: string } = {};
     const args = process.argv.slice(2);
     
     // Parse any options that might be present
