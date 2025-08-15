@@ -1,7 +1,7 @@
 # Generated Project Fusion File
 **Project:** project-fusion
 
-**Generated:** 2025-08-15T17:29:36.685Z
+**Generated:** 2025-08-15T18:33:51.512Z
 
 **Files:** 12
 
@@ -51,7 +51,7 @@ project-fusion/
 - **TypeScript 5.9.2** (ES2022, NodeNext, strict mode)
 - **Node.js 18+**, **npm** package manager
 - **Zod 4.0.17** (schema validation), **Commander.js 14** (CLI)
-- **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**, **uuid**
+- **fs-extra**, **glob**, **ignore**, **chalk**, **clipboardy**
 
 ## Commands & Development
 
@@ -97,7 +97,6 @@ project-fusion --help   # Show help
   parsing: { rootDirectory: string, parseSubDirectories: boolean }
   ignorePatterns: string[]
   useGitIgnoreForExcludes: boolean
-  useProjectFusionIgnoreForExcludes: boolean
 }
 ```
 
@@ -172,18 +171,20 @@ project-fusion --help   # Show help
 1. Edit `src/fusion.ts` processing logic
 2. Update types in `src/types.ts`
 
-## Security & .projectfusionignore
+## Security & Ignore Patterns
+Configure ignore patterns directly in `project-fusion.json`:
+```json
+{
+  "ignorePatterns": [
+    ".env*",
+    "**/credentials/*",
+    "**/secrets/*",
+    "*.pem",
+    "*.key",
+    "package-lock.json"
+  ]
+}
 ```
-# Example .projectfusionignore
-.env*
-**/credentials/*
-**/secrets/*
-*.pem
-*.key
-package-lock.json
-/.project-fusion/
-```
-Enable: `"useProjectFusionIgnoreForExcludes": true`
 
 ## NPM Publication
 1. Update version in `package.json`
@@ -283,16 +284,15 @@ Enable: `"useProjectFusionIgnoreForExcludes": true`
         "fs-extra": "^11.3.1",
         "glob": "^11.0.3",
         "ignore": "^7.0.5",
-        "uuid": "^11.1.0",
         "zod": "^4.0.17"
     },
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^24.2.1",
-        "@types/uuid": "^10.0.0",
         "typescript": "^5.9.2"
     }
 }
+
 ```
 
 ## 📄 README.md
@@ -906,7 +906,7 @@ import { z } from 'zod';
 /**
  * Schema for fusion configuration
  */
-export const FusionConfigSchema = z.object({
+const FusionConfigSchema = z.object({
     fusion_file: z.string(),
     fusion_log: z.string(),
     copyToClipboard: z.boolean(),
@@ -916,7 +916,7 @@ export const FusionConfigSchema = z.object({
  * Schema for file extensions configuration
  * Allows for dynamic extension groups beyond the predefined ones
  */
-export const ParsedFileExtensionsSchema = z.object({
+const ParsedFileExtensionsSchema = z.object({
     backend: z.array(z.string()),
     config: z.array(z.string()),
     cpp: z.array(z.string()),
@@ -929,7 +929,7 @@ export const ParsedFileExtensionsSchema = z.object({
 /**
  * Schema for parsing configuration
  */
-export const ParsingConfigSchema = z.object({
+const ParsingConfigSchema = z.object({
     parseSubDirectories: z.boolean(),
     rootDirectory: z.string(),
 });
@@ -953,8 +953,7 @@ export const ConfigSchemaV1 = z.object({
     useGitIgnoreForExcludes: z.boolean(),
 });
 
-// Type inferred from the schema
-export type ConfigV1 = z.infer<typeof ConfigSchemaV1>;
+// Type inferred from the schema is used directly via Config in types.ts
 ```
 
 ## 📄 src/types.ts
@@ -966,7 +965,6 @@ export type ConfigV1 = z.infer<typeof ConfigSchemaV1>;
 
 // Branded types for better type safety
 export type FilePath = string & { readonly __brand: unique symbol };
-export type FileExtension = `.${string}`;
 
 // Helper functions for branded types
 export const createFilePath = (path: string): FilePath => path as FilePath;
@@ -1182,30 +1180,6 @@ export async function writeLog(
     }
 }
 
-/**
- * Journalisation d'erreur améliorée - pour voir les erreurs dans les logs ET le terminal
- * @param logFilePath Chemin du fichier log
- * @param message Message d'erreur
- * @param error L'erreur elle-même (optionnelle)
- */
-export async function logError(
-    logFilePath: string,
-    message: string,
-    error?: Error
-): Promise<void> {
-    const errorMsg = `❌ ERROR: ${message}`;
-    console.error(errorMsg);
-
-    await writeLog(logFilePath, errorMsg, true);
-
-    if (error) {
-        console.error(`  Details: ${error.message}`);
-        console.error(`  Stack: ${error.stack}`);
-
-        await writeLog(logFilePath, `  Details: ${error.message}`, true);
-        await writeLog(logFilePath, `  Stack: ${error.stack}`, true);
-    }
-}
 
 /**
  * Format a timestamp
@@ -1388,7 +1362,6 @@ export function getMarkdownLanguage(extension: string): string {
 
 - [ ] **Test coverage reporting** - Metrics for code quality
 - [ ] **JSDoc API documentation** - Complete function documentation  
-- [ ] **AI attribution with UUID** - Use uuid dependency for AI collaboration tracking
 - [ ] **Performance benchmarking** - Measure and optimize processing speed
 
 ## 🔵 **PRIORITÉ 4** - Future Features

@@ -4,7 +4,6 @@
 
 // Branded types for better type safety
 export type FilePath = string & { readonly __brand: unique symbol };
-export type FileExtension = `.${string}`;
 
 // Helper functions for branded types
 export const createFilePath = (path: string): FilePath => path as FilePath;

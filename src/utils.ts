@@ -146,30 +146,6 @@ export async function writeLog(
     }
 }
 
-/**
- * Journalisation d'erreur améliorée - pour voir les erreurs dans les logs ET le terminal
- * @param logFilePath Chemin du fichier log
- * @param message Message d'erreur
- * @param error L'erreur elle-même (optionnelle)
- */
-export async function logError(
-    logFilePath: string,
-    message: string,
-    error?: Error
-): Promise<void> {
-    const errorMsg = `❌ ERROR: ${message}`;
-    console.error(errorMsg);
-
-    await writeLog(logFilePath, errorMsg, true);
-
-    if (error) {
-        console.error(`  Details: ${error.message}`);
-        console.error(`  Stack: ${error.stack}`);
-
-        await writeLog(logFilePath, `  Details: ${error.message}`, true);
-        await writeLog(logFilePath, `  Stack: ${error.stack}`, true);
-    }
-}
 
 /**
  * Format a timestamp

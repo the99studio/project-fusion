@@ -68,7 +68,6 @@ project-fusion --help   # Show help
   parsing: { rootDirectory: string, parseSubDirectories: boolean }
   ignorePatterns: string[]
   useGitIgnoreForExcludes: boolean
-  useProjectFusionIgnoreForExcludes: boolean
 }
 ```
 
@@ -143,18 +142,20 @@ project-fusion --help   # Show help
 1. Edit `src/fusion.ts` processing logic
 2. Update types in `src/types.ts`
 
-## Security & .projectfusionignore
+## Security & Ignore Patterns
+Configure ignore patterns directly in `project-fusion.json`:
+```json
+{
+  "ignorePatterns": [
+    ".env*",
+    "**/credentials/*",
+    "**/secrets/*",
+    "*.pem",
+    "*.key",
+    "package-lock.json"
+  ]
+}
 ```
-# Example .projectfusionignore
-.env*
-**/credentials/*
-**/secrets/*
-*.pem
-*.key
-package-lock.json
-/.project-fusion/
-```
-Enable: `"useProjectFusionIgnoreForExcludes": true`
 
 ## NPM Publication
 1. Update version in `package.json`

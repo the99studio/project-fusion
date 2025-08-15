@@ -6,7 +6,7 @@ import { z } from 'zod';
 /**
  * Schema for fusion configuration
  */
-export const FusionConfigSchema = z.object({
+const FusionConfigSchema = z.object({
     fusion_file: z.string(),
     fusion_log: z.string(),
     copyToClipboard: z.boolean(),
@@ -16,7 +16,7 @@ export const FusionConfigSchema = z.object({
  * Schema for file extensions configuration
  * Allows for dynamic extension groups beyond the predefined ones
  */
-export const ParsedFileExtensionsSchema = z.object({
+const ParsedFileExtensionsSchema = z.object({
     backend: z.array(z.string()),
     config: z.array(z.string()),
     cpp: z.array(z.string()),
@@ -29,7 +29,7 @@ export const ParsedFileExtensionsSchema = z.object({
 /**
  * Schema for parsing configuration
  */
-export const ParsingConfigSchema = z.object({
+const ParsingConfigSchema = z.object({
     parseSubDirectories: z.boolean(),
     rootDirectory: z.string(),
 });
@@ -53,5 +53,4 @@ export const ConfigSchemaV1 = z.object({
     useGitIgnoreForExcludes: z.boolean(),
 });
 
-// Type inferred from the schema
-export type ConfigV1 = z.infer<typeof ConfigSchemaV1>;
+// Type inferred from the schema is used directly via Config in types.ts
