@@ -16,9 +16,16 @@ program
     .description('Project Fusion - Efficient project file management and sharing')
     .version('0.0.1', '-v, --version')
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
-    .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
-    .action((options) => {
-        runFusionCommand(options);
+    .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)');
+
+// Fusion command (explicit)
+program
+    .command('fusion')
+    .description('Run fusion process to merge project files')
+    .action((options, command) => {
+        // Merge global options with command options
+        const allOptions = { ...command.parent.opts(), ...options };
+        runFusionCommand(allOptions);
     });
 
 // Init command
@@ -30,31 +37,34 @@ program
         runInitCommand(options);
     });
 
-// Run fusion by default if no command specified
+// Run fusion by default if no command was specified
 async function runDefaultCommand() {
-    if (process.argv.length < 3 || (!process.argv.includes('init') && !process.argv.includes('--help') && !process.argv.includes('-h') && !process.argv.includes('--version') && !process.argv.includes('-v'))) {
-        // If no arguments or only options, run fusion
-        const args = process.argv.slice(2);
-        if (args.length === 0 || args.every(arg => arg.startsWith('--'))) {
-            const options: any = {};
-            // Parse any options that might be present
-            for (let i = 0; i < args.length; i++) {
-                if (args[i] === '--extensions' && args[i + 1]) {
-                    options.extensions = args[i + 1];
-                    i++;
-                } else if (args[i] === '--root' && args[i + 1]) {
-                    options.root = args[i + 1];
-                    i++;
-                }
-            }
-            await runFusionCommand(options);
-            process.exit(0);
+    const options: any = {};
+    const args = process.argv.slice(2);
+    
+    // Parse any options that might be present
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--extensions' && args[i + 1]) {
+            options.extensions = args[i + 1];
+            i++;
+        } else if (args[i] === '--root' && args[i + 1]) {
+            options.root = args[i + 1];
+            i++;
         }
     }
+    await runFusionCommand(options);
 }
 
-// Execute default command
-runDefaultCommand();
+// First, try to parse with commander.js for explicit commands
+const args = process.argv.slice(2);
+const hasKnownCommand = args.some(arg => 
+    ['init', 'fusion', '--help', '-h', '--version', '-v'].includes(arg)
+);
 
-// Parse command line arguments
-program.parse(process.argv);
+if (hasKnownCommand) {
+    // Use commander.js for explicit commands and help
+    program.parse(process.argv);
+} else {
+    // Use default fusion behavior
+    await runDefaultCommand();
+}
