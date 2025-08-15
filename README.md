@@ -1,6 +1,6 @@
 # Project Fusion
 
-Project Fusion enables efficient project file management and sharing with AI assistants. It merges multiple project files into a single file for easy sharing and collaboration.
+Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration.
 
 ## Installation
 
@@ -28,7 +28,7 @@ pnpm add -g project-fusion
    ```
    This creates `.project-fusion/fusion/project_files_fusioned.txt`
 
-3. **Share the fusion file** with your AI assistant for collaboration
+3. **Share the fusion file** for collaboration or analysis
 
 ## Commands
 
@@ -42,15 +42,15 @@ pnpm add -g project-fusion
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
 - **[LICENSE](./LICENSE)** - MIT License terms
 
-## AI Assistant Workflow
+## Usage Workflow
 
-When sharing your code with an AI assistant:
+When sharing your code:
 
 1. Run `project-fusion fusion` to create a merged file
-2. Share the generated fusion file with your AI assistant
-3. Use the fusion file for code review, analysis, or collaboration
+2. Share the generated fusion file with colleagues or collaborators
+3. Use the fusion file for code review, analysis, or project overview
 
-The fusion file contains all your project files in a single, organized format that's easy for AI assistants to understand and work with.
+The fusion file contains all your project files in a single, organized format that's easy to understand and work with.
 
 ## Configuration
 

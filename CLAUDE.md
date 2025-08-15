@@ -1,7 +1,7 @@
-# Project Fusion - Developer Guide for AI Assistants
+# Project Fusion - Developer Guide
 
 ## Project Overview
-Project Fusion is a tool for efficient project file management and sharing with AI assistants. It merges multiple project files into a single file for easy sharing and collaboration.
+Project Fusion is a tool for efficient project file management. It merges multiple project files into a single file for easy sharing and collaboration.
 
 ## Project Structure
 ```
@@ -106,12 +106,12 @@ export const helper = () => {
 ```
 
 ### Using the Fusion File
-The fusion file can be used with AI assistants for:
+The fusion file can be used for:
 - Code review and analysis
 - Understanding project structure
-- Getting help with specific functionality
-- Documentation generation
-- Code suggestions and improvements
+- Project documentation
+- Team collaboration
+- Code sharing and onboarding
 
 ## Configuration Schema
 The project uses Zod for schema validation. Configuration is stored in `project-fusion.json`:
@@ -376,7 +376,7 @@ When ready to publish a new version:
 ### Security Best Practices
 - **Sensitive Data**: Project Fusion does not automatically filter out sensitive data. Be cautious about what files you include in your fusion.
 - **.projectfusionignore**: Use a `.projectfusionignore` file (similar to `.gitignore`) to exclude sensitive files and directories from being processed.
-- **API Keys and Credentials**: Never share files containing API keys, passwords, or other credentials with AI assistants.
+- **API Keys and Credentials**: Never share files containing API keys, passwords, or other credentials.
 - **Personal Information**: Be mindful of including files that might contain personal information.
 
 Example `.projectfusionignore` file:
@@ -410,7 +410,7 @@ To enable this feature, update your configuration:
 
 ## Performance Considerations
 
-- **File size limits**: Be aware that AI assistants have limits on the amount of data they can process. Configure your extensions and exclusions appropriately.
+- **File size limits**: Be aware that large fusion files can be difficult to process. Configure your extensions and exclusions appropriately.
 - **For large projects**: Consider using more specific extension groups to reduce the total size of the fusion file.
 - **Use the `--extensions` parameter**: Focus only on relevant file types for your current task.
 
@@ -422,11 +422,11 @@ To enable this feature, update your configuration:
 
 ## Future Improvements (Planned)
 - VS Code extension integration
-- Direct AI assistant API integration
 - Dependency-based file inclusion
 - Binary file support
 - Web interface
 - Enhanced fusion formats (JSON, XML)
+- Integration with IDEs
 
 ## Debugging Tips
 - Check logs in `.project-fusion/fusion/fusion.log`

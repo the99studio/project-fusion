@@ -1,7 +1,7 @@
 {
     "name": "project-fusion",
     "version": "0.0.1",
-    "description": "Tool for merging project files into a single file for AI collaboration",
+    "description": "Tool for merging project files into a single file for easy sharing",
     "private": true,
     "scripts": {
       "build": "pnpm --filter \"./packages/**\" build",
@@ -10,11 +10,11 @@
       "lint": "pnpm --filter \"./packages/**\" lint"
     },
     "keywords": [
-      "ai",
       "code",
-      "sync",
-      "diff",
-      "fusion"
+      "merge",
+      "files",
+      "fusion",
+      "collaboration"
     ],
     "author": "the99studio",
     "license": "MIT",

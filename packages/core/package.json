@@ -11,10 +11,9 @@
     "lint": "eslint src --ext .ts"
   },
   "keywords": [
-    "ai",
     "code",
-    "sync",
-    "diff",
+    "merge",
+    "files",
     "fusion"
   ],
   "author": "the99studio",
