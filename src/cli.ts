@@ -31,25 +31,30 @@ program
     });
 
 // Run fusion by default if no command specified
-if (process.argv.length < 3 || (!process.argv.includes('init') && !process.argv.includes('--help') && !process.argv.includes('-h') && !process.argv.includes('--version') && !process.argv.includes('-v'))) {
-    // If no arguments or only options, run fusion
-    const args = process.argv.slice(2);
-    if (args.length === 0 || args.every(arg => arg.startsWith('--'))) {
-        const options: any = {};
-        // Parse any options that might be present
-        for (let i = 0; i < args.length; i++) {
-            if (args[i] === '--extensions' && args[i + 1]) {
-                options.extensions = args[i + 1];
-                i++;
-            } else if (args[i] === '--root' && args[i + 1]) {
-                options.root = args[i + 1];
-                i++;
+async function runDefaultCommand() {
+    if (process.argv.length < 3 || (!process.argv.includes('init') && !process.argv.includes('--help') && !process.argv.includes('-h') && !process.argv.includes('--version') && !process.argv.includes('-v'))) {
+        // If no arguments or only options, run fusion
+        const args = process.argv.slice(2);
+        if (args.length === 0 || args.every(arg => arg.startsWith('--'))) {
+            const options: any = {};
+            // Parse any options that might be present
+            for (let i = 0; i < args.length; i++) {
+                if (args[i] === '--extensions' && args[i + 1]) {
+                    options.extensions = args[i + 1];
+                    i++;
+                } else if (args[i] === '--root' && args[i + 1]) {
+                    options.root = args[i + 1];
+                    i++;
+                }
             }
+            await runFusionCommand(options);
+            process.exit(0);
         }
-        runFusionCommand(options);
-        process.exit(0);
     }
 }
+
+// Execute default command
+runDefaultCommand();
 
 // Parse command line arguments
 program.parse(process.argv);

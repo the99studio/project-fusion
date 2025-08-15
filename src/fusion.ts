@@ -41,7 +41,8 @@ export async function processFusion(
 
         // Determine which extensions to process
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
-        console.log(`Extensions to process: ${extensions.join(', ')}`);
+        console.log(`Processing ${extensions.length} file extensions from ${Object.keys(config.parsedFileExtensions).length} categories`);
+        
         if (extensions.length === 0) {
             const message = 'No file extensions to process.';
             await writeLog(logFilePath, message, true);
@@ -81,15 +82,16 @@ export async function processFusion(
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
 
         let filePaths = await glob(pattern, { 
-            nodir: true,
-            ignore: ['**/node_modules/**', '**/dist/**', '**/.git/**']
+            nodir: true
         });
-
+        
         // Filter out ignored files using the ignore instance
+        const originalFileCount = filePaths.length;
         filePaths = filePaths.filter(file => {
             const relativePath = path.relative(rootDir, file);
             return !ig.ignores(relativePath);
         });
+        console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
             const message = 'No files found to process.';
@@ -197,6 +199,25 @@ export async function processFusion(
         await writeLog(logFilePath, message, true);
         await writeLog(logFilePath, `--- Fusion Process Completed (${formatTimestamp()}) ---`, true);
         await writeLog(logFilePath, extensionsInfo, true);
+        
+        // Add detailed summary
+        await writeLog(logFilePath, `\n=== FUSION SUMMARY ===`, true);
+        await writeLog(logFilePath, `Total extensions configured: ${extensions.length}`, true);
+        await writeLog(logFilePath, `Extensions by category:`, true);
+        Object.entries(config.parsedFileExtensions).forEach(([category, exts]) => {
+            writeLog(logFilePath, `  ${category}: ${exts.join(', ')}`, true);
+        });
+        await writeLog(logFilePath, `\nFile discovery:`, true);
+        await writeLog(logFilePath, `  Pattern used: ${pattern}`, true);
+        await writeLog(logFilePath, `  Files found before filtering: ${originalFileCount}`, true);
+        await writeLog(logFilePath, `  Files after ignore filtering: ${fileInfos.length}`, true);
+        await writeLog(logFilePath, `  Filtering efficiency: ${((originalFileCount - fileInfos.length) / originalFileCount * 100).toFixed(1)}% files filtered out`, true);
+        await writeLog(logFilePath, `\nConfiguration used:`, true);
+        await writeLog(logFilePath, `  Root directory: ${rootDir}`, true);
+        await writeLog(logFilePath, `  Parse subdirectories: ${parsing.parseSubDirectories}`, true);
+        await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes}`, true);
+        await writeLog(logFilePath, `  Ignore patterns count: ${config.ignorePatterns.length}`, true);
+        await writeLog(logFilePath, `======================\n`, true);
 
         return {
             success: true,
