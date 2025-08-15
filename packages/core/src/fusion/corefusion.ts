@@ -8,7 +8,7 @@ import ignoreLib from 'ignore';
 import { 
   Config, 
   calculateHash,
-  defaultAiCodeSyncIgnoreContent,
+  defaultProjectFusionIgnoreContent,
   ensureDirectoryExists, 
   writeLog, 
   formatTimestamp,
@@ -68,17 +68,17 @@ export async function processFusion(
       }
     }
     
-    // Get .aicodesyncignore patterns if enabled
-    if (config.useAICodeSyncIgnoreForExcludes) {
-      const aiCodeSyncIgnorePath = path.join(rootDir, '.aicodesyncignore');
-      if (await fs.pathExists(aiCodeSyncIgnorePath)) {
-        const aiCodeSyncIgnoreContent = await fs.readFile(aiCodeSyncIgnorePath, 'utf8');
-        ig.add(aiCodeSyncIgnoreContent);
+    // Get .projectfusionignore patterns if enabled
+    if (config.useProjectFusionIgnoreForExcludes) {
+      const projectFusionIgnorePath = path.join(rootDir, '.projectfusionignore');
+      if (await fs.pathExists(projectFusionIgnorePath)) {
+        const projectFusionIgnoreContent = await fs.readFile(projectFusionIgnorePath, 'utf8');
+        ig.add(projectFusionIgnoreContent);
       }
       else
       {
-        console.warn(`Ignore file not found at ${aiCodeSyncIgnorePath}, using default value.`);
-        ig.add(defaultAiCodeSyncIgnoreContent);
+        console.warn(`Ignore file not found at ${projectFusionIgnorePath}, using default value.`);
+        ig.add(defaultProjectFusionIgnoreContent);
       }
     }
     
@@ -171,7 +171,7 @@ export async function processFusion(
     fileInfos.sort((a, b) => a.path.localeCompare(b.path));
     
     // Build simplified fusion content
-    let fusionContent = `# Generated AICodeSync Fusion File\n`;
+    let fusionContent = `# Generated Project Fusion File\n`;
     if (packageName && packageName.toLowerCase() !== projectName.toLowerCase()) {
       fusionContent += `# Project: ${projectName} / ${packageName}\n`;
     } else {

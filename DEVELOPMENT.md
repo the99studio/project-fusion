@@ -1,6 +1,6 @@
 ## Development
 
-This section provides instructions for developers who want to contribute to or modify AICodeSync.
+This section provides instructions for developers who want to contribute to or modify Project Fusion.
 
 ### Setup Development Environment
 
@@ -11,11 +11,11 @@ This section provides instructions for developers who want to contribute to or m
 
 2. Clone the repository:
    ```bash
-   git clone https://github.com/GagaPlayerOne/ai-code-sync.git
+   git clone https://github.com/GagaPlayerOne/project-fusion.git
    ```
    And navigate to it:
    ```bash
-   cd ai-code-sync
+   cd project-fusion
    ```
 
 3. Install dependencies:
@@ -50,7 +50,7 @@ This section provides instructions for developers who want to contribute to or m
 
 7. It should now be possible to execute the cli:
    ```bash
-   ai-code-sync --help
+   project-fusion --help
    ```
 
 ### Development Workflow
@@ -62,15 +62,15 @@ This section provides instructions for developers who want to contribute to or m
    ```
 3. Test your changes:
    ```bash
-   ai-code-sync --help
-   ai-code-sync init
-   ai-code-sync fusion
-   ai-code-sync applydiff
+   project-fusion --help
+   project-fusion init
+   project-fusion fusion
+   project-fusion applydiff
    ```
 
 ### Testing in a Sample Project
 
-To test AICodeSync in a real project:
+To test Project Fusion in a real project:
 
 1. Create or navigate to a test project:
    ```bash
@@ -78,22 +78,22 @@ To test AICodeSync in a real project:
    cd test-project
    ```
 
-2. Initialize AICodeSync in the test project:
+2. Initialize Project Fusion in the test project:
    ```bash
-   ai-code-sync init
+   project-fusion init
    ```
-   This will create the `ai-code-sync.json` config file and the `.ai-code-sync` directory.
+   This will create the `project-fusion.json` config file and the `.project-fusion` directory.
 
 3. Test the fusion process:
    ```bash
-   ai-code-sync fusion
+   project-fusion fusion
    ```
 
 4. Manually modify the generated diff file or create a test diff file
 
 5. Apply the changes:
    ```bash
-   ai-code-sync applydiff
+   project-fusion applydiff
    ```
 
 ### Package Organization

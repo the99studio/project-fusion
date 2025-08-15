@@ -1,5 +1,5 @@
 /**
- * Shared utilities for AICodeSync
+ * Shared utilities for Project Fusion
  */
 import fs from 'fs-extra';
 import path from 'path';
@@ -45,12 +45,12 @@ export interface Config {
     rootDirectory: string;
   };
   schemaVersion: number;
-  useAICodeSyncIgnoreForExcludes: boolean;
+  useProjectFusionIgnoreForExcludes: boolean;
   useGitIgnoreForExcludes: boolean;
 }
 
 /**
- * Default configuration for AICodeSync
+ * Default configuration for Project Fusion
  */
 export const defaultConfig: Config = {
   aiAttribution: {
@@ -61,10 +61,10 @@ export const defaultConfig: Config = {
   applydiff: {
     applydiff_log: "apply_diff.log",
     diff_file: "project_files_diff.txt",
-    directory: "./.ai-code-sync/applydiff"
+    directory: "./.project-fusion/applydiff"
   },
   fusion: {
-    directory: "./.ai-code-sync/fusion",
+    directory: "./.project-fusion/fusion",
     fusion_file: "project_files_fusioned.txt",
     fusion_log: "fusion.log",
     copyToClipboard: true
@@ -81,16 +81,16 @@ export const defaultConfig: Config = {
     rootDirectory: "."
   },
   schemaVersion: 1,
-  useAICodeSyncIgnoreForExcludes: true,
+  useProjectFusionIgnoreForExcludes: true,
   useGitIgnoreForExcludes: true
 };
 
 /**
- * Default .aicodesyncignore content
+ * Default .projectfusionignore content
  */
-export const defaultAiCodeSyncIgnoreContent = `# AI Code Sync files
-/.ai-code-sync/
-ai-code-sync.json
+export const defaultProjectFusionIgnoreContent = `# Project Fusion files
+/.project-fusion/
+project-fusion.json
 
 # Credentials and environment variables
 .env
@@ -124,7 +124,7 @@ node_modules
  */
 export async function loadConfig(): Promise<Config> {
   try {
-    const configPath = path.resolve('./ai-code-sync.json');
+    const configPath = path.resolve('./project-fusion.json');
     const configExists = await fs.pathExists(configPath);
     
     if (!configExists) {
@@ -154,7 +154,7 @@ export async function loadConfig(): Promise<Config> {
       message: typedError.message,
       stack: typedError.stack,
       context: 'loadConfig',
-      configPath: path.resolve('./ai-code-sync.json')
+      configPath: path.resolve('./project-fusion.json')
     });
     
     return defaultConfig;

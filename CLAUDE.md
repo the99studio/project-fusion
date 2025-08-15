@@ -1,7 +1,7 @@
-# AICodeSync - Developer Guide for AI Assistants
+# Project Fusion - Developer Guide for AI Assistants
 
 ## Project Overview
-AICodeSync is a tool for efficient project file management and sharing with AI assistants. It enables merging multiple files into a single file and applying changes using unified diff format.
+Project Fusion is a tool for efficient project file management and sharing with AI assistants. It enables merging multiple files into a single file and applying changes using unified diff format.
 
 ## Project Structure
 ```
@@ -24,10 +24,10 @@ project-fusion/
 │       │   ├── coreutils.ts    # Utilities
 │       │   └── schema.ts       # Configuration schemas
 │       └── package.json
-├── .ai-code-sync/              # Generated files (git-ignored)
+├── .project-fusion/            # Generated files (git-ignored)
 │   ├── fusion/                 # Fusion output
 │   └── applydiff/              # Diff files
-├── ai-code-sync.json           # Configuration file
+├── project-fusion.json         # Configuration file
 ├── pnpm-workspace.yaml         # Workspace configuration
 └── tsconfig.base.json          # Base TypeScript config
 ```
@@ -59,10 +59,10 @@ pnpm clean        # Clean build artifacts
 
 ### CLI Commands
 ```bash
-ai-code-sync init        # Initialize project configuration
-ai-code-sync fusion      # Create fusion file from project
-ai-code-sync applydiff   # Apply diff file to project
-ai-code-sync --help      # Show help
+project-fusion init        # Initialize project configuration
+project-fusion fusion      # Create fusion file from project
+project-fusion applydiff   # Apply diff file to project
+project-fusion --help      # Show help
 ```
 
 ## Development Workflow
@@ -82,7 +82,7 @@ ai-code-sync --help      # Show help
 - Manual testing: Use linked CLI in test projects
 
 ## Configuration Schema
-The project uses Zod for schema validation. Configuration is stored in `ai-code-sync.json`:
+The project uses Zod for schema validation. Configuration is stored in `project-fusion.json`:
 
 ```typescript
 {
@@ -115,7 +115,7 @@ The project uses Zod for schema validation. Configuration is stored in `ai-code-
     parseSubDirectories: boolean
   }
   useGitIgnoreForExcludes: boolean
-  useAICodeSyncIgnoreForExcludes: boolean
+  useProjectFusionIgnoreForExcludes: boolean
 }
 ```
 
@@ -141,16 +141,16 @@ The project uses Zod for schema validation. Configuration is stored in `ai-code-
 ## File Processing Flow
 
 ### Fusion Process
-1. Read configuration from `ai-code-sync.json`
+1. Read configuration from `project-fusion.json`
 2. Scan project directory based on file extensions
-3. Apply ignore rules (.gitignore, .aicodesyncignore)
+3. Apply ignore rules (.gitignore, .projectfusionignore)
 4. Generate hash for each file
 5. Combine files into fusion format
-6. Write to `.ai-code-sync/fusion/project_files_fusioned.txt`
+6. Write to `.project-fusion/fusion/project_files_fusioned.txt`
 7. Optionally copy to clipboard
 
 ### Apply Diff Process
-1. Read diff file from `.ai-code-sync/applydiff/project_files_diff.txt`
+1. Read diff file from `.project-fusion/applydiff/project_files_diff.txt`
 2. Parse unified diff format
 3. Handle operations: NEW, DELETE, RENAME, MODIFY
 4. Apply AI attribution if enabled
@@ -171,7 +171,7 @@ The project uses Zod for schema validation. Configuration is stored in `ai-code-
 - Logging to fusion_log and applydiff_log files
 
 ## Security Considerations
-- Respect .gitignore and .aicodesyncignore files
+- Respect .gitignore and .projectfusionignore files
 - No automatic handling of sensitive files
 - User must manually exclude credentials/secrets
 - No binary file support (text files only)

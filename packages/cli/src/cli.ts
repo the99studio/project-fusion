@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Command-line interface for AICodeSync
+ * Command-line interface for Project Fusion
  */
 import { Command } from 'commander';
 import chalk from 'chalk';
@@ -14,8 +14,8 @@ const program = new Command();
 
 // Set version and description
 program
-  .name('ai-code-sync')
-  .description('AICodeSync - Efficient project file management and sharing with AI assistants')
+  .name('project-fusion')
+  .description('Project Fusion - Efficient project file management and sharing with AI assistants')
   .version('0.0.1', '-v, --version');
 
 // Fusion command
@@ -40,7 +40,7 @@ program
 // Init command
 program
   .command('init')
-  .description('Initialize AICodeSync in the current directory')
+  .description('Initialize Project Fusion in the current directory')
   .option('--force', 'Force initialization even if configuration already exists')
   .action((options) => {
     runInitCommand(options);

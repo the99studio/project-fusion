@@ -1,5 +1,5 @@
 /**
- * Configuration schema definitions for AICodeSync
+ * Configuration schema definitions for Project Fusion
  */
 import { z } from 'zod';
 
@@ -66,7 +66,7 @@ export const ConfigSchemaV1 = z.object({
   parsing: ParsingConfigSchema,
   
   // Additional options
-  useAICodeSyncIgnoreForExcludes: z.boolean(),
+  useProjectFusionIgnoreForExcludes: z.boolean(),
   useGitIgnoreForExcludes: z.boolean(),
 });
 

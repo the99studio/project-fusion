@@ -1,11 +1,11 @@
 {
-  "name": "ai-code-sync",
+  "name": "project-fusion",
   "version": "0.0.1",
-  "description": "CLI for AICodeSync",
+  "description": "CLI for Project Fusion",
   "main": "dist/cli.js",
   "type": "module",
   "bin": {
-    "ai-code-sync": "dist/cli.js"
+    "project-fusion": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -23,7 +23,7 @@
   "author": "GagaPlayerOne",
   "license": "MIT",
   "dependencies": {
-    "ai-code-sync-core": "workspace:*",
+    "project-fusion-core": "workspace:*",
     "clipboardy": "^3.0.0",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",

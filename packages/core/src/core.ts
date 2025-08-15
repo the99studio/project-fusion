@@ -1,5 +1,5 @@
 /**
- * Entry point for the AICodeSync core module
+ * Entry point for the Project Fusion core module
  */
 
 // Export types

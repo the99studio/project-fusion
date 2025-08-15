@@ -1,7 +1,7 @@
-# AICodeSync
+# Project Fusion
 
 ## Overview
-AICodeSync enables efficient project file management and sharing with AI assistants. It allows merging multiple files into a single file and applying changes using unified diff format.
+Project Fusion enables efficient project file management and sharing with AI assistants. It allows merging multiple files into a single file and applying changes using unified diff format.
 
 ## Prerequisites
 - Node.js 18 or higher
@@ -25,12 +25,12 @@ pnpm setup
 
 1. Install it globally with pnpm:
 ```bash
-pnpm add -g ai-code-sync
+pnpm add -g project-fusion
 ```
 
-Note: If you want to uninstall AICodeSync at some point:
+Note: If you want to uninstall Project Fusion at some point:
 ```bash
-pnpm uninstall -g ai-code-sync
+pnpm uninstall -g project-fusion
 ```
 
 2. Navigate to your project directory
@@ -38,28 +38,28 @@ pnpm uninstall -g ai-code-sync
 cd yourprojectdirectory/
 ```
 
-3. Initialize AICodeSync in your project
+3. Initialize Project Fusion in your project
 ```bash
-ai-code-sync init
+project-fusion init
 ```
 
 ## Project Structure
 ```
-/ai-code-sync
+/project-fusion
   /packages
     /core                       # Core functionality
     /cli                        # CLI implementation
-  /.ai-code-sync
+  /.project-fusion
     /fusion                     # Generated fusion files
     /applydiff                  # Generated diff files
-  ai-code-sync.json             # Configuration file
+  project-fusion.json           # Configuration file
   pnpm-workspace.yaml           # Workspace configuration
   tsconfig.base.json            # Base TypeScript configuration
   package.json                  # Root package.json
 ```
 
 ## Configuration
-The tool uses a configuration file `ai-code-sync.json`:
+The tool uses a configuration file `project-fusion.json`:
 
 ```json
 {
@@ -71,10 +71,10 @@ The tool uses a configuration file `ai-code-sync.json`:
   "applydiff": {
     "applydiff_log": "apply_diff.log",
     "diff_file": "project_files_diff.txt",
-    "directory": "./.ai-code-sync/applydiff"
+    "directory": "./.project-fusion/applydiff"
   },
   "fusion": {
-    "directory": "./.ai-code-sync/fusion",
+    "directory": "./.project-fusion/fusion",
     "fusion_file": "project_files_fusioned.txt",
     "fusion_log": "fusion.log"
   },
@@ -98,10 +98,10 @@ The tool uses a configuration file `ai-code-sync.json`:
 
 1. Run fusion to generate a combined file.
 ```bash
-ai-code-sync fusion
+project-fusion fusion
 ```
-It should be in the fusion.directory/fusion.fusion_file from ai-code-sync.json.
-Ex: ./.ai-code-sync/fusion/project_files_fusioned.txt
+It should be in the fusion.directory/fusion.fusion_file from project-fusion.json.
+Ex: ./.project-fusion/fusion/project_files_fusioned.txt
 
 2. Share the generated file with the AI using this prompt:
 ```
@@ -163,13 +163,13 @@ export const Header = () => {
 };
 ```
 
-3. Place the AI's response in the applydiff.directory/applydiff.diff_file from ai-code-sync.json.
-Ex: ./.ai-code-sync/applydiff/project_files_diff.txt
+3. Place the AI's response in the applydiff.directory/applydiff.diff_file from project-fusion.json.
+Ex: ./.project-fusion/applydiff/project_files_diff.txt
 
 
 4. Apply changes from the AI
 ```bash
-ai-code-sync applydiff
+project-fusion applydiff
 ```
 
 ## Unified Diff
@@ -229,14 +229,14 @@ export const Header = () => {
 
 ## Security Considerations
 
-When using AICodeSync, please be aware of the following security considerations:
+When using Project Fusion, please be aware of the following security considerations:
 
-- **Sensitive Data**: AICodeSync does not automatically filter out sensitive data. Be cautious about what files you include in your fusion.
-- **.aicodesyncignore**: Use a `.aicodesyncignore` file (similar to `.gitignore`) to exclude sensitive files and directories from being processed.
+- **Sensitive Data**: Project Fusion does not automatically filter out sensitive data. Be cautious about what files you include in your fusion.
+- **.projectfusionignore**: Use a `.projectfusionignore` file (similar to `.gitignore`) to exclude sensitive files and directories from being processed.
 - **API Keys and Credentials**: Never share files containing API keys, passwords, or other credentials with AI assistants.
 - **Personal Information**: Be mindful of including files that might contain personal information.
 
-Example `.aicodesyncignore` file:
+Example `.projectfusionignore` file:
 ```
 # Credentials and environment variables
 .env
@@ -255,25 +255,25 @@ Example `.aicodesyncignore` file:
 package-lock.json
 
 # Directories to exclude
-/.ai-code-sync/
+/.project-fusion/
 ```
 
 To enable this feature, update your configuration:
 ```json
 {
-  "useAICodeSyncIgnoreForExcludes": true
+  "useProjectFusionIgnoreForExcludes": true
 }
 ```
 
 ## Distribution
 
-AICodeSync is available through:
-- **GitHub**: Source code and issue tracking at [github.com/GagaPlayerOne/ai-code-sync](https://github.com/GagaPlayerOne/ai-code-sync)
-- **NPM**: Package distribution at [npmjs.com/package/ai-code-sync](https://www.npmjs.com/package/ai-code-sync)
+Project Fusion is available through:
+- **GitHub**: Source code and issue tracking at [github.com/GagaPlayerOne/project-fusion](https://github.com/GagaPlayerOne/project-fusion)
+- **NPM**: Package distribution at [npmjs.com/package/project-fusion](https://www.npmjs.com/package/project-fusion)
 
 ## Future Improvements
 
-We're planning several enhancements for AICodeSync:
+We're planning several enhancements for Project Fusion:
 
 ### User Interfaces
 - VS Code extension for seamless integration
@@ -316,21 +316,21 @@ We're planning several enhancements for AICodeSync:
 
 ## Support the Project
 
-If you find AICodeSync useful, consider supporting its development through one of these options:
+If you find Project Fusion useful, consider supporting its development through one of these options:
 
 ### Sponsorship Options
 - [GitHub Sponsors](https://github.com/sponsors/GagaPlayerOne)
-- [Open Collective](https://opencollective.com/aicodesync)
-- [Patreon](https://www.patreon.com/aicodesync)
-- [Buy Me a Coffee](https://www.buymeacoffee.com/aicodesync)
+- [Open Collective](https://opencollective.com/projectfusion)
+- [Patreon](https://www.patreon.com/projectfusion)
+- [Buy Me a Coffee](https://www.buymeacoffee.com/projectfusion)
 
 ### Why Sponsor?
-- Help maintain and improve AICodeSync
+- Help maintain and improve Project Fusion
 - Prioritized feature requests
 - Your name/logo in our README
 - Recognition in release notes
 
-AICodeSync is and will remain open source under the MIT license. Your sponsorship helps ensure the project's ongoing development and maintenance.
+Project Fusion is and will remain open source under the MIT license. Your sponsorship helps ensure the project's ongoing development and maintenance.
 
 ## License
 

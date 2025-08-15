@@ -11,11 +11,11 @@ import {
   FusionOptions,
   processApplyDiff,
   ApplyDiffOptions
-} from 'ai-code-sync-core/dist/core.js';
+} from 'project-fusion-core/dist/core.js';
 import { 
   defaultConfig,
-  defaultAiCodeSyncIgnoreContent
-} from 'ai-code-sync-core/dist/coreutils.js';
+  defaultProjectFusionIgnoreContent
+} from 'project-fusion-core/dist/coreutils.js';
 
 /**
  * Run the fusion command
@@ -119,14 +119,14 @@ export async function runApplyDiffCommand(options: { skipHashValidation?: boolea
  */
 export async function runInitCommand(options: { force?: boolean } = {}): Promise<void> {
   try {
-    console.log(chalk.blue('🔄 Initializing AICodeSync...'));
+    console.log(chalk.blue('🔄 Initializing Project Fusion...'));
     
     // Check if config already exists
-    const configPath = path.resolve('./ai-code-sync.json');
+    const configPath = path.resolve('./project-fusion.json');
     if (await fs.pathExists(configPath)) {
       if (!options.force) {
-        console.log(chalk.yellow('⚠️ ai-code-sync.json file already exists.'));
-        console.log(chalk.yellow('Use --force to override or delete ai-code-sync.json and run init again.'));
+        console.log(chalk.yellow('⚠️ project-fusion.json file already exists.'));
+        console.log(chalk.yellow('Use --force to override or delete project-fusion.json and run init again.'));
         process.exit(1);
       } else {
         console.log(chalk.yellow('⚠️ Overriding existing configuration file with --force option.'));
@@ -134,28 +134,28 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
     }
 
     // Check if ignore file already exists
-    const aiCodeSyncIgnorePath = path.resolve('./.aicodesyncignore');
-    if (await fs.pathExists(aiCodeSyncIgnorePath)) {
+    const projectFusionIgnorePath = path.resolve('./.projectfusionignore');
+    if (await fs.pathExists(projectFusionIgnorePath)) {
       if (!options.force) {
-        console.log(chalk.yellow('⚠️ .aicodesyncignore file already exists.'));
-        console.log(chalk.yellow('Use --force to override or delete .aicodesyncignore and run init again.'));
+        console.log(chalk.yellow('⚠️ .projectfusionignore file already exists.'));
+        console.log(chalk.yellow('Use --force to override or delete .projectfusionignore and run init again.'));
         process.exit(1);
       } else {
         console.log(chalk.yellow('⚠️ Overriding existing configuration file with --force option.'));
       }
     }
     
-    // Check if .ai-code-sync directory exists
-    const aiCodeSyncDir = path.resolve('./.ai-code-sync');
-    if (await fs.pathExists(aiCodeSyncDir)) {
+    // Check if .project-fusion directory exists
+    const projectFusionDir = path.resolve('./.project-fusion');
+    if (await fs.pathExists(projectFusionDir)) {
       if (!options.force) {
-        console.log(chalk.yellow('⚠️ The .ai-code-sync directory already exists.'));
+        console.log(chalk.yellow('⚠️ The .project-fusion directory already exists.'));
         console.log(chalk.yellow('Use --force to override or delete the directory and run init again.'));
         process.exit(1);
       } else {
-        console.log(chalk.yellow('⚠️ Using existing .ai-code-sync directory with --force option.'));
+        console.log(chalk.yellow('⚠️ Using existing .project-fusion directory with --force option.'));
         // Clean up directory contents but keep the directory
-        await fs.emptyDir(aiCodeSyncDir);
+        await fs.emptyDir(projectFusionDir);
       }
     }
     
@@ -163,11 +163,11 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
     await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
     
     // Create directory structure
-    await fs.ensureDir('./.ai-code-sync/fusion');
-    await fs.ensureDir('./.ai-code-sync/applydiff');
+    await fs.ensureDir('./.project-fusion/fusion');
+    await fs.ensureDir('./.project-fusion/applydiff');
     
     // Create example diff file
-    const exampleDiffPath = path.join('./.ai-code-sync/applydiff', 'project_files_diff.txt.example');
+    const exampleDiffPath = path.join('./.project-fusion/applydiff', 'project_files_diff.txt.example');
     const exampleDiffContent = `### /components/Button.tsx
 # Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 --- a/components/Button.tsx
@@ -197,23 +197,23 @@ export const Header = () => {
 `;
     await fs.writeFile(exampleDiffPath, exampleDiffContent);
     
-    // Create .aicodesyncignore if it doesn't exist
-    const ignoreFilePath = path.resolve('./.aicodesyncignore');
+    // Create .projectfusionignore if it doesn't exist
+    const ignoreFilePath = path.resolve('./.projectfusionignore');
     if (!await fs.pathExists(ignoreFilePath)) {
-      await fs.writeFile(ignoreFilePath, defaultAiCodeSyncIgnoreContent);
+      await fs.writeFile(ignoreFilePath, defaultProjectFusionIgnoreContent);
     }
     
-    console.log(chalk.green('✅ AICodeSync initialized successfully!'));
+    console.log(chalk.green('✅ Project Fusion initialized successfully!'));
     console.log(chalk.blue('📁 Created:'));
-    console.log(chalk.cyan('  - ./ai-code-sync.json'));
-    console.log(chalk.cyan('  - ./.ai-code-sync/fusion/'));
-    console.log(chalk.cyan('  - ./.ai-code-sync/applydiff/'));
-    console.log(chalk.cyan('  - ./.ai-code-sync/applydiff/project_files_diff.txt.example'));
-    console.log(chalk.cyan('  - ./.aicodesyncignore'));
+    console.log(chalk.cyan('  - ./project-fusion.json'));
+    console.log(chalk.cyan('  - ./.project-fusion/fusion/'));
+    console.log(chalk.cyan('  - ./.project-fusion/applydiff/'));
+    console.log(chalk.cyan('  - ./.project-fusion/applydiff/project_files_diff.txt.example'));
+    console.log(chalk.cyan('  - ./.projectfusionignore'));
     
     console.log(chalk.blue('\n📝 Next steps:'));
-    console.log(chalk.cyan('  1. Review ai-code-sync.json and adjust as needed'));
-    console.log(chalk.cyan('  2. Run fusion: ai-code-sync fusion'));
+    console.log(chalk.cyan('  1. Review project-fusion.json and adjust as needed'));
+    console.log(chalk.cyan('  2. Run fusion: project-fusion fusion'));
   } catch (error) {
     console.error(chalk.red(`❌ Initialization failed: ${error}`));
     process.exit(1);
