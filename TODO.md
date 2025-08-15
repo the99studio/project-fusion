@@ -3,7 +3,6 @@
 ## 🔴 **PRIORITÉ 1** - Critical
 
 - [ ] **Setup Vitest** - Add unit testing framework (replace placeholder tests)
-- [x] **Implement .projectfusionignore** - ✅ Integrated into ignorePatterns in config
 - [ ] **Add basic unit tests** - Core functions (utils, fusion, schema validation)
 
 ## 🟠 **PRIORITÉ 2** - Important  
@@ -21,8 +20,5 @@
 
 ## 🔵 **PRIORITÉ 4** - Future Features
 
-- [x] **Export formats** - ✅ Markdown output with syntax highlighting implemented
-- [x] **Clickable file paths** - ✅ Table of contents in .md with anchor links
-- [x] **Syntax highlighting** - ✅ Automatic language detection for 50+ file types
 - [ ] **HTML/PDF exports** - Additional output formats beyond .txt and .md
 - [ ] **Migration tool** - Handle old project-fusion.json format detection/upgrade

@@ -1,26 +1,17 @@
-
-=== FUSION SUMMARY ===
-
 Status: Success
-Start time: 2025-08-15T16:43:15.965Z
-End time: 2025-08-15T16:43:16.052Z
-Duration: 0.09s
-
+Start time: 2025-08-15T16:45:11.031Z
+End time: 2025-08-15T16:45:11.076Z
+Duration: 0.04s
 Files processed: 9
 Files filtered out: 1260 (99.3%)
-
 Extensions found: .json, .ts
 Extensions ignored (not found): .bat, .c, .cc, .cfg, .cmd, .cpp, .cs, .cs, .css, .gd, .go, .h, .hpp, .html, .import, .java, .js, .jsx, .php, .ps1, .py, .rb, .rs, .sh, .svelte, .toml, .tres, .tscn, .tsx, .vue, .xml, .yaml, .yml
 Extensions in project but not configured: .md
-
 Configuration:
   Root directory: /Users/gaetanchantebien/Git/project-fusion
   Parse subdirectories: true
   Use .gitignore: true
   Custom ignore patterns: 26
-
 Output files:
   Text: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.txt
   Markdown: /Users/gaetanchantebien/Git/project-fusion/project-fusioned.md
-
-======================
