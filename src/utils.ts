@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
-import { Config } from './types.js';
+import { Config, FilePath } from './types.js';
 
 
 /**
@@ -244,6 +244,35 @@ export async function readFileContentWithSizeLimit(
         console.error(`Error reading file ${filePath}:`, error);
         throw error;
     }
+}
+
+/**
+ * Log configuration summary to log file
+ * @param logFilePath Path to log file
+ * @param config Configuration to log
+ */
+export async function logConfigSummary(logFilePath: FilePath, config: Config): Promise<void> {
+    await writeLog(logFilePath, `Configuration Summary:`, true);
+    await writeLog(logFilePath, `  Schema Version: ${config.schemaVersion}`, true);
+    await writeLog(logFilePath, `  Root Directory: ${config.parsing.rootDirectory}`, true);
+    await writeLog(logFilePath, `  Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Copy to Clipboard: ${config.fusion.copyToClipboard ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Max File Size: ${config.parsing.maxFileSizeKB} KB`, true);
+    
+    // Output files
+    await writeLog(logFilePath, `  Fusion File: ${config.fusion.fusion_file}`, true);
+    await writeLog(logFilePath, `  Log File: ${config.fusion.fusion_log}`, true);
+    
+    // Extension groups summary
+    const totalExtensions = getExtensionsFromGroups(config);
+    await writeLog(logFilePath, `  Extension Groups: ${Object.keys(config.parsedFileExtensions).length} groups`, true);
+    await writeLog(logFilePath, `  Total Extensions: ${totalExtensions.length}`, true);
+    
+    // Ignore patterns count
+    await writeLog(logFilePath, `  Ignore Patterns: ${config.ignorePatterns.length} patterns`, true);
+    
+    await writeLog(logFilePath, ``, true); // Empty line for separation
 }
 
 /**

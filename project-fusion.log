@@ -1,13 +1,26 @@
+Configuration Summary:
+  Schema Version: 1
+  Root Directory: .
+  Scan Subdirectories: Yes
+  Use .gitignore: Yes
+  Copy to Clipboard: No
+  Max File Size: 1024 KB
+  Fusion File: project-fusioned.txt
+  Log File: project-fusion.log
+  Extension Groups: 7 groups
+  Total Extensions: 38
+  Ignore Patterns: 71 patterns
+
 Status: Fusion completed successfully
-Start time: 2025-08-16T13:35:55.114Z
-End time: 2025-08-16T13:35:55.280Z
+Start time: 2025-08-16T13:40:54.461Z
+End time: 2025-08-16T13:40:54.631Z
 Duration: 0.17s
 Total data processed: 0.08 MB
 
 Performance Metrics:
-  Memory Used: 8.03 MB
+  Memory Used: 7.93 MB
   Throughput: 0.48 MB/s
-  Files/second: 125.25
+  Files/second: 122.34
 Files found: 2651
 Files processed successfully: 21
 Files skipped (too large): 0

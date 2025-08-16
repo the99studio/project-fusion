@@ -13,7 +13,8 @@ import {
     readFileContent,
     readFileContentWithSizeLimit,
     writeFileContent,
-    writeLog
+    writeLog,
+    logConfigSummary
 } from './utils.js';
 import {
     Config,
@@ -42,6 +43,9 @@ export async function processFusion(
         const startTime = new Date();
 
         await fs.writeFile(logFilePath, '');
+        
+        // Log configuration summary at the beginning
+        await logConfigSummary(logFilePath, config);
 
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
         console.log(`Processing ${extensions.length} file extensions from ${Object.keys(config.parsedFileExtensions).length} categories`);

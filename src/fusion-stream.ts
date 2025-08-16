@@ -14,7 +14,8 @@ import {
     getMarkdownLanguage,
     readFileContentWithSizeLimit,
     ensureDirectoryExists,
-    writeLog
+    writeLog,
+    logConfigSummary
 } from './utils.js';
 import {
     Config,
@@ -43,6 +44,9 @@ export async function processFusionStream(
         const maxFileSizeKB = parsing.maxFileSizeKB;
 
         await fs.writeFile(logFilePath, '');
+        
+        // Log configuration summary at the beginning
+        await logConfigSummary(logFilePath, config);
 
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
         console.log(`Processing ${extensions.length} file extensions from ${Object.keys(config.parsedFileExtensions).length} categories`);
