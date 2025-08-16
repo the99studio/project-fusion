@@ -2,6 +2,10 @@
 
 Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates both plain text (.txt) and markdown (.md) versions with syntax highlighting for better readability.
 
+## Prerequisites
+
+- **Node.js** version 18.0.0 or higher
+
 ## Installation
 
 Install Project Fusion globally with npm:

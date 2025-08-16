@@ -43,17 +43,16 @@ npm pack  # Creates project-fusion-x.x.x.tgz
 #### Testing with Real Package Installation
 ```bash
 # Install the test package globally
-npm install -g ./temp/package/
+npm install -g ./temp/package/ # start line with sudo if you need admin rights
 
 # Test commands (acts like real published package)
 project-fusion --help
 project-fusion --version
 project-fusion init
-project-fusion        # Default: runs fusion
-project-fusion fusion
+project-fusion # Default: runs fusion
 
 # Uninstall when done testing
-npm uninstall -g project-fusion
+npm uninstall -g project-fusion # start line with sudo if you need admin rights
 ```
 
 ### Publication Process
