@@ -61,7 +61,7 @@
     "parsing": {
         "parseSubDirectories": true,
         "rootDirectory": ".",
-        "maxFileSizeKB": 500
+        "maxFileSizeKB": 1024
     },
     "ignorePatterns": [
         "project-fusion.json",

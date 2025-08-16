@@ -82,7 +82,7 @@ The markdown output automatically applies appropriate syntax highlighting for ea
 
 ### Performance Features
 
-- **File Size Limiting**: Configure `maxFileSizeKB` in `parsing` section to skip large files
+- **File Size Limiting**: Configure `maxFileSizeKB` in `parsing` section to skip large files (default: 1MB)
 - **Streaming Support**: Large projects are processed with streaming to minimize memory usage
 - **Performance Metrics**: Detailed benchmarks logged including throughput and memory usage
 - **Smart Filtering**: Automatically ignores binary files, images, archives, and compiled files

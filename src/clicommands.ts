@@ -179,6 +179,9 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`);
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
     console.log(`   Copy to Clipboard: ${config.fusion.copyToClipboard ? 'Yes' : 'No'}`);
+    if (config.parsing.maxFileSizeKB) {
+        console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
+    }
 
     // Output files
     console.log(chalk.cyan('\n📄 Output Files:'));
