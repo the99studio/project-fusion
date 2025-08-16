@@ -41,7 +41,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             console.log(chalk.cyan(`   - ${result.fusionFilePath.replace('.txt', '.md')}`));
 
             // Clipboard integration: only copy if explicitly enabled in config
-            if (config.fusion?.copyToClipboard === true && result.fusionFilePath) {
+            if (config.fusion.copyToClipboard === true && result.fusionFilePath) {
                 try {
                     const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                     await clipboardy.write(fusionContent);
@@ -179,9 +179,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`);
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
     console.log(`   Copy to Clipboard: ${config.fusion.copyToClipboard ? 'Yes' : 'No'}`);
-    if (config.parsing.maxFileSizeKB) {
-        console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
-    }
+    console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
 
     // Output files
     console.log(chalk.cyan('\n📄 Output Files:'));

@@ -1,18 +1,18 @@
 Status: Fusion completed successfully
-Start time: 2025-08-16T13:03:46.914Z
-End time: 2025-08-16T13:03:46.989Z
-Duration: 0.07s
+Start time: 2025-08-16T13:31:56.249Z
+End time: 2025-08-16T13:31:56.417Z
+Duration: 0.17s
 Total data processed: 0.08 MB
 
 Performance Metrics:
-  Memory Used: 7.47 MB
-  Throughput: 1.08 MB/s
-  Files/second: 287.59
-Files found: 2652
-Files processed successfully: 22
+  Memory Used: 7.90 MB
+  Throughput: 0.48 MB/s
+  Files/second: 124.42
+Files found: 2651
+Files processed successfully: 21
 Files skipped (too large): 0
 Files filtered out: 2630
-Max file size limit: 500 KB
+Max file size limit: 1024 KB
 File extensions actually processed:
   .json
   .md

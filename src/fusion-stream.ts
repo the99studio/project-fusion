@@ -65,7 +65,7 @@ export async function processFusionStream(
             }
         }
 
-        if (config.ignorePatterns && config.ignorePatterns.length > 0) {
+        if (config.ignorePatterns.length > 0) {
             const patterns = config.ignorePatterns
                 .filter(pattern => pattern.trim() !== '' && !pattern.startsWith('#'))
                 .join('\n');
@@ -232,9 +232,7 @@ export async function processFusionStream(
         await writeLog(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLog(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        if (maxFileSizeKB) {
-            await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
-        }
+        await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
         
         if (skippedFiles.length > 0) {
             await writeLog(logFilePath, `Skipped files:`, true);

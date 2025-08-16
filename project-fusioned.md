@@ -1,9 +1,9 @@
 # Generated Project Fusion File
 **Project:** project-fusion
 
-**Generated:** 2025-08-16T13:03:46.989Z
+**Generated:** 2025-08-16T13:31:56.416Z
 
-**Files:** 22
+**Files:** 21
 
 ---
 
@@ -14,7 +14,6 @@
 - [CONTRIBUTING.md](#contributing-md)
 - [DEVELOPMENT.md](#development-md)
 - [package.json](#package-json)
-- [project-fusion.example.json](#project-fusion-example-json)
 - [README.md](#readme-md)
 - [src/benchmark.ts](#src-benchmark-ts)
 - [src/cli.ts](#src-cli-ts)
@@ -406,107 +405,6 @@ project-fusion/
 
 ```
 
-## 📄 project-fusion.example.json
-
-```json
-{
-    "fusion": {
-        "fusion_file": "project-fusioned.txt",
-        "fusion_log": "project-fusion.log",
-        "copyToClipboard": false
-    },
-    "parsedFileExtensions": {
-        "backend": [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
-        "config": [".json", ".toml", ".xml", ".yaml", ".yml"],
-        "cpp": [".c", ".cc", ".cpp", ".h", ".hpp"],
-        "scripts": [".bat", ".cmd", ".ps1", ".sh"],
-        "web": [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
-        "godot": [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
-        "doc": [".md", ".rst", ".adoc"]
-    },
-    "parsing": {
-        "parseSubDirectories": true,
-        "rootDirectory": ".",
-        "maxFileSizeKB": 500
-    },
-    "ignorePatterns": [
-        "project-fusion.json",
-        "project-fusion.log",
-        "project-fusioned.txt",
-        "project-fusioned.md",
-        "node_modules/",
-        "package-lock.json",
-        "pnpm-lock.yaml",
-        "yarn.lock",
-        "dist/",
-        "build/",
-        "*.min.js",
-        "*.min.css",
-        ".env",
-        ".env.*",
-        "*.key",
-        "*.pem",
-        "**/credentials/*",
-        "**/secrets/*",
-        "*.log",
-        "logs/",
-        ".DS_Store",
-        "Thumbs.db",
-        ".vscode/",
-        ".idea/",
-        "*.swp",
-        "*.swo",
-        "*.zip",
-        "*.tar",
-        "*.tgz",
-        "*.gz",
-        "*.7z",
-        "*.rar",
-        "*.png",
-        "*.jpg",
-        "*.jpeg",
-        "*.gif",
-        "*.bmp",
-        "*.ico",
-        "*.svg",
-        "*.webp",
-        "*.pdf",
-        "*.doc",
-        "*.docx",
-        "*.xls",
-        "*.xlsx",
-        "*.ppt",
-        "*.pptx",
-        "*.mp3",
-        "*.mp4",
-        "*.avi",
-        "*.mov",
-        "*.wmv",
-        "*.flv",
-        "*.wav",
-        "*.flac",
-        "*.unitypackage",
-        "*.uasset",
-        "*.fbx",
-        "*.obj",
-        "*.blend",
-        "*.exe",
-        "*.dll",
-        "*.so",
-        "*.dylib",
-        "*.a",
-        "*.o",
-        "*.pyc",
-        "*.pyo",
-        "*.class",
-        "*.jar",
-        "*.war"
-    ],
-    "useGitIgnoreForExcludes": true,
-    "schemaVersion": 1
-}
-```
-
 ## 📄 README.md
 
 ```markdown
@@ -594,7 +492,7 @@ The markdown output automatically applies appropriate syntax highlighting for ea
 
 ### Performance Features
 
-- **File Size Limiting**: Configure `maxFileSizeKB` in `parsing` section to skip large files
+- **File Size Limiting**: Configure `maxFileSizeKB` in `parsing` section to skip large files (default: 1MB)
 - **Streaming Support**: Large projects are processed with streaming to minimize memory usage
 - **Performance Metrics**: Detailed benchmarks logged including throughput and memory usage
 - **Smart Filtering**: Automatically ignores binary files, images, archives, and compiled files
@@ -820,7 +718,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             console.log(chalk.cyan(`   - ${result.fusionFilePath.replace('.txt', '.md')}`));
 
             // Clipboard integration: only copy if explicitly enabled in config
-            if (config.fusion?.copyToClipboard === true && result.fusionFilePath) {
+            if (config.fusion.copyToClipboard === true && result.fusionFilePath) {
                 try {
                     const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                     await clipboardy.write(fusionContent);
@@ -958,6 +856,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`);
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
     console.log(`   Copy to Clipboard: ${config.fusion.copyToClipboard ? 'Yes' : 'No'}`);
+    console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
 
     // Output files
     console.log(chalk.cyan('\n📄 Output Files:'));
@@ -1093,7 +992,7 @@ export async function processFusionStream(
             }
         }
 
-        if (config.ignorePatterns && config.ignorePatterns.length > 0) {
+        if (config.ignorePatterns.length > 0) {
             const patterns = config.ignorePatterns
                 .filter(pattern => pattern.trim() !== '' && !pattern.startsWith('#'))
                 .join('\n');
@@ -1260,9 +1159,7 @@ export async function processFusionStream(
         await writeLog(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLog(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        if (maxFileSizeKB) {
-            await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
-        }
+        await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
         
         if (skippedFiles.length > 0) {
             await writeLog(logFilePath, `Skipped files:`, true);
@@ -1389,7 +1286,7 @@ export async function processFusion(
             }
         }
 
-        if (config.ignorePatterns && config.ignorePatterns.length > 0) {
+        if (config.ignorePatterns.length > 0) {
             const patterns = config.ignorePatterns
                 .filter(pattern => pattern.trim() !== '' && !pattern.startsWith('#'))
                 .join('\n');
@@ -1570,9 +1467,7 @@ export async function processFusion(
         await writeLog(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLog(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        if (maxFileSizeKB) {
-            await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
-        }
+        await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
         
         if (skippedFiles.length > 0) {
             await writeLog(logFilePath, `Skipped files:`, true);
@@ -1700,7 +1595,7 @@ const ParsedFileExtensionsSchema = z.object({
 const ParsingConfigSchema = z.object({
     parseSubDirectories: z.boolean(),
     rootDirectory: z.string(),
-    maxFileSizeKB: z.number().optional(),
+    maxFileSizeKB: z.number(),
 });
 
 /**
@@ -1749,7 +1644,7 @@ export interface Config {
     parsing: {
         parseSubDirectories: boolean;
         rootDirectory: string;
-        maxFileSizeKB?: number;
+        maxFileSizeKB: number;
     };
     ignorePatterns: string[];
     useGitIgnoreForExcludes: boolean;
@@ -1822,7 +1717,8 @@ export const defaultConfig = {
     },
     parsing: {
         parseSubDirectories: true,
-        rootDirectory: "."
+        rootDirectory: ".",
+        maxFileSizeKB: 1024
     },
     ignorePatterns: [
         "project-fusion.json",
@@ -2015,18 +1911,18 @@ export async function readFileContent(filePath: string): Promise<string> {
 /**
  * Read file content with size limit check
  * @param filePath Path to file
- * @param maxSizeKB Maximum file size in KB (optional)
+ * @param maxSizeKB Maximum file size in KB
  * @returns File content or null if file exceeds size limit
  */
 export async function readFileContentWithSizeLimit(
     filePath: string, 
-    maxSizeKB?: number
+    maxSizeKB: number
 ): Promise<{ content: string | null; skipped: boolean; size: number }> {
     try {
         const stats = await fs.stat(filePath);
         const sizeKB = stats.size / 1024;
         
-        if (maxSizeKB && sizeKB > maxSizeKB) {
+        if (sizeKB > maxSizeKB) {
             console.log(`Skipping large file ${filePath} (${sizeKB.toFixed(2)} KB > ${maxSizeKB} KB limit)`);
             return { content: null, skipped: true, size: stats.size };
         }
