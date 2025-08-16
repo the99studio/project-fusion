@@ -281,15 +281,6 @@ export async function processFusion(
             }
         }
         
-        await writeLog(logFilePath, `Configuration used:`, true);
-        await writeLog(logFilePath, `  Root directory: ${parsing.rootDirectory}`, true);
-        await writeLog(logFilePath, `  Scan subdirectories: ${parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
-        await writeLog(logFilePath, `  Apply .gitignore rules: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
-        await writeLog(logFilePath, `  Custom ignore patterns defined: ${config.ignorePatterns.length} pattern${config.ignorePatterns.length !== 1 ? 's' : ''}`, true);
-        
-        await writeLog(logFilePath, `Output files generated:`, true);
-        await writeLog(logFilePath, `  Plain text format: ${path.join(parsing.rootDirectory, path.basename(fusionFilePath))}`, true);
-        await writeLog(logFilePath, `  Markdown format: ${path.join(parsing.rootDirectory, path.basename(fusionFilePath).replace('.txt', '.md'))}`, true);
 
         return {
             success: true,

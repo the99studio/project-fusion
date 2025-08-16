@@ -251,15 +251,6 @@ export async function processFusionStream(
             await writeLog(logFilePath, `  ${ext}`, true);
         }
         
-        await writeLog(logFilePath, `Configuration used:`, true);
-        await writeLog(logFilePath, `  Root directory: ${parsing.rootDirectory}`, true);
-        await writeLog(logFilePath, `  Scan subdirectories: ${parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
-        await writeLog(logFilePath, `  Apply .gitignore rules: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
-        await writeLog(logFilePath, `  Custom ignore patterns: ${config.ignorePatterns.length} patterns`, true);
-        
-        await writeLog(logFilePath, `Output files generated:`, true);
-        await writeLog(logFilePath, `  Plain text: ${fusionFilePath}`, true);
-        await writeLog(logFilePath, `  Markdown: ${mdFilePath}`, true);
 
         return {
             success: true,

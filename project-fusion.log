@@ -12,15 +12,15 @@ Configuration Summary:
   Ignore Patterns: 71 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-16T13:40:54.461Z
-End time: 2025-08-16T13:40:54.631Z
-Duration: 0.17s
+Start time: 2025-08-16T14:01:19.731Z
+End time: 2025-08-16T14:01:19.807Z
+Duration: 0.08s
 Total data processed: 0.08 MB
 
 Performance Metrics:
-  Memory Used: 7.93 MB
-  Throughput: 0.48 MB/s
-  Files/second: 122.34
+  Memory Used: 11.79 MB
+  Throughput: 1.05 MB/s
+  Files/second: 273.06
 Files found: 2651
 Files processed successfully: 21
 Files skipped (too large): 0
@@ -66,11 +66,3 @@ Configured extensions with no matching files found:
   .xml
   .yaml
   .yml
-Configuration used:
-  Root directory: .
-  Scan subdirectories: Yes
-  Apply .gitignore rules: Yes
-  Custom ignore patterns defined: 71 patterns
-Output files generated:
-  Plain text format: project-fusioned.txt
-  Markdown format: project-fusioned.md
