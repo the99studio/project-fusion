@@ -121,11 +121,6 @@ Use these types of projects for testing:
 npm run clean && npm run build
 ```
 
-**CLI Not Working After Changes:**
-```bash
-npm run build && npm link
-```
-
 **Package Contains Wrong Files:**
 - Check `package.json` `files` field
 - Use `npm pack --dry-run` to verify
@@ -135,11 +130,6 @@ npm run build && npm link
 npm run typecheck
 # Fix errors in src/ files
 ```
-
-### Performance Optimization
-- Large projects: Use specific extension groups
-- Memory issues: Configure ignore patterns properly
-- Speed: Use `.gitignore` for filtering
 
 ## 📁 Directory Structure
 
@@ -168,15 +158,3 @@ project-fusion/
 - **tsconfig.json** - TypeScript compilation settings
 - **.gitignore** - Git ignore patterns (includes `temp/`)
 - **.vscode/launch.json** - VS Code debugging/testing configurations
-
-## 🏗️ Architecture Notes
-
-- **ESM modules** with NodeNext resolution
-- **Branded types** for type safety (FilePath)
-- **Discriminated unions** for results (success/failure)
-- **Zod runtime validation** for configuration
-- **Separation of concerns**: CLI ↔ core logic ↔ utilities
-
----
-
-*For AI assistance, always refer to [CLAUDE.md](./CLAUDE.md) first for project context.*
