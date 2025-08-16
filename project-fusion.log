@@ -1,13 +1,13 @@
 Status: Fusion completed successfully
-Start time: 2025-08-16T13:31:56.249Z
-End time: 2025-08-16T13:31:56.417Z
+Start time: 2025-08-16T13:35:55.114Z
+End time: 2025-08-16T13:35:55.280Z
 Duration: 0.17s
 Total data processed: 0.08 MB
 
 Performance Metrics:
-  Memory Used: 7.90 MB
+  Memory Used: 8.03 MB
   Throughput: 0.48 MB/s
-  Files/second: 124.42
+  Files/second: 125.25
 Files found: 2651
 Files processed successfully: 21
 Files skipped (too large): 0
