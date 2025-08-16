@@ -12,6 +12,25 @@ npm install
 npm run build
 ```
 
+### Claude Code Integration
+The project includes `.claude/settings.local.json` which configures Claude Code permissions for smoother development. This file provides:
+
+**Allowed Operations:**
+- NPM commands: install, build, typecheck, test, clean, pack
+- Project CLI: `project-fusion` and `node dist/cli.js` commands
+- Git operations: status, diff, log, branch, add, commit, push, pull
+- Safe file operations: Limited to `temp/` directory for rm/cp operations
+- Search capabilities: find, grep, rg, ls, cat, head, tail for code exploration
+- Package management: npm list, outdated, view
+
+**Security Features:**
+- File deletions restricted to `temp/` directory only
+- No arbitrary Node.js code execution (only specific CLI commands)
+- Explicit deny list for dangerous operations (sudo, eval, etc.)
+- No system-wide file modifications allowed
+
+These permissions eliminate repetitive authorization prompts while maintaining security boundaries.
+
 ### Testing the CLI
 Use VS Code launch configurations (F5) for easy testing:
 - **"Fusion (Default)"** - Default behavior (runs fusion)
