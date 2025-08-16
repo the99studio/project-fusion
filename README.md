@@ -16,13 +16,13 @@ npm install -g project-fusion
 
 ## Quick Start
 
-1. **Initialize** Project Fusion in your project directory:
+1. **Initialize** Project Fusion in your project directory if you want to be able to tweak the settings (optional):
    ```bash
    cd your-project-directory
    project-fusion init
    ```
 
-2. **Create fusion files** containing all your project files:
+2. **Create fusion files** containing all your project files (if init has not been done, it will use the default behaviour):
    ```bash
    project-fusion fusion
    ```
