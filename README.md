@@ -36,6 +36,7 @@ npm install -g project-fusion
 
 - `project-fusion init` - Initialize Project Fusion in current directory
 - `project-fusion fusion` - Create fusion file from project files
+- `project-fusion config-check` - Validate configuration and show active settings
 - `project-fusion --help` - Show help information
 
 ## Documentation
@@ -78,6 +79,13 @@ Project Fusion supports 35+ file extensions organized by category:
 - **Godot**: .gd, .tscn, .tres, .cfg
 
 The markdown output automatically applies appropriate syntax highlighting for each file type.
+
+### Performance Features
+
+- **File Size Limiting**: Configure `maxFileSizeKB` in `parsing` section to skip large files
+- **Streaming Support**: Large projects are processed with streaming to minimize memory usage
+- **Performance Metrics**: Detailed benchmarks logged including throughput and memory usage
+- **Smart Filtering**: Automatically ignores binary files, images, archives, and compiled files
 
 ## Distribution
 

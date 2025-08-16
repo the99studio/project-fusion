@@ -1,18 +1,19 @@
 /**
- * Fusion functionality
+ * Streaming fusion functionality for large projects
  */
 import fs from 'fs-extra';
 import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import path from 'path';
-import { BenchmarkTracker } from './benchmark.js';
+import { createWriteStream, createReadStream } from 'fs';
+import { pipeline } from 'stream/promises';
+import { Transform } from 'stream';
 import {
     formatTimestamp,
     getExtensionsFromGroups,
     getMarkdownLanguage,
-    readFileContent,
     readFileContentWithSizeLimit,
-    writeFileContent,
+    ensureDirectoryExists,
     writeLog
 } from './utils.js';
 import {
@@ -24,22 +25,22 @@ import {
 } from './types.js';
 
 /**
- * Process fusion of files
+ * Process fusion of files with streaming support
  * @param config Configuration
  * @param options Fusion options
  * @returns Fusion result
  */
-export async function processFusion(
+export async function processFusionStream(
     config: Config,
     options: FusionOptions = {}
 ): Promise<FusionResult> {
-    const benchmark = new BenchmarkTracker();
-    
     try {
         const { fusion, parsing } = config;
         const logFilePath = createFilePath(path.resolve(fusion.fusion_log));
         const fusionFilePath = createFilePath(path.resolve(fusion.fusion_file));
+        const mdFilePath = createFilePath(fusionFilePath.replace('.txt', '.md'));
         const startTime = new Date();
+        const maxFileSizeKB = parsing.maxFileSizeKB;
 
         await fs.writeFile(logFilePath, '');
 
@@ -81,11 +82,13 @@ export async function processFusion(
             nodir: true,
             follow: false
         });
+        
         const originalFileCount = filePaths.length;
         filePaths = filePaths.filter(file => {
             const relativePath = path.relative(rootDir, file);
             return !ig.ignores(relativePath);
         });
+        
         console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
@@ -95,7 +98,7 @@ export async function processFusion(
             return { success: false, message, logFilePath };
         }
 
-        // Extract project metadata for the fusion header
+        // Extract project metadata
         const projectName = path.basename(process.cwd());
         let packageName = "";
         const packageJsonPath = path.join(process.cwd(), 'package.json');
@@ -110,35 +113,55 @@ export async function processFusion(
             }
         }
 
-        // Track which extensions are actually used vs configured vs unknown
-        const foundExtensions = new Set<string>();
-        const otherExtensions = new Set<string>();
+        // Sort files for consistent output
+        filePaths.sort((a, b) => path.relative(rootDir, a).localeCompare(path.relative(rootDir, b)));
 
-        // Discover all file extensions in the project for reporting
-        const allFilesPattern = parsing.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
-        const allFiles = await glob(allFilesPattern, { nodir: true, follow: false });
+        // Ensure output directories exist
+        await ensureDirectoryExists(path.dirname(fusionFilePath));
+        await ensureDirectoryExists(path.dirname(mdFilePath));
 
-        const allConfiguredExtensions = Object.values(config.parsedFileExtensions).flat();
-        const configuredExtensionSet = new Set(allConfiguredExtensions);
-        for (const file of allFiles) {
-            const relativePath = path.relative(rootDir, file);
-            const ext = path.extname(file).toLowerCase();
+        // Create write streams for both output files
+        const txtStream = createWriteStream(fusionFilePath);
+        const mdStream = createWriteStream(mdFilePath);
 
-            if (ext && !ig.ignores(relativePath) && !configuredExtensionSet.has(ext)) {
-                otherExtensions.add(ext);
-            }
+        // Write headers
+        const txtHeader = `# Generated Project Fusion File\n` +
+            (packageName && packageName.toLowerCase() !== projectName.toLowerCase() 
+                ? `# Project: ${projectName} / ${packageName}\n` 
+                : `# Project: ${projectName}\n`) +
+            `# @${formatTimestamp()}\n` +
+            `# Files: ${filePaths.length}\n\n`;
+
+        const mdHeader = `# Generated Project Fusion File\n` +
+            (packageName && packageName.toLowerCase() !== projectName.toLowerCase()
+                ? `**Project:** ${projectName} / ${packageName}\n\n`
+                : `**Project:** ${projectName}\n\n`) +
+            `**Generated:** ${formatTimestamp()}\n\n` +
+            `**Files:** ${filePaths.length}\n\n` +
+            `---\n\n## 📁 Table of Contents\n\n`;
+
+        txtStream.write(txtHeader);
+        mdStream.write(mdHeader);
+
+        // Write table of contents for markdown
+        for (const filePath of filePaths) {
+            const relativePath = path.relative(rootDir, filePath);
+            mdStream.write(`- [${relativePath}](#${relativePath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`);
         }
+        mdStream.write(`\n---\n\n`);
 
-        const fileInfos: FileInfo[] = [];
+        // Process files with streaming
+        let processedCount = 0;
         let skippedCount = 0;
         let totalSizeBytes = 0;
+        const foundExtensions = new Set<string>();
         const skippedFiles: string[] = [];
-        const maxFileSizeKB = parsing.maxFileSizeKB;
 
         for (const filePath of filePaths) {
             try {
                 const relativePath = path.relative(rootDir, filePath);
                 const fileExt = path.extname(filePath).toLowerCase();
+                const basename = path.basename(filePath);
                 foundExtensions.add(fileExt);
 
                 // Check file size and read content
@@ -148,16 +171,35 @@ export async function processFusion(
                 if (skipped) {
                     skippedCount++;
                     skippedFiles.push(relativePath);
+                    
+                    // Write placeholder for skipped files
+                    txtStream.write(`<!-- ============================================================ -->\n`);
+                    txtStream.write(`<!-- FILE: ${relativePath.padEnd(54)} -->\n`);
+                    txtStream.write(`<!-- SKIPPED: File too large (${(size / 1024).toFixed(2)} KB)        -->\n`);
+                    txtStream.write(`<!-- ============================================================ -->\n\n`);
+                    
+                    mdStream.write(`## 📄 ${relativePath}\n\n`);
+                    mdStream.write(`> ⚠️ File skipped: Too large (${(size / 1024).toFixed(2)} KB)\n\n`);
+                    
                     await writeLog(logFilePath, `Skipped large file: ${relativePath} (${(size / 1024).toFixed(2)} KB)`, true);
                     continue;
                 }
 
                 if (content !== null) {
-                    fileInfos.push({
-                        path: createFilePath(relativePath),
-                        content
-                    });
-                    benchmark.markFileProcessed(size);
+                    // Write to text file
+                    txtStream.write(`<!-- ============================================================ -->\n`);
+                    txtStream.write(`<!-- FILE: ${relativePath.padEnd(54)} -->\n`);
+                    txtStream.write(`<!-- ============================================================ -->\n`);
+                    txtStream.write(`${content}\n\n`);
+
+                    // Write to markdown file
+                    const language = getMarkdownLanguage(fileExt || basename);
+                    mdStream.write(`## 📄 ${relativePath}\n\n`);
+                    mdStream.write(`\`\`\`${language}\n`);
+                    mdStream.write(`${content}\n`);
+                    mdStream.write(`\`\`\`\n\n`);
+
+                    processedCount++;
                 }
             } catch (error) {
                 await writeLog(logFilePath, `Error processing file ${filePath}: ${error}`, true);
@@ -165,67 +207,19 @@ export async function processFusion(
             }
         }
 
-        fileInfos.sort((a, b) => a.path.localeCompare(b.path));
+        // Close streams
+        await new Promise<void>((resolve, reject) => {
+            txtStream.end((err: any) => err ? reject(err) : resolve());
+        });
+        await new Promise<void>((resolve, reject) => {
+            mdStream.end((err: any) => err ? reject(err) : resolve());
+        });
 
-        // Generate plain text fusion file (.txt)
-        let fusionContent = `# Generated Project Fusion File\n`;
-        if (packageName && packageName.toLowerCase() !== projectName.toLowerCase()) {
-            fusionContent += `# Project: ${projectName} / ${packageName}\n`;
-        } else {
-            fusionContent += `# Project: ${projectName}\n`;
-        }
-        fusionContent += `# @${formatTimestamp()}\n`;
-        fusionContent += `# Files: ${fileInfos.length}\n\n`;
-
-        for (const fileInfo of fileInfos) {
-            fusionContent += `<!-- ============================================================ -->\n`;
-            fusionContent += `<!-- FILE: ${fileInfo.path.padEnd(54)} -->\n`;
-            fusionContent += `<!-- ============================================================ -->\n`;
-            fusionContent += `${fileInfo.content}\n\n`;
-        }
-
-        await writeFileContent(fusionFilePath, fusionContent);
-        
-        // Generate enhanced markdown version with syntax highlighting
-        const mdFilePath = createFilePath(fusionFilePath.replace('.txt', '.md'));
-        let mdContent = `# Generated Project Fusion File\n`;
-        if (packageName && packageName.toLowerCase() !== projectName.toLowerCase()) {
-            mdContent += `**Project:** ${projectName} / ${packageName}\n\n`;
-        } else {
-            mdContent += `**Project:** ${projectName}\n\n`;
-        }
-        mdContent += `**Generated:** ${formatTimestamp()}\n\n`;
-        mdContent += `**Files:** ${fileInfos.length}\n\n`;
-        mdContent += `---\n\n`;
-        
-        mdContent += `## 📁 Table of Contents\n\n`;
-        for (const fileInfo of fileInfos) {
-            mdContent += `- [${fileInfo.path}](#${fileInfo.path.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`;
-        }
-        mdContent += `\n---\n\n`;
-        
-        for (const fileInfo of fileInfos) {
-            const fileExt = path.extname(fileInfo.path).toLowerCase();
-            const basename = path.basename(fileInfo.path);
-            const language = getMarkdownLanguage(fileExt || basename);
-            
-            mdContent += `## 📄 ${fileInfo.path}\n\n`;
-            mdContent += `\`\`\`${language}\n`;
-            mdContent += `${fileInfo.content}\n`;
-            mdContent += `\`\`\`\n\n`;
-        }
-        
-        await writeFileContent(mdFilePath, mdContent);
-
-        // Prepare success message and calculate processing metrics
-        const message = `Fusion completed successfully. ${fileInfos.length} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
+        // Generate comprehensive log summary
+        const message = `Fusion completed successfully. ${processedCount} files processed, ${skippedCount} skipped.`;
         const endTime = new Date();
         const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
         const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
-        
-        // Generate comprehensive log summary
-        
-        const ignoredExtensions = extensions.filter(ext => !Array.from(foundExtensions).includes(ext));
         
         await writeLog(logFilePath, `Status: Fusion completed successfully`, true);
         await writeLog(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
@@ -233,15 +227,8 @@ export async function processFusion(
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
         await writeLog(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        // Add benchmark metrics
-        const metrics = benchmark.getMetrics();
-        await writeLog(logFilePath, `\nPerformance Metrics:`, true);
-        await writeLog(logFilePath, `  Memory Used: ${metrics.memoryUsed.toFixed(2)} MB`, true);
-        await writeLog(logFilePath, `  Throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`, true);
-        await writeLog(logFilePath, `  Files/second: ${(metrics.filesProcessed / metrics.duration).toFixed(2)}`, true);
-        
         await writeLog(logFilePath, `Files found: ${originalFileCount}`, true);
-        await writeLog(logFilePath, `Files processed successfully: ${fileInfos.length}`, true);
+        await writeLog(logFilePath, `Files processed successfully: ${processedCount}`, true);
         await writeLog(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLog(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
@@ -251,43 +238,26 @@ export async function processFusion(
         
         if (skippedFiles.length > 0) {
             await writeLog(logFilePath, `Skipped files:`, true);
-            for (const file of skippedFiles.slice(0, 10)) {
+            for (const file of skippedFiles) {
                 await writeLog(logFilePath, `  ${file}`, true);
-            }
-            if (skippedFiles.length > 10) {
-                await writeLog(logFilePath, `  ... and ${skippedFiles.length - 10} more`, true);
             }
         }
         
-        await writeLog(logFilePath, `File extensions actually processed:`, true);
+        await writeLog(logFilePath, `File extensions processed:`, true);
         const foundExtArray = Array.from(foundExtensions).sort();
         for (const ext of foundExtArray) {
             await writeLog(logFilePath, `  ${ext}`, true);
-        }
-        
-        if (ignoredExtensions.length > 0) {
-            await writeLog(logFilePath, `Configured extensions with no matching files found:`, true);
-            for (const ext of ignoredExtensions.sort()) {
-                await writeLog(logFilePath, `  ${ext}`, true);
-            }
-        }
-        
-        if (otherExtensions.size > 0) {
-            await writeLog(logFilePath, `File extensions found in project but not configured for processing:`, true);
-            for (const ext of Array.from(otherExtensions).sort()) {
-                await writeLog(logFilePath, `  ${ext}`, true);
-            }
         }
         
         await writeLog(logFilePath, `Configuration used:`, true);
         await writeLog(logFilePath, `  Root directory: ${parsing.rootDirectory}`, true);
         await writeLog(logFilePath, `  Scan subdirectories: ${parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
         await writeLog(logFilePath, `  Apply .gitignore rules: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
-        await writeLog(logFilePath, `  Custom ignore patterns defined: ${config.ignorePatterns.length} pattern${config.ignorePatterns.length !== 1 ? 's' : ''}`, true);
+        await writeLog(logFilePath, `  Custom ignore patterns: ${config.ignorePatterns.length} patterns`, true);
         
         await writeLog(logFilePath, `Output files generated:`, true);
-        await writeLog(logFilePath, `  Plain text format: ${path.join(parsing.rootDirectory, path.basename(fusionFilePath))}`, true);
-        await writeLog(logFilePath, `  Markdown format: ${path.join(parsing.rootDirectory, path.basename(fusionFilePath).replace('.txt', '.md'))}`, true);
+        await writeLog(logFilePath, `  Plain text: ${fusionFilePath}`, true);
+        await writeLog(logFilePath, `  Markdown: ${mdFilePath}`, true);
 
         return {
             success: true,
@@ -302,7 +272,7 @@ export async function processFusion(
         try {
             const logFilePath = createFilePath(path.resolve(config.fusion.fusion_log));
             const endTime = new Date();
-            await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
+            await writeLog(logFilePath, `Status: Fusion failed\nError: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
 
             return {
                 success: false,

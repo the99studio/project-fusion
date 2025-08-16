@@ -1,10 +1,18 @@
 Status: Fusion completed successfully
-Start time: 2025-08-15T21:50:49.371Z
-End time: 2025-08-15T21:50:49.484Z
-Duration: 0.11s
-Files found: 1733
-Files processed successfully: 19 (1.1% of total files)
-Files found but filtered out: 1714 (98.9% of total files)
+Start time: 2025-08-16T13:03:46.914Z
+End time: 2025-08-16T13:03:46.989Z
+Duration: 0.07s
+Total data processed: 0.08 MB
+
+Performance Metrics:
+  Memory Used: 7.47 MB
+  Throughput: 1.08 MB/s
+  Files/second: 287.59
+Files found: 2652
+Files processed successfully: 22
+Files skipped (too large): 0
+Files filtered out: 2630
+Max file size limit: 500 KB
 File extensions actually processed:
   .json
   .md
@@ -49,7 +57,7 @@ Configuration used:
   Root directory: .
   Scan subdirectories: Yes
   Apply .gitignore rules: Yes
-  Custom ignore patterns defined: 26 patterns
+  Custom ignore patterns defined: 71 patterns
 Output files generated:
   Plain text format: project-fusioned.txt
   Markdown format: project-fusioned.md

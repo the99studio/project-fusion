@@ -28,6 +28,7 @@ export interface Config {
     parsing: {
         parseSubDirectories: boolean;
         rootDirectory: string;
+        maxFileSizeKB?: number;
     };
     ignorePatterns: string[];
     useGitIgnoreForExcludes: boolean;

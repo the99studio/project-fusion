@@ -32,6 +32,7 @@ const ParsedFileExtensionsSchema = z.object({
 const ParsingConfigSchema = z.object({
     parseSubDirectories: z.boolean(),
     rootDirectory: z.string(),
+    maxFileSizeKB: z.number().optional(),
 });
 
 /**

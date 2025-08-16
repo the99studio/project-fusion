@@ -56,7 +56,58 @@ export const defaultConfig = {
         ".vscode/",
         ".idea/",
         "*.swp",
-        "*.swo"
+        "*.swo",
+        // Binary files and archives
+        "*.zip",
+        "*.tar",
+        "*.tgz",
+        "*.gz",
+        "*.7z",
+        "*.rar",
+        // Images
+        "*.png",
+        "*.jpg",
+        "*.jpeg",
+        "*.gif",
+        "*.bmp",
+        "*.ico",
+        "*.svg",
+        "*.webp",
+        // Documents
+        "*.pdf",
+        "*.doc",
+        "*.docx",
+        "*.xls",
+        "*.xlsx",
+        "*.ppt",
+        "*.pptx",
+        // Media
+        "*.mp3",
+        "*.mp4",
+        "*.avi",
+        "*.mov",
+        "*.wmv",
+        "*.flv",
+        "*.wav",
+        "*.flac",
+        // Game engine assets
+        "*.unitypackage",
+        "*.uasset",
+        "*.fbx",
+        "*.obj",
+        "*.blend",
+        // Compiled/Binary
+        "*.exe",
+        "*.dll",
+        "*.so",
+        "*.dylib",
+        "*.a",
+        "*.o",
+        "*.pyc",
+        "*.pyo",
+        "*.class",
+        "*.jar",
+        "*.war"
     ],
     useGitIgnoreForExcludes: true,
     schemaVersion: 1
@@ -161,6 +212,33 @@ export function formatTimestamp(date?: Date): string {
 export async function readFileContent(filePath: string): Promise<string> {
     try {
         return await fs.readFile(filePath, 'utf8');
+    } catch (error) {
+        console.error(`Error reading file ${filePath}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Read file content with size limit check
+ * @param filePath Path to file
+ * @param maxSizeKB Maximum file size in KB (optional)
+ * @returns File content or null if file exceeds size limit
+ */
+export async function readFileContentWithSizeLimit(
+    filePath: string, 
+    maxSizeKB?: number
+): Promise<{ content: string | null; skipped: boolean; size: number }> {
+    try {
+        const stats = await fs.stat(filePath);
+        const sizeKB = stats.size / 1024;
+        
+        if (maxSizeKB && sizeKB > maxSizeKB) {
+            console.log(`Skipping large file ${filePath} (${sizeKB.toFixed(2)} KB > ${maxSizeKB} KB limit)`);
+            return { content: null, skipped: true, size: stats.size };
+        }
+        
+        const content = await fs.readFile(filePath, 'utf8');
+        return { content, skipped: false, size: stats.size };
     } catch (error) {
         console.error(`Error reading file ${filePath}:`, error);
         throw error;

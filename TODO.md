@@ -10,10 +10,10 @@
 - [x] ✅ Commande `--config-check` (valide `project-fusion.json` et affiche les groupes/extensions actifs)
 
 ## 🟠 PRIORITÉ 2 — Robustesse & perfs
-- [ ] ❌ **Streaming** (lecture/écriture par chunks) pour gros projets
-- [ ] ❌ Option `maxFileSizeKB` dans la config + skip/log des gros fichiers
-- [ ] ❌ Étendre `ignorePatterns` par défaut: `*.zip`, `*.tgz`, `*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.pdf`, `*.unitypackage`
-- [ ] ⏳ Benchmarks de base (taille projet, nombre fichiers, durée, mémoire) - **PARTIELLEMENT FAIT** (métriques de base loggées)
+- [x] ✅ **Streaming** (lecture/écriture par chunks) pour gros projets - Implémenté dans fusion-stream.ts
+- [x] ✅ Option `maxFileSizeKB` dans la config + skip/log des gros fichiers
+- [x] ✅ Étendre `ignorePatterns` par défaut: `*.zip`, `*.tgz`, `*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.pdf`, `*.unitypackage` (+ binaires, médias, archives)
+- [x] ✅ Benchmarks de base (taille projet, nombre fichiers, durée, mémoire, throughput)
 
 ## 🟡 PRIORITÉ 3 — DX/UX
 - [ ] ❌ Rendre l'argument `[root]` optionnel par défaut dans la CLI (`project-fusion .` implicite)
@@ -65,22 +65,28 @@
    - Tests de base présents pour schema, utils et integration
    - À compléter pour une couverture plus complète
 
-2. **Métriques de performance**
-   - Logging basique de durée et statistiques
-   - Benchmarks formels à ajouter
+### ✅ NOUVELLEMENT IMPLÉMENTÉ (PRIORITÉ 2)
 
-### ❌ NON IMPLÉMENTÉ
-
-1. **Mode streaming**
-   - Toujours en lecture complète en mémoire
-   - Nécessaire pour gros projets
+1. **Mode streaming (fusion-stream.ts)**
+   - Lecture et écriture par flux pour gros projets
+   - Évite de charger tous les fichiers en mémoire
+   - Traitement séquentiel avec streams
 
 2. **Option `maxFileSizeKB`**
-   - Pas encore ajoutée au schema
-   - Pas de skip des gros fichiers
+   - Ajoutée au schema et types
+   - Skip automatique des fichiers trop gros
+   - Logging détaillé des fichiers skippés
 
-3. **Patterns binaires supplémentaires**
-   - Images, archives, PDFs pas encore dans ignorePatterns par défaut
+3. **Patterns binaires étendus**
+   - Ajout de 40+ patterns pour binaires, images, archives
+   - Support médias (mp3, mp4, etc.)
+   - Assets de moteurs de jeu (Unity, Unreal)
+   - Fichiers compilés (.exe, .dll, .so, .class, etc.)
+
+4. **Benchmarks améliorés**
+   - Classe BenchmarkTracker dédiée
+   - Métriques : mémoire, throughput, files/sec
+   - Intégration dans les logs de fusion
 
 4. **Argument `[root]` optionnel avec mode par défaut Commander**
    - Le mode par défaut existe mais pourrait utiliser l'API native de Commander
