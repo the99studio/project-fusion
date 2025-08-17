@@ -118,7 +118,7 @@ npm view project-fusion
 - [ ] `npm run typecheck` - no type errors
 - [ ] CLI help works: `project-fusion --help`
 - [ ] Init works: `project-fusion init`
-- [ ] Fusion works: `project-fusion fusion`
+- [ ] Fusion works: `project-fusion`
 - [ ] Extension filtering works
 - [ ] .gitignore integration works
 - [ ] Output files are properly formatted

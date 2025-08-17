@@ -304,7 +304,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             htmlStream.write(`</body>\n</html>`);
         }
 
-        // Ensure all streams are properly closed before PDF generation
+        // Ensure all streams are properly closed before HTML generation
         if (txtStream) {
             await new Promise<void>((resolve, reject) => {
                 txtStream.end((err?: Error | null) => err ? reject(err) : resolve());

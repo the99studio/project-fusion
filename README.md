@@ -1,6 +1,6 @@
 # Project Fusion
 
-Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates plain text (.txt), .html and markdown (.md) versions with syntax highlighting for better readability.
+Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates three output formats: plain text (.txt), markdown (.md), and HTML (.html) with syntax highlighting and professional styling for optimal readability.
 
 ## Prerequisites
 
@@ -51,10 +51,11 @@ npm install -g project-fusion
 
 When sharing your code:
 
-1. Run `project-fusion fusion` to create merged files
+1. Run `project-fusion` to create merged files
 2. Choose the appropriate format:
    - **`.txt`** - Universal compatibility with clear HTML-style separators
    - **`.md`** - Enhanced readability with syntax highlighting, clickable table of contents
+   - **`.html`** - Professional web format with responsive design and interactive navigation
 3. Share the fusion file with colleagues or collaborators
 4. Use for code review, AI analysis, documentation, or project overview
 

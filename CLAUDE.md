@@ -7,7 +7,7 @@ Project Fusion merges multiple project files into a single file for easy sharing
 
 ## Essential Architecture
 - **TypeScript 5.9.2** ESM project with strict type checking
-- **CLI tool** built with Commander.js that generates .txt and .md fusion files
+- **CLI tool** built with Commander.js that generates .txt, .md, and .html fusion files
 - **Configuration-driven** with Zod validation and default fallbacks
 - **Multi-format output** with syntax highlighting and filtering
 
@@ -28,7 +28,7 @@ src/
 npm run build           # Build TypeScript → JavaScript
 npm run typecheck       # Type checking only
 project-fusion init     # Initialize config
-project-fusion fusion   # Run fusion process
+project-fusion          # Run fusion process
 ```
 
 ## Testing Directory
@@ -68,9 +68,10 @@ The `temp/` directory is gitignored and safe for any testing activities.
 ## Core Workflow
 1. Load `project-fusion.json` config with Zod validation
 2. Scan files by extensions, apply .gitignore + custom ignore patterns
-3. Generate dual output:
+3. Generate triple output:
    - `project-fusioned.txt` - Plain text with separators
    - `project-fusioned.md` - Markdown with syntax highlighting + TOC
+   - `project-fusioned.html` - HTML with responsive design + interactive TOC
 
 ## Key Implementation Details
 - **Branded types** (FilePath) prevent string confusion
