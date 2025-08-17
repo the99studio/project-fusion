@@ -286,13 +286,13 @@ describe('API Tests', () => {
         
         it('should respect ignore patterns', async () => {
             // Create test files
-            await writeFile(join(testProjectDir, 'test.test.js'), 'test("example", () => {});');
+            await writeFile(join(testProjectDir, 'test.example.js'), 'console.log("test example");');
             await writeFile(join(testProjectDir, '.env'), 'SECRET=123');
             await writeFile(join(testProjectDir, 'main.ts'), 'const main = () => {};');
             
             const result = await fusionAPI({
                 rootDirectory: testProjectDir,
-                ignorePatterns: ['*.test.js', '.env'],
+                ignorePatterns: ['*.example.js', '.env'],
                 generateHtml: false,
                 copyToClipboard: false
             });
@@ -303,7 +303,7 @@ describe('API Tests', () => {
                 fs.promises.readFile(join(testProjectDir, 'project-fusioned.txt'), 'utf8')
             );
             expect(content).toContain('main.ts');
-            expect(content).not.toContain('test.test.js');
+            expect(content).not.toContain('test.example.js');
             expect(content).not.toContain('.env');
         });
         
