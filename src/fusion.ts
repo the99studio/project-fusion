@@ -33,7 +33,12 @@ export async function processFusion(
     const benchmark = new BenchmarkTracker();
     
     try {
-        const { parsing } = config;
+        // Extract parsing properties directly from flattened config
+        const parsing = {
+            rootDirectory: config.rootDirectory,
+            parseSubDirectories: config.parseSubDirectories,
+            maxFileSizeKB: config.maxFileSizeKB
+        };
         const logFilePath = createFilePath(path.resolve('project-fusion.log'));
         const fusionFilePath = createFilePath(path.resolve(`${config.generatedFileName}.txt`));
         const mdFilePath = createFilePath(path.resolve(`${config.generatedFileName}.md`));
@@ -55,7 +60,7 @@ export async function processFusion(
 
         // Initialize ignore handler for filtering files based on patterns
         const ig = ignoreLib();
-        const rootDir = path.resolve(parsing.rootDirectory);
+        const rootDir = path.resolve(config.rootDirectory);
 
         // Load ignore patterns from .gitignore and custom config
         if (config.useGitIgnoreForExcludes) {
@@ -76,7 +81,7 @@ export async function processFusion(
         // Create file discovery pattern based on extensions and subdirectory settings
         // Build glob pattern for file discovery: ensure extensions start with '.' and handle subdirectory option
         const allExtensionsPattern = extensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
-        const pattern = parsing.parseSubDirectories
+        const pattern = config.parseSubDirectories
             ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})` // Recursive pattern
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`; // Root-only pattern
 
@@ -123,7 +128,7 @@ export async function processFusion(
         // Track extension usage for comprehensive reporting
         const foundExtensions = new Set<string>();
         const otherExtensions = new Set<string>();
-        const allFilesPattern = parsing.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
+        const allFilesPattern = config.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
         const allFiles = await glob(allFilesPattern, { nodir: true, follow: false });
 
         const allConfiguredExtensions = Object.values(config.parsedFileExtensions).flat();
@@ -140,7 +145,7 @@ export async function processFusion(
         }
 
         // Pre-process files: validate sizes and collect metadata
-        const maxFileSizeKB = parsing.maxFileSizeKB;
+        const maxFileSizeKB = config.maxFileSizeKB;
         const filesToProcess: { path: string; relativePath: string; size: number }[] = [];
         const skippedFiles: string[] = [];
         let skippedCount = 0;

@@ -43,7 +43,14 @@ The `temp/` directory is gitignored and safe for any testing activities.
 ```typescript
 {
   schemaVersion: 1
-  fusion: { fusion_file: string, fusion_log: string, copyToClipboard: boolean }
+  copyToClipboard: boolean
+  generatedFileName: string
+  generateHtml: boolean
+  generateMarkdown: boolean
+  generatePdf: boolean
+  generateText: boolean
+  maxFileSizeKB: number
+  parseSubDirectories: boolean
   parsedFileExtensions: {
     web: string[]       // .js, .ts, .tsx, .vue, etc.
     backend: string[]   // .py, .go, .java, .rs, etc. 
@@ -53,7 +60,7 @@ The `temp/` directory is gitignored and safe for any testing activities.
     godot: string[]     // .gd, .tscn, .tres
     doc: string[]       // .md, .rst, .adoc
   }
-  parsing: { rootDirectory: string, parseSubDirectories: boolean }
+  rootDirectory: string
   ignorePatterns: string[]
   useGitIgnoreForExcludes: boolean
 }

@@ -5,6 +5,63 @@
     "generatePdf": true,
     "generateText": true,
     "generatedFileName": "project-fusioned",
+    "maxFileSizeKB": 1024,
+    "parseSubDirectories": true,
+    "parsedFileExtensions": {
+        "backend": [
+            ".cs",
+            ".go",
+            ".java",
+            ".php",
+            ".py",
+            ".rb",
+            ".rs"
+        ],
+        "config": [
+            ".json",
+            ".toml",
+            ".xml",
+            ".yaml",
+            ".yml"
+        ],
+        "cpp": [
+            ".c",
+            ".cc",
+            ".cpp",
+            ".h",
+            ".hpp"
+        ],
+        "doc": [
+            ".md",
+            ".rst",
+            ".adoc"
+        ],
+        "godot": [
+            ".gd",
+            ".cs",
+            ".tscn",
+            ".tres",
+            ".cfg",
+            ".import"
+        ],
+        "scripts": [
+            ".bat",
+            ".cmd",
+            ".ps1",
+            ".sh"
+        ],
+        "web": [
+            ".css",
+            ".html",
+            ".js",
+            ".jsx",
+            ".svelte",
+            ".ts",
+            ".tsx",
+            ".vue"
+        ]
+    },
+    "rootDirectory": ".",
     "ignorePatterns": [
         "project-fusion.json",
         "project-fusion.log",
@@ -78,65 +135,6 @@
         "*.jar",
         "*.war"
     ],
-    "parsedFileExtensions": {
-        "backend": [
-            ".cs",
-            ".go",
-            ".java",
-            ".php",
-            ".py",
-            ".rb",
-            ".rs"
-        ],
-        "config": [
-            ".json",
-            ".toml",
-            ".xml",
-            ".yaml",
-            ".yml"
-        ],
-        "cpp": [
-            ".c",
-            ".cc",
-            ".cpp",
-            ".h",
-            ".hpp"
-        ],
-        "doc": [
-            ".md",
-            ".rst",
-            ".adoc"
-        ],
-        "godot": [
-            ".gd",
-            ".cs",
-            ".tscn",
-            ".tres",
-            ".cfg",
-            ".import"
-        ],
-        "scripts": [
-            ".bat",
-            ".cmd",
-            ".ps1",
-            ".sh"
-        ],
-        "web": [
-            ".css",
-            ".html",
-            ".js",
-            ".jsx",
-            ".svelte",
-            ".ts",
-            ".tsx",
-            ".vue"
-        ]
-    },
-    "parsing": {
-        "maxFileSizeKB": 1024,
-        "parseSubDirectories": true,
-        "rootDirectory": "."
-    },
     "schemaVersion": 1,
     "useGitIgnoreForExcludes": true
 }

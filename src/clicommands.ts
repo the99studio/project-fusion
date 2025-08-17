@@ -21,7 +21,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
         const config = await loadConfig();
 
         if (options.root) {
-            config.parsing.rootDirectory = options.root;
+            config.rootDirectory = options.root;
             console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
         }
 
@@ -195,11 +195,11 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     // Core configuration settings
     console.log(chalk.cyan('🔧 Basic Settings:'));
     console.log(`   Schema Version: ${config.schemaVersion}`);
-    console.log(`   Root Directory: ${config.parsing.rootDirectory}`);
-    console.log(`   Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`);
+    console.log(`   Root Directory: ${config.rootDirectory}`);
+    console.log(`   Scan Subdirectories: ${config.parseSubDirectories ? 'Yes' : 'No'}`);
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
     console.log(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`);
-    console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
+    console.log(`   Max File Size: ${config.maxFileSizeKB} KB`);
 
     // File generation options
     console.log(chalk.cyan('\n📄 Output Generation:'));
@@ -239,11 +239,11 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(chalk.cyan('\n🔍 File Discovery Preview:'));
     try {
         const { glob } = await import('glob');
-        const rootDir = path.resolve(config.parsing.rootDirectory);
+        const rootDir = path.resolve(config.rootDirectory);
         
         // Create glob pattern to preview file discovery
         const allExtensionsPattern = totalExtensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
-        const pattern = config.parsing.parseSubDirectories
+        const pattern = config.parseSubDirectories
             ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})` // Recursive search
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`; // Root-only search
 

@@ -18,6 +18,8 @@ export const defaultConfig = {
     generateMarkdown: true,
     generatePdf: true,
     generateText: true,
+    maxFileSizeKB: 1024,
+    parseSubDirectories: true,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
@@ -27,11 +29,7 @@ export const defaultConfig = {
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
     },
-    parsing: {
-        maxFileSizeKB: 1024,
-        parseSubDirectories: true,
-        rootDirectory: "."
-    },
+    rootDirectory: ".",
     ignorePatterns: [
         "project-fusion.json",
         "project-fusion.log",
@@ -282,11 +280,11 @@ export async function readFileContentWithSizeLimit(
 export async function logConfigSummary(logFilePath: FilePath, config: Config): Promise<void> {
     await writeLog(logFilePath, `Configuration Summary:`, true);
     await writeLog(logFilePath, `  Schema Version: ${config.schemaVersion}`, true);
-    await writeLog(logFilePath, `  Root Directory: ${config.parsing.rootDirectory}`, true);
-    await writeLog(logFilePath, `  Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Root Directory: ${config.rootDirectory}`, true);
+    await writeLog(logFilePath, `  Scan Subdirectories: ${config.parseSubDirectories ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Max File Size: ${config.parsing.maxFileSizeKB} KB`, true);
+    await writeLog(logFilePath, `  Max File Size: ${config.maxFileSizeKB} KB`, true);
     
     // Output files
     await writeLog(logFilePath, `  Generated File Name: ${config.generatedFileName}`, true);

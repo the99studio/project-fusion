@@ -25,7 +25,10 @@
             "Bash(tail *)",
             "Bash(tar *)",
             "Bash(tsc *)",
-            "Bash(wc -l *)"
+            "Bash(wc -l *)",
+            "Bash(npm run typecheck:*)",
+            "Bash(npm run build:*)",
+            "Bash(node:*)"
         ],
         "deny": [
             "Bash(chmod 777 *)",

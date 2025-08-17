@@ -18,6 +18,8 @@ export interface Config {
     generatePdf: boolean;
     generateText: boolean;
     ignorePatterns: string[];
+    maxFileSizeKB: number;
+    parseSubDirectories: boolean;
     parsedFileExtensions: {
         backend?: string[];
         config?: string[];
@@ -28,11 +30,7 @@ export interface Config {
         web?: string[];
         [key: string]: string[] | undefined;
     };
-    parsing: {
-        maxFileSizeKB: number;
-        parseSubDirectories: boolean;
-        rootDirectory: string;
-    };
+    rootDirectory: string;
     schemaVersion: number;
     useGitIgnoreForExcludes: boolean;
 }

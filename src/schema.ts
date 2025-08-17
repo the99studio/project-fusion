@@ -29,15 +29,6 @@ const ParsedFileExtensionsSchema = z.object({
 }).and(z.record(z.string(), z.array(z.string())));
 
 /**
- * Schema for parsing configuration
- */
-const ParsingConfigSchema = z.object({
-    parseSubDirectories: z.boolean().default(true),
-    rootDirectory: z.string().default("."),
-    maxFileSizeKB: z.number().default(1024),
-});
-
-/**
  * Complete configuration schema for version 1
  */
 export const ConfigSchemaV1 = z.object({
@@ -48,6 +39,8 @@ export const ConfigSchemaV1 = z.object({
     generateMarkdown: z.boolean().default(true),
     generateHtml: z.boolean().default(true),
     generatePdf: z.boolean().default(true),
+    maxFileSizeKB: z.number().default(1024),
+    parseSubDirectories: z.boolean().default(true),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
@@ -57,11 +50,7 @@ export const ConfigSchemaV1 = z.object({
         godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
         doc: [".md", ".rst", ".adoc"]
     }),
-    parsing: ParsingConfigSchema.default({
-        parseSubDirectories: true,
-        rootDirectory: ".",
-        maxFileSizeKB: 1024
-    }),
+    rootDirectory: z.string().default("."),
     ignorePatterns: z.array(z.string()).default([
         "project-fusion.json",
         "project-fusion.log",

@@ -5,10 +5,10 @@ Basé sur l'analyse du directeur de programmation, voici les tâches prioritaire
 ## 🔥 Priorités HAUTES (Bloquantes)
 
 ### 1. Unification du modèle de configuration
-- [ ] **Choix définitif** : Structure aplatie (actuelle) vs imbriquée `fusion: {}`
-- [ ] Mettre à jour `CLAUDE.md` ligne 46 pour correspondre au code réel
-- [ ] Vérifier cohérence entre `src/types.ts`, `src/schema.ts`, `src/utils.ts`
-- [ ] Audit complet : chercher toutes les références à l'ancienne structure
+- [x] **Choix définitif** : Structure aplatie (actuelle) vs imbriquée `fusion: {}`
+- [x] Mettre à jour `CLAUDE.md` ligne 46 pour correspondre au code réel
+- [x] Vérifier cohérence entre `src/types.ts`, `src/schema.ts`, `src/utils.ts`
+- [x] Audit complet : chercher toutes les références à l'ancienne structure
 
 ### 2. Refactor CLI Command Parsing  
 - [ ] Remplacer le parsing manuel dans `src/cli.ts` (lignes 45-74)
