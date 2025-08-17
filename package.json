@@ -57,6 +57,9 @@
         "url": "https://github.com/the99studio/project-fusion/issues"
     },
     "homepage": "https://github.com/the99studio/project-fusion#readme",
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "chalk": "^5.5.0",
         "clipboardy": "^4.0.0",

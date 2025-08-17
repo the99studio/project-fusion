@@ -2,8 +2,7 @@
 
 ## 🚨 Priorité Haute (Bloquants pour publication npm)
 
-- [x] **Vérifier l'échappement HTML** dans `fusion.ts:259-264` - s'assurer que tout contenu injecté est sécurisé
-- [ ] **Ajouter `publishConfig`** dans package.json : `"publishConfig": { "access": "public" }`
+- [x] **Ajouter `publishConfig`** dans package.json : `"publishConfig": { "access": "public" }`
 - [ ] **Tester `npm pack --dry-run`** avant publication
 - [ ] **Créer SECURITY.md** avec politique de divulgation des vulnérabilités
 
