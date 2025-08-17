@@ -49,8 +49,9 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
                 console.log(chalk.cyan(`   - ${config.generatedFileName}.html`));
             }
 
-            // Copy fusion content to clipboard if enabled
-            if (config.copyToClipboard === true && result.fusionFilePath) {
+            // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments)
+            const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
+            if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
                 try {
                     const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                     await clipboardy.write(fusionContent);
@@ -58,6 +59,8 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
                 } catch (clipboardError) {
                     console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${clipboardError}`));
                 }
+            } else if (config.copyToClipboard === true && isNonInteractive) {
+                console.log(chalk.gray(`📋 Clipboard copy skipped (non-interactive environment)`));
             }
 
             console.log(chalk.gray(`📝 Log file available at: ${result.logFilePath}`));
