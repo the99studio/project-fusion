@@ -16,8 +16,8 @@ export const defaultConfig = {
     copyToClipboard: false,
     generateText: true,
     generateMarkdown: true,
-    generateHtml: false,
-    generatePdf: false,
+    generateHtml: true,
+    generatePdf: true,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],

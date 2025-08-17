@@ -47,7 +47,8 @@
       "Bash(project-fusion:*)",
       "Bash(mkdir:*)",
       "Bash(../../dist/cli.js)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(../dist/cli.js)"
     ],
     "deny": [
       "Bash(rm -rf /)",
