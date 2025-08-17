@@ -16,6 +16,9 @@ import {
     formatTimestamp,
     getExtensionsFromGroups,
     getMarkdownLanguage,
+    isBinaryFile,
+    validateNoSymlinks,
+    validateSecurePath,
     writeLog
 } from './utils.js';
 
@@ -263,7 +266,18 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         let processedCount = 0;
         for (const fileInfo of filesToProcess) {
             try {
-                const content = await fs.readFile(fileInfo.path, 'utf8');
+                // Security validations
+                const safePath = validateSecurePath(fileInfo.path, config.rootDirectory);
+                await validateNoSymlinks(safePath, false); // Disallow symlinks for security
+                
+                // Check if file is binary and skip if so
+                if (await isBinaryFile(safePath)) {
+                    await writeLog(logFilePath, `Skipping binary file: ${fileInfo.relativePath}`, true);
+                    console.warn(`Skipping binary file: ${fileInfo.relativePath}`);
+                    continue;
+                }
+                
+                const content = await fs.readFile(safePath, 'utf8');
                 const fileExt = path.extname(fileInfo.path).toLowerCase();
                 const basename = path.basename(fileInfo.path);
                 const language = getMarkdownLanguage(fileExt || basename);
@@ -303,6 +317,10 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             } catch (error) {
                 await writeLog(logFilePath, `Error processing file ${fileInfo.path}: ${String(error)}`, true);
                 console.error(`Error processing file ${fileInfo.path}:`, error);
+                
+                // For security errors, we might want to be more strict
+                // But for now, we continue processing other files
+                // The error is logged and reported
             }
         }
 

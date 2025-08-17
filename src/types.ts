@@ -54,7 +54,9 @@ export const getExtensionsForGroup = (groupName: ExtensionGroupName): ExtensionG
 export type FusionErrorCode = 
     | 'INVALID_PATH'
     | 'UNKNOWN_EXTENSION_GROUP'
-    | 'EMPTY_ARRAY';
+    | 'EMPTY_ARRAY'
+    | 'PATH_TRAVERSAL'
+    | 'SYMLINK_NOT_ALLOWED';
 
 export type FusionErrorSeverity = 'error' | 'warning' | 'info';
 

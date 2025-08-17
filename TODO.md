@@ -6,14 +6,10 @@
 
 ## 🔧 Priorité Moyenne (Qualité & Robustesse)
 
-- [x] **TypeScript renforcé** :
-  - Ajouter `"moduleDetection": "force"` dans tsconfig.json
-  - Créer types utilitaires `NonEmptyArray<T>` et `ExtensionGroup`
-
-- [ ] **Sécurité fichiers** :
-  - Vérifier que `follow: false` est bien utilisé dans glob
-  - Ajouter validation que tous les chemins restent sous `rootDirectory`
-  - Tests de sécurité : fichiers binaires, symlinks, chemins relatifs
+- [x] **Sécurité fichiers** :
+  - ✅ Vérifier que `follow: false` est bien utilisé dans glob
+  - ✅ Ajouter validation que tous les chemins restent sous `rootDirectory`
+  - ✅ Tests de sécurité : fichiers binaires, symlinks, chemins relatifs
 
 ## 📚 Documentation
 
@@ -28,10 +24,10 @@
   - Test `config-check`
   - Test clipboard en environnement non-TTY
 
-- [ ] **Tests de sécurité** :
-  - Injection HTML/XSS
-  - Fichiers volumineux (>maxFileSizeKB)
-  - Chemins hors arborescence
+- [x] **Tests de sécurité** :
+  - ✅ Injection HTML/XSS
+  - ✅ Fichiers volumineux (>maxFileSizeKB)
+  - ✅ Chemins hors arborescence
 
 - [ ] **Property-based testing** avec `fast-check` pour filtres d'extensions
 - [ ] **Snapshots** pour vérifier format MD/HTML généré

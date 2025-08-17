@@ -7,7 +7,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
-import { type Config, isValidExtensionGroup, isNonEmptyArray } from './types.js';
+import { FusionError, type Config, isValidExtensionGroup, isNonEmptyArray } from './types.js';
 
 
 /**
@@ -298,6 +298,122 @@ export function getExtensionsFromGroups(
         }
         return acc;
     }, []);
+}
+
+/**
+ * Validate that a file path is safe and doesn't escape the root directory
+ * @param filePath Path to validate
+ * @param rootDirectory Root directory that files must stay within
+ * @returns Normalized absolute path if valid
+ * @throws FusionError if path is unsafe
+ */
+export function validateSecurePath(filePath: string, rootDirectory: string): string {
+    try {
+        // Resolve both paths to absolute paths
+        const resolvedRoot = path.resolve(rootDirectory);
+        const resolvedFile = path.resolve(filePath);
+        
+        // Check if the file path starts with the root directory
+        if (!resolvedFile.startsWith(resolvedRoot + path.sep) && resolvedFile !== resolvedRoot) {
+            throw new FusionError(
+                `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
+                'PATH_TRAVERSAL',
+                'error',
+                { filePath, rootDirectory, resolvedFile, resolvedRoot }
+            );
+        }
+        
+        return resolvedFile;
+    } catch (error) {
+        if (error instanceof FusionError) {
+            throw error;
+        }
+        throw new FusionError(
+            `Invalid path: '${filePath}'`,
+            'INVALID_PATH',
+            'error',
+            { filePath, rootDirectory, originalError: error }
+        );
+    }
+}
+
+/**
+ * Check if a path is a symbolic link and validate it's allowed
+ * @param filePath Path to check
+ * @param allowSymlinks Whether symbolic links are allowed
+ * @returns True if the path is safe to process
+ * @throws FusionError if symlink is found and not allowed
+ */
+export async function validateNoSymlinks(filePath: string, allowSymlinks: boolean = false): Promise<boolean> {
+    try {
+        const stats = await fs.lstat(filePath);
+        
+        if (stats.isSymbolicLink()) {
+            if (!allowSymlinks) {
+                throw new FusionError(
+                    `Symbolic link not allowed: '${filePath}'`,
+                    'SYMLINK_NOT_ALLOWED',
+                    'error',
+                    { filePath }
+                );
+            }
+            // If symlinks are allowed, we still want to log them for transparency
+            console.warn(`Processing symbolic link: ${filePath}`);
+        }
+        
+        return true;
+    } catch (error) {
+        if (error instanceof FusionError) {
+            throw error;
+        }
+        // If lstat fails, the file doesn't exist or is inaccessible
+        return false;
+    }
+}
+
+/**
+ * Detect if a file appears to be binary
+ * @param filePath Path to the file
+ * @param sampleSize Number of bytes to sample (default: 1024)
+ * @returns True if the file appears to be binary
+ */
+export async function isBinaryFile(filePath: string, sampleSize: number = 1024): Promise<boolean> {
+    try {
+        const stats = await fs.stat(filePath);
+        if (stats.size === 0) {
+            return false; // Empty file is not binary
+        }
+        
+        // Read only the first part of the file for analysis
+        const bytesToRead = Math.min(stats.size, sampleSize);
+        const buffer = await fs.readFile(filePath, { encoding: null });
+        const actualBytesToCheck = Math.min(buffer.length, bytesToRead);
+        
+        // Check for null bytes which indicate binary content
+        for (let i = 0; i < actualBytesToCheck; i++) {
+            if (buffer[i] === 0) {
+                return true;
+            }
+        }
+        
+        // Check for high ratio of non-printable characters
+        let nonPrintable = 0;
+        for (let i = 0; i < actualBytesToCheck; i++) {
+            const byte = buffer[i];
+            // Allow common whitespace chars: space(32), tab(9), newline(10), carriage return(13)
+            if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
+                nonPrintable++;
+            } else if (byte > 126) {
+                nonPrintable++;
+            }
+        }
+        
+        // If more than 30% non-printable, consider it binary
+        return (nonPrintable / actualBytesToCheck) > 0.3;
+    } catch {
+        // If we can't read the file, assume it's not binary
+        return false;
+    }
 }
 
 /**
