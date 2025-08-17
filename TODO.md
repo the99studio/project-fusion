@@ -4,24 +4,6 @@
 
 - [ ] **Tester `npm pack --dry-run`** avant publication
 
-## 🔧 Priorité Moyenne (Qualité & Robustesse)
-
-## 📚 Documentation
-
-- [ ] **Aligner la documentation** sur les 3 formats : `.txt`, `.md`, `.html`
-- [ ] **Vérifier cohérence** entre README.md, CHANGELOG.md et code
-- [ ] **Ajouter exemples** d'utilisation API programmatique
-
-## 🧪 Tests
-
-- [ ] **Tests E2E CLI** :
-  - Test de la commande par défaut
-  - Test `config-check`
-  - Test clipboard en environnement non-TTY
-
-- [ ] **Property-based testing** avec `fast-check` pour filtres d'extensions
-- [ ] **Snapshots** pour vérifier format MD/HTML généré
-
 ## ⚡ Optimisations (Priorité Basse)
 
 - [ ] **API Fluent** pour meilleure DX
