@@ -20,6 +20,20 @@ import {
 } from './utils.js';
 
 /**
+ * Escape HTML entities for safe HTML output
+ * @param text Text to escape
+ * @returns HTML-safe text
+ */
+function escapeHtml(text: string): string {
+    return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('\'', '&#39;');
+}
+
+/**
  * Process fusion of files - Optimized memory-efficient version
  * @param config Configuration
  * @param options Fusion options
@@ -220,7 +234,7 @@ export async function processFusion(
 <body>
     <div class="header">
         <h1>Generated Project Fusion File</h1>
-        <p><strong>Project:</strong> ${projectTitle}${versionInfo}</p>
+        <p><strong>Project:</strong> ${escapeHtml(projectTitle)}${escapeHtml(versionInfo)}</p>
         <p><strong>Generated:</strong> ${formatLocalTimestamp()}</p>
         <p><strong>UTC:</strong> ${formatTimestamp()}</p>
         <p><strong>Files:</strong> ${filesToProcess.length}</p>
@@ -229,7 +243,7 @@ export async function processFusion(
     <div class="toc">
         <h2>📁 Table of Contents</h2>
         <ul>
-${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()}">${fileInfo.relativePath}</a></li>`).join('\n')}
+${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()}">${escapeHtml(fileInfo.relativePath)}</a></li>`).join('\n')}
         </ul>
     </div>`;
 
@@ -254,12 +268,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                 const basename = path.basename(fileInfo.path);
                 const language = getMarkdownLanguage(fileExt || basename);
                 // Escape HTML entities for safe HTML output
-                const escapedContent = content
-                    .replaceAll('&', '&amp;')
-                    .replaceAll('<', '&lt;')
-                    .replaceAll('>', '&gt;')
-                    .replaceAll('"', '&quot;')
-                    .replaceAll('\'', '&#39;');
+                const escapedContent = escapeHtml(content);
                 
                 // Generate plain text format with file separators
                 if (txtStream) {
@@ -283,7 +292,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                     const fileAnchor = fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase();
                     htmlStream.write(`    <div class="file-section" id="${fileAnchor}">\n`);
                     htmlStream.write(`        <div class="file-title">\n`);
-                    htmlStream.write(`            <h2>📄 ${fileInfo.relativePath}</h2>\n`);
+                    htmlStream.write(`            <h2>📄 ${escapeHtml(fileInfo.relativePath)}</h2>\n`);
                     htmlStream.write(`        </div>\n`);
                     htmlStream.write(`        <pre><code class="${language}">${escapedContent}</code></pre>\n`);
                     htmlStream.write(`    </div>\n\n`);
