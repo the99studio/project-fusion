@@ -12,24 +12,25 @@ Configuration Summary:
   Generate PDF: Yes
   Extension Groups: 7 groups
   Total Extensions: 38
-  Ignore Patterns: 70 patterns
+  Ignore Patterns: 71 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-17T01:10:20.057Z
-End time: 2025-08-17T01:10:20.272Z
+Start time: 2025-08-17T01:24:32.826Z
+End time: 2025-08-17T01:24:33.041Z
 Duration: 0.21s
-Total data processed: 0.09 MB
+Total data processed: 0.19 MB
 
 Performance Metrics:
-  Memory Used: 11.66 MB
-  Throughput: 0.40 MB/s
-  Files/second: 92.35
-Files found: 3138
-Files processed successfully: 20
+  Memory Used: 11.96 MB
+  Throughput: 0.89 MB/s
+  Files/second: 97.03
+Files found: 3139
+Files processed successfully: 21
 Files skipped (too large): 0
 Files filtered out: 3118
 Max file size limit: 1024 KB
 File extensions actually processed:
+  .html
   .json
   .md
   .ts
@@ -48,7 +49,6 @@ Configured extensions with no matching files found:
   .go
   .h
   .hpp
-  .html
   .import
   .java
   .js
