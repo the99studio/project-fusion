@@ -6,12 +6,7 @@
 
 ## 🔧 Priorité Moyenne (Qualité & Robustesse)
 
-- [x] **ESLint améliorations** :
-  - Activer `@typescript-eslint/recommended-type-checked`
-  - Configurer resolver TypeScript pour `eslint-plugin-import`
-  - Ajouter `.allowUnknownOption(false)` et `.showHelpAfterError(true)` au CLI
-
-- [ ] **TypeScript renforcé** :
+- [x] **TypeScript renforcé** :
   - Ajouter `"moduleDetection": "force"` dans tsconfig.json
   - Créer types utilitaires `NonEmptyArray<T>` et `ExtensionGroup`
 

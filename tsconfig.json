@@ -15,6 +15,7 @@
         "useUnknownInCatchVariables": true,
         "noPropertyAccessFromIndexSignature": true,
         "noImplicitReturns": true,
+        "moduleDetection": "force",
         "outDir": "./dist",
         "rootDir": "./src"
     },

@@ -14,10 +14,47 @@ export const createFilePath = (path: string): FilePath => {
     return path as FilePath;
 };
 
+// Utility types for enhanced type safety
+export type NonEmptyArray<T> = readonly [T, ...T[]];
+
+export const isNonEmptyArray = <T>(array: readonly T[]): array is NonEmptyArray<T> => {
+    return array.length > 0;
+};
+
+export const createNonEmptyArray = <T>(items: readonly T[]): NonEmptyArray<T> => {
+    if (!isNonEmptyArray(items)) {
+        throw new FusionError('Array must contain at least one element', 'EMPTY_ARRAY', 'error');
+    }
+    return items;
+};
+
+// Extension groups with type safety (alphabetically sorted)
+export const EXTENSION_GROUPS = {
+    web: ['.css', '.html', '.js', '.jsx', '.svelte', '.ts', '.tsx', '.vue'],
+    backend: ['.cs', '.go', '.java', '.php', '.py', '.rb', '.rs'],
+    config: ['.cfg', '.json', '.toml', '.xml', '.yaml', '.yml'],
+    cpp: ['.c', '.cc', '.cpp', '.h', '.hpp'],
+    scripts: ['.bat', '.cmd', '.ps1', '.sh'],
+    godot: ['.gd', '.import', '.tres', '.tscn'],
+    doc: ['.adoc', '.md', '.rst']
+} as const;
+
+export type ExtensionGroupName = keyof typeof EXTENSION_GROUPS;
+export type ExtensionGroup = typeof EXTENSION_GROUPS[ExtensionGroupName];
+
+export const isValidExtensionGroup = (group: string): group is ExtensionGroupName => {
+    return group in EXTENSION_GROUPS;
+};
+
+export const getExtensionsForGroup = (groupName: ExtensionGroupName): ExtensionGroup => {
+    return EXTENSION_GROUPS[groupName];
+};
+
 // Enhanced error hierarchy with codes and severity
 export type FusionErrorCode = 
     | 'INVALID_PATH'
-    | 'UNKNOWN_EXTENSION_GROUP';
+    | 'UNKNOWN_EXTENSION_GROUP'
+    | 'EMPTY_ARRAY';
 
 export type FusionErrorSeverity = 'error' | 'warning' | 'info';
 

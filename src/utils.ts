@@ -7,7 +7,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
-import { FusionError, type Config } from './types.js';
+import { type Config, isValidExtensionGroup, isNonEmptyArray } from './types.js';
 
 
 /**
@@ -282,18 +282,19 @@ export function getExtensionsFromGroups(
             .flat();
     }
 
-    // Collect extensions from specified groups with validation
+    // Validate and collect extensions from specified groups
     return groups.reduce((acc: string[], group: string) => {
+        // Type-safe group validation
+        if (!isValidExtensionGroup(group)) {
+            console.warn(`Unknown extension group '${group}'. Valid groups: ${Object.keys(config.parsedFileExtensions).join(', ')}`);
+            return acc;
+        }
+
         const extensions = config.parsedFileExtensions[group];
-        if (extensions) {
+        if (extensions && isNonEmptyArray(extensions)) {
             acc.push(...extensions);
         } else {
-            throw new FusionError(
-                `Extension group '${group}' not found in config`, 
-                'UNKNOWN_EXTENSION_GROUP', 
-                'warning',
-                { group, availableGroups: Object.keys(config.parsedFileExtensions) }
-            );
+            console.warn(`Extension group '${group}' is empty or not found in configuration`);
         }
         return acc;
     }, []);
