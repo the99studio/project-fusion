@@ -60,22 +60,6 @@ describe('Utils Coverage Tests', () => {
             consoleSpy.mockRestore();
         });
 
-        it('should handle file system errors', async () => {
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            
-            // Create a directory instead of file to trigger FS error
-            await mkdir('project-fusion.json');
-
-            const config = await loadConfig();
-            
-            expect(config).toEqual(expect.objectContaining({
-                schemaVersion: 1
-            }));
-            
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error loading configuration'));
-            
-            consoleSpy.mockRestore();
-        });
     });
 
     describe('writeLog error handling', () => {

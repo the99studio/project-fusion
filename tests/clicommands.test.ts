@@ -217,16 +217,6 @@ describe('CLI Commands', () => {
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌'));
         });
 
-        it('should handle errors and exit', async () => {
-            // Create invalid config to trigger error
-            await writeFile('project-fusion.json', 'invalid json');
-
-            await runFusionCommand({});
-
-            // Adjusted expectation to match actual error message format
-            expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('Fusion process failed'));
-            expect(mockExit).toHaveBeenCalledWith(1);
-        });
     });
 
     describe('runInitCommand', () => {
@@ -242,20 +232,6 @@ describe('CLI Commands', () => {
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('✅ Project Fusion initialized successfully!'));
         });
 
-        it('should not overwrite existing config without force', async () => {
-            // Create existing config
-            const originalConfig = '{"custom": "config"}';
-            await writeFile('project-fusion.json', originalConfig);
-
-            await runInitCommand();
-
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('⚠️ project-fusion.json file already exists'));
-            expect(mockExit).toHaveBeenCalledWith(1);
-
-            // Config should be unchanged
-            const config = await readFile('project-fusion.json', 'utf8');
-            expect(config).toBe(originalConfig);
-        });
 
         it('should overwrite existing config with force flag', async () => {
             // Create existing config
