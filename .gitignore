@@ -11,6 +11,7 @@ build/
 # Testing and temporary files
 temp/
 *.tgz
+coverage/
 
 # Logs
 logs/

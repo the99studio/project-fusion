@@ -4,12 +4,15 @@
 import { z } from 'zod';
 
 /**
- * Schema for fusion configuration
+ * Schema for output generation configuration
  */
-const FusionConfigSchema = z.object({
-    fusion_file: z.string(),
-    fusion_log: z.string(),
+const OutputConfigSchema = z.object({
+    generatedFileName: z.string(),
     copyToClipboard: z.boolean(),
+    generateText: z.boolean(),
+    generateMarkdown: z.boolean(),
+    generateHtml: z.boolean(),
+    generatePdf: z.boolean(),
 });
 
 /**
@@ -17,13 +20,13 @@ const FusionConfigSchema = z.object({
  * Allows for dynamic extension groups beyond the predefined ones
  */
 const ParsedFileExtensionsSchema = z.object({
-    backend: z.array(z.string()),
-    config: z.array(z.string()),
-    cpp: z.array(z.string()),
-    scripts: z.array(z.string()),
-    web: z.array(z.string()),
-    godot: z.array(z.string()),
-    doc: z.array(z.string()),
+    backend: z.array(z.string()).optional(),
+    config: z.array(z.string()).optional(),
+    cpp: z.array(z.string()).optional(),
+    scripts: z.array(z.string()).optional(),
+    web: z.array(z.string()).optional(),
+    godot: z.array(z.string()).optional(),
+    doc: z.array(z.string()).optional(),
 }).and(z.record(z.string(), z.array(z.string())));
 
 /**
@@ -40,7 +43,12 @@ const ParsingConfigSchema = z.object({
  */
 export const ConfigSchemaV1 = z.object({
     schemaVersion: z.literal(1),
-    fusion: FusionConfigSchema,
+    generatedFileName: z.string(),
+    copyToClipboard: z.boolean(),
+    generateText: z.boolean(),
+    generateMarkdown: z.boolean(),
+    generateHtml: z.boolean(),
+    generatePdf: z.boolean(),
     parsedFileExtensions: ParsedFileExtensionsSchema,
     parsing: ParsingConfigSchema,
     ignorePatterns: z.array(z.string()),

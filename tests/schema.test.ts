@@ -12,23 +12,19 @@ describe('schema', () => {
     it('should validate minimal valid config', () => {
       const minimalConfig = {
         schemaVersion: 1,
-        fusion: {
-          fusion_file: "test.txt",
-          fusion_log: "test.log",
-          copyToClipboard: false
-        },
+        generatedFileName: "test-fusion",
+        copyToClipboard: false,
+        generateText: true,
+        generateMarkdown: true,
+        generateHtml: false,
+        generatePdf: false,
         parsedFileExtensions: {
-          backend: [".py", ".go"],
-          config: [".json"],
-          cpp: [".c"],
-          scripts: [".sh"],
-          web: [".js", ".ts"],
-          godot: [".gd"],
-          doc: [".md"]
+          web: [".js", ".ts"]
         },
         parsing: {
           rootDirectory: ".",
-          parseSubDirectories: true
+          parseSubDirectories: true,
+          maxFileSizeKB: 1024
         },
         ignorePatterns: [],
         useGitIgnoreForExcludes: true
@@ -61,10 +57,7 @@ describe('schema', () => {
     it('should reject config with invalid copyToClipboard type', () => {
       const invalidConfig = {
         ...defaultConfig,
-        fusion: {
-          ...defaultConfig.fusion,
-          copyToClipboard: "true" // Should be boolean
-        }
+        copyToClipboard: "true" // Should be boolean
       };
 
       const result = ConfigSchemaV1.safeParse(invalidConfig);
@@ -74,10 +67,27 @@ describe('schema', () => {
     it('should validate config with copyToClipboard true', () => {
       const validConfig = {
         ...defaultConfig,
-        fusion: {
-          ...defaultConfig.fusion,
-          copyToClipboard: true
-        }
+        copyToClipboard: true
+      };
+
+      const result = ConfigSchemaV1.safeParse(validConfig);
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate config with HTML generation enabled', () => {
+      const validConfig = {
+        ...defaultConfig,
+        generateHtml: true
+      };
+
+      const result = ConfigSchemaV1.safeParse(validConfig);
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate config with PDF generation enabled', () => {
+      const validConfig = {
+        ...defaultConfig,
+        generatePdf: true
       };
 
       const result = ConfigSchemaV1.safeParse(validConfig);

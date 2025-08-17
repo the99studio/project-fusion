@@ -11,19 +11,21 @@ export const createFilePath = (path: string): FilePath => path as FilePath;
  * Main configuration interface
  */
 export interface Config {
-    fusion: {
-        fusion_file: string;
-        fusion_log: string;
-        copyToClipboard: boolean;
-    };
+    generatedFileName: string;
+    copyToClipboard: boolean;
+    generateText: boolean;
+    generateMarkdown: boolean;
+    generateHtml: boolean;
+    generatePdf: boolean;
     parsedFileExtensions: {
-        backend: string[];
-        config: string[];
-        cpp: string[];
-        scripts: string[];
-        web: string[];
-        godot: string[];
-        [key: string]: string[];
+        backend?: string[];
+        config?: string[];
+        cpp?: string[];
+        scripts?: string[];
+        web?: string[];
+        godot?: string[];
+        doc?: string[];
+        [key: string]: string[] | undefined;
     };
     parsing: {
         parseSubDirectories: boolean;

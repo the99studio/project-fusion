@@ -36,12 +36,23 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
 
         if (result.success) {
             console.log(chalk.green(`✅ ${result.message}`));
-            console.log(chalk.green(`📄 Fusion files created at:`));
-            console.log(chalk.cyan(`   - ${result.fusionFilePath}`));
-            console.log(chalk.cyan(`   - ${result.fusionFilePath.replace('.txt', '.md')}`));
+            console.log(chalk.green(`📄 Generated files:`));
+            
+            if (config.generateText) {
+                console.log(chalk.cyan(`   - ${config.generatedFileName}.txt`));
+            }
+            if (config.generateMarkdown) {
+                console.log(chalk.cyan(`   - ${config.generatedFileName}.md`));
+            }
+            if (config.generateHtml) {
+                console.log(chalk.cyan(`   - ${config.generatedFileName}.html`));
+            }
+            if (config.generatePdf) {
+                console.log(chalk.cyan(`   - ${config.generatedFileName}.pdf`));
+            }
 
             // Clipboard integration: only copy if explicitly enabled in config
-            if (config.fusion.copyToClipboard === true && result.fusionFilePath) {
+            if (config.copyToClipboard === true && result.fusionFilePath) {
                 try {
                     const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                     await clipboardy.write(fusionContent);
@@ -142,7 +153,14 @@ export async function runConfigCheckCommand(): Promise<void> {
             
             // Display detailed error information
             validation.error.issues.forEach((issue, index) => {
-                console.log(chalk.red(`   ${index + 1}. ${issue.path.join('.')}: ${issue.message}`));
+                const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
+                const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
+                console.log(chalk.red(`   ${index + 1}. Path: ${chalk.yellow(path)}`));
+                console.log(chalk.red(`      Error: ${issue.message}`));
+                console.log(chalk.red(`      Current value: ${chalk.cyan(JSON.stringify(value))}`));
+                if (issue.code === 'invalid_type') {
+                    console.log(chalk.red(`      Expected: ${chalk.green((issue as any).expected)}, received: ${chalk.magenta((issue as any).received)}`));
+                }
             });
             
             console.log(chalk.yellow('\n💡 Suggestions:'));
@@ -178,21 +196,26 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Root Directory: ${config.parsing.rootDirectory}`);
     console.log(`   Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`);
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
-    console.log(`   Copy to Clipboard: ${config.fusion.copyToClipboard ? 'Yes' : 'No'}`);
+    console.log(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`);
     console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
 
     // Output files
-    console.log(chalk.cyan('\n📄 Output Files:'));
-    console.log(`   Fusion File: ${config.fusion.fusion_file}`);
-    console.log(`   Markdown File: ${config.fusion.fusion_file.replace('.txt', '.md')}`);
-    console.log(`   Log File: ${config.fusion.fusion_log}`);
+    console.log(chalk.cyan('\n📄 Output Generation:'));
+    console.log(`   Generated File Name: ${config.generatedFileName}`);
+    console.log(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}`);
+    console.log(`   Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}`);
+    console.log(`   Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`);
+    console.log(`   Generate PDF: ${config.generatePdf ? 'Yes' : 'No'}`);
+    console.log(`   Log File: project-fusion.log`);
 
     // Extension groups
     console.log(chalk.cyan('\n📁 File Extension Groups:'));
     const totalExtensions = getExtensionsFromGroups(config);
     
     Object.entries(config.parsedFileExtensions).forEach(([group, extensions]) => {
-        console.log(`   ${group}: ${extensions.length} extensions (${extensions.join(', ')})`);
+        if (extensions) {
+            console.log(`   ${group}: ${extensions.length} extensions (${extensions.join(', ')})`);
+        }
     });
     
     console.log(chalk.gray(`   Total: ${totalExtensions.length} unique extensions`));

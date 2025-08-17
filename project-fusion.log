@@ -1,68 +1,37 @@
 Configuration Summary:
   Schema Version: 1
-  Root Directory: .
-  Scan Subdirectories: Yes
-  Use .gitignore: Yes
+  Root Directory: ./temp/test-formats
+  Scan Subdirectories: No
+  Use .gitignore: No
   Copy to Clipboard: No
   Max File Size: 1024 KB
-  Fusion File: project-fusioned.txt
-  Log File: project-fusion.log
-  Extension Groups: 7 groups
-  Total Extensions: 38
-  Ignore Patterns: 71 patterns
+  Generated File Name: test-output
+  Generate Text: Yes
+  Generate Markdown: Yes
+  Generate HTML: Yes
+  Generate PDF: No
+  Extension Groups: 3 groups
+  Total Extensions: 4
+  Ignore Patterns: 0 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-17T00:16:29.649Z
-End time: 2025-08-17T00:16:29.820Z
-Duration: 0.17s
-Total data processed: 0.07 MB
+Start time: 2025-08-17T00:41:00.026Z
+End time: 2025-08-17T00:41:00.032Z
+Duration: 0.01s
+Total data processed: 0.00 MB
 
 Performance Metrics:
-  Memory Used: 8.04 MB
-  Throughput: 0.41 MB/s
-  Files/second: 115.63
-Files found: 2650
-Files processed successfully: 20
+  Memory Used: 0.43 MB
+  Throughput: 0.03 MB/s
+  Files/second: 409.26
+Files found: 3
+Files processed successfully: 3
 Files skipped (too large): 0
-Files filtered out: 2630
+Files filtered out: 0
 Max file size limit: 1024 KB
 File extensions actually processed:
+  .js
   .json
   .md
-  .ts
 Configured extensions with no matching files found:
-  .adoc
-  .bat
-  .c
-  .cc
-  .cfg
-  .cmd
-  .cpp
-  .cs
-  .cs
-  .css
-  .gd
-  .go
-  .h
-  .hpp
-  .html
-  .import
-  .java
-  .js
-  .jsx
-  .php
-  .ps1
-  .py
-  .rb
-  .rs
-  .rst
-  .sh
-  .svelte
-  .toml
-  .tres
-  .tscn
-  .tsx
-  .vue
-  .xml
-  .yaml
-  .yml
+  .ts

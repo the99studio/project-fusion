@@ -1,5 +1,17 @@
-import { describe, it, expect } from 'vitest';
-import { getMarkdownLanguage, getExtensionsFromGroups, formatTimestamp } from '../src/utils.js';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import fs from 'fs-extra';
+import path from 'path';
+import { 
+  getMarkdownLanguage, 
+  getExtensionsFromGroups, 
+  formatTimestamp,
+  formatLocalTimestamp,
+  loadConfig,
+  writeLog,
+  ensureDirectoryExists,
+  writeFileContent,
+  readFileContent
+} from '../src/utils.js';
 import { defaultConfig } from '../src/utils.js';
 
 describe('utils', () => {
@@ -68,6 +80,186 @@ describe('utils', () => {
       const date = new Date('2025-01-01T12:00:00.000Z');
       const timestamp = formatTimestamp(date);
       expect(timestamp).toBe('2025-01-01T12:00:00.000Z');
+    });
+  });
+
+  describe('formatLocalTimestamp', () => {
+    it('should format current date when no date provided', () => {
+      const timestamp = formatLocalTimestamp();
+      expect(timestamp).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}/);
+    });
+
+    it('should format provided date', () => {
+      const date = new Date('2025-01-01T12:00:00.000Z');
+      const timestamp = formatLocalTimestamp(date);
+      expect(timestamp).toContain('01/01/2025');
+    });
+  });
+
+  describe('file operations', () => {
+    const testDir = path.resolve('./temp/test-utils');
+    const testFile = path.join(testDir, 'test.txt');
+
+    beforeEach(async () => {
+      await fs.ensureDir(testDir);
+    });
+
+    afterEach(async () => {
+      await fs.remove(testDir);
+    });
+
+    describe('ensureDirectoryExists', () => {
+      it('should create directory if it does not exist', async () => {
+        const newDir = path.join(testDir, 'new-dir');
+        expect(await fs.pathExists(newDir)).toBe(false);
+        
+        await ensureDirectoryExists(newDir);
+        expect(await fs.pathExists(newDir)).toBe(true);
+      });
+
+      it('should not fail if directory already exists', async () => {
+        await ensureDirectoryExists(testDir);
+        // Should not throw
+        await ensureDirectoryExists(testDir);
+        expect(await fs.pathExists(testDir)).toBe(true);
+      });
+    });
+
+    describe('writeFileContent', () => {
+      it('should write content to file', async () => {
+        const content = 'Hello World!';
+        await writeFileContent(testFile, content);
+        
+        expect(await fs.pathExists(testFile)).toBe(true);
+        const readContent = await fs.readFile(testFile, 'utf8');
+        expect(readContent).toBe(content);
+      });
+
+      it('should create directory if it does not exist', async () => {
+        const nestedFile = path.join(testDir, 'nested', 'deep', 'file.txt');
+        const content = 'Nested content';
+        
+        await writeFileContent(nestedFile, content);
+        expect(await fs.pathExists(nestedFile)).toBe(true);
+        const readContent = await fs.readFile(nestedFile, 'utf8');
+        expect(readContent).toBe(content);
+      });
+    });
+
+    describe('readFileContent', () => {
+      it('should read file content', async () => {
+        const content = 'Test content';
+        await fs.writeFile(testFile, content);
+        
+        const readContent = await readFileContent(testFile);
+        expect(readContent).toBe(content);
+      });
+
+      it('should throw error for non-existent file', async () => {
+        const nonExistentFile = path.join(testDir, 'does-not-exist.txt');
+        await expect(readFileContent(nonExistentFile)).rejects.toThrow();
+      });
+    });
+
+    describe('writeLog', () => {
+      it('should write log content to file', async () => {
+        const logFile = path.join(testDir, 'test.log');
+        const logContent = 'Log entry';
+        
+        await writeLog(logFile, logContent);
+        expect(await fs.pathExists(logFile)).toBe(true);
+        const content = await fs.readFile(logFile, 'utf8');
+        expect(content).toBe(logContent + '\n');
+      });
+
+      it('should append log content when append is true', async () => {
+        const logFile = path.join(testDir, 'test.log');
+        const firstEntry = 'First entry';
+        const secondEntry = 'Second entry';
+        
+        await writeLog(logFile, firstEntry);
+        await writeLog(logFile, secondEntry, true);
+        
+        const content = await fs.readFile(logFile, 'utf8');
+        expect(content).toBe(firstEntry + '\n' + secondEntry + '\n');
+      });
+
+      it('should overwrite log content when append is false', async () => {
+        const logFile = path.join(testDir, 'test.log');
+        const firstEntry = 'First entry';
+        const secondEntry = 'Second entry';
+        
+        await writeLog(logFile, firstEntry);
+        await writeLog(logFile, secondEntry, false);
+        
+        const content = await fs.readFile(logFile, 'utf8');
+        expect(content).toBe(secondEntry + '\n');
+      });
+    });
+  });
+
+  describe('loadConfig', () => {
+    const testDir = path.resolve('./temp/test-config');
+    const configFile = path.join(testDir, 'project-fusion.json');
+
+    beforeEach(async () => {
+      await fs.ensureDir(testDir);
+      // Set working directory to test directory
+      process.chdir(testDir);
+    });
+
+    afterEach(async () => {
+      // Restore original working directory
+      process.chdir(path.resolve('./../../'));
+      await fs.remove(testDir);
+    });
+
+    it('should return default config when no config file exists', async () => {
+      const config = await loadConfig();
+      expect(config).toEqual(defaultConfig);
+    });
+
+    it('should load valid config from file', async () => {
+      const validConfig = {
+        schemaVersion: 1,
+        generatedFileName: 'custom-fusion',
+        copyToClipboard: true,
+        generateText: true,
+        generateMarkdown: false,
+        generateHtml: true,
+        generatePdf: false,
+        parsedFileExtensions: {
+          web: ['.js', '.ts']
+        },
+        parsing: {
+          parseSubDirectories: false,
+          rootDirectory: '.',
+          maxFileSizeKB: 512
+        },
+        ignorePatterns: ['*.log'],
+        useGitIgnoreForExcludes: false
+      };
+
+      await fs.writeJson(configFile, validConfig);
+      const config = await loadConfig();
+      expect(config).toEqual(validConfig);
+    });
+
+    it('should return default config for invalid JSON', async () => {
+      await fs.writeFile(configFile, 'invalid json {');
+      const config = await loadConfig();
+      expect(config).toEqual(defaultConfig);
+    });
+
+    it('should return default config for invalid schema', async () => {
+      const invalidConfig = {
+        schemaVersion: 'invalid',
+        invalidField: true
+      };
+
+      await fs.writeJson(configFile, invalidConfig);
+      const config = await loadConfig();
+      expect(config).toEqual(defaultConfig);
     });
   });
 });

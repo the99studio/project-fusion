@@ -12,11 +12,12 @@ import { Config, FilePath } from './types.js';
  * Default configuration for Project Fusion
  */
 export const defaultConfig = {
-    fusion: {
-        fusion_file: "project-fusioned.txt",
-        fusion_log: "project-fusion.log",
-        copyToClipboard: false
-    },
+    generatedFileName: "project-fusioned",
+    copyToClipboard: false,
+    generateText: true,
+    generateMarkdown: true,
+    generateHtml: false,
+    generatePdf: false,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
@@ -34,8 +35,7 @@ export const defaultConfig = {
     ignorePatterns: [
         "project-fusion.json",
         "project-fusion.log",
-        "project-fusioned.txt",
-        "project-fusioned.md",
+        "project-fusioned.*",
         "node_modules/",
         "package-lock.json",
         "pnpm-lock.yaml",
@@ -137,11 +137,20 @@ export async function loadConfig(): Promise<Config> {
             return validatedConfig;
         } catch (zodError: unknown) {
             if (zodError instanceof z.ZodError) {
-                console.error('Configuration validation failed (will use default config):', zodError.format());
+                console.error('Configuration validation failed (will use default config):');
+                zodError.issues.forEach((issue, index) => {
+                    const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
+                    const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
+                    console.error(`  ${index + 1}. Path: ${path}`);
+                    console.error(`     Error: ${issue.message}`);
+                    console.error(`     Current value: ${JSON.stringify(value)}`);
+                    if (issue.code === 'invalid_type') {
+                        console.error(`     Expected type: ${(issue as any).expected}, received: ${(issue as any).received}`);
+                    }
+                });
             } else {
                 console.error('Unknown validation error (will use default config):', zodError);
             }
-            console.error('Parsed config that failed validation:', JSON.stringify(parsedConfig, null, 2));
             return defaultConfig;
         }
     } catch (error) {
@@ -206,6 +215,24 @@ export function formatTimestamp(date?: Date): string {
 }
 
 /**
+ * Format a local timestamp for display
+ * @param date Optional date to format, defaults to current date
+ * @returns Formatted local timestamp
+ */
+export function formatLocalTimestamp(date?: Date): string {
+    const now = date || new Date();
+    return now.toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short'
+    });
+}
+
+/**
  * Read file content
  * @param filePath Path to file
  * @returns File content
@@ -257,12 +284,15 @@ export async function logConfigSummary(logFilePath: FilePath, config: Config): P
     await writeLog(logFilePath, `  Root Directory: ${config.parsing.rootDirectory}`, true);
     await writeLog(logFilePath, `  Scan Subdirectories: ${config.parsing.parseSubDirectories ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Copy to Clipboard: ${config.fusion.copyToClipboard ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Max File Size: ${config.parsing.maxFileSizeKB} KB`, true);
     
     // Output files
-    await writeLog(logFilePath, `  Fusion File: ${config.fusion.fusion_file}`, true);
-    await writeLog(logFilePath, `  Log File: ${config.fusion.fusion_log}`, true);
+    await writeLog(logFilePath, `  Generated File Name: ${config.generatedFileName}`, true);
+    await writeLog(logFilePath, `  Generate Text: ${config.generateText ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`, true);
+    await writeLog(logFilePath, `  Generate PDF: ${config.generatePdf ? 'Yes' : 'No'}`, true);
     
     // Extension groups summary
     const totalExtensions = getExtensionsFromGroups(config);
@@ -301,7 +331,9 @@ export function getExtensionsFromGroups(
     groups?: string[]
 ): string[] {
     if (!groups || groups.length === 0) {
-        return Object.values(config.parsedFileExtensions).flat();
+        return Object.values(config.parsedFileExtensions)
+            .filter((extensions): extensions is string[] => Boolean(extensions))
+            .flat();
     }
 
     return groups.reduce((acc: string[], group: string) => {
