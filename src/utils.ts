@@ -1,8 +1,8 @@
 /**
  * Utilities for Project Fusion
  */
+import path from 'node:path';
 import fs from 'fs-extra';
-import path from 'path';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FilePath } from './types.js';
@@ -124,7 +124,7 @@ export async function loadConfig(): Promise<Config> {
         let configContent: string;
         try {
             configContent = await fs.readFile(configPath, 'utf8');
-        } catch (error) {
+        } catch {
             return defaultConfig;
         }
 
@@ -137,16 +137,18 @@ export async function loadConfig(): Promise<Config> {
             // Graceful degradation with detailed error reporting
             if (zodError instanceof z.ZodError) {
                 console.error('Configuration validation failed (will use default config):');
-                zodError.issues.forEach((issue, index) => {
+                for (const [index, issue] of zodError.issues.entries()) {
                     const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
                     console.error(`  ${index + 1}. Path: ${path}`);
                     console.error(`     Error: ${issue.message}`);
                     console.error(`     Current value: ${JSON.stringify(value)}`);
                     if (issue.code === 'invalid_type') {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         console.error(`     Expected type: ${(issue as any).expected}, received: ${(issue as any).received}`);
                     }
-                });
+                }
             } else {
                 console.error('Unknown validation error (will use default config):', zodError);
             }
@@ -184,16 +186,12 @@ export async function ensureDirectoryExists(directory: string): Promise<void> {
 export async function writeLog(
     logFilePath: string,
     content: string,
-    append: boolean = false,
-    consoleOutput: boolean = false
+    append = false,
+    consoleOutput = false
 ): Promise<void> {
     try {
         await ensureDirectoryExists(path.dirname(logFilePath));
-        if (append) {
-            await fs.appendFile(logFilePath, content + '\n');
-        } else {
-            await fs.writeFile(logFilePath, content + '\n');
-        }
+        await (append ? fs.appendFile(logFilePath, `${content  }\n`) : fs.writeFile(logFilePath, `${content  }\n`));
 
         if (consoleOutput) {
             console.log(content);
@@ -210,7 +208,7 @@ export async function writeLog(
  * @returns Formatted timestamp
  */
 export function formatTimestamp(date?: Date): string {
-    return (date || new Date()).toISOString();
+    return (date ?? new Date()).toISOString();
 }
 
 /**
@@ -219,7 +217,7 @@ export function formatTimestamp(date?: Date): string {
  * @returns Formatted local timestamp
  */
 export function formatLocalTimestamp(date?: Date): string {
-    const now = date || new Date();
+    const now = date ?? new Date();
     return now.toLocaleString('fr-FR', {
         year: 'numeric',
         month: '2-digit',
@@ -239,33 +237,6 @@ export function formatLocalTimestamp(date?: Date): string {
 export async function readFileContent(filePath: string): Promise<string> {
     try {
         return await fs.readFile(filePath, 'utf8');
-    } catch (error) {
-        console.error(`Error reading file ${filePath}:`, error);
-        throw error;
-    }
-}
-
-/**
- * Read file with size validation to prevent memory issues
- * @param filePath Path to file
- * @param maxSizeKB Maximum file size in KB
- * @returns File content or null if file exceeds size limit
- */
-export async function readFileContentWithSizeLimit(
-    filePath: string, 
-    maxSizeKB: number
-): Promise<{ content: string | null; skipped: boolean; size: number }> {
-    try {
-        const stats = await fs.stat(filePath);
-        const sizeKB = stats.size / 1024;
-        
-        if (sizeKB > maxSizeKB) {
-            console.log(`Skipping large file ${filePath} (${sizeKB.toFixed(2)} KB > ${maxSizeKB} KB limit)`);
-            return { content: null, skipped: true, size: stats.size };
-        }
-        
-        const content = await fs.readFile(filePath, 'utf8');
-        return { content, skipped: false, size: stats.size };
     } catch (error) {
         console.error(`Error reading file ${filePath}:`, error);
         throw error;
@@ -446,21 +417,21 @@ export function getMarkdownLanguage(extensionOrBasename: string): string {
         'Cargo.lock': 'toml',
         'Cargo.toml': 'toml',
         'CMakeLists.txt': 'cmake',
-        'dockerfile': 'dockerfile',
-        'Dockerfile': 'dockerfile',
-        'Gemfile': 'ruby',
+        dockerfile: 'dockerfile',
+        Dockerfile: 'dockerfile',
+        Gemfile: 'ruby',
         'go.mod': 'go',
         'go.sum': 'text',
-        'Jenkinsfile': 'groovy',
-        'makefile': 'makefile',
-        'Makefile': 'makefile',
+        Jenkinsfile: 'groovy',
+        makefile: 'makefile',
+        Makefile: 'makefile',
         'nginx.conf': 'nginx',
-        'Rakefile': 'ruby',
+        Rakefile: 'ruby',
         'requirements.txt': 'text',
-        'Vagrantfile': 'ruby',
+        Vagrantfile: 'ruby',
     };
     
     // Case-insensitive lookup with fallback to 'text'
-    const lang = languageMap[extensionOrBasename.toLowerCase()] || languageMap[extensionOrBasename];
-    return lang || 'text';
+    const lang = languageMap[extensionOrBasename.toLowerCase()] ?? languageMap[extensionOrBasename];
+    return lang ?? 'text';
 }

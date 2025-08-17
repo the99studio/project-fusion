@@ -28,7 +28,11 @@
             "Bash(wc -l *)",
             "Bash(npm run typecheck:*)",
             "Bash(npm run build:*)",
-            "Bash(node:*)"
+            "Bash(node:*)",
+            "Bash(npm install:*)",
+            "Bash(npm run lint)",
+            "Bash(rm:*)",
+            "Bash(npm run lint:*)"
         ],
         "deny": [
             "Bash(chmod 777 *)",

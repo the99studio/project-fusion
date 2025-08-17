@@ -24,7 +24,7 @@ program
     .description('Run fusion process to merge project files')
     .action((options, command) => {
         const allOptions = { ...command.parent.opts(), ...options };
-        runFusionCommand(allOptions);
+        void runFusionCommand(allOptions);
     });
 
 program
@@ -32,19 +32,19 @@ program
     .description('Initialize Project Fusion in the current directory')
     .option('--force', 'Force initialization even if configuration already exists')
     .action((options) => {
-        runInitCommand(options);
+        void runInitCommand(options);
     });
 
 program
     .command('config-check')
     .description('Validate project-fusion.json and display active groups/extensions')
     .action(() => {
-        runConfigCheckCommand();
+        void runConfigCheckCommand();
     });
 
 // Parse command-line options for default fusion command
 // Manual option parsing for default command when no explicit command is provided
-async function runDefaultCommand() {
+async function runDefaultCommand(): Promise<void> {
     const options: { extensions?: string; root?: string } = {};
     const args = process.argv.slice(2);
     

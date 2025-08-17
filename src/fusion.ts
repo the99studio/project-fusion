@@ -1,15 +1,14 @@
 /**
  * Fusion functionality - Optimized single-file-in-memory approach
  */
-import { createWriteStream } from 'fs';
+import { createWriteStream } from 'node:fs';
+import path from 'node:path';
 import fs from 'fs-extra';
 import { glob } from 'glob';
 import ignoreLib from 'ignore';
-import path from 'path';
 import puppeteer from 'puppeteer';
 import { BenchmarkTracker } from './benchmark.js';
-import type { Config, FusionOptions, FusionResult } from './types.js';
-import { createFilePath } from './types.js';
+import { createFilePath, type Config, type FusionOptions, type FusionResult } from './types.js';
 import {
     ensureDirectoryExists,
     formatLocalTimestamp,
@@ -17,7 +16,6 @@ import {
     getExtensionsFromGroups,
     getMarkdownLanguage,
     logConfigSummary,
-    readFileContentWithSizeLimit,
     writeLog
 } from './utils.js';
 
@@ -34,12 +32,7 @@ export async function processFusion(
     const benchmark = new BenchmarkTracker();
     
     try {
-        // Extract parsing properties directly from flattened config
-        const parsing = {
-            rootDirectory: config.rootDirectory,
-            parseSubDirectories: config.parseSubDirectories,
-            maxFileSizeKB: config.maxFileSizeKB
-        };
+        // Note: parsing properties are now directly in config (flattened structure)
         const logFilePath = createFilePath(path.resolve('project-fusion.log'));
         const fusionFilePath = createFilePath(path.resolve(`${config.generatedFileName}.txt`));
         const mdFilePath = createFilePath(path.resolve(`${config.generatedFileName}.md`));
@@ -241,7 +234,7 @@ export async function processFusion(
     <div class="toc">
         <h2>📁 Table of Contents</h2>
         <ul>
-${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativePath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}">${fileInfo.relativePath}</a></li>`).join('\n')}
+${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()}">${fileInfo.relativePath}</a></li>`).join('\n')}
         </ul>
     </div>`;
 
@@ -257,7 +250,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         // Generate table of contents for markdown format
         if (mdStream) {
             for (const fileInfo of filesToProcess) {
-                mdStream.write(`- [${fileInfo.relativePath}](#${fileInfo.relativePath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`);
+                mdStream.write(`- [${fileInfo.relativePath}](#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()})\n`);
             }
             mdStream.write(`\n---\n\n`);
         }
@@ -272,11 +265,11 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                 const language = getMarkdownLanguage(fileExt || basename);
                 // Escape HTML entities for safe HTML output
                 const escapedContent = content
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#39;');
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll('\'', '&#39;');
                 
                 // Generate plain text format with file separators
                 if (txtStream) {
@@ -297,7 +290,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                 // Generate HTML format with styled code blocks
                 if (htmlStream) {
                     // Create URL-safe anchor ID for navigation
-                    const fileAnchor = fileInfo.relativePath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                    const fileAnchor = fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase();
                     htmlStream.write(`    <div class="file-section" id="${fileAnchor}">\n`);
                     htmlStream.write(`        <div class="file-title">\n`);
                     htmlStream.write(`            <h2>📄 ${fileInfo.relativePath}</h2>\n`);
@@ -327,17 +320,17 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         // Ensure all streams are properly closed before PDF generation
         if (txtStream) {
             await new Promise<void>((resolve, reject) => {
-                txtStream.end((err: any) => err ? reject(err) : resolve());
+                txtStream.end((err?: Error | null) => err ? reject(err) : resolve());
             });
         }
         if (mdStream) {
             await new Promise<void>((resolve, reject) => {
-                mdStream.end((err: any) => err ? reject(err) : resolve());
+                mdStream.end((err?: Error | null) => err ? reject(err) : resolve());
             });
         }
         if (htmlStream) {
             await new Promise<void>((resolve, reject) => {
-                htmlStream.end((err: any) => err ? reject(err) : resolve());
+                htmlStream.end((err?: Error | null) => err ? reject(err) : resolve());
             });
         }
 
@@ -404,12 +397,12 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         }
         
         await writeLog(logFilePath, `File extensions actually processed:`, true);
-        const foundExtArray = Array.from(foundExtensions).sort();
+        const foundExtArray = [...foundExtensions].sort();
         for (const ext of foundExtArray) {
             await writeLog(logFilePath, `  ${ext}`, true);
         }
         
-        const ignoredExtensions = extensions.filter(ext => !Array.from(foundExtensions).includes(ext));
+        const ignoredExtensions = extensions.filter(ext => ![...foundExtensions].includes(ext));
         if (ignoredExtensions.length > 0) {
             await writeLog(logFilePath, `Configured extensions with no matching files found:`, true);
             for (const ext of ignoredExtensions.sort()) {
@@ -419,7 +412,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         
         if (otherExtensions.size > 0) {
             await writeLog(logFilePath, `File extensions found in project but not configured for processing:`, true);
-            for (const ext of Array.from(otherExtensions).sort()) {
+            for (const ext of [...otherExtensions].sort()) {
                 await writeLog(logFilePath, `  ${ext}`, true);
             }
         }

@@ -1,8 +1,8 @@
 /**
  * Benchmark utilities for performance monitoring
  */
-import { performance } from 'perf_hooks';
-import process from 'process';
+import { performance } from 'node:perf_hooks';
+import process from 'node:process';
 
 export interface BenchmarkMetrics {
     averageFileProcessingTime: number;
@@ -14,9 +14,9 @@ export interface BenchmarkMetrics {
 }
 
 export class BenchmarkTracker {
-    private startTime: number;
-    private startMemory: NodeJS.MemoryUsage;
-    private fileTimings: number[] = [];
+    private readonly startTime: number;
+    private readonly startMemory: NodeJS.MemoryUsage;
+    private readonly fileTimings: number[] = [];
     private filesProcessed = 0;
     private totalBytes = 0;
 
@@ -28,7 +28,7 @@ export class BenchmarkTracker {
     /**
      * Record file processing metrics
      */
-    markFileProcessed(sizeBytes: number, processingTimeMs?: number) {
+    markFileProcessed(sizeBytes: number, processingTimeMs?: number): void {
         this.filesProcessed++;
         this.totalBytes += sizeBytes;
         if (processingTimeMs !== undefined) {

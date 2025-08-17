@@ -4,18 +4,6 @@
 import { z } from 'zod';
 
 /**
- * Schema for output generation configuration
- */
-const OutputConfigSchema = z.object({
-    generatedFileName: z.string().default("project-fusioned"),
-    copyToClipboard: z.boolean().default(false),
-    generateText: z.boolean().default(true),
-    generateMarkdown: z.boolean().default(true),
-    generateHtml: z.boolean().default(true),
-    generatePdf: z.boolean().default(true),
-});
-
-/**
  * File extension groups with support for custom categories
  */
 const ParsedFileExtensionsSchema = z.object({

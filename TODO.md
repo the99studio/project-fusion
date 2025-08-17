@@ -6,12 +6,6 @@
 - [ ] Supprimer `runDefaultCommand()` et la logique `hasKnownCommand`
 - [ ] Tester que toutes les options `--extensions`, `--root` fonctionnent
 
-### 4. ESLint & Code Quality
-- [ ] Créer `.eslintrc.json` avec config TypeScript stricte
-- [ ] Ajouter rules : `no-explicit-any`, `prefer-readonly`, etc.
-- [ ] Ajouter script `"lint": "eslint src/**/*.ts"`
-- [ ] Corriger tous les warnings ESLint
-
 ### 5. Documentation critique manquante
 - [ ] Compléter `CHANGELOG.md` (format Keep a Changelog + SemVer)
 - [ ] Finaliser le `package.json` (garder la structure moderne avec `exports`)

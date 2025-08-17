@@ -26,6 +26,8 @@
         "build": "tsc",
         "clean": "rm -rf dist",
         "dev": "tsc --watch",
+        "lint": "eslint src/**/*.ts",
+        "lint:fix": "eslint src/**/*.ts --fix",
         "prepublishOnly": "npm run clean && npm run build",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
@@ -67,7 +69,13 @@
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^24.2.1",
+        "@typescript-eslint/eslint-plugin": "^8.39.1",
+        "@typescript-eslint/parser": "^8.39.1",
         "@vitest/coverage-v8": "^2.1.9",
+        "eslint": "^9.33.0",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-node": "^11.1.0",
+        "eslint-plugin-unicorn": "^60.0.0",
         "typescript": "^5.9.2",
         "vitest": "^2.1.6"
     }

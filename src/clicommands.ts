@@ -1,10 +1,10 @@
 /**
  * CLI commands implementation
  */
+import path from 'node:path';
 import chalk from 'chalk';
 import clipboardy from 'clipboardy';
 import fs from 'fs-extra';
-import path from 'path';
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FusionOptions } from './types.js';
@@ -138,7 +138,7 @@ export async function runConfigCheckCommand(): Promise<void> {
             process.exit(1);
         }
 
-        let parsedConfig: any;
+        let parsedConfig: unknown;
         try {
             parsedConfig = JSON.parse(configContent);
         } catch (error) {
@@ -154,16 +154,18 @@ export async function runConfigCheckCommand(): Promise<void> {
             
             // Show detailed validation errors
             // Display detailed validation errors with helpful context
-            validation.error.issues.forEach((issue, index) => {
+            for (const [index, issue] of validation.error.issues.entries()) {
                 const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
                 console.log(chalk.red(`   ${index + 1}. Path: ${chalk.yellow(path)}`));
                 console.log(chalk.red(`      Error: ${issue.message}`));
                 console.log(chalk.red(`      Current value: ${chalk.cyan(JSON.stringify(value))}`));
                 if (issue.code === 'invalid_type') {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     console.log(chalk.red(`      Expected: ${chalk.green((issue as any).expected)}, received: ${chalk.magenta((issue as any).received)}`));
                 }
-            });
+            }
             
             console.log(chalk.yellow('\n💡 Suggestions:'));
             console.log(chalk.cyan('   - Check your configuration against the schema'));
@@ -214,11 +216,11 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(chalk.cyan('\n📁 File Extension Groups:'));
     const totalExtensions = getExtensionsFromGroups(config);
     
-    Object.entries(config.parsedFileExtensions).forEach(([group, extensions]) => {
+    for (const [group, extensions] of Object.entries(config.parsedFileExtensions)) {
         if (extensions) {
             console.log(`   ${group}: ${extensions.length} extensions (${extensions.join(', ')})`);
         }
-    });
+    }
     
     console.log(chalk.gray(`   Total: ${totalExtensions.length} unique extensions`));
 
@@ -227,9 +229,9 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     if (config.ignorePatterns.length === 0) {
         console.log('   None defined');
     } else {
-        config.ignorePatterns.slice(0, 10).forEach(pattern => {
+        for (const pattern of config.ignorePatterns.slice(0, 10)) {
             console.log(`   ${pattern}`);
-        });
+        }
         if (config.ignorePatterns.length > 10) {
             console.log(chalk.gray(`   ... and ${config.ignorePatterns.length - 10} more`));
         }
@@ -257,10 +259,10 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
         
         if (filePaths.length > 0) {
             console.log(`   Sample files:`);
-            filePaths.slice(0, 5).forEach(file => {
+            for (const file of filePaths.slice(0, 5)) {
                 const relativePath = path.relative(rootDir, file);
                 console.log(`     ${relativePath}`);
-            });
+            }
             if (filePaths.length > 5) {
                 console.log(chalk.gray(`     ... and ${filePaths.length - 5} more`));
             }
