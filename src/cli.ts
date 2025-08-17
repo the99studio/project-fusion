@@ -15,18 +15,33 @@ const program = new Command();
 program
     .name('project-fusion')
     .description('Project Fusion - Efficient project file management and sharing')
-    .version(pkg.version, '-v, --version')
-    .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
-    .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)');
+    .version(pkg.version, '-v, --version');
 
+// Default command (fusion) - runs when no subcommand is specified
+program
+    .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
+    .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
+    .action((options) => {
+        // Default action is to run fusion
+        void runFusionCommand(options);
+    });
+
+// Explicit fusion command with same options
 program
     .command('fusion')
     .description('Run fusion process to merge project files')
+    .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
+    .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
     .action((options, command) => {
-        const allOptions = { ...command.parent.opts(), ...options };
-        void runFusionCommand(allOptions);
+        // Get options from the command itself first, then fallback to parent
+        const cmdOptions = command.opts();
+        const parentOptions = command.parent.opts();
+        // Merge options, preferring command options over parent options
+        const mergedOptions = { ...parentOptions, ...cmdOptions };
+        void runFusionCommand(mergedOptions);
     });
 
+// Init command
 program
     .command('init')
     .description('Initialize Project Fusion in the current directory')
@@ -35,6 +50,7 @@ program
         void runInitCommand(options);
     });
 
+// Config check command
 program
     .command('config-check')
     .description('Validate project-fusion.json and display active groups/extensions')
@@ -42,40 +58,5 @@ program
         void runConfigCheckCommand();
     });
 
-// Parse command-line options for default fusion command
-// Manual option parsing for default command when no explicit command is provided
-async function runDefaultCommand(): Promise<void> {
-    const options: { extensions?: string; root?: string } = {};
-    const args = process.argv.slice(2);
-    
-    // Simple argument parsing for --extensions and --root flags
-    for (let i = 0; i < args.length; i++) {
-        if (args[i] === '--extensions' && i + 1 < args.length) {
-            const nextArg = args[i + 1];
-            if (nextArg !== undefined) {
-                options.extensions = nextArg;
-                i++; // Skip next argument as it's the value
-            }
-        } else if (args[i] === '--root' && i + 1 < args.length) {
-            const nextArg = args[i + 1];
-            if (nextArg !== undefined) {
-                options.root = nextArg;
-                i++; // Skip next argument as it's the value
-            }
-        }
-    }
-    await runFusionCommand(options);
-}
-
-// Auto-detect command or default to fusion for better UX
-// Smart command detection: use Commander.js for explicit commands, default to fusion otherwise
-const args = process.argv.slice(2);
-const hasKnownCommand = args.some(arg => 
-    ['init', 'fusion', 'config-check', '--help', '-h', '--version', '-v'].includes(arg)
-);
-
-if (hasKnownCommand) {
-    program.parse(process.argv); // Use Commander.js parsing
-} else {
-    await runDefaultCommand(); // Direct fusion execution with manual parsing
-}
+// Parse arguments with Commander.js
+program.parse(process.argv);

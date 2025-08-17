@@ -9,28 +9,28 @@ Configuration Summary:
   Generate Text: Yes
   Generate Markdown: Yes
   Generate HTML: Yes
-  Generate PDF: Yes
   Extension Groups: 7 groups
   Total Extensions: 38
   Ignore Patterns: 71 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-17T03:47:53.207Z
-End time: 2025-08-17T03:47:55.937Z
-Duration: 2.73s
-Total data processed: 0.22 MB
+Start time: 2025-08-17T04:19:08.514Z
+End time: 2025-08-17T04:19:09.638Z
+Duration: 1.12s
+Total data processed: 0.16 MB
 
 Performance Metrics:
-  Memory Used: 28.03 MB
-  Throughput: 0.08 MB/s
-  Files/second: 8.06
-Files found: 13106
-Files processed successfully: 22
+  Memory Used: 62.23 MB
+  Throughput: 0.14 MB/s
+  Files/second: 20.43
+Files found: 17989
+Files processed successfully: 23
 Files skipped (too large): 0
-Files filtered out: 13084
+Files filtered out: 17966
 Max file size limit: 1024 KB
 File extensions actually processed:
   .html
+  .js
   .json
   .md
   .ts
@@ -51,7 +51,6 @@ Configured extensions with no matching files found:
   .hpp
   .import
   .java
-  .js
   .jsx
   .php
   .ps1
