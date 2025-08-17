@@ -48,9 +48,6 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             if (config.generateHtml) {
                 console.log(chalk.cyan(`   - ${config.generatedFileName}.html`));
             }
-            if (config.generatePdf) {
-                console.log(chalk.cyan(`   - ${config.generatedFileName}.pdf`));
-            }
 
             // Copy fusion content to clipboard if enabled
             if (config.copyToClipboard === true && result.fusionFilePath) {
@@ -209,7 +206,6 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}`);
     console.log(`   Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}`);
     console.log(`   Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`);
-    console.log(`   Generate PDF: ${config.generatePdf ? 'Yes' : 'No'}`);
     console.log(`   Log File: project-fusion.log`);
 
     // File type configuration

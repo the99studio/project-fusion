@@ -16,7 +16,6 @@ export const defaultConfig = {
     generatedFileName: "project-fusioned",
     generateHtml: true,
     generateMarkdown: true,
-    generatePdf: true,
     generateText: true,
     maxFileSizeKB: 1024,
     parseSubDirectories: true,
@@ -262,7 +261,6 @@ export async function logConfigSummary(logFilePath: FilePath, config: Config): P
     await writeLog(logFilePath, `  Generate Text: ${config.generateText ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Generate PDF: ${config.generatePdf ? 'Yes' : 'No'}`, true);
     
     // File type statistics
     const totalExtensions = getExtensionsFromGroups(config);

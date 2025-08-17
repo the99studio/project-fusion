@@ -15,7 +15,6 @@ export interface Config {
     generatedFileName: string;
     generateHtml: boolean;
     generateMarkdown: boolean;
-    generatePdf: boolean;
     generateText: boolean;
     ignorePatterns: string[];
     maxFileSizeKB: number;

@@ -2,7 +2,6 @@
     "copyToClipboard": false,
     "generateHtml": true,
     "generateMarkdown": true,
-    "generatePdf": true,
     "generateText": true,
     "generatedFileName": "project-fusioned",
     "maxFileSizeKB": 1024,

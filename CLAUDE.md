@@ -47,7 +47,6 @@ The `temp/` directory is gitignored and safe for any testing activities.
   generatedFileName: string
   generateHtml: boolean
   generateMarkdown: boolean
-  generatePdf: boolean
   generateText: boolean
   maxFileSizeKB: number
   parseSubDirectories: boolean

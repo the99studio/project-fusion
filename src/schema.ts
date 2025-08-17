@@ -26,7 +26,6 @@ export const ConfigSchemaV1 = z.object({
     generateText: z.boolean().default(true),
     generateMarkdown: z.boolean().default(true),
     generateHtml: z.boolean().default(true),
-    generatePdf: z.boolean().default(true),
     maxFileSizeKB: z.number().default(1024),
     parseSubDirectories: z.boolean().default(true),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
