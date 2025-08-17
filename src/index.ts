@@ -17,6 +17,12 @@ export {
     type ProgrammaticFusionResult 
 } from './api.js';
 
+// Fluent API for enhanced developer experience
+export { 
+    projectFusion,
+    ProjectFusionBuilder 
+} from './fluent.js';
+
 // Types and schemas
 export * from './schema.js';
 export * from './types.js';
