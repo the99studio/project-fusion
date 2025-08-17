@@ -11,7 +11,11 @@ export interface BenchmarkMetrics {
     duration: number;
     filesProcessed: number;
     memoryUsed: number;
+    memoryUsedMB: number;
+    processingTimeMs: number;
+    throughputBytesPerSec: number;
     throughputMBps: number;
+    totalBytesProcessed: number;
     totalSizeMB: number;
 }
 
@@ -23,7 +27,7 @@ export class BenchmarkTracker {
     private totalBytes = 0;
 
     constructor() {
-        this.startTime = performance.now();
+        this.startTime = Date.now();
         this.startMemory = process.memoryUsage();
     }
 
@@ -39,14 +43,23 @@ export class BenchmarkTracker {
     }
 
     /**
+     * Record file processing metrics (alias for compatibility)
+     */
+    recordFile(filename: string, sizeBytes: number): void {
+        this.markFileProcessed(sizeBytes);
+    }
+
+    /**
      * Calculate and return performance metrics
      */
     getMetrics(): BenchmarkMetrics {
-        const endTime = performance.now();
+        const endTime = Date.now();
         const endMemory = process.memoryUsage();
         
-        const duration = (endTime - this.startTime) / 1000; // seconds
+        const processingTimeMs = endTime - this.startTime; // milliseconds
+        const duration = processingTimeMs / 1000; // seconds
         const memoryUsed = (endMemory.heapUsed - this.startMemory.heapUsed) / (1024 * 1024); // MB
+        const memoryUsedMB = endMemory.heapUsed / (1024 * 1024); // MB - current memory usage
         const totalSizeMB = this.totalBytes / (1024 * 1024);
         
         const averageFileProcessingTime = this.fileTimings.length > 0
@@ -54,15 +67,34 @@ export class BenchmarkTracker {
             : 0;
         
         const throughputMBps = duration > 0 ? totalSizeMB / duration : 0;
+        const throughputBytesPerSec = duration > 0 ? this.totalBytes / duration : 0;
 
         return {
             duration,
             memoryUsed,
+            memoryUsedMB,
+            processingTimeMs,
             filesProcessed: this.filesProcessed,
+            totalBytesProcessed: this.totalBytes,
             totalSizeMB,
             averageFileProcessingTime,
-            throughputMBps
+            throughputMBps,
+            throughputBytesPerSec
         };
+    }
+
+    /**
+     * Log metrics to console
+     */
+    logMetrics(): void {
+        const metrics = this.getMetrics();
+        
+        console.log('Performance Metrics');
+        console.log(`Files processed: ${metrics.filesProcessed}`);
+        console.log(`Total size: ${metrics.totalSizeMB.toFixed(2)} MB`);
+        console.log(`Processing time: ${metrics.processingTimeMs.toFixed(2)} ms`);
+        console.log(`Throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`);
+        console.log(`Memory used: ${metrics.memoryUsedMB.toFixed(2)} MB`);
     }
 
 }

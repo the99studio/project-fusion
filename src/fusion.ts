@@ -34,10 +34,10 @@ export async function processFusion(
     
     try {
         // Note: parsing properties are now directly in config (flattened structure)
-        const logFilePath = createFilePath(path.resolve('project-fusion.log'));
-        const fusionFilePath = createFilePath(path.resolve(`${config.generatedFileName}.txt`));
-        const mdFilePath = createFilePath(path.resolve(`${config.generatedFileName}.md`));
-        const htmlFilePath = createFilePath(path.resolve(`${config.generatedFileName}.html`));
+        const logFilePath = createFilePath(path.resolve(config.rootDirectory, 'project-fusion.log'));
+        const fusionFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.txt`));
+        const mdFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.md`));
+        const htmlFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.html`));
         const startTime = new Date();
 
         await fs.writeFile(logFilePath, '');
