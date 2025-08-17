@@ -1,68 +1,10 @@
 {
-    "fusion": {
-        "fusion_file": "project-fusioned.txt",
-        "fusion_log": "project-fusion.log",
-        "copyToClipboard": false
-    },
-    "parsedFileExtensions": {
-        "backend": [
-            ".cs",
-            ".go",
-            ".java",
-            ".php",
-            ".py",
-            ".rb",
-            ".rs"
-        ],
-        "config": [
-            ".json",
-            ".toml",
-            ".xml",
-            ".yaml",
-            ".yml"
-        ],
-        "cpp": [
-            ".c",
-            ".cc",
-            ".cpp",
-            ".h",
-            ".hpp"
-        ],
-        "scripts": [
-            ".bat",
-            ".cmd",
-            ".ps1",
-            ".sh"
-        ],
-        "web": [
-            ".css",
-            ".html",
-            ".js",
-            ".jsx",
-            ".svelte",
-            ".ts",
-            ".tsx",
-            ".vue"
-        ],
-        "godot": [
-            ".gd",
-            ".cs",
-            ".tscn",
-            ".tres",
-            ".cfg",
-            ".import"
-        ],
-        "doc": [
-            ".md",
-            ".rst",
-            ".adoc"
-        ]
-    },
-    "parsing": {
-        "parseSubDirectories": true,
-        "rootDirectory": ".",
-        "maxFileSizeKB": 1024
-    },
+    "copyToClipboard": false,
+    "generateHtml": true,
+    "generateMarkdown": true,
+    "generatePdf": true,
+    "generateText": true,
+    "generatedFileName": "project-fusioned",
     "ignorePatterns": [
         "project-fusion.json",
         "project-fusion.log",
@@ -136,6 +78,65 @@
         "*.jar",
         "*.war"
     ],
-    "useGitIgnoreForExcludes": true,
-    "schemaVersion": 1
+    "parsedFileExtensions": {
+        "backend": [
+            ".cs",
+            ".go",
+            ".java",
+            ".php",
+            ".py",
+            ".rb",
+            ".rs"
+        ],
+        "config": [
+            ".json",
+            ".toml",
+            ".xml",
+            ".yaml",
+            ".yml"
+        ],
+        "cpp": [
+            ".c",
+            ".cc",
+            ".cpp",
+            ".h",
+            ".hpp"
+        ],
+        "doc": [
+            ".md",
+            ".rst",
+            ".adoc"
+        ],
+        "godot": [
+            ".gd",
+            ".cs",
+            ".tscn",
+            ".tres",
+            ".cfg",
+            ".import"
+        ],
+        "scripts": [
+            ".bat",
+            ".cmd",
+            ".ps1",
+            ".sh"
+        ],
+        "web": [
+            ".css",
+            ".html",
+            ".js",
+            ".jsx",
+            ".svelte",
+            ".ts",
+            ".tsx",
+            ".vue"
+        ]
+    },
+    "parsing": {
+        "maxFileSizeKB": 1024,
+        "parseSubDirectories": true,
+        "rootDirectory": "."
+    },
+    "schemaVersion": 1,
+    "useGitIgnoreForExcludes": true
 }
