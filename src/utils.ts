@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
-import { Config, FilePath } from './types.js';
+import type { Config, FilePath } from './types.js';
 
 
 /**

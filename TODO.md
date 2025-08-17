@@ -1,29 +1,10 @@
 # TODO - Project Fusion
 
-Basé sur l'analyse du directeur de programmation, voici les tâches prioritaires pour amener le projet au niveau "state of the art".
-
-## 🔥 Priorités HAUTES (Bloquantes)
-
-### 1. Unification du modèle de configuration
-- [x] **Choix définitif** : Structure aplatie (actuelle) vs imbriquée `fusion: {}`
-- [x] Mettre à jour `CLAUDE.md` ligne 46 pour correspondre au code réel
-- [x] Vérifier cohérence entre `src/types.ts`, `src/schema.ts`, `src/utils.ts`
-- [x] Audit complet : chercher toutes les références à l'ancienne structure
-
 ### 2. Refactor CLI Command Parsing  
 - [ ] Remplacer le parsing manuel dans `src/cli.ts` (lignes 45-74)
 - [ ] Implémenter une vraie **commande par défaut** avec Commander.js
 - [ ] Supprimer `runDefaultCommand()` et la logique `hasKnownCommand`
 - [ ] Tester que toutes les options `--extensions`, `--root` fonctionnent
-
-### 3. Configuration TypeScript stricte
-- [ ] Ajouter dans `tsconfig.json` :
-  - `"noUncheckedIndexedAccess": true`
-  - `"exactOptionalPropertyTypes": true` 
-  - `"verbatimModuleSyntax": true`
-  - `"useUnknownInCatchVariables": true`
-  - `"noPropertyAccessFromIndexSignature": true`
-- [ ] Corriger toutes les erreurs TS qui en résultent
 
 ### 4. ESLint & Code Quality
 - [ ] Créer `.eslintrc.json` avec config TypeScript stricte

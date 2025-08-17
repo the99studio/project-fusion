@@ -8,7 +8,8 @@ import ignoreLib from 'ignore';
 import path from 'path';
 import puppeteer from 'puppeteer';
 import { BenchmarkTracker } from './benchmark.js';
-import { Config, FusionOptions, FusionResult, createFilePath } from './types.js';
+import type { Config, FusionOptions, FusionResult } from './types.js';
+import { createFilePath } from './types.js';
 import {
     ensureDirectoryExists,
     formatLocalTimestamp,

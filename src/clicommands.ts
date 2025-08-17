@@ -7,7 +7,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
-import { Config, FusionOptions } from './types.js';
+import type { Config, FusionOptions } from './types.js';
 import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
 
 /**
@@ -32,7 +32,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
         }
 
-        const fusionOptions: FusionOptions = { extensionGroups };
+        const fusionOptions: FusionOptions = extensionGroups ? { extensionGroups } : {};
         const result = await processFusion(config, fusionOptions);
 
         if (result.success) {

@@ -50,12 +50,18 @@ async function runDefaultCommand() {
     
     // Simple argument parsing for --extensions and --root flags
     for (let i = 0; i < args.length; i++) {
-        if (args[i] === '--extensions' && args[i + 1]) {
-            options.extensions = args[i + 1];
-            i++; // Skip next argument as it's the value
-        } else if (args[i] === '--root' && args[i + 1]) {
-            options.root = args[i + 1];
-            i++; // Skip next argument as it's the value
+        if (args[i] === '--extensions' && i + 1 < args.length) {
+            const nextArg = args[i + 1];
+            if (nextArg !== undefined) {
+                options.extensions = nextArg;
+                i++; // Skip next argument as it's the value
+            }
+        } else if (args[i] === '--root' && i + 1 < args.length) {
+            const nextArg = args[i + 1];
+            if (nextArg !== undefined) {
+                options.root = nextArg;
+                i++; // Skip next argument as it's the value
+            }
         }
     }
     await runFusionCommand(options);

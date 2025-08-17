@@ -9,6 +9,11 @@
         "declaration": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "verbatimModuleSyntax": true,
+        "useUnknownInCatchVariables": true,
+        "noPropertyAccessFromIndexSignature": true,
         "outDir": "./dist",
         "rootDir": "./src"
     },
