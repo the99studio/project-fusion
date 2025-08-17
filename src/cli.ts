@@ -5,9 +5,9 @@
 import { Command } from 'commander';
 import pkg from '../package.json' with { type: 'json' };
 import {
+    runConfigCheckCommand,
     runFusionCommand,
-    runInitCommand,
-    runConfigCheckCommand
+    runInitCommand
 } from './clicommands.js';
 
 const program = new Command();

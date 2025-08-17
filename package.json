@@ -24,21 +24,21 @@
     "sideEffects": false,
     "scripts": {
         "build": "tsc",
-        "dev": "tsc --watch",
         "clean": "rm -rf dist",
+        "dev": "tsc --watch",
+        "prepublishOnly": "npm run clean && npm run build",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:ui": "vitest --ui",
-        "typecheck": "tsc --noEmit",
-        "prepublishOnly": "npm run clean && npm run build"
+        "typecheck": "tsc --noEmit"
     },
     "keywords": [
         "cli",
         "code",
-        "merge",
+        "collaboration",
         "files",
         "fusion",
-        "collaboration",
+        "merge",
         "sharing"
     ],
     "author": "the99studio",

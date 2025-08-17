@@ -11,30 +11,30 @@ export const createFilePath = (path: string): FilePath => path as FilePath;
  * Main configuration interface
  */
 export interface Config {
-    generatedFileName: string;
     copyToClipboard: boolean;
-    generateText: boolean;
-    generateMarkdown: boolean;
+    generatedFileName: string;
     generateHtml: boolean;
+    generateMarkdown: boolean;
     generatePdf: boolean;
+    generateText: boolean;
+    ignorePatterns: string[];
     parsedFileExtensions: {
         backend?: string[];
         config?: string[];
         cpp?: string[];
+        doc?: string[];
+        godot?: string[];
         scripts?: string[];
         web?: string[];
-        godot?: string[];
-        doc?: string[];
         [key: string]: string[] | undefined;
     };
     parsing: {
+        maxFileSizeKB: number;
         parseSubDirectories: boolean;
         rootDirectory: string;
-        maxFileSizeKB: number;
     };
-    ignorePatterns: string[];
-    useGitIgnoreForExcludes: boolean;
     schemaVersion: number;
+    useGitIgnoreForExcludes: boolean;
 }
 
 /**

@@ -5,12 +5,12 @@ import { performance } from 'perf_hooks';
 import process from 'process';
 
 export interface BenchmarkMetrics {
-    duration: number;
-    memoryUsed: number;
-    filesProcessed: number;
-    totalSizeMB: number;
     averageFileProcessingTime: number;
+    duration: number;
+    filesProcessed: number;
+    memoryUsed: number;
     throughputMBps: number;
+    totalSizeMB: number;
 }
 
 export class BenchmarkTracker {

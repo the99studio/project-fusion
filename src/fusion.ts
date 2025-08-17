@@ -1,29 +1,24 @@
 /**
  * Fusion functionality - Optimized single-file-in-memory approach
  */
-import fs from 'fs-extra';
 import { createWriteStream } from 'fs';
+import fs from 'fs-extra';
 import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import path from 'path';
 import puppeteer from 'puppeteer';
 import { BenchmarkTracker } from './benchmark.js';
+import { Config, FusionOptions, FusionResult, createFilePath } from './types.js';
 import {
-    formatTimestamp,
+    ensureDirectoryExists,
     formatLocalTimestamp,
+    formatTimestamp,
     getExtensionsFromGroups,
     getMarkdownLanguage,
-    readFileContentWithSizeLimit,
-    writeLog,
     logConfigSummary,
-    ensureDirectoryExists
+    readFileContentWithSizeLimit,
+    writeLog
 } from './utils.js';
-import {
-    Config,
-    FusionOptions,
-    FusionResult,
-    createFilePath
-} from './types.js';
 
 /**
  * Process fusion of files - Optimized memory-efficient version

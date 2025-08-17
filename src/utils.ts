@@ -12,25 +12,25 @@ import { Config, FilePath } from './types.js';
  * Default configuration for Project Fusion
  */
 export const defaultConfig = {
-    generatedFileName: "project-fusioned",
     copyToClipboard: false,
-    generateText: true,
-    generateMarkdown: true,
+    generatedFileName: "project-fusioned",
     generateHtml: true,
+    generateMarkdown: true,
     generatePdf: true,
+    generateText: true,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
-        scripts: [".bat", ".cmd", ".ps1", ".sh"],
-        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
+        doc: [".md", ".rst", ".adoc"],
         godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
-        doc: [".md", ".rst", ".adoc"]
+        scripts: [".bat", ".cmd", ".ps1", ".sh"],
+        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
     },
     parsing: {
+        maxFileSizeKB: 1024,
         parseSubDirectories: true,
-        rootDirectory: ".",
-        maxFileSizeKB: 1024
+        rootDirectory: "."
     },
     ignorePatterns: [
         "project-fusion.json",
@@ -358,108 +358,108 @@ export function getExtensionsFromGroups(
 export function getMarkdownLanguage(extensionOrBasename: string): string {
     // Comprehensive mapping for syntax highlighting across multiple formats
     const languageMap: Record<string, string> = {
-        // Web
-        '.js': 'javascript',
-        '.jsx': 'jsx',
-        '.ts': 'typescript',
-        '.tsx': 'tsx',
-        '.html': 'html',
-        '.css': 'css',
-        '.scss': 'scss',
-        '.sass': 'sass',
-        '.less': 'less',
-        '.vue': 'vue',
-        '.svelte': 'svelte',
-        
-        // Backend
-        '.py': 'python',
-        '.rb': 'ruby',
-        '.java': 'java',
+        // Backend (alphabetized)
         '.cs': 'csharp',
         '.go': 'go',
-        '.rs': 'rust',
-        '.php': 'php',
-        '.swift': 'swift',
+        '.java': 'java',
         '.kt': 'kotlin',
-        '.scala': 'scala',
-        '.r': 'r',
         '.lua': 'lua',
         '.perl': 'perl',
+        '.php': 'php',
         '.pl': 'perl',
+        '.py': 'python',
+        '.r': 'r',
+        '.rb': 'ruby',
+        '.rs': 'rust',
+        '.scala': 'scala',
+        '.swift': 'swift',
         
-        // Config
-        '.json': 'json',
-        '.yaml': 'yaml',
-        '.yml': 'yaml',
-        '.toml': 'toml',
-        '.xml': 'xml',
-        '.ini': 'ini',
-        '.env': 'bash',
-        
-        // Shell/Scripts
-        '.sh': 'bash',
-        '.bash': 'bash',
-        '.zsh': 'bash',
-        '.fish': 'bash',
-        '.ps1': 'powershell',
-        '.bat': 'batch',
-        '.cmd': 'batch',
-        
-        // C/C++
+        // C/C++ (alphabetized)
         '.c': 'c',
-        '.h': 'c',
-        '.cpp': 'cpp',
         '.cc': 'cpp',
+        '.cpp': 'cpp',
         '.cxx': 'cpp',
+        '.h': 'c',
         '.hpp': 'cpp',
         '.hxx': 'cpp',
+        
+        // Config (alphabetized)
+        '.env': 'bash',
+        '.ini': 'ini',
+        '.json': 'json',
+        '.toml': 'toml',
+        '.xml': 'xml',
+        '.yaml': 'yaml',
+        '.yml': 'yaml',
         
         // Database
         '.sql': 'sql',
         
-        // Documentation
+        // Documentation (alphabetized)
         '.md': 'markdown',
         '.mdx': 'markdown',
         '.rst': 'rst',
         '.tex': 'latex',
         
-        // Godot
-        '.gd': 'gdscript',
-        '.tscn': 'gdscript',
-        '.tres': 'gdscript',
+        // Godot (alphabetized)
         '.cfg': 'ini',
+        '.gd': 'gdscript',
         '.import': 'ini',
+        '.tres': 'gdscript',
+        '.tscn': 'gdscript',
         
-        // Other
+        // Other (alphabetized)
+        '.cmake': 'cmake',
         '.dockerfile': 'dockerfile',
         '.Dockerfile': 'dockerfile',
+        '.gql': 'graphql',
+        '.gradle': 'gradle',
+        '.graphql': 'graphql',
         '.makefile': 'makefile',
         '.Makefile': 'makefile',
-        '.cmake': 'cmake',
-        '.gradle': 'gradle',
         '.proto': 'protobuf',
-        '.graphql': 'graphql',
-        '.gql': 'graphql',
         
-        // Files without extensions (by basename)
-        'Dockerfile': 'dockerfile',
-        'dockerfile': 'dockerfile',
-        'Makefile': 'makefile',
-        'makefile': 'makefile',
-        'CMakeLists.txt': 'cmake',
-        'Rakefile': 'ruby',
-        'Gemfile': 'ruby',
-        'Vagrantfile': 'ruby',
-        'Jenkinsfile': 'groovy',
-        '.gitignore': 'text',
+        // Shell/Scripts (alphabetized)
+        '.bash': 'bash',
+        '.bat': 'batch',
+        '.cmd': 'batch',
+        '.fish': 'bash',
+        '.ps1': 'powershell',
+        '.sh': 'bash',
+        '.zsh': 'bash',
+        
+        // Web (alphabetized)
+        '.css': 'css',
+        '.html': 'html',
+        '.js': 'javascript',
+        '.jsx': 'jsx',
+        '.less': 'less',
+        '.sass': 'sass',
+        '.scss': 'scss',
+        '.svelte': 'svelte',
+        '.ts': 'typescript',
+        '.tsx': 'tsx',
+        '.vue': 'vue',
+        
+        // Files without extensions (alphabetized by basename)
         '.gitattributes': 'text',
+        '.gitignore': 'text',
         '.htaccess': 'apache',
-        'nginx.conf': 'nginx',
-        'requirements.txt': 'text',
         'Cargo.lock': 'toml',
         'Cargo.toml': 'toml',
+        'CMakeLists.txt': 'cmake',
+        'dockerfile': 'dockerfile',
+        'Dockerfile': 'dockerfile',
+        'Gemfile': 'ruby',
         'go.mod': 'go',
         'go.sum': 'text',
+        'Jenkinsfile': 'groovy',
+        'makefile': 'makefile',
+        'Makefile': 'makefile',
+        'nginx.conf': 'nginx',
+        'Rakefile': 'ruby',
+        'requirements.txt': 'text',
+        'Vagrantfile': 'ruby',
     };
     
     // Case-insensitive lookup with fallback to 'text'

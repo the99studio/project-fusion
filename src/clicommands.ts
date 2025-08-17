@@ -6,9 +6,9 @@ import clipboardy from 'clipboardy';
 import fs from 'fs-extra';
 import path from 'path';
 import { processFusion } from './fusion.js';
-import { FusionOptions, Config } from './types.js';
-import { loadConfig, defaultConfig, getExtensionsFromGroups } from './utils.js';
 import { ConfigSchemaV1 } from './schema.js';
+import { Config, FusionOptions } from './types.js';
+import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
 
 /**
  * Run the fusion command
