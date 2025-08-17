@@ -13,7 +13,8 @@ export default [
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
-        project: './tsconfig.json'
+        project: './tsconfig.json',
+        tsconfigRootDir: process.cwd()
       },
       globals: {
         console: 'readonly',
@@ -29,8 +30,19 @@ export default [
       'import': importPlugin,
       'unicorn': unicorn
     },
+    settings: {
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json'
+        }
+      }
+    },
     rules: {
-      // TypeScript strict rules
+      // TypeScript recommended-type-checked rules
+      ...tseslint.configs['recommended-type-checked'].rules,
+      
+      // Additional TypeScript strict rules
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/prefer-readonly': 'error',
@@ -59,7 +71,7 @@ export default [
       'quote-props': ['error', 'as-needed'],
       'no-duplicate-imports': 'error',
       
-      // Import rules
+      // Import rules with TypeScript resolver
       'import/order': [
         'error',
         {
@@ -79,6 +91,15 @@ export default [
         }
       ],
       'import/no-duplicates': 'error',
+      'import/no-unresolved': 'error',
+      'import/extensions': [
+        'error',
+        'always',
+        {
+          'ts': 'never',
+          'tsx': 'never'
+        }
+      ],
 
       // Unicorn rules for modern JS practices
       'unicorn/prefer-node-protocol': 'error',
@@ -146,6 +167,7 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/unbound-method': 'off',
       'no-console': 'off'
     }
   }

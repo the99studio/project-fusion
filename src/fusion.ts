@@ -116,12 +116,12 @@ export async function processFusion(
         const packageJsonPath = path.join(process.cwd(), 'package.json');
         if (await fs.pathExists(packageJsonPath)) {
             try {
-                const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
-                if (packageJson.name) {
-                    packageName = packageJson.name;
+                const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as Record<string, unknown>;
+                if (typeof packageJson['name'] === 'string') {
+                    packageName = packageJson['name'];
                 }
-                if (packageJson.version) {
-                    projectVersion = packageJson.version;
+                if (typeof packageJson['version'] === 'string') {
+                    projectVersion = packageJson['version'];
                 }
             } catch (error) {
                 console.warn('Error reading package.json:', error);
@@ -175,7 +175,7 @@ export async function processFusion(
                     filesToProcess.push({ path: filePath, relativePath, size: stats.size });
                 }
             } catch (error) {
-                await writeLog(logFilePath, `Error checking file ${filePath}: ${error}`, true);
+                await writeLog(logFilePath, `Error checking file ${filePath}: ${String(error)}`, true);
                 console.error(`Error checking file ${filePath}:`, error);
             }
         }
@@ -301,7 +301,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                 processedCount++;
                 benchmark.markFileProcessed(fileInfo.size);
             } catch (error) {
-                await writeLog(logFilePath, `Error processing file ${fileInfo.path}: ${error}`, true);
+                await writeLog(logFilePath, `Error processing file ${fileInfo.path}: ${String(error)}`, true);
                 console.error(`Error processing file ${fileInfo.path}:`, error);
             }
         }
@@ -398,7 +398,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             logFilePath
         };
     } catch (error) {
-        const errorMessage = `Fusion process failed: ${error}`;
+        const errorMessage = `Fusion process failed: ${String(error)}`;
         console.error(errorMessage);
 
         try {

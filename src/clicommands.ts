@@ -59,7 +59,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
                     await clipboardy.write(fusionContent);
                     console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
                 } catch (clipboardError) {
-                    console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${clipboardError}`));
+                    console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
                 }
             } else if (config.copyToClipboard === true && isNonInteractive) {
                 console.log(chalk.gray(`📋 Clipboard copy skipped (non-interactive environment)`));
@@ -73,7 +73,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             }
         }
     } catch (error) {
-        console.error(chalk.red(`❌ Fusion process failed: ${error}`));
+        console.error(chalk.red(`❌ Fusion process failed: ${String(error)}`));
         process.exit(1);
     }
 }
@@ -107,7 +107,7 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
         console.log(chalk.cyan('  1. Review project-fusion.json and adjust as needed'));
         console.log(chalk.cyan('  2. Run fusion: project-fusion'));
     } catch (error) {
-        console.error(chalk.red(`❌ Initialization failed: ${error}`));
+        console.error(chalk.red(`❌ Initialization failed: ${String(error)}`));
         process.exit(1);
     }
 }
@@ -136,7 +136,7 @@ export async function runConfigCheckCommand(): Promise<void> {
         try {
             configContent = await fs.readFile(configPath, 'utf8');
         } catch (error) {
-            console.log(chalk.red(`❌ Cannot read configuration file: ${error}`));
+            console.log(chalk.red(`❌ Cannot read configuration file: ${String(error)}`));
             process.exit(1);
         }
 
@@ -144,7 +144,7 @@ export async function runConfigCheckCommand(): Promise<void> {
         try {
             parsedConfig = JSON.parse(configContent);
         } catch (error) {
-            console.log(chalk.red(`❌ Invalid JSON in configuration file: ${error}`));
+            console.log(chalk.red(`❌ Invalid JSON in configuration file: ${String(error)}`));
             process.exit(1);
         }
 
@@ -158,14 +158,19 @@ export async function runConfigCheckCommand(): Promise<void> {
             // Display detailed validation errors with helpful context
             for (const [index, issue] of validation.error.issues.entries()) {
                 const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
+                 
+                const value = issue.path.reduce((obj: unknown, key) => {
+                    if (typeof key === 'string' && obj && typeof obj === 'object') {
+                        return (obj as Record<string, unknown>)[key];
+                    }
+                    return undefined;
+                }, parsedConfig);
                 console.log(chalk.red(`   ${index + 1}. Path: ${chalk.yellow(path)}`));
                 console.log(chalk.red(`      Error: ${issue.message}`));
                 console.log(chalk.red(`      Current value: ${chalk.cyan(JSON.stringify(value))}`));
                 if (issue.code === 'invalid_type') {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    console.log(chalk.red(`      Expected: ${chalk.green((issue as any).expected)}, received: ${chalk.magenta((issue as any).received)}`));
+                     
+                    console.log(chalk.red(`      Expected: ${chalk.green(String((issue as unknown as Record<string, unknown>)['expected']))}, received: ${chalk.magenta(String((issue as unknown as Record<string, unknown>)['received']))}`));
                 }
             }
             
@@ -179,7 +184,7 @@ export async function runConfigCheckCommand(): Promise<void> {
         await displayConfigInfo(validation.data, false);
 
     } catch (error) {
-        console.error(chalk.red(`❌ Config check failed: ${error}`));
+        console.error(chalk.red(`❌ Config check failed: ${String(error)}`));
         process.exit(1);
     }
 }
@@ -269,6 +274,6 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
             }
         }
     } catch (error) {
-        console.log(chalk.yellow(`   Could not preview files: ${error}`));
+        console.log(chalk.yellow(`   Could not preview files: ${String(error)}`));
     }
 }

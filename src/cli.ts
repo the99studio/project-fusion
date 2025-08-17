@@ -17,13 +17,15 @@ const program = new Command();
 program
     .name('project-fusion')
     .description('Project Fusion - Efficient project file management and sharing')
-    .version(pkg.version, '-v, --version');
+    .version(pkg.version, '-v, --version')
+    .allowUnknownOption(false)
+    .showHelpAfterError(true);
 
 // Default command (fusion) - runs when no subcommand is specified
 program
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
-    .action((options) => {
+    .action((options: { extensions?: string; root?: string }) => {
         // Default action is to run fusion
         void runFusionCommand(options);
     });
@@ -34,7 +36,7 @@ program
     .command('init')
     .description('Initialize Project Fusion in the current directory')
     .option('--force', 'Force initialization even if configuration already exists')
-    .action((options) => {
+    .action((options: { force?: boolean }) => {
         void runInitCommand(options);
     });
 

@@ -129,7 +129,7 @@ export async function loadConfig(): Promise<Config> {
             return defaultConfig;
         }
 
-        const parsedConfig = JSON.parse(configContent);
+        const parsedConfig = JSON.parse(configContent) as unknown;
 
         try {
             const validatedConfig = ConfigSchemaV1.parse(parsedConfig);
@@ -140,14 +140,19 @@ export async function loadConfig(): Promise<Config> {
                 console.error('Configuration validation failed (will use default config):');
                 for (const [index, issue] of zodError.issues.entries()) {
                     const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
+                     
+                    const value = issue.path.reduce((obj: unknown, key) => {
+                        if (typeof key === 'string' && obj && typeof obj === 'object') {
+                            return (obj as Record<string, unknown>)[key];
+                        }
+                        return undefined;
+                    }, parsedConfig);
                     console.error(`  ${index + 1}. Path: ${path}`);
                     console.error(`     Error: ${issue.message}`);
                     console.error(`     Current value: ${JSON.stringify(value)}`);
                     if (issue.code === 'invalid_type') {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        console.error(`     Expected type: ${(issue as any).expected}, received: ${(issue as any).received}`);
+                         
+                        console.error(`     Expected type: ${String((issue as unknown as Record<string, unknown>)['expected'])}, received: ${String((issue as unknown as Record<string, unknown>)['received'])}`);
                     }
                 }
             } else {

@@ -2,13 +2,11 @@
 
 ## 🚨 Priorité Haute (Bloquants pour publication npm)
 
-- [x] **Ajouter `publishConfig`** dans package.json : `"publishConfig": { "access": "public" }`
 - [ ] **Tester `npm pack --dry-run`** avant publication
-- [ ] **Créer SECURITY.md** avec politique de divulgation des vulnérabilités
 
 ## 🔧 Priorité Moyenne (Qualité & Robustesse)
 
-- [ ] **ESLint améliorations** :
+- [x] **ESLint améliorations** :
   - Activer `@typescript-eslint/recommended-type-checked`
   - Configurer resolver TypeScript pour `eslint-plugin-import`
   - Ajouter `.allowUnknownOption(false)` et `.showHelpAfterError(true)` au CLI
@@ -45,8 +43,6 @@
 
 ## ⚡ Optimisations (Priorité Basse)
 
-- [ ] **Async generators** pour traitement de gros projets
-- [ ] **AbortController** pour annulation gracieuse
 - [ ] **API Fluent** pour meilleure DX
 
 ```javascript
@@ -64,31 +60,6 @@ projectFusion()
 - [ ] **FileSystemAdapter** pour abstraction I/O
 - [ ] **OutputStrategy** pattern pour formats
 - [ ] **Plugin system** pour extensions custom
-
----
-
-## ✅ Déjà fait (nettoyage récent)
-
-- ✅ Dead code supprimé (`logConfigSummary`, `recordFile`)
-- ✅ Imports alphabétiques
-- ✅ TypeScript strict avec `noImplicitReturns`
-- ✅ Nom de fichier log cohérent (`project-fusioned.log`)
-- ✅ Configuration unifiée (forme aplatie)
-- ✅ Tests benchmark corrigés
-- ✅ ESM pur avec `"type": "module"`
-- ✅ Gestion d'erreurs typées (`FusionError`)
-- ✅ Sécurité clipboard (opt-in + skip CI/TTY)
-
----
-
-## 📊 Métriques Qualité
-
-**État actuel :**
-- ✅ 94/94 tests passent
-- ✅ TypeScript strict activé
-- ✅ Zéro dead code
-- ✅ Configuration Zod validée
-- ✅ CLI robuste avec Commander.js
 
 **Objectif publication :**
 - [ ] 100% couverture sécurité
