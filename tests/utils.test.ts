@@ -227,22 +227,31 @@ describe('utils', () => {
         generateText: true,
         generateMarkdown: false,
         generateHtml: true,
-        generatePdf: false,
         parsedFileExtensions: {
           web: ['.js', '.ts']
         },
-        parsing: {
-          parseSubDirectories: false,
-          rootDirectory: '.',
-          maxFileSizeKB: 512
-        },
+        parseSubDirectories: false,
+        rootDirectory: '.',
+        maxFileSizeKB: 512,
         ignorePatterns: ['*.log'],
         useGitIgnoreForExcludes: false
       };
 
       await fs.writeJson(configFile, validConfig);
       const config = await loadConfig();
-      expect(config).toEqual(validConfig);
+      // Config will be merged with defaults, so just check our specific values
+      expect(config.schemaVersion).toBe(validConfig.schemaVersion);
+      expect(config.generatedFileName).toBe(validConfig.generatedFileName);
+      expect(config.copyToClipboard).toBe(validConfig.copyToClipboard);
+      expect(config.generateText).toBe(validConfig.generateText);
+      expect(config.generateMarkdown).toBe(validConfig.generateMarkdown);
+      expect(config.generateHtml).toBe(validConfig.generateHtml);
+      expect(config.parsedFileExtensions.web).toEqual(validConfig.parsedFileExtensions.web);
+      expect(config.parseSubDirectories).toBe(validConfig.parseSubDirectories);
+      expect(config.rootDirectory).toBe(validConfig.rootDirectory);
+      expect(config.maxFileSizeKB).toBe(validConfig.maxFileSizeKB);
+      expect(config.ignorePatterns).toEqual(validConfig.ignorePatterns);
+      expect(config.useGitIgnoreForExcludes).toBe(validConfig.useGitIgnoreForExcludes);
     });
 
     it('should return default config for invalid JSON', async () => {

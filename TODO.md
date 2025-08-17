@@ -1,7 +1,3 @@
-### 7. Sécurité & Robustesse  
-- [ ] Vérifier que tous les parcours glob utilisent `follow: false`
-- [ ] Désactiver clipboard en environnement non-interactif (CI)
-
 ### 8. Tests d'intégration manquants
 - [ ] Tests pour `--extensions` (filtrage)
 - [ ] Tests pour `.gitignore` + `ignorePatterns` 
@@ -9,6 +5,7 @@
 - [ ] Tests pour parcours non-récursif
 - [ ] Tests génération HTML
 - [ ] Documentation génération HTML
+- [ ] Maximum des autres tests manquant pour un coverage proche de 100%
 
 ### 9. Documentation utilisateur
 - [ ] Section **"Examples"** dans README avec captures
@@ -24,11 +21,6 @@
 - [ ] `const assertions` sur les extensions par défaut
 - [ ] `ExtensionGroup`, `FilePath` validation renforcée
 - [ ] Hiérarchie `FusionError` avec codes/severity
-
-### 14. Features async modernes
-- [ ] `AbortController` pour annuler les runs longs
-- [ ] Async generators si streaming nécessaire
-- [ ] Web Streams pour pipe vers stdout/fichiers
 
 ### 15. Outillage de publication
 - [ ] Script `npm pack --dry-run` dans DEVELOPMENT.md

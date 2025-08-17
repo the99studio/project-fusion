@@ -1,6 +1,6 @@
 # Project Fusion
 
-Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates both plain text (.txt) and markdown (.md) versions with syntax highlighting for better readability.
+Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates plain text (.txt), .html and markdown (.md) versions with syntax highlighting for better readability.
 
 ## Prerequisites
 
@@ -29,13 +29,14 @@ npm install -g project-fusion
    This creates two files:
    - `project-fusioned.txt` - Plain text format with clear file separators
    - `project-fusioned.md` - Markdown format with syntax highlighting and table of contents
+   - `project-fusioned.html` - Html format with syntax highlighting and table of contents
 
 3. **Share the fusion files** for collaboration or analysis (choose .txt for universal compatibility or .md for enhanced readability)
 
 ## Commands
 
-- `project-fusion init` - Initialize Project Fusion in current directory
-- `project-fusion fusion` - Create fusion file from project files
+- `project-fusion init` - Create Project Fusion setting file (optiona) in current directory
+- `project-fusion fusion` - Create fusion files from project files
 - `project-fusion config-check` - Validate configuration and show active settings
 - `project-fusion --help` - Show help information
 
@@ -80,9 +81,27 @@ Project Fusion supports 35+ file extensions organized by category:
 
 The markdown output automatically applies appropriate syntax highlighting for each file type.
 
+### HTML Output
+
+Project Fusion can generate beautiful HTML files with:
+
+- **Responsive Design**: Clean, modern styling optimized for viewing and sharing
+- **Table of Contents**: Interactive navigation with anchor links to each file
+- **Syntax Highlighting**: Code blocks with proper language detection
+- **File Metadata**: Timestamps, project info, and file counts in header
+- **Professional Layout**: Typography and spacing designed for readability
+
+Enable HTML generation in your config:
+
+```json
+{
+  "generateHtml": true
+}
+```
+
 ### Performance Features
 
-- **File Size Limiting**: Configure `maxFileSizeKB` in `parsing` section to skip large files (default: 1MB)
+- **File Size Limiting**: Configure `maxFileSizeKB` to skip large files (default: 1MB)
 - **Streaming Support**: Large projects are processed with streaming to minimize memory usage
 - **Performance Metrics**: Detailed benchmarks logged including throughput and memory usage
 - **Smart Filtering**: Automatically ignores binary files, images, archives, and compiled files
