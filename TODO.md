@@ -1,110 +1,138 @@
-# TODO — Project Fusion (reviewed)
+# TODO — Project Fusion (Prioritized Review)
 
-> Prioritized checklist based on a deep review of the repo. ✅ = done, ⏭️ = optional/nice-to-have.
+> Critical items first, with ❤️ = strongly agree, ⚠️ = warning/caution, ✅ = done
 
-## 🔴 High priority (security & correctness)
+## 🔴 CRITICAL - Security & Robustness (Do ASAP)
 
-- [ ] **Harden path validation**: switch `validateSecurePath` to a `path.relative` check to avoid edge cases on Windows/case-insensitive FS. Add unit tests for prefix-collision paths (e.g., `C:\foo` vs `C:\foobar`).  
-- [ ] **Cap work**: add `maxFiles` and `maxTotalSizeMB` safeguards to avoid huge scans in large monorepos. Fail gracefully with a helpful message and a `--include` tip.
-- [ ] **Symlink policy surfaced in config**: expose `allowSymlinks` in `project-fusion.json` with defaults and CLI flag; document risks.
-- [ ] **Ignore patterns**: add a test that validates each default ignore glob compiles and does not over-match common source files (e.g., `*.svg` might be useful when documenting icons). Consider moving image/doc/media globs to `suggestedIgnores` and keeping the default set leaner.
+### ❤️ Path Traversal Hardening 
+- [ ] **Replace startsWith with path.relative validation**: Current implementation using `startsWith` has edge cases (Windows prefix collision: `C:\foo` vs `C:\foobar`). The suggested `path.relative` approach is more robust:
+  ```typescript
+  const rel = path.relative(resolvedRoot, resolvedFile);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new FusionError(...);
+  }
+  ```
+- [ ] **Add comprehensive path tests**: Unicode normalization (NFKC/NFD), Windows long paths, case-insensitive FS edge cases
 
-## 🟡 Medium priority (DX & UX)
+### ❤️ Resource Limits
+- [ ] **Implement maxFiles and maxTotalSizeMB caps**: Essential for monorepos to prevent infinite scans
+  - Default: `maxFiles: 10000`, `maxTotalSizeMB: 100`
+  - Fail gracefully with helpful message suggesting `--include` patterns
+- [ ] **Add memory usage monitoring**: Track and warn when approaching Node.js heap limits
 
-- [ ] **Subpath exports**: in `package.json`, add exports for `./api`, `./fluent`, `./adapters`, `./plugins`, `./strategies` to support `import { projectFusion } from "project-fusion/fluent"`.
-- [ ] **CLI polish**: add flags `--html/--md/--txt`, `--name <file>`, `--out <dir>`, `--no-clipboard`, `--groups <csv>`, mirroring the programmatic API. Show a short summary when no files matched.
-- [ ] **Preview/dry-run**: `project-fusion --preview` to print the file list without writing output (use the existing “config-check preview” helper internally).
-- [ ] **Line numbers toggle**: optional line numbers in text/markdown output for easier referencing in code reviews.
-- [ ] **HTML accessibility**: add skip links and `aria-label`s; consider a sticky sidebar TOC.
+## 🟠 HIGH - Core Functionality
 
-## 🧪 Testing
+### ❤️ Symlink Configuration
+- [ ] **Expose allowSymlinks in config**: Currently hardcoded, should be in `project-fusion.json`
+  - Add CLI flag `--allow-symlinks` with security warning
+  - Document security implications in README
 
-- [ ] **CLI E2E test**: spawn the built binary with temporary fixtures; assert exit codes and generated files.
-- [ ] **Path traversal tests**: add unicode/normalization edge cases (NFKC/NFD), long path segments, and dot-dot segments split across components.
-- [ ] **Performance tests**: generate thousands of tiny files and a few huge files to verify caps & throughput reporting.
-- [ ] **Plugin system tests**: fixture plugin that registers output strategies and extra extensions; assert life-cycle hooks ordering.
+### ⚠️ Ignore Patterns Optimization
+- [ ] **Test default ignore patterns**: Validate they don't over-match
+- [ ] **WARNING**: Be careful about making defaults too lean. Current patterns are comprehensive for a reason:
+  - `*.svg` files often contain useful documentation diagrams
+  - Keep current defaults but add `overrideDefaults` option for power users
+  - Consider `suggestedIgnores` as additional opt-in patterns
 
-## 🧰 TypeScript & Build
+## 🟡 MEDIUM - Developer Experience
 
-- [ ] **Types**: keep `tsconfig.json` strict; consider marking public API with `/** @public */` and generating API docs (TS docgen).
-- [ ] **Emit bundles**: publish both ESM `.js` + `.d.ts` and optionally a minified CLI bundle via `tsup` or `rolldown` for faster cold starts.
-- [ ] **Runtime guards**: narrow some `unknown` catch blocks to preserve stack plus code (`FusionError` factory helpers).
+### ❤️ Package Distribution
+- [ ] **Add subpath exports**: Enable targeted imports like `project-fusion/fluent`
+  ```json
+  "exports": {
+    ".": "./dist/index.js",
+    "./api": "./dist/api.js",
+    "./fluent": "./dist/fluent.js",
+    "./plugins": "./dist/plugins/index.js"
+  }
+  ```
 
-## 📦 Distribution & CI
+### ❤️ CLI Enhancements
+- [ ] **Output format flags**: `--html`, `--md`, `--txt` (override config)
+- [ ] **Naming flags**: `--name <filename>`, `--out <directory>`
+- [ ] **Control flags**: `--no-clipboard`, `--groups <csv>`
+- [ ] **Preview mode**: `--preview` to list files without generating output
+- [ ] **Summary on empty**: Show helpful message when no files match
 
-- [ ] **GitHub Action**: job to run tests, typecheck, lint, build, and upload artifacts; on release, `npm publish --provenance`.
-- [ ] **Ignore files**: ensure `.npmignore` (or `files` field) excludes examples/fixtures; keep `dist/` only.
-- [ ] **Smoke test**: postpublish script that `npx project-fusion --version` and `node -e "require('project-fusion')"` in a throwaway temp project.
+## 🧪 TESTING - Quality Assurance
 
-## 📚 Docs
+### ❤️ End-to-End Testing
+- [ ] **CLI E2E test suite**: Spawn actual binary with fixtures
+  - Test exit codes, file generation, error messages
+  - Test all CLI flags and combinations
+  - Validate output file integrity
 
-- [ ] **README**: add quickstart (CLI + API + Fluent), security notes (path traversal & symlinks), config reference table, and comparison with alternatives.
-- [ ] **Examples**: include 2–3 tiny example projects and the resulting outputs (txt/md/html).
+### ❤️ Performance Testing
+- [ ] **Stress tests**: Generate thousands of files to validate caps
+- [ ] **Memory leak tests**: Ensure proper cleanup in watch mode
+- [ ] **Benchmark suite**: Track performance regressions
+
+### Security Testing
+- [ ] **Fuzzing**: Test with malformed inputs, special characters
+- [ ] **Permission tests**: Verify behavior with read-only files/dirs
+
+## 🔵 LOW - Nice to Have
+
+### Documentation
+- [ ] **Comparison table**: vs Repomix, code2prompt, repo2txt
+- [ ] **Security guide**: Best practices for safe usage
+- [ ] **API docs**: Generate from TSDoc comments
+
+### HTML Output
+- [ ] **Accessibility**: Add ARIA labels, skip links, keyboard navigation
+- [ ] **Sticky TOC**: Make sidebar sticky with scroll spy
+- [ ] **Line numbers**: Optional toggle for code blocks
+
+### Build & CI
+- [ ] **GitHub Action**: Automated test/build/publish workflow
+- [ ] **Release automation**: Semantic versioning with conventional commits
+- [ ] **Bundle optimization**: Consider tsup/rolldown for faster CLI starts
+
+### Future Features
+- [ ] **Watch mode**: Auto-regenerate on file changes
+- [ ] **VS Code extension**: Quick preview and generation
+- [ ] **Config profiles**: Named presets for different use cases
+- [ ] **Plugin marketplace**: Community plugin discovery
 
 ---
 
-## Suggested code patch — safer path validation
+## Implementation Notes
 
-```ts
-// utils.ts
-import path from "node:path";
-
+### Path.relative Implementation (High Priority)
+```typescript
 export function validateSecurePath(filePath: string, rootDirectory: string): string {
-  try {
-    const resolvedRoot = path.resolve(rootDirectory);
-    const resolvedFile = path.resolve(filePath);
-    const rel = path.relative(resolvedRoot, resolvedFile);
-
-    // If rel starts with '..' or is absolute, the file escapes the root.
-    if (rel.startsWith('..') || path.isAbsolute(rel)) {
-      throw new FusionError(
-        `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
-        'PATH_TRAVERSAL',
-        'error',
-        { filePath, rootDirectory, resolvedFile, resolvedRoot, rel }
-      );
-    }
-    return resolvedFile;
-  } catch (error) {
-    if (error instanceof FusionError) throw error;
-    throw new FusionError(`Invalid path: '${filePath}'`, 'INVALID_PATH', 'error', {
-      filePath, rootDirectory, originalError: error
-    });
+  const resolvedRoot = path.resolve(rootDirectory);
+  const resolvedFile = path.resolve(filePath);
+  const rel = path.relative(resolvedRoot, resolvedFile);
+  
+  // More robust than startsWith
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new FusionError(
+      `Path traversal detected: '${filePath}' escapes root directory`,
+      'PATH_TRAVERSAL',
+      'error',
+      { filePath, rootDirectory, resolvedFile, resolvedRoot, rel }
+    );
   }
+  return resolvedFile;
 }
 ```
 
-## Sample `exports` map
+### Why These Priorities?
 
-```jsonc
-// package.json
-{
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./api": {
-      "types": "./dist/api.d.ts",
-      "import": "./dist/api.js"
-    },
-    "./fluent": {
-      "types": "./dist/fluent.d.ts",
-      "import": "./dist/fluent.js"
-    },
-    "./adapters": {
-      "types": "./dist/adapters/file-system.d.ts",
-      "import": "./dist/adapters/file-system.js"
-    },
-    "./plugins": {
-      "types": "./dist/plugins/plugin-system.d.ts",
-      "import": "./dist/plugins/plugin-system.js"
-    },
-    "./strategies": {
-      "types": "./dist/strategies/output-strategy.d.ts",
-      "import": "./dist/strategies/output-strategy.js"
-    }
-  }
-}
-```
+1. **Security First**: Path traversal and resource limits prevent potential exploits
+2. **Reliability**: Caps and symlink handling ensure predictable behavior
+3. **DX/UX**: CLI improvements and subpath exports improve adoption
+4. **Quality**: Tests ensure long-term maintainability
 
+### Disagreements Explained
+
+- **⚠️ Ignore patterns**: The suggestion to make defaults leaner could break existing workflows. Many projects include SVGs, docs, and media that users expect to be excluded by default. Better to keep comprehensive defaults with override option.
+
+- **Line numbers**: While useful, this is lower priority than security/reliability fixes
+
+- **HTML accessibility**: Important but not critical for initial npm release
+
+---
+
+> **Ready for npm?** YES - but implement CRITICAL section first for production safety.
