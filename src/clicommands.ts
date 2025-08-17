@@ -25,6 +25,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
         }
 
+        // Parse extension groups from command line (comma-separated)
         let extensionGroups: string[] | undefined;
         if (options.extensions) {
             extensionGroups = options.extensions.split(',').map(e => e.trim());
@@ -51,7 +52,7 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
                 console.log(chalk.cyan(`   - ${config.generatedFileName}.pdf`));
             }
 
-            // Clipboard integration: only copy if explicitly enabled in config
+            // Copy fusion content to clipboard if enabled
             if (config.copyToClipboard === true && result.fusionFilePath) {
                 try {
                     const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
@@ -118,7 +119,7 @@ export async function runConfigCheckCommand(): Promise<void> {
 
         const configPath = path.resolve('./project-fusion.json');
         
-        // Check if config file exists
+        // Verify configuration file exists
         if (!await fs.pathExists(configPath)) {
             console.log(chalk.yellow('⚠️ No project-fusion.json found.'));
             console.log(chalk.cyan('   Using default configuration.'));
@@ -128,7 +129,7 @@ export async function runConfigCheckCommand(): Promise<void> {
             return;
         }
 
-        // Read and parse config file
+        // Load and parse configuration
         let configContent: string;
         try {
             configContent = await fs.readFile(configPath, 'utf8');
@@ -145,13 +146,14 @@ export async function runConfigCheckCommand(): Promise<void> {
             process.exit(1);
         }
 
-        // Validate with Zod
+        // Validate configuration against schema
         const validation = ConfigSchemaV1.safeParse(parsedConfig);
         
         if (!validation.success) {
             console.log(chalk.red('❌ Configuration validation failed:'));
             
-            // Display detailed error information
+            // Show detailed validation errors
+            // Display detailed validation errors with helpful context
             validation.error.issues.forEach((issue, index) => {
                 const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
                 const value = issue.path.reduce((obj: any, key) => obj?.[key], parsedConfig);
@@ -179,7 +181,7 @@ export async function runConfigCheckCommand(): Promise<void> {
 }
 
 /**
- * Display configuration information
+ * Display comprehensive configuration summary with preview
  */
 async function displayConfigInfo(config: Config, isDefault: boolean): Promise<void> {
     console.log(chalk.blue('\n📋 Configuration Summary:'));
@@ -190,7 +192,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
         console.log('');
     }
 
-    // Basic settings
+    // Core configuration settings
     console.log(chalk.cyan('🔧 Basic Settings:'));
     console.log(`   Schema Version: ${config.schemaVersion}`);
     console.log(`   Root Directory: ${config.parsing.rootDirectory}`);
@@ -199,7 +201,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`);
     console.log(`   Max File Size: ${config.parsing.maxFileSizeKB} KB`);
 
-    // Output files
+    // File generation options
     console.log(chalk.cyan('\n📄 Output Generation:'));
     console.log(`   Generated File Name: ${config.generatedFileName}`);
     console.log(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}`);
@@ -208,7 +210,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Generate PDF: ${config.generatePdf ? 'Yes' : 'No'}`);
     console.log(`   Log File: project-fusion.log`);
 
-    // Extension groups
+    // File type configuration
     console.log(chalk.cyan('\n📁 File Extension Groups:'));
     const totalExtensions = getExtensionsFromGroups(config);
     
@@ -220,7 +222,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     
     console.log(chalk.gray(`   Total: ${totalExtensions.length} unique extensions`));
 
-    // Ignore patterns
+    // Pattern exclusions
     console.log(chalk.cyan('\n🚫 Ignore Patterns:'));
     if (config.ignorePatterns.length === 0) {
         console.log('   None defined');
@@ -233,16 +235,17 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
         }
     }
 
-    // File discovery preview
+    // Preview matching files using current configuration
     console.log(chalk.cyan('\n🔍 File Discovery Preview:'));
     try {
         const { glob } = await import('glob');
         const rootDir = path.resolve(config.parsing.rootDirectory);
         
+        // Create glob pattern to preview file discovery
         const allExtensionsPattern = totalExtensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
         const pattern = config.parsing.parseSubDirectories
-            ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})`
-            : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
+            ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})` // Recursive search
+            : `${rootDir}/*@(${allExtensionsPattern.join('|')})`; // Root-only search
 
         const filePaths = await glob(pattern, { 
             nodir: true,

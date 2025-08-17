@@ -16,8 +16,7 @@ const OutputConfigSchema = z.object({
 });
 
 /**
- * Schema for file extensions configuration
- * Allows for dynamic extension groups beyond the predefined ones
+ * File extension groups with support for custom categories
  */
 const ParsedFileExtensionsSchema = z.object({
     backend: z.array(z.string()).default([".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"]),

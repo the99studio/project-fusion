@@ -116,8 +116,8 @@ export const defaultConfig = {
 
 
 /**
- * Load config from file
- * @returns The loaded configuration
+ * Load and validate configuration with fallback to defaults
+ * @returns The loaded configuration or default config if invalid/missing
  */
 export async function loadConfig(): Promise<Config> {
     try {
@@ -136,6 +136,7 @@ export async function loadConfig(): Promise<Config> {
             const validatedConfig = ConfigSchemaV1.parse(parsedConfig);
             return validatedConfig;
         } catch (zodError: unknown) {
+            // Graceful degradation with detailed error reporting
             if (zodError instanceof z.ZodError) {
                 console.error('Configuration validation failed (will use default config):');
                 zodError.issues.forEach((issue, index) => {
@@ -168,7 +169,7 @@ export async function loadConfig(): Promise<Config> {
 }
 
 /**
- * Ensure a directory exists
+ * Create directory if it doesn't exist
  * @param directory Directory path
  */
 export async function ensureDirectoryExists(directory: string): Promise<void> {
@@ -176,7 +177,7 @@ export async function ensureDirectoryExists(directory: string): Promise<void> {
 }
 
 /**
- * Write log content to file and optionally to console
+ * Write content to log file with optional console output
  * @param logFilePath Path to log file
  * @param content Content to log
  * @param append If true, append to existing file
@@ -247,7 +248,7 @@ export async function readFileContent(filePath: string): Promise<string> {
 }
 
 /**
- * Read file content with size limit check
+ * Read file with size validation to prevent memory issues
  * @param filePath Path to file
  * @param maxSizeKB Maximum file size in KB
  * @returns File content or null if file exceeds size limit
@@ -274,7 +275,7 @@ export async function readFileContentWithSizeLimit(
 }
 
 /**
- * Log configuration summary to log file
+ * Write detailed configuration summary to log for debugging
  * @param logFilePath Path to log file
  * @param config Configuration to log
  */
@@ -294,12 +295,12 @@ export async function logConfigSummary(logFilePath: FilePath, config: Config): P
     await writeLog(logFilePath, `  Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`, true);
     await writeLog(logFilePath, `  Generate PDF: ${config.generatePdf ? 'Yes' : 'No'}`, true);
     
-    // Extension groups summary
+    // File type statistics
     const totalExtensions = getExtensionsFromGroups(config);
     await writeLog(logFilePath, `  Extension Groups: ${Object.keys(config.parsedFileExtensions).length} groups`, true);
     await writeLog(logFilePath, `  Total Extensions: ${totalExtensions.length}`, true);
     
-    // Ignore patterns count
+    // Exclusion pattern count
     await writeLog(logFilePath, `  Ignore Patterns: ${config.ignorePatterns.length} patterns`, true);
     
     await writeLog(logFilePath, ``, true); // Empty line for separation
@@ -321,21 +322,23 @@ export async function writeFileContent(filePath: string, content: string): Promi
 }
 
 /**
- * Get extensions from specified groups
+ * Extract file extensions from configuration groups
  * @param config Config object
- * @param groups Extension groups
- * @returns Array of extensions
+ * @param groups Extension groups to include (all if undefined)
+ * @returns Array of file extensions
  */
 export function getExtensionsFromGroups(
     config: Config,
     groups?: string[]
 ): string[] {
+    // Return all extensions if no specific groups requested
     if (!groups || groups.length === 0) {
         return Object.values(config.parsedFileExtensions)
             .filter((extensions): extensions is string[] => Boolean(extensions))
             .flat();
     }
 
+    // Collect extensions from specified groups with validation
     return groups.reduce((acc: string[], group: string) => {
         const extensions = config.parsedFileExtensions[group];
         if (extensions) {
@@ -348,11 +351,12 @@ export function getExtensionsFromGroups(
 }
 
 /**
- * Map file extensions and basenames to markdown code block languages
- * @param extensionOrBasename File extension (e.g., '.ts', '.json') or basename (e.g., 'Makefile', 'Dockerfile')
- * @returns Markdown language identifier or empty string for text
+ * Map file extensions to syntax highlighting languages for markdown/HTML
+ * @param extensionOrBasename File extension or special basename
+ * @returns Language identifier for syntax highlighting
  */
 export function getMarkdownLanguage(extensionOrBasename: string): string {
+    // Comprehensive mapping for syntax highlighting across multiple formats
     const languageMap: Record<string, string> = {
         // Web
         '.js': 'javascript',
@@ -458,6 +462,7 @@ export function getMarkdownLanguage(extensionOrBasename: string): string {
         'go.sum': 'text',
     };
     
+    // Case-insensitive lookup with fallback to 'text'
     const lang = languageMap[extensionOrBasename.toLowerCase()] || languageMap[extensionOrBasename];
-    return lang || 'text';  // Default to 'text' for unknown extensions
+    return lang || 'text';
 }

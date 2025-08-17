@@ -47,8 +47,6 @@ export async function processFusion(
         const startTime = new Date();
 
         await fs.writeFile(logFilePath, '');
-        
-        // Log configuration summary at the beginning
         await logConfigSummary(logFilePath, config);
 
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
@@ -60,10 +58,11 @@ export async function processFusion(
             return { success: false, message, logFilePath };
         }
 
+        // Initialize ignore handler for filtering files based on patterns
         const ig = ignoreLib();
         const rootDir = path.resolve(parsing.rootDirectory);
 
-        // Apply .gitignore patterns for filtering if enabled
+        // Load ignore patterns from .gitignore and custom config
         if (config.useGitIgnoreForExcludes) {
             const gitIgnorePath = path.join(rootDir, '.gitignore');
             if (await fs.pathExists(gitIgnorePath)) {
@@ -79,11 +78,12 @@ export async function processFusion(
             ig.add(patterns);
         }
 
-        // Build glob pattern for file discovery
+        // Create file discovery pattern based on extensions and subdirectory settings
+        // Build glob pattern for file discovery: ensure extensions start with '.' and handle subdirectory option
         const allExtensionsPattern = extensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
         const pattern = parsing.parseSubDirectories
-            ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})`
-            : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
+            ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})` // Recursive pattern
+            : `${rootDir}/*@(${allExtensionsPattern.join('|')})`; // Root-only pattern
 
         let filePaths = await glob(pattern, { 
             nodir: true,
@@ -122,29 +122,29 @@ export async function processFusion(
             }
         }
 
-        // Sort files for consistent output
+        // Sort files alphabetically for consistent output across runs
         filePaths.sort((a, b) => path.relative(rootDir, a).localeCompare(path.relative(rootDir, b)));
 
-        // Track which extensions are actually used vs configured vs unknown
+        // Track extension usage for comprehensive reporting
         const foundExtensions = new Set<string>();
         const otherExtensions = new Set<string>();
-
-        // Discover all file extensions in the project for reporting
         const allFilesPattern = parsing.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
         const allFiles = await glob(allFilesPattern, { nodir: true, follow: false });
 
         const allConfiguredExtensions = Object.values(config.parsedFileExtensions).flat();
         const configuredExtensionSet = new Set(allConfiguredExtensions);
+        // Discover unconfigured extensions for comprehensive reporting
         for (const file of allFiles) {
             const relativePath = path.relative(rootDir, file);
             const ext = path.extname(file).toLowerCase();
 
+            // Track extensions found in project but not configured for processing
             if (ext && !ig.ignores(relativePath) && !configuredExtensionSet.has(ext)) {
                 otherExtensions.add(ext);
             }
         }
 
-        // First pass: check file sizes and build list of files to process
+        // Pre-process files: validate sizes and collect metadata
         const maxFileSizeKB = parsing.maxFileSizeKB;
         const filesToProcess: { path: string; relativePath: string; size: number }[] = [];
         const skippedFiles: string[] = [];
@@ -174,21 +174,21 @@ export async function processFusion(
             }
         }
 
-        // Ensure output directories exist
+        // Create output directories for enabled formats
         if (config.generateText) await ensureDirectoryExists(path.dirname(fusionFilePath));
         if (config.generateMarkdown) await ensureDirectoryExists(path.dirname(mdFilePath));
         if (config.generateHtml) await ensureDirectoryExists(path.dirname(htmlFilePath));
         if (config.generatePdf) await ensureDirectoryExists(path.dirname(pdfFilePath));
 
-        // Create write streams for enabled output files
+        // Initialize write streams for concurrent file generation
         const txtStream = config.generateText ? createWriteStream(fusionFilePath) : null;
         const mdStream = config.generateMarkdown ? createWriteStream(mdFilePath) : null;
         const htmlStream = config.generateHtml ? createWriteStream(htmlFilePath) : null;
         
-        // For PDF, we'll collect content and generate at the end
+        // PDF content collection (generated from HTML via puppeteer)
         let pdfContent = '';
 
-        // Write headers
+        // Generate format-specific headers with project metadata
         const projectTitle = packageName && packageName.toLowerCase() !== projectName.toLowerCase() 
             ? `${projectName} / ${packageName}` 
             : projectName;
@@ -248,12 +248,12 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         if (mdStream) mdStream.write(mdHeader);
         if (htmlStream) htmlStream.write(htmlHeader);
         
-        // Initialize PDF content
+        // Initialize PDF fallback content
         if (config.generatePdf) {
             pdfContent = `Generated Project Fusion File\n\nProject: ${projectTitle}${versionInfo}\nGenerated: ${formatLocalTimestamp()}\nUTC: ${formatTimestamp()}\nFiles: ${filesToProcess.length}\nGenerated by: project-fusion\n\n`;
         }
 
-        // Write table of contents for markdown (only for files that will be processed)
+        // Generate table of contents for markdown format
         if (mdStream) {
             for (const fileInfo of filesToProcess) {
                 mdStream.write(`- [${fileInfo.relativePath}](#${fileInfo.relativePath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()})\n`);
@@ -261,15 +261,15 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             mdStream.write(`\n---\n\n`);
         }
 
-        // Process files one by one - memory efficient approach
+        // Stream-process files to maintain low memory footprint
         let processedCount = 0;
         for (const fileInfo of filesToProcess) {
             try {
-                // Read file content - only one file in memory at a time
                 const content = await fs.readFile(fileInfo.path, 'utf8');
                 const fileExt = path.extname(fileInfo.path).toLowerCase();
                 const basename = path.basename(fileInfo.path);
                 const language = getMarkdownLanguage(fileExt || basename);
+                // Escape HTML entities for safe HTML output
                 const escapedContent = content
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
@@ -277,7 +277,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#39;');
                 
-                // Write to text file
+                // Generate plain text format with file separators
                 if (txtStream) {
                     txtStream.write(`<!-- ============================================================ -->\n`);
                     txtStream.write(`<!-- FILE: ${fileInfo.relativePath.padEnd(54)} -->\n`);
@@ -285,7 +285,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                     txtStream.write(`${content}\n\n`);
                 }
 
-                // Write to markdown file
+                // Generate markdown format with syntax highlighting
                 if (mdStream) {
                     mdStream.write(`## 📄 ${fileInfo.relativePath}\n\n`);
                     mdStream.write(`\`\`\`${language}\n`);
@@ -293,8 +293,9 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                     mdStream.write(`\`\`\`\n\n`);
                 }
 
-                // Write to HTML file
+                // Generate HTML format with styled code blocks
                 if (htmlStream) {
+                    // Create URL-safe anchor ID for navigation
                     const fileAnchor = fileInfo.relativePath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
                     htmlStream.write(`    <div class="file-section" id="${fileAnchor}">\n`);
                     htmlStream.write(`        <div class="file-title">\n`);
@@ -304,7 +305,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
                     htmlStream.write(`    </div>\n\n`);
                 }
 
-                // Collect content for PDF
+                // Collect content for PDF fallback (text-based)
                 if (config.generatePdf) {
                     pdfContent += `\n${'='.repeat(60)}\nFILE: ${fileInfo.relativePath}\n${'='.repeat(60)}\n\n${content}\n\n`;
                 }
@@ -317,12 +318,12 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             }
         }
 
-        // Close HTML file
+        // Finalize HTML document structure
         if (htmlStream) {
             htmlStream.write(`</body>\n</html>`);
         }
 
-        // Close streams first
+        // Ensure all streams are properly closed before PDF generation
         if (txtStream) {
             await new Promise<void>((resolve, reject) => {
                 txtStream.end((err: any) => err ? reject(err) : resolve());
@@ -339,30 +340,33 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             });
         }
 
-        // Generate PDF file from HTML
+        // Generate PDF using puppeteer to convert HTML to PDF
+        // Generate PDF using headless browser for high-quality output
         if (config.generatePdf && config.generateHtml) {
             try {
                 const browser = await puppeteer.launch({ headless: true });
                 const page = await browser.newPage();
+                // Wait for all resources to load before PDF generation
                 await page.setContent(await fs.readFile(htmlFilePath, 'utf8'), { waitUntil: 'networkidle0' });
                 await page.pdf({ 
                     path: pdfFilePath, 
                     format: 'A4',
                     margin: { top: '1cm', bottom: '1cm', left: '1cm', right: '1cm' },
-                    printBackground: true
+                    printBackground: true // Include CSS backgrounds and colors
                 });
                 await browser.close();
             } catch (error) {
+                // Graceful fallback to text-based PDF if puppeteer fails
                 console.warn(`Warning: PDF generation failed: ${error instanceof Error ? error.message : String(error)}`);
                 console.warn('Fallback: Creating text-based PDF file');
                 await fs.writeFile(pdfFilePath, pdfContent, 'utf8');
             }
         } else if (config.generatePdf) {
-            // Fallback to text-based PDF if HTML is not generated
+            // Fallback when HTML generation is disabled
             await fs.writeFile(pdfFilePath, pdfContent, 'utf8');
         }
 
-        // Generate comprehensive log summary
+        // Generate detailed completion report with metrics
         const message = `Fusion completed successfully. ${processedCount} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
         const endTime = new Date();
         const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -374,7 +378,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
         await writeLog(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        // Add benchmark metrics
+        // Include performance benchmarks in log
         const metrics = benchmark.getMetrics();
         await writeLog(logFilePath, `\nPerformance Metrics:`, true);
         await writeLog(logFilePath, `  Memory Used: ${metrics.memoryUsed.toFixed(2)} MB`, true);

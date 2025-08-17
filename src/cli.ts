@@ -42,33 +42,34 @@ program
         runConfigCheckCommand();
     });
 
-// Default behavior: run fusion if no command specified
-// This allows users to just type 'project-fusion' to run fusion
+// Parse command-line options for default fusion command
+// Manual option parsing for default command when no explicit command is provided
 async function runDefaultCommand() {
     const options: { extensions?: string; root?: string } = {};
     const args = process.argv.slice(2);
     
+    // Simple argument parsing for --extensions and --root flags
     for (let i = 0; i < args.length; i++) {
         if (args[i] === '--extensions' && args[i + 1]) {
             options.extensions = args[i + 1];
-            i++;
+            i++; // Skip next argument as it's the value
         } else if (args[i] === '--root' && args[i + 1]) {
             options.root = args[i + 1];
-            i++;
+            i++; // Skip next argument as it's the value
         }
     }
     await runFusionCommand(options);
 }
 
-// Command detection logic: check if user provided an explicit command
-// Otherwise, run fusion by default for better UX
+// Auto-detect command or default to fusion for better UX
+// Smart command detection: use Commander.js for explicit commands, default to fusion otherwise
 const args = process.argv.slice(2);
 const hasKnownCommand = args.some(arg => 
     ['init', 'fusion', 'config-check', '--help', '-h', '--version', '-v'].includes(arg)
 );
 
 if (hasKnownCommand) {
-    program.parse(process.argv);
+    program.parse(process.argv); // Use Commander.js parsing
 } else {
-    await runDefaultCommand();
+    await runDefaultCommand(); // Direct fusion execution with manual parsing
 }

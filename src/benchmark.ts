@@ -26,7 +26,7 @@ export class BenchmarkTracker {
     }
 
     /**
-     * Mark a file as processed with its size
+     * Record file processing metrics
      */
     markFileProcessed(sizeBytes: number, processingTimeMs?: number) {
         this.filesProcessed++;
@@ -37,7 +37,7 @@ export class BenchmarkTracker {
     }
 
     /**
-     * Get current metrics
+     * Calculate and return performance metrics
      */
     getMetrics(): BenchmarkMetrics {
         const endTime = performance.now();
@@ -64,7 +64,7 @@ export class BenchmarkTracker {
     }
 
     /**
-     * Format metrics for display
+     * Format metrics as human-readable string
      */
     formatMetrics(): string {
         const metrics = this.getMetrics();
