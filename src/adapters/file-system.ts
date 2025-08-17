@@ -6,7 +6,7 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { glob } from 'glob';
-import { createFilePath, type FilePath } from '../types.js';
+import { type FilePath, createFilePath } from '../types.js';
 
 export interface FileSystemStats {
     size: number;
@@ -79,72 +79,75 @@ export class DefaultFileSystemAdapter implements FileSystemAdapter {
 }
 
 export class MemoryFileSystemAdapter implements FileSystemAdapter {
-    private files: Map<string, string> = new Map();
-    private directories: Set<string> = new Set();
+    private readonly files: Map<string, string> = new Map();
+    private readonly directories: Set<string> = new Set();
 
-    async readFile(filePath: FilePath): Promise<string> {
+    readFile(filePath: FilePath): Promise<string> {
         const content = this.files.get(filePath);
         if (content === undefined) {
-            throw new Error(`File not found: ${filePath}`);
+            return Promise.reject(new Error(`File not found: ${filePath}`));
         }
-        return content;
+        return Promise.resolve(content);
     }
 
-    async writeFile(filePath: FilePath, content: string): Promise<void> {
+    writeFile(filePath: FilePath, content: string): Promise<void> {
         const dir = path.dirname(filePath);
         this.directories.add(dir);
         this.files.set(filePath, content);
+        return Promise.resolve();
     }
 
     async appendFile(filePath: FilePath, content: string): Promise<void> {
-        const existing = this.files.get(filePath) || '';
+        const existing = this.files.get(filePath) ?? '';
         await this.writeFile(filePath, existing + content);
     }
 
-    async stat(filePath: FilePath): Promise<FileSystemStats> {
+    stat(filePath: FilePath): Promise<FileSystemStats> {
         if (this.files.has(filePath)) {
             const content = this.files.get(filePath)!;
-            return {
+            return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
                 isFile: true,
                 isSymbolicLink: false
-            };
+            });
         }
         if (this.directories.has(filePath)) {
-            return {
+            return Promise.resolve({
                 size: 0,
                 isDirectory: true,
                 isFile: false,
                 isSymbolicLink: false
-            };
+            });
         }
-        throw new Error(`File not found: ${filePath}`);
+        return Promise.reject(new Error(`File not found: ${filePath}`));
     }
 
     async lstat(filePath: FilePath): Promise<FileSystemStats> {
         return this.stat(filePath);
     }
 
-    async exists(filePath: FilePath): Promise<boolean> {
-        return this.files.has(filePath) || this.directories.has(filePath);
+    exists(filePath: FilePath): Promise<boolean> {
+        return Promise.resolve(this.files.has(filePath) || this.directories.has(filePath));
     }
 
-    async ensureDir(dirPath: string): Promise<void> {
+    ensureDir(dirPath: string): Promise<void> {
         this.directories.add(dirPath);
+        return Promise.resolve();
     }
 
-    async glob(pattern: string, options?: { nodir?: boolean; follow?: boolean }): Promise<FilePath[]> {
+    glob(pattern: string, options?: { nodir?: boolean; follow?: boolean }): Promise<FilePath[]> {
         const allPaths = [...this.files.keys(), ...this.directories.keys()];
-        return allPaths
+        const result = allPaths
             .filter(p => {
                 if (options?.nodir && this.directories.has(p)) return false;
                 return true;
             })
             .map(createFilePath);
+        return Promise.resolve(result);
     }
 
-    async readBuffer(filePath: FilePath, options?: { encoding: null }): Promise<Buffer> {
+    async readBuffer(filePath: FilePath): Promise<Buffer> {
         const content = await this.readFile(filePath);
         return Buffer.from(content, 'utf8');
     }
@@ -152,7 +155,16 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
     addFile(filePath: string, content: string): void {
         this.files.set(filePath, content);
         const dir = path.dirname(filePath);
+        this.ensureParentDirectory(dir);
         this.directories.add(dir);
+    }
+
+    private ensureParentDirectory(dirPath: string): void {
+        const parent = path.dirname(dirPath);
+        if (parent && parent !== dirPath && parent !== '.') {
+            this.ensureParentDirectory(parent);
+            this.directories.add(parent);
+        }
     }
 
     getFiles(): Map<string, string> {

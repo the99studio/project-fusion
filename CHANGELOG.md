@@ -39,7 +39,7 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 #### Technical Features
 - **TypeScript 5.9.2** with strict mode and ESM modules
 - **Branded types** (FilePath) for type-safe path handling
-- **Discriminated unions** for robust error handling (FusionResult)
+- **Discriminated unions** for error handling (FusionResult)
 - **Error handling** with FusionError class, error codes, and severity levels
 - **Performance metrics** logging
 - **Clipboard integration** with automatic fallback for CI environments

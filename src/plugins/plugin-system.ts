@@ -4,9 +4,9 @@
  * Plugin system for extending Project Fusion functionality
  */
 import path from 'node:path';
-import { createFilePath, type FilePath, type Config } from '../types.js';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
-import type { OutputStrategy, FileInfo, OutputContext } from '../strategies/output-strategy.js';
+import type { FileInfo, OutputStrategy } from '../strategies/output-strategy.js';
+import { type Config, createFilePath } from '../types.js';
 
 export interface PluginMetadata {
     name: string;
@@ -20,7 +20,7 @@ export interface PluginHooks {
     beforeFileProcessing?(fileInfo: FileInfo, config: Config): Promise<FileInfo | null>;
     afterFileProcessing?(fileInfo: FileInfo, processedContent: string, config: Config): Promise<string>;
     beforeFusion?(config: Config, filesToProcess: FileInfo[]): Promise<{ config: Config; filesToProcess: FileInfo[] }>;
-    afterFusion?(result: any, config: Config): Promise<any>;
+    afterFusion?(result: unknown, config: Config): Promise<unknown>;
     registerOutputStrategies?(): OutputStrategy[];
     registerFileExtensions?(): Record<string, string[]>;
 }
@@ -34,13 +34,13 @@ export interface Plugin extends PluginHooks {
 export interface PluginConfig {
     name: string;
     enabled: boolean;
-    options?: Record<string, any>;
+    options?: Record<string, unknown>;
 }
 
 export class PluginManager {
-    private plugins: Map<string, Plugin> = new Map();
-    private pluginConfigs: Map<string, PluginConfig> = new Map();
-    private fs: FileSystemAdapter;
+    private readonly plugins: Map<string, Plugin> = new Map();
+    private readonly pluginConfigs: Map<string, PluginConfig> = new Map();
+    private readonly fs: FileSystemAdapter;
 
     constructor(fs: FileSystemAdapter) {
         this.fs = fs;
@@ -48,8 +48,8 @@ export class PluginManager {
 
     async loadPlugin(pluginPath: string): Promise<void> {
         try {
-            const pluginModule = await import(pluginPath);
-            const plugin: Plugin = pluginModule.default || pluginModule;
+            const pluginModule = await import(pluginPath) as { default?: Plugin; plugin?: Plugin };
+            const plugin: Plugin = pluginModule.default ?? pluginModule.plugin ?? pluginModule as Plugin;
             
             if (!plugin.metadata) {
                 throw new Error(`Plugin at ${pluginPath} is missing metadata`);
@@ -101,7 +101,7 @@ export class PluginManager {
     }
 
     getEnabledPlugins(): Plugin[] {
-        return Array.from(this.plugins.values()).filter(plugin => {
+        return [...this.plugins.values()].filter(plugin => {
             const config = this.pluginConfigs.get(plugin.metadata.name);
             return config?.enabled !== false;
         });
@@ -197,13 +197,13 @@ export class PluginManager {
         return { config: currentConfig, filesToProcess: currentFiles };
     }
 
-    async executeAfterFusion(result: any, config: Config): Promise<any> {
+    async executeAfterFusion<T>(result: T, config: Config): Promise<T> {
         let currentResult = result;
         
         for (const plugin of this.getEnabledPlugins()) {
             if (plugin.afterFusion) {
                 try {
-                    currentResult = await plugin.afterFusion(currentResult, config);
+                    currentResult = await plugin.afterFusion(currentResult, config) as T;
                 } catch (error) {
                     console.error(`Error in plugin ${plugin.metadata.name} afterFusion:`, error);
                 }
@@ -248,14 +248,14 @@ export class PluginManager {
     }
 
     listPlugins(): PluginMetadata[] {
-        return Array.from(this.plugins.values()).map(plugin => plugin.metadata);
+        return [...this.plugins.values()].map(plugin => plugin.metadata);
     }
 }
 
 export abstract class BasePlugin implements Plugin {
     abstract metadata: PluginMetadata;
 
-    async initialize?(config: Config): Promise<void> {
+    async initialize?(): Promise<void> {
         // Default implementation - can be overridden
     }
 

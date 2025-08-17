@@ -4,10 +4,12 @@
  * Utilities for Project Fusion
  */
 import path from 'node:path';
+
 import fs from 'fs-extra';
 import { z } from 'zod';
+
 import { ConfigSchemaV1 } from './schema.js';
-import { FusionError, type Config, isValidExtensionGroup, isNonEmptyArray } from './types.js';
+import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from './types.js';
 
 
 /**

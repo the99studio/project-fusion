@@ -4,9 +4,11 @@
  * CLI commands implementation
  */
 import path from 'node:path';
+
 import chalk from 'chalk';
 import clipboardy from 'clipboardy';
 import fs from 'fs-extra';
+
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FusionOptions } from './types.js';

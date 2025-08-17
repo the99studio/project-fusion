@@ -87,7 +87,7 @@ The markdown output applies syntax highlighting for each file type.
 
 Project Fusion generates three output formats simultaneously, each optimized for different use cases:
 
-#### 📄 Text Format (`.txt`)
+#### Text Format (`.txt`)
 - **Purpose**: Universal compatibility for any text editor or system
 - **Features**:
   - Clear file separators with descriptive headers (`<!-- FILE: path/to/file.js -->`)
@@ -95,7 +95,7 @@ Project Fusion generates three output formats simultaneously, each optimized for
   - Raw code content without modification for maximum compatibility
   - Works with any text viewer, email, or system that supports plain text
 
-#### 📝 Markdown Format (`.md`)
+#### Markdown Format (`.md`)
 - **Purpose**: GitHub-compatible documentation with enhanced readability
 - **Features**:
   - Automatic syntax highlighting based on file extensions
@@ -104,10 +104,10 @@ Project Fusion generates three output formats simultaneously, each optimized for
   - Compatible with GitHub, GitLab, VS Code preview, and markdown renderers
   - Each file wrapped in appropriate code blocks (```language)
 
-#### 🌐 HTML Format (`.html`)
+#### HTML Format (`.html`)
 - **Purpose**: Web-ready sharing with professional presentation
 - **Features**:
-  - Responsive design that works on desktop and mobile
+  - Responsive design for desktop and mobile devices
   - Interactive table of contents with smooth scrolling navigation
   - Styled code blocks with proper syntax highlighting
   - Professional typography and spacing for readability
@@ -126,7 +126,7 @@ You can control which formats are generated in your `project-fusion.json` config
 }
 ```
 
-All formats are enabled by default for maximum flexibility.
+All formats are enabled by default for flexibility.
 
 ### Performance Features
 
@@ -405,6 +405,22 @@ Creates a complete configuration object with defaults.
 Runs fusion with a configuration object (partial or complete).
 
 **Returns:** Promise resolving to FusionResult with success status, file paths, and error details.
+
+### Custom Extension Groups
+
+You can define custom extension groups beyond the predefined categories:
+
+```javascript
+{
+    parsedFileExtensions: {
+        web: ['.ts', '.tsx', '.js'],
+        backend: ['.py', '.go'],
+        // Add custom groups
+        data: ['.csv', '.xlsx', '.parquet'],
+        mobile: ['.swift', '.kt', '.dart']
+    }
+}
+```
 
 ## Distribution
 

@@ -3,10 +3,10 @@
 /**
  * Output strategy pattern for different fusion formats
  */
+import { WriteStream, createWriteStream } from 'node:fs';
 import path from 'node:path';
-import { createWriteStream, WriteStream } from 'node:fs';
-import { createFilePath, type FilePath, type Config } from '../types.js';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
+import { type Config, type FilePath, createFilePath } from '../types.js';
 import { formatLocalTimestamp, formatTimestamp, getMarkdownLanguage } from '../utils.js';
 
 export interface FileInfo {
@@ -195,7 +195,7 @@ ${tocEntries}
 }
 
 export class OutputStrategyManager {
-    private strategies: Map<string, OutputStrategy> = new Map();
+    private readonly strategies: Map<string, OutputStrategy> = new Map();
 
     constructor() {
         this.registerStrategy(new TextOutputStrategy());

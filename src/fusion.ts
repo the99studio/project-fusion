@@ -4,16 +4,18 @@
  * Fusion functionality - Refactored with new architecture patterns
  */
 import path from 'node:path';
+
 import ignoreLib from 'ignore';
-import { DefaultFileSystemAdapter, type FileSystemAdapter } from './adapters/file-system.js';
+
+import { type FileSystemAdapter, DefaultFileSystemAdapter } from './adapters/file-system.js';
 import { BenchmarkTracker } from './benchmark.js';
 import { PluginManager } from './plugins/plugin-system.js';
 import { 
-    OutputStrategyManager, 
     type FileInfo, 
-    type OutputContext 
+    type OutputContext,
+    OutputStrategyManager
 } from './strategies/output-strategy.js';
-import { createFilePath, type Config, type FilePath, type FusionOptions, type FusionResult } from './types.js';
+import { type Config, type FilePath, type FusionOptions, type FusionResult, createFilePath } from './types.js';
 import {
     formatLocalTimestamp,
     formatTimestamp,

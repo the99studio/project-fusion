@@ -5,7 +5,9 @@
  * Command-line interface for Project Fusion
  */
 import { Command } from 'commander';
+
 import pkg from '../package.json' with { type: 'json' };
+
 import {
     runConfigCheckCommand,
     runFusionCommand,

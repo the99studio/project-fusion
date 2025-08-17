@@ -2,7 +2,7 @@
 
 > 📋 **For Claude AI Context**: See [CLAUDE.md](./CLAUDE.md) for essential project information needed for development assistance.
 
-## 🚀 Development Workflow
+## Development Workflow
 
 ### Initial Setup
 ```bash
@@ -41,7 +41,7 @@ Use VS Code launch configurations (F5) for easy testing:
 ### Testing with Real Package
 For testing as if it were the real published package, see the [NPM Package Testing](#-npm-package-management) section below.
 
-## 📦 NPM Package Management
+## NPM Package Management
 
 ### Pre-Publication Testing
 
@@ -111,7 +111,7 @@ npm view project-fusion
 2. Update types in `src/types.ts` if needed
 3. Test both .txt and .md output formats
 
-## 🧪 Testing Strategy
+## Testing Strategy
 
 ### Manual Testing Checklist
 - [ ] `npm run build` - clean build
@@ -131,7 +131,7 @@ Use these types of projects for testing:
 - **React/Vue projects** (test web extensions)
 - **Mixed projects** (multiple extension types)
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -150,7 +150,7 @@ npm run typecheck
 # Fix errors in src/ files
 ```
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 project-fusion/
@@ -170,7 +170,7 @@ project-fusion/
 └── tsconfig.json          # TypeScript configuration
 ```
 
-## 🔗 Important Files
+## Important Files
 
 - **CLAUDE.md** - Essential project context for AI assistance
 - **package.json** - NPM package configuration and scripts
