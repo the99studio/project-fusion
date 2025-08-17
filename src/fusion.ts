@@ -6,6 +6,7 @@ import { createWriteStream } from 'fs';
 import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import path from 'path';
+import puppeteer from 'puppeteer';
 import { BenchmarkTracker } from './benchmark.js';
 import {
     formatTimestamp,
@@ -321,12 +322,7 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             htmlStream.write(`</body>\n</html>`);
         }
 
-        // Generate PDF file (simple text-based implementation for now)
-        if (config.generatePdf) {
-            await fs.writeFile(pdfFilePath, pdfContent, 'utf8');
-        }
-
-        // Close streams
+        // Close streams first
         if (txtStream) {
             await new Promise<void>((resolve, reject) => {
                 txtStream.end((err: any) => err ? reject(err) : resolve());
@@ -341,6 +337,29 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             await new Promise<void>((resolve, reject) => {
                 htmlStream.end((err: any) => err ? reject(err) : resolve());
             });
+        }
+
+        // Generate PDF file from HTML
+        if (config.generatePdf && config.generateHtml) {
+            try {
+                const browser = await puppeteer.launch({ headless: true });
+                const page = await browser.newPage();
+                await page.setContent(await fs.readFile(htmlFilePath, 'utf8'), { waitUntil: 'networkidle0' });
+                await page.pdf({ 
+                    path: pdfFilePath, 
+                    format: 'A4',
+                    margin: { top: '1cm', bottom: '1cm', left: '1cm', right: '1cm' },
+                    printBackground: true
+                });
+                await browser.close();
+            } catch (error) {
+                console.warn(`Warning: PDF generation failed: ${error instanceof Error ? error.message : String(error)}`);
+                console.warn('Fallback: Creating text-based PDF file');
+                await fs.writeFile(pdfFilePath, pdfContent, 'utf8');
+            }
+        } else if (config.generatePdf) {
+            // Fallback to text-based PDF if HTML is not generated
+            await fs.writeFile(pdfFilePath, pdfContent, 'utf8');
         }
 
         // Generate comprehensive log summary
