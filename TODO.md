@@ -1,10 +1,10 @@
 # TODO - Project Fusion
 
-### 2. Refactor CLI Command Parsing  
-- [ ] Remplacer le parsing manuel dans `src/cli.ts` (lignes 45-74)
-- [ ] Implémenter une vraie **commande par défaut** avec Commander.js
-- [ ] Supprimer `runDefaultCommand()` et la logique `hasKnownCommand`
-- [ ] Tester que toutes les options `--extensions`, `--root` fonctionnent
+### 2. Refactor CLI Command Parsing ✅ COMPLETED
+- [x] Remplacer le parsing manuel dans `src/cli.ts` (lignes 45-74)
+- [x] Implémenter une vraie **commande par défaut** avec Commander.js
+- [x] Supprimer `runDefaultCommand()` et la logique `hasKnownCommand`
+- [x] Tester que toutes les options `--extensions`, `--root` fonctionnent
 
 ### 7. Sécurité & Robustesse  
 - [ ] Vérifier que tous les parcours glob utilisent `follow: false`
@@ -15,7 +15,8 @@
 - [ ] Tests pour `.gitignore` + `ignorePatterns` 
 - [ ] Tests pour `maxFileSizeKB` (skip gros fichiers)
 - [ ] Tests pour parcours non-récursif
-- [ ] Tests génération HTML/PDF (avec/sans puppeteer)
+- [ ] Tests génération HTML
+- [ ] Documentation génération HTML
 
 ### 9. Documentation utilisateur
 - [ ] Section **"Examples"** dans README avec captures
