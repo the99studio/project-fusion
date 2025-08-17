@@ -39,7 +39,7 @@ describe('API Tests', () => {
             'project-fusioned.txt',
             'project-fusioned.md',
             'project-fusioned.html',
-            'project-fusion.log'
+            'project-fusioned.log'
         ];
         for (const file of generatedFiles) {
             const filePath = join(testProjectDir, file);
@@ -112,7 +112,7 @@ describe('API Tests', () => {
             // Check files were created
             expect(existsSync(join(testProjectDir, 'project-fusioned.txt'))).toBe(true);
             expect(existsSync(join(testProjectDir, 'project-fusioned.md'))).toBe(true);
-            expect(existsSync(join(testProjectDir, 'project-fusion.log'))).toBe(true);
+            expect(existsSync(join(testProjectDir, 'project-fusioned.log'))).toBe(true);
         });
         
         it('should handle custom extensions', async () => {

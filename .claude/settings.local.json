@@ -35,7 +35,8 @@
             "Bash(npm run lint:*)",
             "Bash(npm uninstall:*)",
             "Bash(npm test)",
-            "Bash(npm test:*)"
+            "Bash(npm test:*)",
+            "Bash(./dist/cli.js)"
         ],
         "deny": [
             "Bash(chmod 777 *)",

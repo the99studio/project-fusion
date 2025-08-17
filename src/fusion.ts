@@ -9,7 +9,7 @@ import fs from 'fs-extra';
 import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import { BenchmarkTracker } from './benchmark.js';
-import { createFilePath, type Config, type FusionOptions, type FusionResult } from './types.js';
+import { createFilePath, type Config, type FilePath, type FusionOptions, type FusionResult } from './types.js';
 import {
     ensureDirectoryExists,
     formatLocalTimestamp,
@@ -33,7 +33,7 @@ export async function processFusion(
     
     try {
         // Note: parsing properties are now directly in config (flattened structure)
-        const logFilePath = createFilePath(path.resolve(config.rootDirectory, 'project-fusion.log'));
+        const logFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.log`));
         const fusionFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.txt`));
         const mdFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.md`));
         const htmlFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.html`));
@@ -396,12 +396,12 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
             // Try to write log in the configured root directory, fallback to current directory if it fails
             let logFilePath: FilePath;
             try {
-                logFilePath = createFilePath(path.resolve(config.rootDirectory, 'project-fusion.log'));
+                logFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.log`));
                 const endTime = new Date();
                 await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
             } catch {
                 // Fallback to current directory if root directory doesn't exist
-                logFilePath = createFilePath(path.resolve('project-fusion.log'));
+                logFilePath = createFilePath(path.resolve(`${config.generatedFileName}.log`));
                 const endTime = new Date();
                 await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
             }
