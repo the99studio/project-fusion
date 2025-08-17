@@ -393,9 +393,18 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         console.error(errorMessage);
 
         try {
-            const logFilePath = createFilePath(path.resolve('project-fusion.log'));
-            const endTime = new Date();
-            await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
+            // Try to write log in the configured root directory, fallback to current directory if it fails
+            let logFilePath: FilePath;
+            try {
+                logFilePath = createFilePath(path.resolve(config.rootDirectory, 'project-fusion.log'));
+                const endTime = new Date();
+                await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
+            } catch {
+                // Fallback to current directory if root directory doesn't exist
+                logFilePath = createFilePath(path.resolve('project-fusion.log'));
+                const endTime = new Date();
+                await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
+            }
 
             return {
                 success: false,
