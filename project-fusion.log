@@ -14,15 +14,15 @@ Configuration Summary:
   Ignore Patterns: 71 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-17T14:32:15.800Z
-End time: 2025-08-17T14:32:16.317Z
-Duration: 0.52s
-Total data processed: 0.15 MB
+Start time: 2025-08-17T15:20:35.658Z
+End time: 2025-08-17T15:20:36.186Z
+Duration: 0.53s
+Total data processed: 0.34 MB
 
 Performance Metrics:
-  Memory Used: 22.97 MB
-  Throughput: 0.28 MB/s
-  Files/second: 51.92
+  Memory Used: 22.77 MB
+  Throughput: 0.65 MB/s
+  Files/second: 51.04
 Files found: 9608
 Files processed successfully: 27
 Files skipped (too large): 0
@@ -68,15 +68,3 @@ Configured extensions with no matching files found:
   .xml
   .yaml
   .yml
-Status: Fusion failed due to error
-Error details: Fusion process failed: Error: ENOENT: no such file or directory, open '/non/existent/path/project-fusion.log'
-End time: 2025-08-17T14:32:52.357Z
-Status: Fusion failed due to error
-Error details: Fusion process failed: Error: ENOENT: no such file or directory, open '/non/existent/path/project-fusion.log'
-End time: 2025-08-17T14:33:21.803Z
-Status: Fusion failed due to error
-Error details: Fusion process failed: Error: ENOENT: no such file or directory, open '/non/existent/path/project-fusion.log'
-End time: 2025-08-17T14:33:25.718Z
-Status: Fusion failed due to error
-Error details: Fusion process failed: Error: ENOENT: no such file or directory, open '/non/existent/path/project-fusion.log'
-End time: 2025-08-17T15:19:43.007Z
