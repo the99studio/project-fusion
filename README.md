@@ -107,6 +107,19 @@ Enable HTML generation in your config:
 - **Performance Metrics**: Benchmarks logged including throughput and memory usage
 - **Filtering**: Ignores binary files, images, archives, and compiled files
 
+### Security Features
+
+Project Fusion implements several security measures to protect against common attack vectors:
+
+- **Path Traversal Protection**: All file paths are validated to ensure they remain within the configured root directory, preventing `../../../etc/passwd` style attacks
+- **Symbolic Link Protection**: Symbolic links are detected and blocked by default to prevent directory traversal and access to files outside the project scope
+- **Binary File Detection**: Binary files are automatically detected and skipped during processing to prevent corruption and improve performance
+- **XSS Prevention**: All HTML output is properly escaped to prevent cross-site scripting attacks when sharing HTML fusion files
+- **File System Security**: Uses `follow: false` in glob patterns to prevent following symbolic links during file discovery
+- **Safe Error Handling**: Security-related errors are logged but don't expose sensitive path information to end users
+
+These security features are enabled by default and require no additional configuration. All security validations are tested with comprehensive security test suites.
+
 ## Programmatic API
 
 Project Fusion can be used as a library in other Node.js projects, such as VS Code extensions or build tools.

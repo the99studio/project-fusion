@@ -4,6 +4,10 @@
  * Entry point for Project Fusion
  */
 
+// Core functionality
+export { BenchmarkTracker, type BenchmarkMetrics } from './benchmark.js';
+export { processFusion } from './fusion.js';
+
 // Programmatic API - Main exports for external packages
 export { 
     createConfig,
@@ -12,10 +16,6 @@ export {
     type ProgrammaticFusionOptions,
     type ProgrammaticFusionResult 
 } from './api.js';
-
-// Core functionality
-export { BenchmarkTracker, type BenchmarkMetrics } from './benchmark.js';
-export { processFusion } from './fusion.js';
 
 // Types and schemas
 export * from './schema.js';

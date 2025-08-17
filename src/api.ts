@@ -117,7 +117,6 @@ export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promis
             logFilePath: result.logFilePath,
             message: result.message,
             success: true
-            // TODO: Add filesProcessed when available from fusion.ts
         };
     } else {
         const errorResult: ProgrammaticFusionResult = {

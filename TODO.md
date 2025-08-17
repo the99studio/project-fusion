@@ -6,11 +6,6 @@
 
 ## 🔧 Priorité Moyenne (Qualité & Robustesse)
 
-- [x] **Sécurité fichiers** :
-  - ✅ Vérifier que `follow: false` est bien utilisé dans glob
-  - ✅ Ajouter validation que tous les chemins restent sous `rootDirectory`
-  - ✅ Tests de sécurité : fichiers binaires, symlinks, chemins relatifs
-
 ## 📚 Documentation
 
 - [ ] **Aligner la documentation** sur les 3 formats : `.txt`, `.md`, `.html`
@@ -23,11 +18,6 @@
   - Test de la commande par défaut
   - Test `config-check`
   - Test clipboard en environnement non-TTY
-
-- [x] **Tests de sécurité** :
-  - ✅ Injection HTML/XSS
-  - ✅ Fichiers volumineux (>maxFileSizeKB)
-  - ✅ Chemins hors arborescence
 
 - [ ] **Property-based testing** avec `fast-check` pour filtres d'extensions
 - [ ] **Snapshots** pour vérifier format MD/HTML généré

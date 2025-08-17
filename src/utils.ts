@@ -400,6 +400,7 @@ export async function isBinaryFile(filePath: string, sampleSize: number = 1024):
         let nonPrintable = 0;
         for (let i = 0; i < actualBytesToCheck; i++) {
             const byte = buffer[i];
+            if (byte === undefined) continue; // Skip undefined bytes
             // Allow common whitespace chars: space(32), tab(9), newline(10), carriage return(13)
             if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
                 nonPrintable++;
