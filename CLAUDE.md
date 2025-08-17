@@ -83,3 +83,9 @@ The `temp/` directory is gitignored and safe for any testing activities.
 - **Add extensions**: Update `src/schema.ts` + `src/utils.ts` default config
 - **Add commands**: Register in `src/cli.ts`, implement in `src/clicommands.ts`
 - **Modify output**: Edit `src/fusion.ts` processing logic
+
+## Documentation Style Guide
+- **Keep it simple and professional**: Avoid superlatives and marketing language
+- **Be factual**: Describe features without overselling
+- **Use neutral tone**: Focus on functionality rather than promotional phrases
+- **No excessive adjectives**: Avoid words like "powerful", "beautiful", "smart", etc.
