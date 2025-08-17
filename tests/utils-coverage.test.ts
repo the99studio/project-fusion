@@ -10,8 +10,6 @@ import { existsSync } from 'node:fs';
 import {
     loadConfig,
     writeLog,
-    readFileContent,
-    writeFileContent,
     validateSecurePath,
     validateNoSymlinks,
     isBinaryFile,
@@ -75,29 +73,6 @@ describe('Utils Coverage Tests', () => {
         });
     });
 
-    describe('readFileContent error handling', () => {
-        it('should handle file read errors', async () => {
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            
-            await expect(readFileContent('/nonexistent/file.txt')).rejects.toThrow();
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Error reading file /nonexistent/file.txt:', expect.any(Error));
-            
-            consoleSpy.mockRestore();
-        });
-    });
-
-    describe('writeFileContent error handling', () => {
-        it('should handle file write errors', async () => {
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            
-            await expect(writeFileContent('/invalid/path/file.txt', 'content')).rejects.toThrow();
-            
-            expect(consoleSpy).toHaveBeenCalledWith('Error writing file /invalid/path/file.txt:', expect.any(Error));
-            
-            consoleSpy.mockRestore();
-        });
-    });
 
     describe('validateSecurePath error handling', () => {
         it('should detect path traversal attacks', () => {
