@@ -1,6 +1,3 @@
 - [ ] Script `npm pack --dry-run` dans DEVELOPMENT.md
 - [ ] Script `npm publish --dry-run` 
 - [ ] Guide complet de publication
-- [ ] Passer en 1.0.0.0
-- [ ] Compléter `CHANGELOG.md` comme si c'était from scratch (format Keep a Changelog + SemVer)
-- [ ] Finaliser le `package.json` (garder la structure moderne avec `exports`)

@@ -107,6 +107,104 @@ Enable HTML generation in your config:
 - **Performance Metrics**: Benchmarks logged including throughput and memory usage
 - **Filtering**: Ignores binary files, images, archives, and compiled files
 
+## Programmatic API
+
+Project Fusion can be used as a library in other Node.js projects, such as VS Code extensions or build tools.
+
+### Installation as a Dependency
+
+```bash
+npm install project-fusion
+```
+
+### Basic Usage
+
+```typescript
+import { fusionAPI, createConfig, runFusion } from 'project-fusion';
+
+// Method 1: Simple API with partial config
+const result = await fusionAPI({
+    rootDirectory: '/path/to/project',
+    generateHtml: false,
+    parsedFileExtensions: {
+        web: ['.ts', '.tsx'],
+        backend: ['.py']
+    }
+});
+
+// Method 2: Create config then run
+const config = createConfig({
+    generateHtml: false,
+    maxFileSizeKB: 2048,
+    ignorePatterns: ['tests/', '*.spec.ts']
+});
+const result = await runFusion(config);
+
+// Method 3: Direct fusion with options
+const result = await runFusion(
+    { rootDirectory: '/my/project' },
+    { extensionGroups: ['web', 'backend'] }
+);
+```
+
+### VS Code Extension Example
+
+```typescript
+import * as vscode from 'vscode';
+import { fusionAPI } from 'project-fusion';
+
+export async function activate(context: vscode.ExtensionContext) {
+    const disposable = vscode.commands.registerCommand('extension.fusionProject', async () => {
+        const workspacePath = vscode.workspace.rootPath;
+        
+        if (!workspacePath) {
+            vscode.window.showErrorMessage('No workspace folder open');
+            return;
+        }
+        
+        try {
+            // Run fusion with dynamic config
+            const result = await fusionAPI({
+                rootDirectory: workspacePath,
+                generateHtml: true,
+                generateMarkdown: true,
+                generateText: false,
+                copyToClipboard: false,
+                // Custom extensions for this workspace
+                parsedFileExtensions: {
+                    web: ['.ts', '.tsx', '.jsx'],
+                    backend: [],
+                    config: ['.json'],
+                    cpp: [],
+                    scripts: [],
+                    godot: [],
+                    doc: ['.md']
+                }
+            });
+            
+            if (result.success) {
+                vscode.window.showInformationMessage(`Fusion completed: ${result.filesProcessed} files processed`);
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage(`Fusion failed: ${error.message}`);
+        }
+    });
+    
+    context.subscriptions.push(disposable);
+}
+```
+
+### API Reference
+
+#### `fusionAPI(options: ProgrammaticFusionOptions): Promise<ProgrammaticFusionResult>`
+Main API function for programmatic use with partial configuration.
+
+#### `createConfig(overrides: Partial<Config>): Config`
+Creates a complete configuration object with defaults.
+
+#### `runFusion(config: Partial<Config> | Config, options?: FusionOptions): Promise<FusionResult>`
+Runs fusion with a configuration object (partial or complete).
+
 ## Distribution
 
 - **GitHub**: [github.com/the99studio/project-fusion](https://github.com/the99studio/project-fusion)
