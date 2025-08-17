@@ -38,7 +38,8 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate HTML wi
             <li><a href="#components-header-js">components/Header.js</a></li>
             <li><a href="#utils-database-js">utils/database.js</a></li>
         </ul>
-    </div>    <div class="file-section" id="api-posts-js">
+    </div>
+    <div class="file-section" id="api-posts-js">
         <div class="file-title">
             <h2>📄 api/posts.js</h2>
         </div>
@@ -112,7 +113,8 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate consist
             <li><a href="#app-js">app.js</a></li>
             <li><a href="#helpers-js">helpers.js</a></li>
         </ul>
-    </div>    <div class="file-section" id="app-js">
+    </div>
+    <div class="file-section" id="app-js">
         <div class="file-title">
             <h2>📄 app.js</h2>
         </div>
@@ -213,7 +215,8 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate consist
             <li><a href="#styles-css">styles.css</a></li>
             <li><a href="#template-html">template.html</a></li>
         </ul>
-    </div>    <div class="file-section" id="styles-css">
+    </div>
+    <div class="file-section" id="styles-css">
         <div class="file-title">
             <h2>📄 styles.css</h2>
         </div>

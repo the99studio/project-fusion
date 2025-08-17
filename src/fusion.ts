@@ -1,65 +1,72 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 the99studio
 /**
- * Fusion functionality - Optimized single-file-in-memory approach
+ * Fusion functionality - Refactored with new architecture patterns
  */
-import { createWriteStream } from 'node:fs';
 import path from 'node:path';
-import fs from 'fs-extra';
-import { glob } from 'glob';
 import ignoreLib from 'ignore';
 import { BenchmarkTracker } from './benchmark.js';
 import { createFilePath, type Config, type FilePath, type FusionOptions, type FusionResult } from './types.js';
+import { DefaultFileSystemAdapter, type FileSystemAdapter } from './adapters/file-system.js';
+import { 
+    OutputStrategyManager, 
+    type FileInfo, 
+    type OutputContext 
+} from './strategies/output-strategy.js';
+import { PluginManager } from './plugins/plugin-system.js';
 import {
-    ensureDirectoryExists,
     formatLocalTimestamp,
     formatTimestamp,
     getExtensionsFromGroups,
-    getMarkdownLanguage,
     isBinaryFile,
     validateNoSymlinks,
     validateSecurePath,
     writeLog
 } from './utils.js';
 
-/**
- * Escape HTML entities for safe HTML output
- * @param text Text to escape
- * @returns HTML-safe text
- */
-function escapeHtml(text: string): string {
-    return text
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll('\'', '&#39;');
-}
-
-/**
- * Process fusion of files - Optimized memory-efficient version
- * @param config Configuration
- * @param options Fusion options
- * @returns Fusion result
- */
 export async function processFusion(
     config: Config,
     options: FusionOptions = {}
 ): Promise<FusionResult> {
     const benchmark = new BenchmarkTracker();
-    
+    const fs = options.fs || new DefaultFileSystemAdapter();
+    const outputManager = new OutputStrategyManager();
+    const pluginManager = new PluginManager(fs);
+
     try {
-        // Note: parsing properties are now directly in config (flattened structure)
         const logFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.log`));
-        const fusionFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.txt`));
-        const mdFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.md`));
-        const htmlFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.html`));
         const startTime = new Date();
 
         await fs.writeFile(logFilePath, '');
 
-        const extensions = getExtensionsFromGroups(config, options.extensionGroups);
-        console.log(`Processing ${extensions.length} file extensions from ${Object.keys(config.parsedFileExtensions).length} categories`);
+        if (options.pluginsDir) {
+            await pluginManager.loadPluginsFromDirectory(options.pluginsDir);
+        }
+
+        if (options.enabledPlugins) {
+            for (const pluginName of options.enabledPlugins) {
+                pluginManager.configurePlugin(pluginName, { name: pluginName, enabled: true });
+            }
+        }
+
+        await pluginManager.initializePlugins(config);
+
+        const additionalStrategies = pluginManager.getAdditionalOutputStrategies();
+        for (const strategy of additionalStrategies) {
+            outputManager.registerStrategy(strategy);
+        }
+
+        const additionalExtensions = pluginManager.getAdditionalFileExtensions();
+        const mergedConfig = {
+            ...config,
+            parsedFileExtensions: {
+                ...config.parsedFileExtensions,
+                ...additionalExtensions
+            }
+        };
+
+        const extensions = getExtensionsFromGroups(mergedConfig, options.extensionGroups);
+        console.log(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
         
         if (extensions.length === 0) {
             const message = 'No file extensions to process.';
@@ -67,15 +74,13 @@ export async function processFusion(
             return { success: false, message, logFilePath };
         }
 
-        // Initialize ignore handler for filtering files based on patterns
         const ig = ignoreLib();
         const rootDir = path.resolve(config.rootDirectory);
 
-        // Load ignore patterns from .gitignore and custom config
         if (config.useGitIgnoreForExcludes) {
             const gitIgnorePath = path.join(rootDir, '.gitignore');
-            if (await fs.pathExists(gitIgnorePath)) {
-                const gitIgnoreContent = await fs.readFile(gitIgnorePath, 'utf8');
+            if (await fs.exists(createFilePath(gitIgnorePath))) {
+                const gitIgnoreContent = await fs.readFile(createFilePath(gitIgnorePath));
                 ig.add(gitIgnoreContent);
             }
         }
@@ -87,22 +92,22 @@ export async function processFusion(
             ig.add(patterns);
         }
 
-        // Create file discovery pattern based on extensions and subdirectory settings
-        // Build glob pattern for file discovery: ensure extensions start with '.' and handle subdirectory option
         const allExtensionsPattern = extensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
         const pattern = config.parseSubDirectories
-            ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})` // Recursive pattern
-            : `${rootDir}/*@(${allExtensionsPattern.join('|')})`; // Root-only pattern
+            ? `${rootDir}/**/*@(${allExtensionsPattern.join('|')})`
+            : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
 
-        let filePaths = await glob(pattern, { 
+        let filePaths = await fs.glob(pattern, { 
             nodir: true,
             follow: false
         });
+
         const originalFileCount = filePaths.length;
         filePaths = filePaths.filter(file => {
             const relativePath = path.relative(rootDir, file);
             return !ig.ignores(relativePath);
         });
+
         console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
@@ -112,14 +117,14 @@ export async function processFusion(
             return { success: false, message, logFilePath };
         }
 
-        // Extract project metadata for the fusion header
         const projectName = path.basename(process.cwd());
         let packageName = "";
         let projectVersion = "";
         const packageJsonPath = path.join(process.cwd(), 'package.json');
-        if (await fs.pathExists(packageJsonPath)) {
+        if (await fs.exists(createFilePath(packageJsonPath))) {
             try {
-                const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as Record<string, unknown>;
+                const packageJsonContent = await fs.readFile(createFilePath(packageJsonPath));
+                const packageJson = JSON.parse(packageJsonContent) as Record<string, unknown>;
                 if (typeof packageJson['name'] === 'string') {
                     packageName = packageJson['name'];
                 }
@@ -131,39 +136,16 @@ export async function processFusion(
             }
         }
 
-        // Sort files alphabetically for consistent output across runs
         filePaths.sort((a, b) => path.relative(rootDir, a).localeCompare(path.relative(rootDir, b)));
 
-        // Track extension usage for comprehensive reporting
-        const foundExtensions = new Set<string>();
-        const otherExtensions = new Set<string>();
-        const allFilesPattern = config.parseSubDirectories ? `${rootDir}/**/*.*` : `${rootDir}/*.*`;
-        const allFiles = await glob(allFilesPattern, { nodir: true, follow: false });
-
-        const allConfiguredExtensions = Object.values(config.parsedFileExtensions).flat();
-        const configuredExtensionSet = new Set(allConfiguredExtensions);
-        // Discover unconfigured extensions for comprehensive reporting
-        for (const file of allFiles) {
-            const relativePath = path.relative(rootDir, file);
-            const ext = path.extname(file).toLowerCase();
-
-            // Track extensions found in project but not configured for processing
-            if (ext && !ig.ignores(relativePath) && !configuredExtensionSet.has(ext)) {
-                otherExtensions.add(ext);
-            }
-        }
-
-        // Pre-process files: validate sizes and collect metadata
         const maxFileSizeKB = config.maxFileSizeKB;
-        const filesToProcess: { path: string; relativePath: string; size: number }[] = [];
+        const filesToProcess: FileInfo[] = [];
         const skippedFiles: string[] = [];
         let skippedCount = 0;
         let totalSizeBytes = 0;
 
         for (const filePath of filePaths) {
             const relativePath = path.relative(rootDir, filePath);
-            const fileExt = path.extname(filePath).toLowerCase();
-            foundExtensions.add(fileExt);
 
             try {
                 const stats = await fs.stat(filePath);
@@ -175,7 +157,29 @@ export async function processFusion(
                     skippedFiles.push(relativePath);
                     await writeLog(logFilePath, `Skipped large file: ${relativePath} (${sizeKB.toFixed(2)} KB)`, true);
                 } else {
-                    filesToProcess.push({ path: filePath, relativePath, size: stats.size });
+                    const safePath = validateSecurePath(filePath, config.rootDirectory);
+                    await validateNoSymlinks(createFilePath(safePath), false);
+                    
+                    if (await isBinaryFile(safePath)) {
+                        await writeLog(logFilePath, `Skipping binary file: ${relativePath}`, true);
+                        console.warn(`Skipping binary file: ${relativePath}`);
+                        continue;
+                    }
+                    
+                    const content = await fs.readFile(createFilePath(safePath));
+                    
+                    let fileInfo: FileInfo = {
+                        content,
+                        relativePath,
+                        path: filePath,
+                        size: stats.size
+                    };
+
+                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config) || fileInfo;
+                    
+                    if (fileInfo) {
+                        filesToProcess.push(fileInfo);
+                    }
                 }
             } catch (error) {
                 await writeLog(logFilePath, `Error checking file ${filePath}: ${String(error)}`, true);
@@ -183,172 +187,37 @@ export async function processFusion(
             }
         }
 
-        // Create output directories for enabled formats
-        if (config.generateText) await ensureDirectoryExists(path.dirname(fusionFilePath));
-        if (config.generateMarkdown) await ensureDirectoryExists(path.dirname(mdFilePath));
-        if (config.generateHtml) await ensureDirectoryExists(path.dirname(htmlFilePath));
+        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess);
+        const finalConfig = beforeFusionResult.config;
+        const finalFilesToProcess = beforeFusionResult.filesToProcess;
 
-        // Initialize write streams for concurrent file generation
-        const txtStream = config.generateText ? createWriteStream(fusionFilePath) : null;
-        const mdStream = config.generateMarkdown ? createWriteStream(mdFilePath) : null;
-        const htmlStream = config.generateHtml ? createWriteStream(htmlFilePath) : null;
-        
-
-        // Generate format-specific headers with project metadata
         const projectTitle = packageName && packageName.toLowerCase() !== projectName.toLowerCase() 
             ? `${projectName} / ${packageName}` 
             : projectName;
         const versionInfo = projectVersion ? ` v${projectVersion}` : '';
-        
-        const txtHeader = `# Generated Project Fusion File\n` +
-            `# Project: ${projectTitle}${versionInfo}\n` +
-            `# Generated: ${formatLocalTimestamp()}\n` +
-            `# UTC: ${formatTimestamp()}\n` +
-            `# Files: ${filesToProcess.length}\n` +
-            `# Generated by: project-fusion\n\n`;
 
-        const mdHeader = `# Generated Project Fusion File\n\n` +
-            `**Project:** ${projectTitle}${versionInfo}\n\n` +
-            `**Generated:** ${formatLocalTimestamp()}\n\n` +
-            `**UTC:** ${formatTimestamp()}\n\n` +
-            `**Files:** ${filesToProcess.length}\n\n` +
-            `**Generated by:** [project-fusion](https://github.com/the99studio/project-fusion)\n\n` +
-            `---\n\n## 📁 Table of Contents\n\n`;
+        const outputContext: OutputContext = {
+            projectTitle,
+            versionInfo,
+            filesToProcess: finalFilesToProcess,
+            config: finalConfig
+        };
 
-        const htmlHeader = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Fusion - ${projectTitle}${versionInfo}</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
-        .file-section { margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; padding: 20px; }
-        .file-title { background: #f5f5f5; margin: -20px -20px 20px -20px; padding: 15px 20px; border-radius: 8px 8px 0 0; }
-        pre { background: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; }
-        code { font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; }
-        .toc { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-        .toc ul { margin: 0; padding-left: 20px; }
-        .toc a { text-decoration: none; color: #0366d6; }
-        .toc a:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Generated Project Fusion File</h1>
-        <p><strong>Project:</strong> ${escapeHtml(projectTitle)}${escapeHtml(versionInfo)}</p>
-        <p><strong>Generated:</strong> ${formatLocalTimestamp()}</p>
-        <p><strong>UTC:</strong> ${formatTimestamp()}</p>
-        <p><strong>Files:</strong> ${filesToProcess.length}</p>
-        <p><strong>Generated by:</strong> <a href="https://github.com/the99studio/project-fusion">project-fusion</a></p>
-    </div>
-    <div class="toc">
-        <h2>📁 Table of Contents</h2>
-        <ul>
-${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()}">${escapeHtml(fileInfo.relativePath)}</a></li>`).join('\n')}
-        </ul>
-    </div>`;
+        const enabledStrategies = outputManager.getEnabledStrategies(finalConfig);
+        const generatedPaths: FilePath[] = [];
 
-        if (txtStream) txtStream.write(txtHeader);
-        if (mdStream) mdStream.write(mdHeader);
-        if (htmlStream) htmlStream.write(htmlHeader);
-        
-        // Generate table of contents for markdown format
-        if (mdStream) {
-            for (const fileInfo of filesToProcess) {
-                mdStream.write(`- [${fileInfo.relativePath}](#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()})\n`);
-            }
-            mdStream.write(`\n---\n\n`);
-        }
-
-        // Stream-process files to maintain low memory footprint
-        let processedCount = 0;
-        for (const fileInfo of filesToProcess) {
+        for (const strategy of enabledStrategies) {
             try {
-                // Security validations
-                const safePath = validateSecurePath(fileInfo.path, config.rootDirectory);
-                await validateNoSymlinks(safePath, false); // Disallow symlinks for security
-                
-                // Check if file is binary and skip if so
-                if (await isBinaryFile(safePath)) {
-                    await writeLog(logFilePath, `Skipping binary file: ${fileInfo.relativePath}`, true);
-                    console.warn(`Skipping binary file: ${fileInfo.relativePath}`);
-                    continue;
-                }
-                
-                const content = await fs.readFile(safePath, 'utf8');
-                const fileExt = path.extname(fileInfo.path).toLowerCase();
-                const basename = path.basename(fileInfo.path);
-                const language = getMarkdownLanguage(fileExt || basename);
-                // Escape HTML entities for safe HTML output
-                const escapedContent = escapeHtml(content);
-                
-                // Generate plain text format with file separators
-                if (txtStream) {
-                    txtStream.write(`<!-- ============================================================ -->\n`);
-                    txtStream.write(`<!-- FILE: ${fileInfo.relativePath.padEnd(54)} -->\n`);
-                    txtStream.write(`<!-- ============================================================ -->\n`);
-                    txtStream.write(`${content}\n\n`);
-                }
-
-                // Generate markdown format with syntax highlighting
-                if (mdStream) {
-                    mdStream.write(`## 📄 ${fileInfo.relativePath}\n\n`);
-                    mdStream.write(`\`\`\`${language}\n`);
-                    mdStream.write(`${content}\n`);
-                    mdStream.write(`\`\`\`\n\n`);
-                }
-
-                // Generate HTML format with styled code blocks
-                if (htmlStream) {
-                    // Create URL-safe anchor ID for navigation
-                    const fileAnchor = fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase();
-                    htmlStream.write(`    <div class="file-section" id="${fileAnchor}">\n`);
-                    htmlStream.write(`        <div class="file-title">\n`);
-                    htmlStream.write(`            <h2>📄 ${escapeHtml(fileInfo.relativePath)}</h2>\n`);
-                    htmlStream.write(`        </div>\n`);
-                    htmlStream.write(`        <pre><code class="${language}">${escapedContent}</code></pre>\n`);
-                    htmlStream.write(`    </div>\n\n`);
-                }
-
-                processedCount++;
-                benchmark.markFileProcessed(fileInfo.size);
+                const outputPath = await outputManager.generateOutput(strategy, outputContext, fs);
+                generatedPaths.push(outputPath);
+                benchmark.markFileProcessed(0);
             } catch (error) {
-                await writeLog(logFilePath, `Error processing file ${fileInfo.path}: ${String(error)}`, true);
-                console.error(`Error processing file ${fileInfo.path}:`, error);
-                
-                // For security errors, we might want to be more strict
-                // But for now, we continue processing other files
-                // The error is logged and reported
+                await writeLog(logFilePath, `Error generating ${strategy.name} output: ${String(error)}`, true);
+                console.error(`Error generating ${strategy.name} output:`, error);
             }
         }
 
-        // Finalize HTML document structure
-        if (htmlStream) {
-            htmlStream.write(`</body>\n</html>`);
-        }
-
-        // Ensure all streams are properly closed before HTML generation
-        if (txtStream) {
-            await new Promise<void>((resolve, reject) => {
-                txtStream.end((err?: Error | null) => err ? reject(err) : resolve());
-            });
-        }
-        if (mdStream) {
-            await new Promise<void>((resolve, reject) => {
-                mdStream.end((err?: Error | null) => err ? reject(err) : resolve());
-            });
-        }
-        if (htmlStream) {
-            await new Promise<void>((resolve, reject) => {
-                htmlStream.end((err?: Error | null) => err ? reject(err) : resolve());
-            });
-        }
-
-
-        // Generate detailed completion report with metrics
-        const message = `Fusion completed successfully. ${processedCount} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
+        const message = `Fusion completed successfully. ${finalFilesToProcess.length} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
         const endTime = new Date();
         const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
         const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
@@ -359,7 +228,6 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
         await writeLog(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        // Include performance benchmarks in log
         const metrics = benchmark.getMetrics();
         await writeLog(logFilePath, `\nPerformance Metrics:`, true);
         await writeLog(logFilePath, `  Memory Used: ${metrics.memoryUsed.toFixed(2)} MB`, true);
@@ -367,67 +235,42 @@ ${filesToProcess.map(fileInfo => `            <li><a href="#${fileInfo.relativeP
         await writeLog(logFilePath, `  Files/second: ${(metrics.filesProcessed / metrics.duration).toFixed(2)}`, true);
         
         await writeLog(logFilePath, `Files found: ${originalFileCount}`, true);
-        await writeLog(logFilePath, `Files processed successfully: ${processedCount}`, true);
+        await writeLog(logFilePath, `Files processed successfully: ${finalFilesToProcess.length}`, true);
         await writeLog(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLog(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        await writeLog(logFilePath, `Max file size limit: ${maxFileSizeKB} KB`, true);
+        const generatedFormats = enabledStrategies.map(s => s.extension);
         
-        if (skippedFiles.length > 0) {
-            await writeLog(logFilePath, `Skipped files:`, true);
-            for (const file of skippedFiles.slice(0, 10)) {
-                await writeLog(logFilePath, `  ${file}`, true);
-            }
-            if (skippedFiles.length > 10) {
-                await writeLog(logFilePath, `  ... and ${skippedFiles.length - 10} more`, true);
-            }
-        }
-        
-        await writeLog(logFilePath, `File extensions actually processed:`, true);
-        const foundExtArray = [...foundExtensions].sort();
-        for (const ext of foundExtArray) {
-            await writeLog(logFilePath, `  ${ext}`, true);
-        }
-        
-        const ignoredExtensions = extensions.filter(ext => ![...foundExtensions].includes(ext));
-        if (ignoredExtensions.length > 0) {
-            await writeLog(logFilePath, `Configured extensions with no matching files found:`, true);
-            for (const ext of ignoredExtensions.sort()) {
-                await writeLog(logFilePath, `  ${ext}`, true);
-            }
-        }
-        
-        if (otherExtensions.size > 0) {
-            await writeLog(logFilePath, `File extensions found in project but not configured for processing:`, true);
-            for (const ext of [...otherExtensions].sort()) {
-                await writeLog(logFilePath, `  ${ext}`, true);
-            }
-        }
-        
-        const generatedFormats = [];
-        if (config.generateText) generatedFormats.push('.txt');
-        if (config.generateMarkdown) generatedFormats.push('.md');
-        if (config.generateHtml) generatedFormats.push('.html');
-        
-        return {
-            success: true,
+        const result = {
+            success: true as const,
             message: `${message} Generated formats: ${generatedFormats.join(', ')}.`,
-            fusionFilePath: config.generateText ? fusionFilePath : mdFilePath,
+            fusionFilePath: generatedPaths[0] || logFilePath,
             logFilePath
         };
+
+        const finalResult = await pluginManager.executeAfterFusion(result, finalConfig);
+        
+        await pluginManager.cleanupPlugins();
+        
+        return finalResult;
+
     } catch (error) {
         const errorMessage = `Fusion process failed: ${String(error)}`;
         console.error(errorMessage);
 
         try {
-            // Try to write log in the configured root directory, fallback to current directory if it fails
+            await pluginManager.cleanupPlugins();
+        } catch (cleanupError) {
+            console.error('Error during plugin cleanup:', cleanupError);
+        }
+
+        try {
             let logFilePath: FilePath;
             try {
                 logFilePath = createFilePath(path.resolve(config.rootDirectory, `${config.generatedFileName}.log`));
                 const endTime = new Date();
                 await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);
             } catch {
-                // Fallback to current directory if root directory doesn't exist
                 logFilePath = createFilePath(path.resolve(`${config.generatedFileName}.log`));
                 const endTime = new Date();
                 await writeLog(logFilePath, `Status: Fusion failed due to error\nError details: ${errorMessage}\nEnd time: ${formatTimestamp(endTime)}`, true);

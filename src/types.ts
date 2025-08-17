@@ -106,14 +106,6 @@ export interface Config {
     useGitIgnoreForExcludes: boolean;
 }
 
-/**
- * Information about a file for fusion
- * @deprecated Use FileInfo from strategies/output-strategy.ts instead
- */
-export interface FileInfo {
-    content: string;
-    path: FilePath;
-}
 
 /**
  * Options for the fusion process

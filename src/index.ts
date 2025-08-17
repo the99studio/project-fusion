@@ -7,7 +7,6 @@
 // Core functionality
 export { BenchmarkTracker, type BenchmarkMetrics } from './benchmark.js';
 export { processFusion } from './fusion.js';
-export { processFusionV2 } from './fusion-v2.js';
 
 // Programmatic API - Main exports for external packages
 export { 

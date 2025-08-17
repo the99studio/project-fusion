@@ -10,7 +10,7 @@ import {
     HtmlOutputStrategy,
     PluginManager,
     createPlugin,
-    processFusionV2
+    processFusion
 } from '../src/index.js';
 import { createFilePath, type Config } from '../src/types.js';
 
@@ -171,7 +171,7 @@ describe('Architecture Tests', () => {
                 useGitIgnoreForExcludes: false
             };
 
-            const result = await processFusionV2(config, {
+            const result = await processFusion(config, {
                 extensionGroups: ['web']
             });
 
