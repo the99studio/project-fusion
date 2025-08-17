@@ -27,14 +27,14 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
   - Command-line options for dynamic configuration overrides
   - Version and help commands
 
-#### File Extension Support
-- **Web Development**: .js, .jsx, .ts, .tsx, .html, .css, .scss, .vue, .svelte
-- **Backend Languages**: .py, .rb, .java, .cs, .go, .rs, .php, .swift, .kt
-- **Configuration**: .json, .yaml, .yml, .toml, .xml, .env, .ini
-- **C/C++**: .c, .cpp, .h, .hpp, .cc, .cxx
-- **Scripts**: .sh, .bash, .zsh, .bat, .ps1, .cmd
-- **Godot Engine**: .gd, .tscn, .tres, .godot, .cfg
-- **Documentation**: .md, .rst, .adoc, .txt
+#### File Extension Support (38 extensions)
+- **Web Development**: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
+- **Backend Languages**: .cs, .go, .java, .php, .py, .rb, .rs  
+- **Configuration**: .json, .toml, .xml, .yaml, .yml
+- **C/C++**: .c, .cc, .cpp, .h, .hpp
+- **Scripts**: .bat, .cmd, .ps1, .sh
+- **Godot Engine**: .cfg, .cs, .gd, .import, .tscn, .tres
+- **Documentation**: .adoc, .md, .rst
 
 #### Technical Features
 - **TypeScript 5.9.2** with strict mode and ESM modules
@@ -67,11 +67,13 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 - **Cross-platform compatibility** (Windows, macOS, Linux)
 - **Node.js 18+** requirement
 
-### Security
-- **Symlink attack prevention** with `follow: false` on all glob operations
-- **Input validation** with branded types and Zod schemas
-- **Clipboard operations** with environment detection
-- **File path validation** to prevent directory traversal
+### Security Features
+- **Path traversal protection** - All file paths validated to remain within root directory
+- **Symbolic link protection** - Symlinks detected and blocked by default with `follow: false` in glob operations
+- **Binary file detection** - Automatic detection and skipping of binary files using null byte and non-printable character analysis
+- **XSS prevention** - All HTML output properly escaped to prevent cross-site scripting attacks
+- **Safe error handling** - Security-related errors logged without exposing sensitive path information
+- **Comprehensive security testing** - 17 security tests covering path traversal, symlink attacks, and binary file handling
 
 ### Documentation
 - README with quick start guide

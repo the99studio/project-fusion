@@ -27,9 +27,9 @@ npm install -g project-fusion
    project-fusion
    ```
    This creates three files:
-   - `project-fusioned.txt` - Plain text format with file separators
-   - `project-fusioned.md` - Markdown format with syntax highlighting and table of contents
-   - `project-fusioned.html` - HTML format with syntax highlighting and table of contents
+   - `project-fusioned.txt` - Plain text format with clear file separators and metadata header
+   - `project-fusioned.md` - Markdown format with syntax highlighting, table of contents, and clickable navigation
+   - `project-fusioned.html` - HTML format with responsive design, interactive table of contents, and styled code blocks
 
 3. **Share the fusion files** for collaboration or analysis
 
@@ -53,9 +53,9 @@ When sharing your code:
 
 1. Run `project-fusion` to create merged files
 2. Choose the appropriate format:
-   - **`.txt`** - Universal compatibility with file separators
-   - **`.md`** - Syntax highlighting and table of contents
-   - **`.html`** - Web format with responsive design and navigation
+   - **`.txt`** - Universal compatibility, plain text with clear file separators and metadata
+   - **`.md`** - GitHub-compatible markdown with syntax highlighting and clickable table of contents
+   - **`.html`** - Web-ready format with responsive design, interactive navigation, and styled code blocks
 3. Share the fusion file with colleagues or collaborators
 4. Use for code review, AI analysis, documentation, or project overview
 
@@ -72,33 +72,61 @@ Project Fusion creates a `project-fusion.json` configuration file when you run `
 
 ### Supported File Extensions
 
-Project Fusion supports 35+ file extensions organized by category:
-- **Web**: .js, .jsx, .ts, .tsx, .html, .css, .vue, .svelte
-- **Backend**: .py, .rb, .java, .cs, .go, .rs, .php
-- **Config**: .json, .yaml, .yml, .toml, .xml
-- **Scripts**: .sh, .bat, .ps1, .cmd
-- **C/C++**: .c, .cpp, .h, .hpp
-- **Godot**: .gd, .tscn, .tres, .cfg
+Project Fusion supports 38 file extensions organized by category:
+- **Web**: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
+- **Backend**: .cs, .go, .java, .php, .py, .rb, .rs
+- **Config**: .json, .toml, .xml, .yaml, .yml
+- **Scripts**: .bat, .cmd, .ps1, .sh
+- **C/C++**: .c, .cc, .cpp, .h, .hpp
+- **Godot**: .cfg, .cs, .gd, .import, .tscn, .tres
+- **Documentation**: .adoc, .md, .rst
 
 The markdown output applies syntax highlighting for each file type.
 
-### HTML Output
+### Output Formats
 
-Project Fusion can generate HTML files with:
+Project Fusion generates three output formats simultaneously, each optimized for different use cases:
 
-- **Responsive Design**: Styling for viewing and sharing
-- **Table of Contents**: Navigation with anchor links to each file
-- **Syntax Highlighting**: Code blocks with language detection
-- **File Metadata**: Timestamps and file counts in header
-- **Layout**: Typography and spacing for readability
+#### 📄 Text Format (`.txt`)
+- **Purpose**: Universal compatibility for any text editor or system
+- **Features**:
+  - Clear file separators with descriptive headers (`<!-- FILE: path/to/file.js -->`)
+  - Metadata header with project name, generation time, and file count
+  - Raw code content without modification for maximum compatibility
+  - Works with any text viewer, email, or system that supports plain text
 
-Enable HTML generation in your config:
+#### 📝 Markdown Format (`.md`)
+- **Purpose**: GitHub-compatible documentation with enhanced readability
+- **Features**:
+  - Automatic syntax highlighting based on file extensions
+  - Interactive table of contents with anchor links to each file
+  - Formatted headers and metadata for better visual presentation
+  - Compatible with GitHub, GitLab, VS Code preview, and markdown renderers
+  - Each file wrapped in appropriate code blocks (```language)
+
+#### 🌐 HTML Format (`.html`)
+- **Purpose**: Web-ready sharing with professional presentation
+- **Features**:
+  - Responsive design that works on desktop and mobile
+  - Interactive table of contents with smooth scrolling navigation
+  - Styled code blocks with proper syntax highlighting
+  - Professional typography and spacing for readability
+  - Self-contained file with embedded CSS (no external dependencies)
+  - Click-to-navigate between files with anchor links
+
+### Format Configuration
+
+You can control which formats are generated in your `project-fusion.json` configuration:
 
 ```json
 {
-  "generateHtml": true
+  "generateText": true,     // Enable .txt format
+  "generateMarkdown": true, // Enable .md format  
+  "generateHtml": true      // Enable .html format
 }
 ```
+
+All formats are enabled by default for maximum flexibility.
 
 ### Performance Features
 
@@ -207,16 +235,176 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 ```
 
+### Advanced Usage Examples
+
+#### Building Tool Integration
+
+```typescript
+import { fusionAPI } from 'project-fusion';
+import { readFileSync } from 'fs';
+
+// Integrate with a build system
+async function generateProjectDocumentation(projectPath: string) {
+    const packageJson = JSON.parse(readFileSync(`${projectPath}/package.json`, 'utf8'));
+    
+    const result = await fusionAPI({
+        rootDirectory: projectPath,
+        generatedFileName: `${packageJson.name}-docs`,
+        generateText: false,        // Skip .txt for documentation
+        generateMarkdown: true,     // Generate .md for GitHub
+        generateHtml: true,         // Generate .html for hosting
+        ignorePatterns: [
+            'node_modules/',
+            'dist/',
+            '*.test.*',
+            'coverage/'
+        ],
+        parsedFileExtensions: {
+            web: ['.ts', '.tsx', '.js', '.jsx'],
+            config: ['.json'],
+            doc: ['.md']
+        }
+    });
+    
+    if (result.success) {
+        console.log(`Documentation generated for ${packageJson.name}`);
+        return result.fusionFilePath;
+    } else {
+        throw new Error(`Failed to generate docs: ${result.message}`);
+    }
+}
+```
+
+#### CI/CD Pipeline Example
+
+```typescript
+import { runFusion } from 'project-fusion';
+
+// Use in GitHub Actions or other CI systems
+async function generateReleaseArtifacts() {
+    const config = {
+        rootDirectory: process.env.GITHUB_WORKSPACE || process.cwd(),
+        generatedFileName: `release-${process.env.GITHUB_SHA?.slice(0, 7)}`,
+        copyToClipboard: false,     // Disable in CI
+        maxFileSizeKB: 2048,       // Allow larger files
+        ignorePatterns: [
+            '.git/',
+            'node_modules/',
+            '*.log',
+            'temp/'
+        ]
+    };
+    
+    const result = await runFusion(config, {
+        extensionGroups: ['web', 'backend', 'config', 'doc']
+    });
+    
+    if (result.success) {
+        // Upload to release assets or artifact storage
+        console.log(`Generated release artifacts at ${result.fusionFilePath}`);
+    }
+    
+    return result;
+}
+```
+
+#### Monorepo Support
+
+```typescript
+import { fusionAPI } from 'project-fusion';
+import { readdirSync, statSync } from 'fs';
+import { join } from 'path';
+
+// Process multiple packages in a monorepo
+async function processMonorepo(monorepoPath: string) {
+    const packages = readdirSync(join(monorepoPath, 'packages'))
+        .filter(dir => statSync(join(monorepoPath, 'packages', dir)).isDirectory());
+    
+    const results = await Promise.all(
+        packages.map(async (packageName) => {
+            const packagePath = join(monorepoPath, 'packages', packageName);
+            
+            return await fusionAPI({
+                rootDirectory: packagePath,
+                generatedFileName: `${packageName}-fusion`,
+                generateHtml: false,
+                parsedFileExtensions: {
+                    web: ['.ts', '.tsx'],
+                    backend: ['.js'],
+                    config: ['.json', '.yaml']
+                },
+                ignorePatterns: [
+                    'node_modules/',
+                    'dist/',
+                    '*.spec.*'
+                ]
+            });
+        })
+    );
+    
+    const successful = results.filter(r => r.success);
+    console.log(`Processed ${successful.length}/${packages.length} packages`);
+    
+    return results;
+}
+```
+
+#### Custom File Processing
+
+```typescript
+import { createConfig, runFusion } from 'project-fusion';
+
+// Create fusion for specific file types only
+async function createTypescriptOnlyFusion(projectPath: string) {
+    const config = createConfig({
+        rootDirectory: projectPath,
+        generatedFileName: 'typescript-only',
+        generateText: true,
+        generateMarkdown: false,
+        generateHtml: false,
+        parsedFileExtensions: {
+            web: ['.ts', '.tsx'],      // Only TypeScript files
+            backend: [],               // No backend files
+            config: ['.json'],         // Only JSON configs
+            scripts: [],               // No scripts
+            cpp: [],                   // No C++ files
+            godot: [],                 // No Godot files
+            doc: []                    // No documentation files
+        },
+        ignorePatterns: [
+            '*.test.ts',
+            '*.spec.ts',
+            '*.d.ts',                  // Skip type definitions
+            'node_modules/',
+            'dist/'
+        ]
+    });
+    
+    return await runFusion(config);
+}
+```
+
 ### API Reference
 
 #### `fusionAPI(options: ProgrammaticFusionOptions): Promise<ProgrammaticFusionResult>`
 Main API function for programmatic use with partial configuration.
+
+**Parameters:**
+- `options.rootDirectory?: string` - Project root directory
+- `options.extensionGroups?: string[]` - Extension groups to include
+- `options.generateText?: boolean` - Enable .txt format (default: true)
+- `options.generateMarkdown?: boolean` - Enable .md format (default: true)
+- `options.generateHtml?: boolean` - Enable .html format (default: true)
+- `options.ignorePatterns?: string[]` - Custom ignore patterns
+- `options.maxFileSizeKB?: number` - Maximum file size limit
 
 #### `createConfig(overrides: Partial<Config>): Config`
 Creates a complete configuration object with defaults.
 
 #### `runFusion(config: Partial<Config> | Config, options?: FusionOptions): Promise<FusionResult>`
 Runs fusion with a configuration object (partial or complete).
+
+**Returns:** Promise resolving to FusionResult with success status, file paths, and error details.
 
 ## Distribution
 
