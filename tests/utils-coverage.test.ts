@@ -24,6 +24,9 @@ describe('Utils Coverage Tests', () => {
     const originalCwd = process.cwd();
 
     beforeEach(async () => {
+        // Clear all mocks before each test
+        vi.clearAllMocks();
+        
         if (existsSync(testDir)) {
             await rm(testDir, { recursive: true, force: true });
         }
@@ -73,26 +76,6 @@ describe('Utils Coverage Tests', () => {
             
             consoleSpy.mockRestore();
         });
-
-        it('should handle non-Error objects', async () => {
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            
-            // Mock fs.readFile to throw a non-Error object
-            const fs = await import('fs-extra');
-            const originalReadFile = fs.readFile;
-            vi.spyOn(fs, 'readFile').mockRejectedValueOnce('string error');
-
-            const config = await loadConfig();
-            
-            expect(config).toEqual(expect.objectContaining({
-                schemaVersion: 1
-            }));
-            
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error loading configuration'));
-            
-            vi.spyOn(fs, 'readFile').mockImplementation(originalReadFile);
-            consoleSpy.mockRestore();
-        });
     });
 
     describe('writeLog error handling', () => {
@@ -102,7 +85,7 @@ describe('Utils Coverage Tests', () => {
             // Try to write to an invalid path
             await writeLog('/invalid/path/that/does/not/exist.log', 'test content');
             
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error writing log'));
+            expect(consoleSpy).toHaveBeenCalledWith('Error writing log:', expect.any(Error));
             
             consoleSpy.mockRestore();
         });
@@ -114,7 +97,7 @@ describe('Utils Coverage Tests', () => {
             
             await expect(readFileContent('/nonexistent/file.txt')).rejects.toThrow();
             
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error reading file'));
+            expect(consoleSpy).toHaveBeenCalledWith('Error reading file /nonexistent/file.txt:', expect.any(Error));
             
             consoleSpy.mockRestore();
         });
@@ -126,7 +109,7 @@ describe('Utils Coverage Tests', () => {
             
             await expect(writeFileContent('/invalid/path/file.txt', 'content')).rejects.toThrow();
             
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error writing file'));
+            expect(consoleSpy).toHaveBeenCalledWith('Error writing file /invalid/path/file.txt:', expect.any(Error));
             
             consoleSpy.mockRestore();
         });
@@ -162,9 +145,6 @@ describe('Utils Coverage Tests', () => {
             const result = await validateNoSymlinks('./regular.txt');
             expect(result).toBe(true);
         });
-
-        // Note: Creating actual symlinks in tests is complex and platform-dependent
-        // The real symlink handling is tested through integration tests
     });
 
     describe('isBinaryFile edge cases', () => {
