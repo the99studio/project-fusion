@@ -121,55 +121,6 @@ describe('BenchmarkTracker', () => {
         });
     });
     
-    describe('logMetrics', () => {
-        it('should log metrics to console', () => {
-            const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-            const tracker = new BenchmarkTracker();
-            
-            tracker.markFileProcessed(1024);
-            tracker.logMetrics();
-            
-            expect(consoleSpy).toHaveBeenCalled();
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Performance Metrics'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Files processed'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Total size'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Processing time'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Throughput'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Memory used'));
-            
-            consoleSpy.mockRestore();
-        });
-        
-        it('should format large numbers correctly', () => {
-            const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-            const tracker = new BenchmarkTracker();
-            
-            // Add a large file
-            tracker.markFileProcessed(5 * 1024 * 1024); // 5MB
-            tracker.logMetrics();
-            
-            // Check that MB formatting is used
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('5.00 MB'));
-            
-            consoleSpy.mockRestore();
-        });
-        
-        it('should handle multiple file recordings', () => {
-            const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-            const tracker = new BenchmarkTracker();
-            
-            for (let i = 0; i < 100; i++) {
-                tracker.markFileProcessed(1024);
-            }
-            
-            tracker.logMetrics();
-            
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('100'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('0.10 MB')); // 100KB
-            
-            consoleSpy.mockRestore();
-        });
-    });
     
     describe('Edge Cases', () => {
         it('should handle rapid successive recordings', () => {

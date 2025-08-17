@@ -76,18 +76,5 @@ export class BenchmarkTracker {
         };
     }
 
-    /**
-     * Log metrics to console
-     */
-    logMetrics(): void {
-        const metrics = this.getMetrics();
-        
-        console.log('Performance Metrics');
-        console.log(`Files processed: ${metrics.filesProcessed}`);
-        console.log(`Total size: ${metrics.totalSizeMB.toFixed(2)} MB`);
-        console.log(`Processing time: ${metrics.processingTimeMs.toFixed(2)} ms`);
-        console.log(`Throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`);
-        console.log(`Memory used: ${metrics.memoryUsedMB.toFixed(2)} MB`);
-    }
 
 }

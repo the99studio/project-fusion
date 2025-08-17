@@ -235,35 +235,6 @@ export function formatLocalTimestamp(date?: Date): string {
     });
 }
 
-/**
- * Read file content
- * @param filePath Path to file
- * @returns File content
- */
-export async function readFileContent(filePath: string): Promise<string> {
-    try {
-        return await fs.readFile(filePath, 'utf8');
-    } catch (error) {
-        console.error(`Error reading file ${filePath}:`, error);
-        throw error;
-    }
-}
-
-
-/**
- * Write content to file
- * @param filePath Path to file
- * @param content Content to write
- */
-export async function writeFileContent(filePath: string, content: string): Promise<void> {
-    try {
-        await ensureDirectoryExists(path.dirname(filePath));
-        await fs.writeFile(filePath, content);
-    } catch (error) {
-        console.error(`Error writing file ${filePath}:`, error);
-        throw error;
-    }
-}
 
 /**
  * Extract file extensions from configuration groups

@@ -8,9 +8,7 @@ import {
   formatLocalTimestamp,
   loadConfig,
   writeLog,
-  ensureDirectoryExists,
-  writeFileContent,
-  readFileContent
+  ensureDirectoryExists
 } from '../src/utils.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -126,41 +124,6 @@ describe('utils', () => {
       });
     });
 
-    describe('writeFileContent', () => {
-      it('should write content to file', async () => {
-        const content = 'Hello World!';
-        await writeFileContent(testFile, content);
-        
-        expect(await fs.pathExists(testFile)).toBe(true);
-        const readContent = await fs.readFile(testFile, 'utf8');
-        expect(readContent).toBe(content);
-      });
-
-      it('should create directory if it does not exist', async () => {
-        const nestedFile = path.join(testDir, 'nested', 'deep', 'file.txt');
-        const content = 'Nested content';
-        
-        await writeFileContent(nestedFile, content);
-        expect(await fs.pathExists(nestedFile)).toBe(true);
-        const readContent = await fs.readFile(nestedFile, 'utf8');
-        expect(readContent).toBe(content);
-      });
-    });
-
-    describe('readFileContent', () => {
-      it('should read file content', async () => {
-        const content = 'Test content';
-        await fs.writeFile(testFile, content);
-        
-        const readContent = await readFileContent(testFile);
-        expect(readContent).toBe(content);
-      });
-
-      it('should throw error for non-existent file', async () => {
-        const nonExistentFile = path.join(testDir, 'does-not-exist.txt');
-        await expect(readFileContent(nonExistentFile)).rejects.toThrow();
-      });
-    });
 
     describe('writeLog', () => {
       it('should write log content to file', async () => {
