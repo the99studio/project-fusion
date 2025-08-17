@@ -108,6 +108,7 @@ export interface Config {
 
 /**
  * Information about a file for fusion
+ * @deprecated Use FileInfo from strategies/output-strategy.ts instead
  */
 export interface FileInfo {
     content: string;
@@ -119,6 +120,9 @@ export interface FileInfo {
  */
 export interface FusionOptions {
     extensionGroups?: string[];
+    pluginsDir?: string;
+    enabledPlugins?: string[];
+    fs?: import('./adapters/file-system.js').FileSystemAdapter;
 }
 
 /**

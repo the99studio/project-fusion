@@ -4,20 +4,6 @@
 
 - [ ] **Tester `npm pack --dry-run`** avant publication
 
-## ⚡ Optimisations (Priorité Basse)
-
-- [ ] **API Fluent** pour meilleure DX
-
-```javascript
-// API Fluent proposée
-projectFusion()
-  .include(['web', 'backend'])
-  .exclude(['*.test.ts'])
-  .maxSize('2MB')
-  .output(['md', 'html'])
-  .generate()
-```
-
 ## 🏗️ Architecture (Opportunités)
 
 - [ ] **FileSystemAdapter** pour abstraction I/O
