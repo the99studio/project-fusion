@@ -1,6 +1,6 @@
 # Project Fusion
 
-Project Fusion enables efficient project file management by merging multiple project files into a single file for easy sharing and collaboration. It generates three output formats: plain text (.txt), markdown (.md), and HTML (.html) with syntax highlighting and professional styling for optimal readability.
+Project Fusion merges multiple project files into a single file for sharing and collaboration. It generates three output formats: plain text (.txt), markdown (.md), and HTML (.html) with syntax highlighting.
 
 ## Prerequisites
 
@@ -16,22 +16,22 @@ npm install -g project-fusion
 
 ## Quick Start
 
-1. **Initialize** Project Fusion in your project directory if you want to be able to tweak the settings (optional):
+1. **Initialize** Project Fusion in your project directory to customize settings (optional):
    ```bash
    cd your-project-directory
    project-fusion init
    ```
 
-2. **Create fusion files** containing all your project files (if init has not been done, it will use the default behaviour):
+2. **Create fusion files** containing your project files:
    ```bash
    project-fusion
    ```
-   This creates two files:
-   - `project-fusioned.txt` - Plain text format with clear file separators
+   This creates three files:
+   - `project-fusioned.txt` - Plain text format with file separators
    - `project-fusioned.md` - Markdown format with syntax highlighting and table of contents
-   - `project-fusioned.html` - Html format with syntax highlighting and table of contents
+   - `project-fusioned.html` - HTML format with syntax highlighting and table of contents
 
-3. **Share the fusion files** for collaboration or analysis (choose .txt for universal compatibility or .md for enhanced readability)
+3. **Share the fusion files** for collaboration or analysis
 
 ## Commands
 
@@ -42,8 +42,8 @@ npm install -g project-fusion
 
 ## Documentation
 
-- **[CLAUDE.md](./CLAUDE.md)** - AI context and technical documentation for Claude AI
-- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development workflows, testing, and npm publication guide
+- **[CLAUDE.md](./CLAUDE.md)** - AI context and technical documentation
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development workflows and testing
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
 - **[LICENSE](./LICENSE)** - MIT License terms
 
@@ -53,13 +53,13 @@ When sharing your code:
 
 1. Run `project-fusion` to create merged files
 2. Choose the appropriate format:
-   - **`.txt`** - Universal compatibility with clear HTML-style separators
-   - **`.md`** - Enhanced readability with syntax highlighting, clickable table of contents
-   - **`.html`** - Professional web format with responsive design and interactive navigation
+   - **`.txt`** - Universal compatibility with file separators
+   - **`.md`** - Syntax highlighting and table of contents
+   - **`.html`** - Web format with responsive design and navigation
 3. Share the fusion file with colleagues or collaborators
 4. Use for code review, AI analysis, documentation, or project overview
 
-The fusion files contain all your project files in a single, organized format that's easy to understand and work with.
+The fusion files contain your project files in a single, organized format.
 
 ## Configuration
 
@@ -80,17 +80,17 @@ Project Fusion supports 35+ file extensions organized by category:
 - **C/C++**: .c, .cpp, .h, .hpp
 - **Godot**: .gd, .tscn, .tres, .cfg
 
-The markdown output automatically applies appropriate syntax highlighting for each file type.
+The markdown output applies syntax highlighting for each file type.
 
 ### HTML Output
 
-Project Fusion can generate beautiful HTML files with:
+Project Fusion can generate HTML files with:
 
-- **Responsive Design**: Clean, modern styling optimized for viewing and sharing
-- **Table of Contents**: Interactive navigation with anchor links to each file
-- **Syntax Highlighting**: Code blocks with proper language detection
-- **File Metadata**: Timestamps, project info, and file counts in header
-- **Professional Layout**: Typography and spacing designed for readability
+- **Responsive Design**: Styling for viewing and sharing
+- **Table of Contents**: Navigation with anchor links to each file
+- **Syntax Highlighting**: Code blocks with language detection
+- **File Metadata**: Timestamps and file counts in header
+- **Layout**: Typography and spacing for readability
 
 Enable HTML generation in your config:
 
@@ -103,9 +103,9 @@ Enable HTML generation in your config:
 ### Performance Features
 
 - **File Size Limiting**: Configure `maxFileSizeKB` to skip large files (default: 1MB)
-- **Streaming Support**: Large projects are processed with streaming to minimize memory usage
-- **Performance Metrics**: Detailed benchmarks logged including throughput and memory usage
-- **Smart Filtering**: Automatically ignores binary files, images, archives, and compiled files
+- **Streaming Support**: Process large projects with reduced memory usage
+- **Performance Metrics**: Benchmarks logged including throughput and memory usage
+- **Filtering**: Ignores binary files, images, archives, and compiled files
 
 ## Distribution
 
