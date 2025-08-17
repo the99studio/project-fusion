@@ -17,15 +17,12 @@ describe('schema', () => {
         generateText: true,
         generateMarkdown: true,
         generateHtml: false,
-        generatePdf: false,
         parsedFileExtensions: {
           web: [".js", ".ts"]
         },
-        parsing: {
-          rootDirectory: ".",
-          parseSubDirectories: true,
-          maxFileSizeKB: 1024
-        },
+        rootDirectory: ".",
+        parseSubDirectories: true,
+        maxFileSizeKB: 1024,
         ignorePatterns: [],
         useGitIgnoreForExcludes: true
       };
@@ -84,10 +81,10 @@ describe('schema', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should validate config with PDF generation enabled', () => {
+    it('should validate config with HTML generation enabled', () => {
       const validConfig = {
         ...defaultConfig,
-        generatePdf: true
+        generateHtml: true
       };
 
       const result = ConfigSchemaV1.safeParse(validConfig);

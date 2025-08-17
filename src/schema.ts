@@ -12,34 +12,32 @@ const ParsedFileExtensionsSchema = z.object({
     backend: z.array(z.string()).default([".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"]),
     config: z.array(z.string()).default([".json", ".toml", ".xml", ".yaml", ".yml"]),
     cpp: z.array(z.string()).default([".c", ".cc", ".cpp", ".h", ".hpp"]),
+    doc: z.array(z.string()).default([".adoc", ".md", ".rst"]),
+    godot: z.array(z.string()).default([".cfg", ".cs", ".gd", ".import", ".tscn", ".tres"]),
     scripts: z.array(z.string()).default([".bat", ".cmd", ".ps1", ".sh"]),
     web: z.array(z.string()).default([".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]),
-    godot: z.array(z.string()).default([".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"]),
-    doc: z.array(z.string()).default([".md", ".rst", ".adoc"]),
 }).and(z.record(z.string(), z.array(z.string())));
 
 /**
  * Complete configuration schema for version 1
  */
 export const ConfigSchemaV1 = z.object({
-    schemaVersion: z.literal(1).default(1),
-    generatedFileName: z.string().default("project-fusioned"),
     copyToClipboard: z.boolean().default(false),
-    generateText: z.boolean().default(true),
-    generateMarkdown: z.boolean().default(true),
+    generatedFileName: z.string().default("project-fusioned"),
     generateHtml: z.boolean().default(true),
+    generateMarkdown: z.boolean().default(true),
+    generateText: z.boolean().default(true),
     maxFileSizeKB: z.number().default(1024),
     parseSubDirectories: z.boolean().default(true),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
+        doc: [".adoc", ".md", ".rst"],
+        godot: [".cfg", ".cs", ".gd", ".import", ".tscn", ".tres"],
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
-        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"],
-        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
-        doc: [".md", ".rst", ".adoc"]
+        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
     }),
-    rootDirectory: z.string().default("."),
     ignorePatterns: z.array(z.string()).default([
         "project-fusion.json",
         "project-fusion.log",
@@ -112,5 +110,7 @@ export const ConfigSchemaV1 = z.object({
         "*.jar",
         "*.war"
     ]),
+    rootDirectory: z.string().default("."),
+    schemaVersion: z.literal(1).default(1),
     useGitIgnoreForExcludes: z.boolean().default(true),
 });

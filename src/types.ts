@@ -4,12 +4,8 @@
  * Type definitions for the fusion functionality
  */
 
-// Advanced utility types
-export type NonEmptyArray<T> = [T, ...T[]];
-
 // Branded types for type-safe handling
 export type FilePath = string & { readonly __brand: unique symbol };
-export type ExtensionGroup = 'web' | 'backend' | 'config' | 'cpp' | 'scripts' | 'godot' | 'doc';
 
 export const createFilePath = (path: string): FilePath => {
     if (!path || typeof path !== 'string') {
@@ -21,12 +17,6 @@ export const createFilePath = (path: string): FilePath => {
 // Enhanced error hierarchy with codes and severity
 export type FusionErrorCode = 
     | 'INVALID_PATH'
-    | 'INVALID_CONFIG'
-    | 'FILE_NOT_FOUND'
-    | 'FILE_TOO_LARGE'
-    | 'NO_FILES_FOUND'
-    | 'WRITE_ERROR'
-    | 'VALIDATION_ERROR'
     | 'UNKNOWN_EXTENSION_GROUP';
 
 export type FusionErrorSeverity = 'error' | 'warning' | 'info';

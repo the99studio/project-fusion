@@ -25,12 +25,11 @@ export const defaultConfig = {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"] as const,
         config: [".json", ".toml", ".xml", ".yaml", ".yml"] as const,
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"] as const,
-        doc: [".md", ".rst", ".adoc"] as const,
-        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"] as const,
+        doc: [".adoc", ".md", ".rst"] as const,
+        godot: [".cfg", ".cs", ".gd", ".import", ".tscn", ".tres"] as const,
         scripts: [".bat", ".cmd", ".ps1", ".sh"] as const,
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"] as const
     },
-    rootDirectory: ".",
     ignorePatterns: [
         "project-fusion.json",
         "project-fusion.log",
@@ -109,8 +108,9 @@ export const defaultConfig = {
         "*.jar",
         "*.war"
     ],
-    useGitIgnoreForExcludes: true,
-    schemaVersion: 1
+    rootDirectory: ".",
+    schemaVersion: 1,
+    useGitIgnoreForExcludes: true
 } as const satisfies Config;
 
 

@@ -65,19 +65,4 @@ export class BenchmarkTracker {
         };
     }
 
-    /**
-     * Format metrics as human-readable string
-     */
-    formatMetrics(): string {
-        const metrics = this.getMetrics();
-        return [
-            `Performance Metrics:`,
-            `  Duration: ${metrics.duration.toFixed(2)}s`,
-            `  Memory Used: ${metrics.memoryUsed.toFixed(2)} MB`,
-            `  Files Processed: ${metrics.filesProcessed}`,
-            `  Total Size: ${metrics.totalSizeMB.toFixed(2)} MB`,
-            `  Average File Processing Time: ${metrics.averageFileProcessingTime.toFixed(2)} ms`,
-            `  Throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`
-        ].join('\n');
-    }
 }

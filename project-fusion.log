@@ -14,15 +14,15 @@ Configuration Summary:
   Ignore Patterns: 71 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-17T04:47:12.436Z
-End time: 2025-08-17T04:47:13.511Z
-Duration: 1.07s
+Start time: 2025-08-17T04:55:45.340Z
+End time: 2025-08-17T04:55:46.444Z
+Duration: 1.10s
 Total data processed: 0.25 MB
 
 Performance Metrics:
-  Memory Used: 60.48 MB
+  Memory Used: 61.12 MB
   Throughput: 0.23 MB/s
-  Files/second: 21.36
+  Files/second: 20.80
 Files found: 17975
 Files processed successfully: 23
 Files skipped (too large): 0

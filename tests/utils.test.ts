@@ -65,8 +65,9 @@ describe('utils', () => {
     });
 
     it('should handle unknown groups gracefully', () => {
-      const extensions = getExtensionsFromGroups(defaultConfig, ['unknown']);
-      expect(extensions).toEqual([]);
+      expect(() => {
+        getExtensionsFromGroups(defaultConfig, ['unknown']);
+      }).toThrow('Extension group \'unknown\' not found in config');
     });
   });
 
