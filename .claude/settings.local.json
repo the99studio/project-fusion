@@ -41,7 +41,10 @@
       "Bash(wc -l *)",
       "Bash(npm list)",
       "Bash(npm outdated)",
-      "Bash(npm view *)"
+      "Bash(npm view *)",
+      "Bash(rm:*)",
+      "Bash(node:*)",
+      "Bash(project-fusion:*)"
     ],
     "deny": [
       "Bash(rm -rf /)",

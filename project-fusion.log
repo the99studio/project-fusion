@@ -12,17 +12,17 @@ Configuration Summary:
   Ignore Patterns: 71 patterns
 
 Status: Fusion completed successfully
-Start time: 2025-08-16T14:01:19.731Z
-End time: 2025-08-16T14:01:19.807Z
-Duration: 0.08s
-Total data processed: 0.08 MB
+Start time: 2025-08-17T00:16:29.649Z
+End time: 2025-08-17T00:16:29.820Z
+Duration: 0.17s
+Total data processed: 0.07 MB
 
 Performance Metrics:
-  Memory Used: 11.79 MB
-  Throughput: 1.05 MB/s
-  Files/second: 273.06
-Files found: 2651
-Files processed successfully: 21
+  Memory Used: 8.04 MB
+  Throughput: 0.41 MB/s
+  Files/second: 115.63
+Files found: 2650
+Files processed successfully: 20
 Files skipped (too large): 0
 Files filtered out: 2630
 Max file size limit: 1024 KB
