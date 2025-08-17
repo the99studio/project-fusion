@@ -3,7 +3,6 @@
 /**
  * Benchmark utilities for performance monitoring
  */
-import { performance } from 'node:perf_hooks';
 import process from 'node:process';
 
 export interface BenchmarkMetrics {
@@ -42,12 +41,6 @@ export class BenchmarkTracker {
         }
     }
 
-    /**
-     * Record file processing metrics (alias for compatibility)
-     */
-    recordFile(filename: string, sizeBytes: number): void {
-        this.markFileProcessed(sizeBytes);
-    }
 
     /**
      * Calculate and return performance metrics

@@ -6,8 +6,8 @@
  */
 import path from 'node:path';
 import { processFusion } from './fusion.js';
-import { defaultConfig } from './utils.js';
 import type { Config, FilePath, FusionOptions, FusionResult } from './types.js';
+import { defaultConfig } from './utils.js';
 
 /**
  * Options for programmatic fusion
@@ -46,7 +46,7 @@ export interface ProgrammaticFusionResult {
  * @returns Complete configuration
  */
 function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config {
-    const rootDirectory = partialConfig.rootDirectory || cwd;
+    const rootDirectory = partialConfig.rootDirectory ?? cwd;
     
     return {
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
@@ -86,11 +86,10 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
  * ```
  */
 export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promise<ProgrammaticFusionResult> {
-    const cwd = options.cwd || process.cwd();
+    const cwd = options.cwd ?? process.cwd();
     
     // Extract fusion options
     const { 
-        cwd: _cwd,
         extensionGroups,
         rootDir,
         ...configOptions 
@@ -194,7 +193,7 @@ export async function runFusion(
     
     const fullConfig = isCompleteConfig 
         ? config as Config
-        : mergeWithDefaults(config, config.rootDirectory || process.cwd());
+        : mergeWithDefaults(config, config.rootDirectory ?? process.cwd());
     
     return await processFusion(fullConfig, options);
 }

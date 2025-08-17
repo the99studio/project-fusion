@@ -7,7 +7,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
-import { FusionError, type Config, type FilePath } from './types.js';
+import { FusionError, type Config } from './types.js';
 
 
 /**
@@ -244,36 +244,6 @@ export async function readFileContent(filePath: string): Promise<string> {
     }
 }
 
-/**
- * Write detailed configuration summary to log for debugging
- * @param logFilePath Path to log file
- * @param config Configuration to log
- */
-export async function logConfigSummary(logFilePath: FilePath, config: Config): Promise<void> {
-    await writeLog(logFilePath, `Configuration Summary:`, true);
-    await writeLog(logFilePath, `  Schema Version: ${config.schemaVersion}`, true);
-    await writeLog(logFilePath, `  Root Directory: ${config.rootDirectory}`, true);
-    await writeLog(logFilePath, `  Scan Subdirectories: ${config.parseSubDirectories ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Max File Size: ${config.maxFileSizeKB} KB`, true);
-    
-    // Output files
-    await writeLog(logFilePath, `  Generated File Name: ${config.generatedFileName}`, true);
-    await writeLog(logFilePath, `  Generate Text: ${config.generateText ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}`, true);
-    await writeLog(logFilePath, `  Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`, true);
-    
-    // File type statistics
-    const totalExtensions = getExtensionsFromGroups(config);
-    await writeLog(logFilePath, `  Extension Groups: ${Object.keys(config.parsedFileExtensions).length} groups`, true);
-    await writeLog(logFilePath, `  Total Extensions: ${totalExtensions.length}`, true);
-    
-    // Exclusion pattern count
-    await writeLog(logFilePath, `  Ignore Patterns: ${config.ignorePatterns.length} patterns`, true);
-    
-    await writeLog(logFilePath, ``, true); // Empty line for separation
-}
 
 /**
  * Write content to file

@@ -16,7 +16,6 @@ import {
     formatTimestamp,
     getExtensionsFromGroups,
     getMarkdownLanguage,
-    logConfigSummary,
     writeLog
 } from './utils.js';
 
@@ -41,7 +40,6 @@ export async function processFusion(
         const startTime = new Date();
 
         await fs.writeFile(logFilePath, '');
-        await logConfigSummary(logFilePath, config);
 
         const extensions = getExtensionsFromGroups(config, options.extensionGroups);
         console.log(`Processing ${extensions.length} file extensions from ${Object.keys(config.parsedFileExtensions).length} categories`);
