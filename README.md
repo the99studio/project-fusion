@@ -24,7 +24,7 @@ npm install -g project-fusion
 
 2. **Create fusion files** containing all your project files (if init has not been done, it will use the default behaviour):
    ```bash
-   project-fusion fusion
+   project-fusion
    ```
    This creates two files:
    - `project-fusioned.txt` - Plain text format with clear file separators
@@ -35,8 +35,8 @@ npm install -g project-fusion
 
 ## Commands
 
-- `project-fusion init` - Create Project Fusion setting file (optiona) in current directory
-- `project-fusion fusion` - Create fusion files from project files
+- `project-fusion` - Create fusion files from project files (default action)
+- `project-fusion init` - Create Project Fusion setting file (optional) in current directory
 - `project-fusion config-check` - Validate configuration and show active settings
 - `project-fusion --help` - Show help information
 

@@ -28,20 +28,6 @@ program
         void runFusionCommand(options);
     });
 
-// Explicit fusion command with same options
-program
-    .command('fusion')
-    .description('Run fusion process to merge project files')
-    .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
-    .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
-    .action((options, command) => {
-        // Get options from the command itself first, then fallback to parent
-        const cmdOptions = command.opts();
-        const parentOptions = command.parent.opts();
-        // Merge options, preferring command options over parent options
-        const mergedOptions = { ...parentOptions, ...cmdOptions };
-        void runFusionCommand(mergedOptions);
-    });
 
 // Init command
 program
