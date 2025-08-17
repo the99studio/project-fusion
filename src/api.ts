@@ -15,8 +15,6 @@ import type { Config, FilePath, FusionOptions, FusionResult } from './types.js';
 export interface ProgrammaticFusionOptions extends Partial<Config> {
     /** Working directory (defaults to process.cwd()) */
     cwd?: string;
-    /** Skip file creation and return content only */
-    inMemoryOnly?: boolean;
     /** Extension groups to include */
     extensionGroups?: string[];
     /** Root directory override */
@@ -24,27 +22,21 @@ export interface ProgrammaticFusionOptions extends Partial<Config> {
 }
 
 /**
- * Result from programmatic fusion including file contents
+ * Result from programmatic fusion
  */
 export interface ProgrammaticFusionResult {
-    /** Whether the fusion was successful */
-    success: boolean;
-    /** Status message */
-    message: string;
+    /** Error object (if failed) */
+    error?: Error | undefined;
     /** Number of files processed (if successful) */
     filesProcessed?: number;
     /** Path to the fusion file (if successful) */
     fusionFilePath?: FilePath;
     /** Path to the log file */
     logFilePath?: FilePath;
-    /** Error object (if failed) */
-    error?: Error | undefined;
-    /** Generated file contents when inMemoryOnly is true */
-    contents?: {
-        text?: string;
-        markdown?: string;
-        html?: string;
-    };
+    /** Status message */
+    message: string;
+    /** Whether the fusion was successful */
+    success: boolean;
 }
 
 /**
@@ -57,7 +49,6 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
     const rootDirectory = partialConfig.rootDirectory || cwd;
     
     return {
-        schemaVersion: 1,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
         generatedFileName: partialConfig.generatedFileName ?? defaultConfig.generatedFileName,
         generateHtml: partialConfig.generateHtml ?? defaultConfig.generateHtml,
@@ -68,6 +59,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,
         parseSubDirectories: partialConfig.parseSubDirectories ?? defaultConfig.parseSubDirectories,
         rootDirectory,
+        schemaVersion: 1,
         useGitIgnoreForExcludes: partialConfig.useGitIgnoreForExcludes ?? defaultConfig.useGitIgnoreForExcludes
     };
 }
@@ -91,15 +83,6 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
  *     },
  *     ignorePatterns: ['tests/', '*.spec.ts']
  * });
- * 
- * // Use in-memory only (no files created)
- * const result = await fusionAPI({
- *     inMemoryOnly: true,
- *     generateMarkdown: true,
- *     generateHtml: false,
- *     generateText: false
- * });
- * console.log(result.contents?.markdown);
  * ```
  */
 export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promise<ProgrammaticFusionResult> {
@@ -108,7 +91,6 @@ export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promis
     // Extract fusion options
     const { 
         cwd: _cwd,
-        inMemoryOnly,
         extensionGroups,
         rootDir,
         ...configOptions 
@@ -122,15 +104,6 @@ export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promis
         config.rootDirectory = path.resolve(cwd, rootDir);
     }
     
-    // If in-memory only, we'll need to intercept the file writing
-    // For now, we'll use the standard process and add a TODO for future enhancement
-    if (inMemoryOnly) {
-        // TODO: Implement in-memory processing to avoid file I/O
-        // This would require refactoring fusion.ts to support returning content
-        // without writing to disk
-        console.warn('inMemoryOnly option not yet implemented, files will still be created');
-    }
-    
     // Process fusion with the merged configuration
     const fusionOptions: FusionOptions = extensionGroups 
         ? { extensionGroups }
@@ -141,16 +114,16 @@ export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promis
     // Convert FusionResult to ProgrammaticFusionResult
     if (result.success) {
         return {
-            success: true,
-            message: result.message,
             fusionFilePath: result.fusionFilePath,
             logFilePath: result.logFilePath,
+            message: result.message,
+            success: true
             // TODO: Add filesProcessed when available from fusion.ts
         };
     } else {
         const errorResult: ProgrammaticFusionResult = {
-            success: false,
-            message: result.message
+            message: result.message,
+            success: false
         };
         if (result.logFilePath) {
             errorResult.logFilePath = result.logFilePath;

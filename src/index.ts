@@ -6,16 +6,16 @@
 
 // Programmatic API - Main exports for external packages
 export { 
-    fusionAPI, 
-    createConfig, 
+    createConfig,
+    fusionAPI,
     runFusion,
     type ProgrammaticFusionOptions,
     type ProgrammaticFusionResult 
 } from './api.js';
 
 // Core functionality
-export { processFusion } from './fusion.js';
 export { BenchmarkTracker, type BenchmarkMetrics } from './benchmark.js';
+export { processFusion } from './fusion.js';
 
 // Types and schemas
 export * from './schema.js';

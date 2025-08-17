@@ -51,7 +51,6 @@ export interface Config {
     generateText: boolean;
     ignorePatterns: string[];
     maxFileSizeKB: number;
-    parseSubDirectories: boolean;
     parsedFileExtensions: {
         backend?: string[];
         config?: string[];
@@ -62,6 +61,7 @@ export interface Config {
         web?: string[];
         [key: string]: string[] | undefined;
     };
+    parseSubDirectories: boolean;
     rootDirectory: string;
     schemaVersion: number;
     useGitIgnoreForExcludes: boolean;
@@ -71,8 +71,8 @@ export interface Config {
  * Information about a file for fusion
  */
 export interface FileInfo {
-    path: FilePath;
     content: string;
+    path: FilePath;
 }
 
 /**
@@ -87,14 +87,14 @@ export interface FusionOptions {
  */
 export type FusionResult = 
     | {
-        success: true;
-        message: string;
         fusionFilePath: FilePath;
         logFilePath: FilePath;
+        message: string;
+        success: true;
     }
     | {
-        success: false;
-        message: string;
-        logFilePath?: FilePath;
         error?: Error;
+        logFilePath?: FilePath;
+        message: string;
+        success: false;
     };
