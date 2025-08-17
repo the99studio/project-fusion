@@ -4,10 +4,51 @@
  * Type definitions for the fusion functionality
  */
 
-// Branded type for type-safe file path handling
-export type FilePath = string & { readonly __brand: unique symbol };
+// Advanced utility types
+export type NonEmptyArray<T> = [T, ...T[]];
 
-export const createFilePath = (path: string): FilePath => path as FilePath;
+// Branded types for type-safe handling
+export type FilePath = string & { readonly __brand: unique symbol };
+export type ExtensionGroup = 'web' | 'backend' | 'config' | 'cpp' | 'scripts' | 'godot' | 'doc';
+
+export const createFilePath = (path: string): FilePath => {
+    if (!path || typeof path !== 'string') {
+        throw new FusionError('Invalid file path provided', 'INVALID_PATH', 'error');
+    }
+    return path as FilePath;
+};
+
+// Enhanced error hierarchy with codes and severity
+export type FusionErrorCode = 
+    | 'INVALID_PATH'
+    | 'INVALID_CONFIG'
+    | 'FILE_NOT_FOUND'
+    | 'FILE_TOO_LARGE'
+    | 'NO_FILES_FOUND'
+    | 'WRITE_ERROR'
+    | 'VALIDATION_ERROR'
+    | 'UNKNOWN_EXTENSION_GROUP';
+
+export type FusionErrorSeverity = 'error' | 'warning' | 'info';
+
+export class FusionError extends Error {
+    public readonly code: FusionErrorCode;
+    public readonly severity: FusionErrorSeverity;
+    public readonly context: Record<string, unknown> | undefined;
+
+    constructor(
+        message: string, 
+        code: FusionErrorCode, 
+        severity: FusionErrorSeverity = 'error',
+        context?: Record<string, unknown>
+    ) {
+        super(message);
+        this.name = 'FusionError';
+        this.code = code;
+        this.severity = severity;
+        this.context = context;
+    }
+}
 
 /**
  * Main configuration interface

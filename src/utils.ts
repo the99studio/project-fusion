@@ -7,7 +7,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { z } from 'zod';
 import { ConfigSchemaV1 } from './schema.js';
-import type { Config, FilePath } from './types.js';
+import { FusionError, type Config, type FilePath } from './types.js';
 
 
 /**
@@ -22,13 +22,13 @@ export const defaultConfig = {
     maxFileSizeKB: 1024,
     parseSubDirectories: true,
     parsedFileExtensions: {
-        backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
-        config: [".json", ".toml", ".xml", ".yaml", ".yml"],
-        cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
-        doc: [".md", ".rst", ".adoc"],
-        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"],
-        scripts: [".bat", ".cmd", ".ps1", ".sh"],
-        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
+        backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"] as const,
+        config: [".json", ".toml", ".xml", ".yaml", ".yml"] as const,
+        cpp: [".c", ".cc", ".cpp", ".h", ".hpp"] as const,
+        doc: [".md", ".rst", ".adoc"] as const,
+        godot: [".gd", ".cs", ".tscn", ".tres", ".cfg", ".import"] as const,
+        scripts: [".bat", ".cmd", ".ps1", ".sh"] as const,
+        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"] as const
     },
     rootDirectory: ".",
     ignorePatterns: [
@@ -313,7 +313,12 @@ export function getExtensionsFromGroups(
         if (extensions) {
             acc.push(...extensions);
         } else {
-            console.warn(`Warning: Extension group '${group}' not found in config`);
+            throw new FusionError(
+                `Extension group '${group}' not found in config`, 
+                'UNKNOWN_EXTENSION_GROUP', 
+                'warning',
+                { group, availableGroups: Object.keys(config.parsedFileExtensions) }
+            );
         }
         return acc;
     }, []);

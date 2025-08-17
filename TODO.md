@@ -1,9 +1,3 @@
-### 11. Types utilitaires avancés
-- [ ] `NonEmptyArray<T>` pour groupes d'extensions
-- [ ] `const assertions` sur les extensions par défaut
-- [ ] `ExtensionGroup`, `FilePath` validation renforcée
-- [ ] Hiérarchie `FusionError` avec codes/severity
-
 ### 15. Outillage de publication
 - [ ] Script `npm pack --dry-run` dans DEVELOPMENT.md
 - [ ] Script `npm publish --dry-run` 
