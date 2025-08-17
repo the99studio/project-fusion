@@ -71,3 +71,6 @@ Configured extensions with no matching files found:
 Status: Fusion failed due to error
 Error details: Fusion process failed: Error: ENOENT: no such file or directory, open '/non/existent/path/project-fusion.log'
 End time: 2025-08-17T15:32:08.987Z
+Status: Fusion failed due to error
+Error details: Fusion process failed: Error: ENOENT: no such file or directory, open '/non/existent/path/project-fusion.log'
+End time: 2025-08-17T15:33:42.549Z

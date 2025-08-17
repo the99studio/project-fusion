@@ -37,12 +37,12 @@ describe('BenchmarkTracker', () => {
         });
     });
     
-    describe('recordFile', () => {
+    describe('markFileProcessed', () => {
         it('should track file metrics', () => {
             const tracker = new BenchmarkTracker();
             
-            tracker.recordFile('file1.js', 1024);
-            tracker.recordFile('file2.ts', 2048);
+            tracker.markFileProcessed(1024);
+            tracker.markFileProcessed(2048);
             
             const metrics = tracker.getMetrics();
             expect(metrics.filesProcessed).toBe(2);
@@ -52,7 +52,7 @@ describe('BenchmarkTracker', () => {
         it('should handle empty files', () => {
             const tracker = new BenchmarkTracker();
             
-            tracker.recordFile('empty.txt', 0);
+            tracker.markFileProcessed(0);
             
             const metrics = tracker.getMetrics();
             expect(metrics.filesProcessed).toBe(1);
@@ -63,7 +63,7 @@ describe('BenchmarkTracker', () => {
             const tracker = new BenchmarkTracker();
             const largeSize = 10 * 1024 * 1024; // 10MB
             
-            tracker.recordFile('large.bin', largeSize);
+            tracker.markFileProcessed(largeSize);
             
             const metrics = tracker.getMetrics();
             expect(metrics.filesProcessed).toBe(1);
@@ -86,8 +86,8 @@ describe('BenchmarkTracker', () => {
             const tracker = new BenchmarkTracker();
             
             // Add files
-            tracker.recordFile('file1.txt', 1024 * 1024); // 1MB
-            tracker.recordFile('file2.txt', 1024 * 1024); // 1MB
+            tracker.markFileProcessed(1024 * 1024); // 1MB
+            tracker.markFileProcessed(1024 * 1024); // 1MB
             
             const metrics = tracker.getMetrics();
             
@@ -105,7 +105,7 @@ describe('BenchmarkTracker', () => {
             const now = Date.now();
             vi.spyOn(Date, 'now').mockReturnValue(now);
             
-            tracker.recordFile('instant.txt', 1024);
+            tracker.markFileProcessed(1024);
             const metrics = tracker.getMetrics();
             
             expect(metrics.processingTimeMs).toBe(0);
@@ -126,7 +126,7 @@ describe('BenchmarkTracker', () => {
             const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
             const tracker = new BenchmarkTracker();
             
-            tracker.recordFile('test.txt', 1024);
+            tracker.markFileProcessed(1024);
             tracker.logMetrics();
             
             expect(consoleSpy).toHaveBeenCalled();
@@ -145,7 +145,7 @@ describe('BenchmarkTracker', () => {
             const tracker = new BenchmarkTracker();
             
             // Add a large file
-            tracker.recordFile('large.bin', 5 * 1024 * 1024); // 5MB
+            tracker.markFileProcessed(5 * 1024 * 1024); // 5MB
             tracker.logMetrics();
             
             // Check that MB formatting is used
@@ -159,7 +159,7 @@ describe('BenchmarkTracker', () => {
             const tracker = new BenchmarkTracker();
             
             for (let i = 0; i < 100; i++) {
-                tracker.recordFile(`file${i}.txt`, 1024);
+                tracker.markFileProcessed(1024);
             }
             
             tracker.logMetrics();
@@ -176,7 +176,7 @@ describe('BenchmarkTracker', () => {
             const tracker = new BenchmarkTracker();
             
             for (let i = 0; i < 1000; i++) {
-                tracker.recordFile(`file${i}`, i);
+                tracker.markFileProcessed(i);
             }
             
             const metrics = tracker.getMetrics();
@@ -187,10 +187,10 @@ describe('BenchmarkTracker', () => {
         it('should handle special characters in filenames', () => {
             const tracker = new BenchmarkTracker();
             
-            tracker.recordFile('file with spaces.txt', 100);
-            tracker.recordFile('file-with-dashes.js', 200);
-            tracker.recordFile('file_with_underscores.py', 300);
-            tracker.recordFile('文件.txt', 400);
+            tracker.markFileProcessed(100);
+            tracker.markFileProcessed(200);
+            tracker.markFileProcessed(300);
+            tracker.markFileProcessed(400);
             
             const metrics = tracker.getMetrics();
             expect(metrics.filesProcessed).toBe(4);
@@ -200,9 +200,9 @@ describe('BenchmarkTracker', () => {
         it('should maintain accuracy with floating point sizes', () => {
             const tracker = new BenchmarkTracker();
             
-            tracker.recordFile('file1', 0.1);
-            tracker.recordFile('file2', 0.2);
-            tracker.recordFile('file3', 0.3);
+            tracker.markFileProcessed(0.1);
+            tracker.markFileProcessed(0.2);
+            tracker.markFileProcessed(0.3);
             
             const metrics = tracker.getMetrics();
             expect(metrics.totalBytesProcessed).toBeCloseTo(0.6, 10);
