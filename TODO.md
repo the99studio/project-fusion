@@ -6,17 +6,6 @@
 - [ ] Supprimer `runDefaultCommand()` et la logique `hasKnownCommand`
 - [ ] Tester que toutes les options `--extensions`, `--root` fonctionnent
 
-### 5. Documentation critique manquante
-- [ ] Compléter `CHANGELOG.md` (format Keep a Changelog + SemVer)
-- [ ] Finaliser le `package.json` (garder la structure moderne avec `exports`)
-
-## ⚠️ Priorités MOYENNES (Important)
-
-### 6. Optimisation des dépendances
-- [ ] Rendre `puppeteer` optionnel avec import dynamique
-- [ ] Message clair si `puppeteer` absent pour génération PDF
-- [ ] Test des imports conditionnels
-
 ### 7. Sécurité & Robustesse  
 - [ ] Vérifier que tous les parcours glob utilisent `follow: false`
 - [ ] Désactiver clipboard en environnement non-interactif (CI)
@@ -66,3 +55,9 @@
 - [ ] Script `npm pack --dry-run` dans DEVELOPMENT.md
 - [ ] Script `npm publish --dry-run` 
 - [ ] Guide complet de publication
+
+### 5. Documentation critique manquante
+- [ ] Trier par ordre alphabétique un maximum de code et config pouvant être par ordre alphabétique
+- [ ] Passer en 1.0.0.0
+- [ ] Compléter `CHANGELOG.md` (format Keep a Changelog + SemVer)
+- [ ] Finaliser le `package.json` (garder la structure moderne avec `exports`)
