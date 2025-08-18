@@ -41,6 +41,37 @@ export async function processFusion(
         const startTime = new Date();
 
         await fs.writeFile(logFilePath, '');
+        
+        // Log initial configuration and session info
+        await writeLog(logFilePath, `=== PROJECT FUSION SESSION START ===`, true);
+        await writeLog(logFilePath, `Session ID: ${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`, true);
+        await writeLog(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
+        await writeLog(logFilePath, `Working directory: ${config.rootDirectory}`, true);
+        await writeLog(logFilePath, `Generated file name: ${config.generatedFileName}`, true);
+        
+        await writeLog(logFilePath, `\n--- CONFIGURATION ---`, true);
+        await writeLog(logFilePath, `Output formats:`, true);
+        await writeLog(logFilePath, `  - Text (.txt): ${config.generateText}`, true);
+        await writeLog(logFilePath, `  - Markdown (.md): ${config.generateMarkdown}`, true);
+        await writeLog(logFilePath, `  - HTML (.html): ${config.generateHtml}`, true);
+        
+        await writeLog(logFilePath, `Processing limits:`, true);
+        await writeLog(logFilePath, `  - Max file size: ${config.maxFileSizeKB} KB`, true);
+        await writeLog(logFilePath, `  - Max files: ${config.maxFiles}`, true);
+        await writeLog(logFilePath, `  - Max total size: ${config.maxTotalSizeMB} MB`, true);
+        
+        await writeLog(logFilePath, `Directory scanning:`, true);
+        await writeLog(logFilePath, `  - Parse subdirectories: ${config.parseSubDirectories}`, true);
+        await writeLog(logFilePath, `  - Use .gitignore: ${config.useGitIgnoreForExcludes}`, true);
+        await writeLog(logFilePath, `  - Allow symlinks: ${config.allowSymlinks}`, true);
+        
+        if (config.ignorePatterns.length > 0) {
+            await writeLog(logFilePath, `Ignore patterns: ${config.ignorePatterns.join(', ')}`, true);
+        }
+        
+        if (options.extensionGroups) {
+            await writeLog(logFilePath, `Extension groups filter: ${options.extensionGroups.join(', ')}`, true);
+        }
 
         if (options.pluginsDir) {
             await pluginManager.loadPluginsFromDirectory(options.pluginsDir);
@@ -53,6 +84,26 @@ export async function processFusion(
         }
 
         await pluginManager.initializePlugins(config);
+        
+        // Log plugin information
+        const loadedPlugins = pluginManager.listPlugins();
+        const enabledPlugins = pluginManager.getEnabledPlugins();
+        
+        if (options.pluginsDir || options.enabledPlugins) {
+            await writeLog(logFilePath, `\n--- PLUGINS ---`, true);
+            if (options.pluginsDir) {
+                await writeLog(logFilePath, `Plugin directory: ${options.pluginsDir}`, true);
+            }
+            if (loadedPlugins.length > 0) {
+                await writeLog(logFilePath, `Loaded plugins: ${loadedPlugins.length}`, true);
+                for (const plugin of loadedPlugins) {
+                    const isEnabled = enabledPlugins.some(p => p.metadata.name === plugin.name);
+                    await writeLog(logFilePath, `  - ${plugin.name} v${plugin.version} (${isEnabled ? 'enabled' : 'disabled'})`, true);
+                }
+            } else {
+                await writeLog(logFilePath, `No plugins loaded`, true);
+            }
+        }
 
         const additionalStrategies = pluginManager.getAdditionalOutputStrategies();
         for (const strategy of additionalStrategies) {
@@ -69,7 +120,20 @@ export async function processFusion(
         };
 
         const extensions = getExtensionsFromGroups(mergedConfig, options.extensionGroups);
+        
+        // Log processing information
+        await writeLog(logFilePath, `\n--- PROCESSING ---`, true);
         console.log(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
+        await writeLog(logFilePath, `File extensions to process: ${extensions.length}`, true);
+        await writeLog(logFilePath, `Available extension categories: ${Object.keys(mergedConfig.parsedFileExtensions).length}`, true);
+        
+        if (additionalExtensions && Object.keys(additionalExtensions).length > 0) {
+            await writeLog(logFilePath, `Additional extensions from plugins: ${Object.keys(additionalExtensions).join(', ')}`, true);
+        }
+        
+        if (additionalStrategies.length > 0) {
+            await writeLog(logFilePath, `Additional output strategies from plugins: ${additionalStrategies.map(s => s.name).join(', ')}`, true);
+        }
         
         if (extensions.length === 0) {
             const message = 'No file extensions to process.';
@@ -280,16 +344,66 @@ export async function processFusion(
         await writeLog(logFilePath, `Duration: ${duration}s`, true);
         await writeLog(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        const metrics = benchmark.getMetrics();
-        await writeLog(logFilePath, `\nPerformance Metrics:`, true);
-        await writeLog(logFilePath, `  Memory Used: ${metrics.memoryUsed.toFixed(2)} MB`, true);
-        await writeLog(logFilePath, `  Throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`, true);
-        await writeLog(logFilePath, `  Files/second: ${(metrics.filesProcessed / metrics.duration).toFixed(2)}`, true);
+        // File type statistics
+        const fileTypeStats: Record<string, { count: number; sizeKB: number }> = {};
+        let binaryFilesCount = 0;
         
+        for (const fileInfo of finalFilesToProcess) {
+            const ext = path.extname(fileInfo.path).toLowerCase();
+            const displayExt = ext || 'no extension';
+            
+            if (!fileTypeStats[displayExt]) {
+                fileTypeStats[displayExt] = { count: 0, sizeKB: 0 };
+            }
+            fileTypeStats[displayExt].count++;
+            fileTypeStats[displayExt].sizeKB += fileInfo.size / 1024;
+        }
+        
+        await writeLog(logFilePath, `\n--- FILE TYPE STATISTICS ---`, true);
         await writeLog(logFilePath, `Files found: ${originalFileCount}`, true);
         await writeLog(logFilePath, `Files processed successfully: ${finalFilesToProcess.length}`, true);
         await writeLog(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLog(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
+        
+        if (Object.keys(fileTypeStats).length > 0) {
+            await writeLog(logFilePath, `\nFile types processed:`, true);
+            const sortedStats = Object.entries(fileTypeStats)
+                .sort(([,a], [,b]) => b.count - a.count);
+                
+            for (const [ext, stats] of sortedStats) {
+                await writeLog(logFilePath, `  ${ext}: ${stats.count} files (${stats.sizeKB.toFixed(2)} KB)`, true);
+            }
+        }
+        
+        if (skippedFiles.length > 0) {
+            await writeLog(logFilePath, `\nSkipped files (too large):`, true);
+            for (const file of skippedFiles.slice(0, 10)) { // Limit to first 10
+                await writeLog(logFilePath, `  - ${file}`, true);
+            }
+            if (skippedFiles.length > 10) {
+                await writeLog(logFilePath, `  ... and ${skippedFiles.length - 10} more`, true);
+            }
+        }
+        
+        const metrics = benchmark.getMetrics();
+        await writeLog(logFilePath, `\n--- PERFORMANCE METRICS ---`, true);
+        await writeLog(logFilePath, `Duration breakdown:`, true);
+        await writeLog(logFilePath, `  Total execution: ${duration}s`, true);
+        await writeLog(logFilePath, `  File discovery: ${((Date.now() - startTime.getTime()) / 1000 / parseFloat(duration) * 100).toFixed(1)}% of total`, true);
+        
+        await writeLog(logFilePath, `Memory usage:`, true);
+        await writeLog(logFilePath, `  Peak memory: ${metrics.memoryUsed.toFixed(2)} MB`, true);
+        await writeLog(logFilePath, `  Memory per file: ${finalFilesToProcess.length > 0 ? (metrics.memoryUsed / finalFilesToProcess.length * 1024).toFixed(2) : '0'} KB`, true);
+        
+        await writeLog(logFilePath, `Processing speed:`, true);
+        await writeLog(logFilePath, `  Data throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`, true);
+        await writeLog(logFilePath, `  File processing rate: ${(metrics.filesProcessed / metrics.duration).toFixed(2)} files/s`, true);
+        await writeLog(logFilePath, `  Average file size: ${finalFilesToProcess.length > 0 ? (totalSizeBytes / finalFilesToProcess.length / 1024).toFixed(2) : '0'} KB`, true);
+        
+        await writeLog(logFilePath, `Output generation:`, true);
+        const outputFormats = enabledStrategies.map(s => s.name).join(', ');
+        await writeLog(logFilePath, `  Generated formats: ${outputFormats}`, true);
+        await writeLog(logFilePath, `  Number of output files: ${enabledStrategies.length}`, true);
         
         const generatedFormats = enabledStrategies.map(s => s.extension);
         
