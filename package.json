@@ -13,6 +13,18 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
         },
+        "./api": {
+            "types": "./dist/api.d.ts",
+            "import": "./dist/api.js"
+        },
+        "./fluent": {
+            "types": "./dist/fluent.d.ts",
+            "import": "./dist/fluent.js"
+        },
+        "./plugins": {
+            "types": "./dist/plugins/plugin-system.d.ts",
+            "import": "./dist/plugins/plugin-system.js"
+        },
         "./package.json": "./package.json"
     },
     "files": [

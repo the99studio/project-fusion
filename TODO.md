@@ -1,26 +1,6 @@
 # TODO — Project Fusion (Prioritized Review)
 
-## 🟠 HIGH - Core Functionality
-
-### ⚠️ Ignore Patterns Optimization
-- [ ] **Test default ignore patterns**: Validate they don't over-match
-- [ ] **WARNING**: Be careful about making defaults too lean. Current patterns are comprehensive for a reason:
-  - `*.svg` files often contain useful documentation diagrams
-  - Keep current defaults but add `overrideDefaults` option for power users
-  - Consider `suggestedIgnores` as additional opt-in patterns
-
 ## 🟡 MEDIUM - Developer Experience
-
-### ❤️ Package Distribution
-- [ ] **Add subpath exports**: Enable targeted imports like `project-fusion/fluent`
-  ```json
-  "exports": {
-    ".": "./dist/index.js",
-    "./api": "./dist/api.js",
-    "./fluent": "./dist/fluent.js",
-    "./plugins": "./dist/plugins/index.js"
-  }
-  ```
 
 ### ❤️ CLI Enhancements
 - [ ] **Output format flags**: `--html`, `--md`, `--txt` (override config)
