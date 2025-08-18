@@ -4,6 +4,7 @@
  * Utilities for Project Fusion
  */
 import path from 'node:path';
+import process from 'node:process';
 
 import fs from 'fs-extra';
 import { z } from 'zod';
@@ -22,6 +23,8 @@ export const defaultConfig = {
     generateMarkdown: true,
     generateText: true,
     maxFileSizeKB: 1024,
+    maxFiles: 10000,
+    maxTotalSizeMB: 100,
     parseSubDirectories: true,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"] as const,
@@ -508,4 +511,100 @@ export function getMarkdownLanguage(extensionOrBasename: string): string {
     // Case-insensitive lookup with fallback to 'text'
     const lang = languageMap[extensionOrBasename.toLowerCase()] ?? languageMap[extensionOrBasename];
     return lang ?? 'text';
+}
+
+/**
+ * Memory usage information
+ */
+export interface MemoryUsage {
+    heapUsed: number;
+    heapTotal: number;
+    external: number;
+    rss: number;
+    heapUsedMB: number;
+    heapTotalMB: number;
+    externalMB: number;
+    rssMB: number;
+    heapUsagePercent: number;
+}
+
+/**
+ * Get current memory usage statistics
+ * @returns Memory usage information in bytes and MB
+ */
+export function getMemoryUsage(): MemoryUsage {
+    const memUsage = process.memoryUsage();
+    
+    return {
+        heapUsed: memUsage.heapUsed,
+        heapTotal: memUsage.heapTotal,
+        external: memUsage.external,
+        rss: memUsage.rss,
+        heapUsedMB: memUsage.heapUsed / (1024 * 1024),
+        heapTotalMB: memUsage.heapTotal / (1024 * 1024),
+        externalMB: memUsage.external / (1024 * 1024),
+        rssMB: memUsage.rss / (1024 * 1024),
+        heapUsagePercent: (memUsage.heapUsed / memUsage.heapTotal) * 100
+    };
+}
+
+/**
+ * Check if memory usage is approaching dangerous levels
+ * @param warnThresholdPercent Percentage of heap usage to warn at (default: 80%)
+ * @param errorThresholdPercent Percentage of heap usage to error at (default: 90%)
+ * @returns Warning/error information if thresholds exceeded
+ */
+export function checkMemoryUsage(
+    warnThresholdPercent: number = 80,
+    errorThresholdPercent: number = 90
+): { level: 'ok' | 'warn' | 'error'; usage: MemoryUsage; message?: string } {
+    const usage = getMemoryUsage();
+    
+    if (usage.heapUsagePercent >= errorThresholdPercent) {
+        return {
+            level: 'error',
+            usage,
+            message: `Critical memory usage: ${usage.heapUsagePercent.toFixed(1)}% of heap (${usage.heapUsedMB.toFixed(1)} MB / ${usage.heapTotalMB.toFixed(1)} MB). Consider reducing file size or using more specific filters.`
+        };
+    }
+    
+    if (usage.heapUsagePercent >= warnThresholdPercent) {
+        return {
+            level: 'warn',
+            usage,
+            message: `High memory usage: ${usage.heapUsagePercent.toFixed(1)}% of heap (${usage.heapUsedMB.toFixed(1)} MB / ${usage.heapTotalMB.toFixed(1)} MB). Monitor for potential issues.`
+        };
+    }
+    
+    return {
+        level: 'ok',
+        usage
+    };
+}
+
+/**
+ * Log memory usage if thresholds are exceeded
+ * @param logPath Path to log file
+ * @param prefix Prefix for log message
+ * @param warnThreshold Warning threshold percentage
+ * @param errorThreshold Error threshold percentage
+ */
+export async function logMemoryUsageIfNeeded(
+    logPath: string,
+    prefix: string = '',
+    warnThreshold: number = 80,
+    errorThreshold: number = 90
+): Promise<void> {
+    const memCheck = checkMemoryUsage(warnThreshold, errorThreshold);
+    
+    if (memCheck.level !== 'ok' && memCheck.message) {
+        const logMessage = prefix ? `${prefix}: ${memCheck.message}` : memCheck.message;
+        await writeLog(logPath, logMessage, true);
+        
+        if (memCheck.level === 'error') {
+            console.error(logMessage);
+        } else {
+            console.warn(logMessage);
+        }
+    }
 }

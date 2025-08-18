@@ -27,7 +27,7 @@ export interface ProgrammaticFusionOptions extends Partial<Config> {
  */
 export interface ProgrammaticFusionResult {
     /** Error object (if failed) */
-    error?: Error | undefined;
+    error?: Error | string | undefined;
     /** Number of files processed (if successful) */
     filesProcessed?: number;
     /** Path to the fusion file (if successful) */
@@ -57,6 +57,8 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         generateText: partialConfig.generateText ?? defaultConfig.generateText,
         ignorePatterns: partialConfig.ignorePatterns ?? defaultConfig.ignorePatterns,
         maxFileSizeKB: partialConfig.maxFileSizeKB ?? defaultConfig.maxFileSizeKB,
+        maxFiles: partialConfig.maxFiles ?? defaultConfig.maxFiles,
+        maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,
         parseSubDirectories: partialConfig.parseSubDirectories ?? defaultConfig.parseSubDirectories,
         rootDirectory,

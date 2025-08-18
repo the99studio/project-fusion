@@ -21,6 +21,7 @@ import {
     formatTimestamp,
     getExtensionsFromGroups,
     isBinaryFile,
+    logMemoryUsageIfNeeded,
     validateNoSymlinks,
     validateSecurePath,
     writeLog
@@ -140,7 +141,29 @@ export async function processFusion(
 
         filePaths.sort((a, b) => path.relative(rootDir, a).localeCompare(path.relative(rootDir, b)));
 
+        // Initial memory check
+        await logMemoryUsageIfNeeded(logFilePath, 'Initial memory check');
+
+        // Check resource limits early
+        if (filePaths.length > config.maxFiles) {
+            const message = `Too many files found (${filePaths.length} > ${config.maxFiles}). ` +
+                `Consider using more specific --include patterns or increasing maxFiles in config.`;
+            await writeLog(logFilePath, message, true);
+            return {
+                success: false,
+                error: message,
+                message,
+                code: 'TOO_MANY_FILES' as const,
+                details: {
+                    filesFound: filePaths.length,
+                    maxFiles: config.maxFiles,
+                    suggestion: 'Use --include patterns to filter files or increase maxFiles limit'
+                }
+            };
+        }
+
         const maxFileSizeKB = config.maxFileSizeKB;
+        const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
         const filesToProcess: FileInfo[] = [];
         const skippedFiles: string[] = [];
         let skippedCount = 0;
@@ -152,6 +175,27 @@ export async function processFusion(
             try {
                 const stats = await fs.stat(filePath);
                 const sizeKB = stats.size / 1024;
+                
+                // Check if adding this file would exceed total size limit
+                if (totalSizeBytes + stats.size > maxTotalSizeBytes) {
+                    const totalSizeMB = (totalSizeBytes + stats.size) / (1024 * 1024);
+                    const message = `Total size limit exceeded (${totalSizeMB.toFixed(2)} MB > ${config.maxTotalSizeMB} MB). ` +
+                        `Consider using more specific --include patterns or increasing maxTotalSizeMB in config.`;
+                    await writeLog(logFilePath, message, true);
+                    return {
+                        success: false,
+                        error: message,
+                        message,
+                        code: 'SIZE_LIMIT_EXCEEDED' as const,
+                        details: {
+                            totalSizeMB: totalSizeMB,
+                            maxTotalSizeMB: config.maxTotalSizeMB,
+                            filesProcessed: filesToProcess.length,
+                            suggestion: 'Use --include patterns to filter files or increase maxTotalSizeMB limit'
+                        }
+                    };
+                }
+                
                 totalSizeBytes += stats.size;
 
                 if (sizeKB > maxFileSizeKB) {
@@ -189,6 +233,9 @@ export async function processFusion(
             }
         }
 
+        // Memory check after file processing
+        await logMemoryUsageIfNeeded(logFilePath, 'After file processing');
+
         const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess);
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
@@ -218,6 +265,9 @@ export async function processFusion(
                 console.error(`Error generating ${strategy.name} output:`, error);
             }
         }
+
+        // Final memory check
+        await logMemoryUsageIfNeeded(logFilePath, 'Final memory check');
 
         const message = `Fusion completed successfully. ${finalFilesToProcess.length} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
         const endTime = new Date();

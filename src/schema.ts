@@ -28,6 +28,8 @@ export const ConfigSchemaV1 = z.object({
     generateMarkdown: z.boolean().default(true),
     generateText: z.boolean().default(true),
     maxFileSizeKB: z.number().default(1024),
+    maxFiles: z.number().min(1).default(10000),
+    maxTotalSizeMB: z.number().min(0.001).default(100),
     parseSubDirectories: z.boolean().default(true),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],

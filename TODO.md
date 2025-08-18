@@ -1,15 +1,5 @@
 # TODO — Project Fusion (Prioritized Review)
 
-> Critical items first, with ❤️ = strongly agree, ⚠️ = warning/caution, ✅ = done
-
-## 🔴 CRITICAL - Security & Robustness (Do ASAP)
-
-### ❤️ Resource Limits
-- [ ] **Implement maxFiles and maxTotalSizeMB caps**: Essential for monorepos to prevent infinite scans
-  - Default: `maxFiles: 10000`, `maxTotalSizeMB: 100`
-  - Fail gracefully with helpful message suggesting `--include` patterns
-- [ ] **Add memory usage monitoring**: Track and warn when approaching Node.js heap limits
-
 ## 🟠 HIGH - Core Functionality
 
 ### ❤️ Symlink Configuration

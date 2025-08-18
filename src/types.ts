@@ -90,6 +90,8 @@ export interface Config {
     generateText: boolean;
     ignorePatterns: string[];
     maxFileSizeKB: number;
+    maxFiles: number;
+    maxTotalSizeMB: number;
     parsedFileExtensions: {
         backend?: string[];
         config?: string[];
@@ -128,7 +130,9 @@ export type FusionResult =
         success: true;
     }
     | {
-        error?: Error;
+        error?: Error | string;
+        code?: string;
+        details?: any;
         logFilePath?: FilePath;
         message: string;
         success: false;
