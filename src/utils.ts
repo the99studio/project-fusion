@@ -286,13 +286,16 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
         const resolvedRoot = path.resolve(rootDirectory);
         const resolvedFile = path.resolve(filePath);
         
-        // Check if the file path starts with the root directory
-        if (!resolvedFile.startsWith(resolvedRoot + path.sep) && resolvedFile !== resolvedRoot) {
+        // Use path.relative for more robust validation
+        const relativePath = path.relative(resolvedRoot, resolvedFile);
+        
+        // If relative path starts with '..' or is absolute, the file escapes the root
+        if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
             throw new FusionError(
                 `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
                 'PATH_TRAVERSAL',
                 'error',
-                { filePath, rootDirectory, resolvedFile, resolvedRoot }
+                { filePath, rootDirectory, resolvedFile, resolvedRoot, relativePath }
             );
         }
         

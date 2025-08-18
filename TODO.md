@@ -4,16 +4,6 @@
 
 ## 🔴 CRITICAL - Security & Robustness (Do ASAP)
 
-### ❤️ Path Traversal Hardening 
-- [ ] **Replace startsWith with path.relative validation**: Current implementation using `startsWith` has edge cases (Windows prefix collision: `C:\foo` vs `C:\foobar`). The suggested `path.relative` approach is more robust:
-  ```typescript
-  const rel = path.relative(resolvedRoot, resolvedFile);
-  if (rel.startsWith('..') || path.isAbsolute(rel)) {
-    throw new FusionError(...);
-  }
-  ```
-- [ ] **Add comprehensive path tests**: Unicode normalization (NFKC/NFD), Windows long paths, case-insensitive FS edge cases
-
 ### ❤️ Resource Limits
 - [ ] **Implement maxFiles and maxTotalSizeMB caps**: Essential for monorepos to prevent infinite scans
   - Default: `maxFiles: 10000`, `maxTotalSizeMB: 100`
@@ -117,22 +107,3 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
   return resolvedFile;
 }
 ```
-
-### Why These Priorities?
-
-1. **Security First**: Path traversal and resource limits prevent potential exploits
-2. **Reliability**: Caps and symlink handling ensure predictable behavior
-3. **DX/UX**: CLI improvements and subpath exports improve adoption
-4. **Quality**: Tests ensure long-term maintainability
-
-### Disagreements Explained
-
-- **⚠️ Ignore patterns**: The suggestion to make defaults leaner could break existing workflows. Many projects include SVGs, docs, and media that users expect to be excluded by default. Better to keep comprehensive defaults with override option.
-
-- **Line numbers**: While useful, this is lower priority than security/reliability fixes
-
-- **HTML accessibility**: Important but not critical for initial npm release
-
----
-
-> **Ready for npm?** YES - but implement CRITICAL section first for production safety.
