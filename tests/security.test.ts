@@ -78,9 +78,10 @@ console.log("test");
             const safeFileName = 'safe-file.js';
 
             await writeFile(safeFileName, 'console.log("safe");');
+            await writeFile('another-file.js', 'console.log("another");');
             
             // We can't actually create a file with < > in the name on most filesystems
-            // So we'll test by creating a file and then simulating the dangerous path
+            // So we'll test by creating files and verifying HTML escaping
             const config = {
                 ...defaultConfig,
                 rootDirectory: testDir,
@@ -104,8 +105,8 @@ console.log("test");
             expect(htmlContent).toContain('safe-file.js');
             
             // Verify no unescaped angle brackets that could be dangerous
-            const tocSection = htmlContent.split('<div class="toc">')[1]?.split('</div>')[0];
-            const titleSections = htmlContent.split('<h2>📄 ');
+            const tocSection = htmlContent.split('<nav class="toc"')[1]?.split('</nav>')[0];
+            const titleSections = htmlContent.split('>📄 ');
             
             expect(tocSection).toBeDefined();
             expect(titleSections.length).toBeGreaterThan(1);
@@ -153,7 +154,7 @@ console.log("test");
             expect(htmlContent).toContain('1.0.0&lt;img src=x onerror=alert(&quot;version&quot;)&gt;');
             
             // Verify no unescaped dangerous content in header
-            const headerSection = htmlContent.split('<div class="header">')[1]?.split('</div>')[0];
+            const headerSection = htmlContent.split('<header class="header"')[1]?.split('</header>')[0];
             expect(headerSection).toBeDefined();
             expect(headerSection).not.toContain('<script>alert(');
             expect(headerSection).not.toContain('<img src=x');

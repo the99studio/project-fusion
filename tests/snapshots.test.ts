@@ -301,8 +301,7 @@ module.exports = {
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replace(/Generated:<\/strong> [^<]+/g, 'Generated:</strong> [TIMESTAMP]')
-                .replace(/UTC:<\/strong> [^<]+/g, 'UTC:</strong> [UTC_TIMESTAMP]');
+                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
             
             expect(normalizedHtml).toMatchSnapshot('javascript-files.html');
         });
@@ -425,8 +424,7 @@ body {
             
             // Normalize timestamps
             const normalizedHtml = htmlContent
-                .replace(/Generated:<\/strong> [^<]+/g, 'Generated:</strong> [TIMESTAMP]')
-                .replace(/UTC:<\/strong> [^<]+/g, 'UTC:</strong> [UTC_TIMESTAMP]');
+                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
             
             expect(normalizedHtml).toMatchSnapshot('html-with-escaping.html');
         });
@@ -460,15 +458,14 @@ body {
             const htmlContent = await readFile('toc-test.html', 'utf8');
             
             // Check TOC structure
-            expect(htmlContent).toContain('<div class="toc">');
-            expect(htmlContent).toContain('<h2>📁 Table of Contents</h2>');
+            expect(htmlContent).toContain('<nav class="toc"');
+            expect(htmlContent).toContain('<h2 id="toc-heading">📁 Table of Contents</h2>');
             expect(htmlContent).toContain('href="#api-users-js"');
             expect(htmlContent).toContain('href="#components-header-js"');
             
-            // Normalize and snapshot
+            // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replace(/Generated:<\/strong> [^<]+/g, 'Generated:</strong> [TIMESTAMP]')
-                .replace(/UTC:<\/strong> [^<]+/g, 'UTC:</strong> [UTC_TIMESTAMP]');
+                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>')
             
             expect(normalizedHtml).toMatchSnapshot('html-with-toc.html');
         });

@@ -136,34 +136,187 @@ export class HtmlOutputStrategy implements OutputStrategy {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Fusion - ${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</title>
+    <meta name="description" content="Generated fusion of ${context.filesToProcess.length} files from ${context.projectTitle}">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
-        .file-section { margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; padding: 20px; }
-        .file-title { background: #f5f5f5; margin: -20px -20px 20px -20px; padding: 15px 20px; border-radius: 8px 8px 0 0; }
-        pre { background: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; }
-        code { font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; }
-        .toc { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-        .toc ul { margin: 0; padding-left: 20px; }
-        .toc a { text-decoration: none; color: #0366d6; }
-        .toc a:hover { text-decoration: underline; }
+        /* Reset and base styles */
+        *, *::before, *::after { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 4px 0;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* Header styles */
+        .header { 
+            border-bottom: 2px solid #eee; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px; 
+        }
+        .header dl { 
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            margin: 1em 0;
+        }
+        .header dt { 
+            font-weight: bold;
+        }
+        .header dd { 
+            margin: 0;
+        }
+        
+        /* File sections */
+        .file-section { 
+            margin-bottom: 40px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 20px; 
+        }
+        .file-title { 
+            background: #f5f5f5; 
+            margin: -20px -20px 20px -20px; 
+            padding: 15px 20px; 
+            border-radius: 8px 8px 0 0; 
+        }
+        
+        /* Code blocks */
+        pre { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 6px; 
+            overflow-x: auto; 
+            border: 1px solid #e1e4e8;
+            tab-size: 4;
+        }
+        code { 
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace; 
+            font-size: 0.95em;
+        }
+        
+        /* Table of contents */
+        .toc { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 30px; 
+            border: 1px solid #e1e4e8;
+        }
+        .toc ul { 
+            margin: 0; 
+            padding-left: 20px; 
+            list-style-type: disc;
+        }
+        .toc a { 
+            text-decoration: none; 
+            color: #0366d6; 
+        }
+        .toc a:hover, .toc a:focus { 
+            text-decoration: underline; 
+            outline: 2px solid #0366d6;
+            outline-offset: 2px;
+        }
+        
+        /* Links */
+        a:focus {
+            outline: 2px solid #0366d6;
+            outline-offset: 2px;
+        }
+        
+        /* High contrast support */
+        @media (prefers-contrast: high) {
+            .file-section { border-width: 2px; }
+            pre { border-width: 2px; }
+            .toc { border-width: 2px; }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body { 
+                background: #0d1117; 
+                color: #c9d1d9; 
+            }
+            .header { border-bottom-color: #30363d; }
+            .file-section { 
+                border-color: #30363d; 
+                background: #161b22;
+            }
+            .file-title { background: #0d1117; }
+            pre { 
+                background: #161b22; 
+                border-color: #30363d;
+                color: #c9d1d9;
+            }
+            .toc { 
+                background: #161b22; 
+                border-color: #30363d;
+            }
+            .toc a { color: #58a6ff; }
+            a { color: #58a6ff; }
+        }
+        
+        /* Print styles */
+        @media print {
+            .skip-link { display: none; }
+            .file-section { page-break-inside: avoid; }
+            pre { overflow-x: visible; white-space: pre-wrap; }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header class="header" role="banner">
         <h1>Generated Project Fusion File</h1>
-        <p><strong>Project:</strong> ${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</p>
-        <p><strong>Generated:</strong> ${formatLocalTimestamp()}</p>
-        <p><strong>UTC:</strong> ${formatTimestamp()}</p>
-        <p><strong>Files:</strong> ${context.filesToProcess.length}</p>
-        <p><strong>Generated by:</strong> <a href="https://github.com/the99studio/project-fusion">project-fusion</a></p>
-    </div>
-    <div class="toc">
-        <h2>📁 Table of Contents</h2>
-        <ul>
+        <dl>
+            <dt>Project:</dt>
+            <dd>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</dd>
+            <dt>Generated:</dt>
+            <dd><time datetime="${new Date().toISOString()}">${formatLocalTimestamp()}</time></dd>
+            <dt>UTC:</dt>
+            <dd><time datetime="${new Date().toISOString()}">${formatTimestamp()}</time></dd>
+            <dt>Files:</dt>
+            <dd>${context.filesToProcess.length}</dd>
+            <dt>Generated by:</dt>
+            <dd><a href="https://github.com/the99studio/project-fusion" rel="external">project-fusion</a></dd>
+        </dl>
+    </header>
+    
+    <nav class="toc" role="navigation" aria-labelledby="toc-heading">
+        <h2 id="toc-heading">📁 Table of Contents</h2>
+        <ul role="list">
 ${tocEntries}
         </ul>
-    </div>
+    </nav>
+    
+    <main id="main-content" role="main">
 `;
     }
 
@@ -174,18 +327,19 @@ ${tocEntries}
         const escapedContent = escapeHtml(fileInfo.content);
         const fileAnchor = fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase();
 
-        return `    <div class="file-section" id="${fileAnchor}">
-        <div class="file-title">
-            <h2>📄 ${escapeHtml(fileInfo.relativePath)}</h2>
-        </div>
-        <pre><code class="${language}">${escapedContent}</code></pre>
-    </div>
+        return `        <article class="file-section" id="${fileAnchor}" aria-labelledby="heading-${fileAnchor}">
+            <div class="file-title">
+                <h2 id="heading-${fileAnchor}">📄 ${escapeHtml(fileInfo.relativePath)}</h2>
+            </div>
+            <pre role="region" aria-label="Source code for ${escapeHtml(fileInfo.relativePath)}"><code class="language-${language}" lang="${language}">${escapedContent}</code></pre>
+        </article>
 
 `;
     }
 
     generateFooter(): string {
-        return `</body>
+        return `    </main>
+</body>
 </html>`;
     }
 

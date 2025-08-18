@@ -373,7 +373,7 @@ describe('Security Fuzzing Tests', () => {
 
                         // Should either validate correctly or handle gracefully
                         try {
-                            const validationResult = validateConfig(config);
+                            const validationResult = configSchema.safeParse(config);
                             
                             if (validationResult.success) {
                                 const result = await processFusion(config);

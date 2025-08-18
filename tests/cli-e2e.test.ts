@@ -80,8 +80,8 @@ describe('CLI E2E Tests', () => {
             expect(htmlContent).toContain('<!DOCTYPE html>');
             expect(htmlContent).toContain('📄 test.js');
             expect(htmlContent).toContain('📄 test.ts');
-            expect(htmlContent).toContain('<pre><code class="javascript">');
-            expect(htmlContent).toContain('<pre><code class="typescript">');
+            expect(htmlContent).toContain('<code class="language-javascript" lang="javascript">');
+            expect(htmlContent).toContain('<code class="language-typescript" lang="typescript">');
         });
 
         it('should handle empty directory gracefully', async () => {
