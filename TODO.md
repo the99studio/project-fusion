@@ -1,11 +1,5 @@
 # TODO — Project Fusion (Prioritized Review)
 
-## 🧪 TESTING - Quality Assurance
-
-### Security Testing
-- [ ] **Fuzzing**: Test with malformed inputs, special characters
-- [ ] **Permission tests**: Verify behavior with read-only files/dirs
-
 ## 🔵 LOW - Nice to Have
 
 ### Documentation
