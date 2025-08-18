@@ -1,53 +1,50 @@
 # Project Fusion - AI Context
 
-> 📖 **For Human Development**: See [DEVELOPMENT.md](./DEVELOPMENT.md) for workflows, testing, and npm publication.
+> 📖 **Human Dev**: See [DEVELOPMENT.md](./DEVELOPMENT.md)
 
-## Project Overview
-CLI tool that merges project files into single .txt/.md/.html fusion files for easy sharing and AI collaboration.
+## Overview
+CLI tool merging project files into .txt/.md/.html fusion files for AI collaboration.
 
-## Essential Architecture
-- **TypeScript 5.9.2** ESM project with strict type checking
-- **CLI** built with Commander.js generating .txt/.md/.html files
-- **Configuration-driven** with Zod validation and defaults
-- **Multi-format output** with syntax highlighting
+## Architecture
+- **TypeScript 5.9.2** ESM with strict checking
+- **CLI** via Commander.js 
+- **Zod** config validation
+- **Multi-format** output with syntax highlighting
 
 ## Core Files
 ```
 src/
 ├── api.ts              # Programmatic API
-├── benchmark.ts        # Performance tracking
-├── cli.ts              # CLI entry point
-├── clicommands.ts      # Command implementations  
+├── benchmark.ts        # Performance tracking  
+├── cli.ts              # CLI entry
+├── clicommands.ts      # Commands
 ├── fluent.ts           # Fluent API
-├── fusion.ts           # Core fusion logic
-├── index.ts            # Main exports
-├── schema.ts           # Zod validation schemas
-├── types.ts            # Type definitions (branded types)
-├── utils.ts            # File operations & utilities
-├── adapters/file-system.ts    # File system abstraction
-├── plugins/plugin-system.ts   # Plugin architecture
-└── strategies/output-strategy.ts # Output format strategies
+├── fusion.ts           # Core logic
+├── index.ts            # Exports
+├── schema.ts           # Zod schemas
+├── types.ts            # TypeScript types
+├── utils.ts            # Utilities
+├── adapters/file-system.ts    # File abstraction
+├── plugins/plugin-system.ts   # Plugin system
+└── strategies/output-strategy.ts # Output formats
 ```
 
 ## Commands
 ```bash
-npm run build           # Build TypeScript → JavaScript
-npm run typecheck       # Type checking only
-project-fusion init     # Initialize config
-project-fusion          # Run fusion process
+npm run build           # Build TS → JS
+npm run typecheck       # Type check
+project-fusion init     # Initialize
+project-fusion          # Run fusion
 ```
 
-## Testing Directory
-**⚠️ Important**: All testing/temporary files MUST go in `temp/` directory (gitignored).
-- Package testing: `temp/package/`
-- File tests: `temp/test-files/`
-- Artifacts: `temp/artifacts/`
+## Testing
+**⚠️ All temp files**: `temp/` directory (gitignored)
 
-## Config Schema (Essential Fields)
+## Config (Key Fields)
 ```typescript
 {
   allowSymlinks: boolean
-  copyToClipboard: boolean
+  copyToClipboard: boolean  
   generatedFileName: string
   generateHtml: boolean
   generateMarkdown: boolean
@@ -57,13 +54,13 @@ project-fusion          # Run fusion process
   maxFiles: number
   maxTotalSizeMB: number
   parsedFileExtensions: {
-    backend: string[]   // .cs, .go, .java, .php, .py, .rb, .rs
-    config: string[]    // .json, .toml, .xml, .yaml, .yml
-    cpp: string[]       // .c, .cc, .cpp, .h, .hpp
-    doc: string[]       // .adoc, .md, .rst
-    godot: string[]     // .cfg, .cs, .gd, .import, .tscn, .tres
-    scripts: string[]   // .bat, .cmd, .ps1, .sh
-    web: string[]       // .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
+    backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"]
+    config: [".json", ".toml", ".xml", ".yaml", ".yml"]
+    cpp: [".c", ".cc", ".cpp", ".h", ".hpp"]
+    doc: [".adoc", ".md", ".rst"]  
+    godot: [".cfg", ".cs", ".gd", ".import", ".tscn", ".tres"]
+    scripts: [".bat", ".cmd", ".ps1", ".sh"]
+    web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
   }
   parseSubDirectories: boolean
   rootDirectory: string
@@ -72,29 +69,20 @@ project-fusion          # Run fusion process
 }
 ```
 
-## Core Workflow
-1. Load/validate `project-fusion.json` config (Zod schema)
-2. Scan files by extensions, apply .gitignore + ignore patterns
-3. Generate outputs:
-   - `.txt` - Plain text with separators
-   - `.md` - Markdown with syntax highlighting + TOC
-   - `.html` - Responsive design + interactive TOC
+## Workflow
+1. Load/validate config (Zod)
+2. Scan files by extensions + apply ignore patterns  
+3. Generate: `.txt` (plain), `.md` (syntax+TOC), `.html` (responsive+TOC)
 
-## Implementation Details
-- **Branded types** (FilePath) prevent string confusion
-- **Discriminated unions** (FusionResult) for type-safe error handling  
-- **ESM modules** with strict TypeScript
-- **Plugin system** for extensibility
-- **Output strategies** for different formats
-- **File system adapters** for testability
+## Key Patterns
+- **Branded types** (FilePath) - type safety
+- **Discriminated unions** (FusionResult) - error handling
+- **Plugin system** - extensibility  
+- **Output strategies** - format handling
+- **File adapters** - testability
 
-## Quick Reference
-- **Add extensions**: Update `src/schema.ts` + `src/utils.ts`
-- **Add commands**: Register in `src/cli.ts`, implement in `src/clicommands.ts`
-- **Modify output**: Edit output strategies in `src/strategies/`
-- **Add plugins**: Use plugin system in `src/plugins/`
-
-## Documentation Style
-- Keep it simple and factual
-- Use neutral tone, avoid marketing language
-- No excessive adjectives or superlatives
+## Quick Edits
+- **Extensions**: `src/schema.ts` + `src/utils.ts`
+- **Commands**: `src/cli.ts` + `src/clicommands.ts`  
+- **Output**: `src/strategies/output-strategy.ts`
+- **Plugins**: `src/plugins/plugin-system.ts`

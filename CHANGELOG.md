@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-01-17
+## [1.0.0] - 2025-01-18
 
 ### Initial Release
 
@@ -36,12 +36,20 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 - **Godot Engine**: .cfg, .cs, .gd, .import, .tscn, .tres
 - **Documentation**: .adoc, .md, .rst
 
-#### Technical Features
+#### APIs and Integration
+- **Programmatic API** - Use Project Fusion in other applications
+- **Fluent API** - Chainable interface for configuration (`projectFusion().include(['web']).generate()`)
+- **Plugin system** - Extensible architecture with hooks for custom processing
+- **File system adapters** - Abstraction layer with memory and disk implementations
+- **Output strategies** - Pluggable output format system (Text, Markdown, HTML)
+- **Memory management** - Built-in memory usage tracking and limits
+
+#### Technical Features  
 - **TypeScript 5.9.2** with strict mode and ESM modules
 - **Branded types** (FilePath) for type-safe path handling
 - **Discriminated unions** for error handling (FusionResult)
 - **Error handling** with FusionError class, error codes, and severity levels
-- **Performance metrics** logging
+- **Performance tracking** - BenchmarkTracker for metrics and optimization
 - **Clipboard integration** with automatic fallback for CI environments
 
 #### Testing and Quality
@@ -53,10 +61,11 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 
 #### Configuration Features
 - **Schema versioning** for future compatibility
-- **Default values** with fallback configuration
-- **gitignore integration**
+- **Default values** with fallback configuration  
+- **gitignore integration** with automatic .gitignore parsing
 - **Custom ignore patterns** with glob support
-- **File size limits** to prevent memory issues
+- **Resource limits** - File size, file count, and total size limits
+- **Preview mode** - List files without generating output
 - **Subdirectory parsing** control
 
 ### Technical Implementation

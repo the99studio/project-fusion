@@ -4,7 +4,6 @@
  * Type definitions for the fusion functionality
  */
 
-// Branded types for type-safe handling
 export type FilePath = string & { readonly __brand: unique symbol };
 
 export const createFilePath = (path: string): FilePath => {
@@ -14,7 +13,6 @@ export const createFilePath = (path: string): FilePath => {
     return path as FilePath;
 };
 
-// Utility types for enhanced type safety
 export type NonEmptyArray<T> = readonly [T, ...T[]];
 
 export const isNonEmptyArray = <T>(array: readonly T[]): array is NonEmptyArray<T> => {
@@ -28,7 +26,6 @@ export const createNonEmptyArray = <T>(items: readonly T[]): NonEmptyArray<T> =>
     return items;
 };
 
-// Extension groups with type safety (alphabetically sorted)
 export const EXTENSION_GROUPS = {
     backend: ['.cs', '.go', '.java', '.php', '.py', '.rb', '.rs'],
     config: ['.cfg', '.json', '.toml', '.xml', '.yaml', '.yml'],
@@ -50,7 +47,6 @@ export const getExtensionsForGroup = (groupName: ExtensionGroupName): ExtensionG
     return EXTENSION_GROUPS[groupName];
 };
 
-// Enhanced error hierarchy with codes and severity
 export type FusionErrorCode = 
     | 'INVALID_PATH'
     | 'UNKNOWN_EXTENSION_GROUP'
@@ -134,7 +130,7 @@ export type FusionResult =
     | {
         error?: Error | string;
         code?: string;
-        details?: any;
+        details?: unknown;
         logFilePath?: FilePath;
         message: string;
         success: false;

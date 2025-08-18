@@ -30,9 +30,6 @@ export class BenchmarkTracker {
         this.startMemory = process.memoryUsage();
     }
 
-    /**
-     * Record file processing metrics
-     */
     markFileProcessed(sizeBytes: number, processingTimeMs?: number): void {
         this.filesProcessed++;
         this.totalBytes += sizeBytes;
@@ -41,18 +38,14 @@ export class BenchmarkTracker {
         }
     }
 
-
-    /**
-     * Calculate and return performance metrics
-     */
     getMetrics(): BenchmarkMetrics {
         const endTime = Date.now();
         const endMemory = process.memoryUsage();
         
-        const processingTimeMs = endTime - this.startTime; // milliseconds
-        const duration = processingTimeMs / 1000; // seconds
-        const memoryUsed = (endMemory.heapUsed - this.startMemory.heapUsed) / (1024 * 1024); // MB
-        const memoryUsedMB = endMemory.heapUsed / (1024 * 1024); // MB - current memory usage
+        const processingTimeMs = endTime - this.startTime;
+        const duration = processingTimeMs / 1000;
+        const memoryUsed = (endMemory.heapUsed - this.startMemory.heapUsed) / (1024 * 1024);
+        const memoryUsedMB = endMemory.heapUsed / (1024 * 1024);
         const totalSizeMB = this.totalBytes / (1024 * 1024);
         
         const averageFileProcessingTime = this.fileTimings.length > 0
@@ -75,6 +68,4 @@ export class BenchmarkTracker {
             throughputBytesPerSec
         };
     }
-
-
 }
