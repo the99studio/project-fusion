@@ -50,6 +50,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
     const rootDirectory = partialConfig.rootDirectory ?? cwd;
     
     return {
+        allowSymlinks: partialConfig.allowSymlinks ?? defaultConfig.allowSymlinks,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
         generatedFileName: partialConfig.generatedFileName ?? defaultConfig.generatedFileName,
         generateHtml: partialConfig.generateHtml ?? defaultConfig.generateHtml,

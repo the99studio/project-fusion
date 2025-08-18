@@ -22,6 +22,7 @@ const ParsedFileExtensionsSchema = z.object({
  * Complete configuration schema for version 1
  */
 export const ConfigSchemaV1 = z.object({
+    allowSymlinks: z.boolean().default(false),
     copyToClipboard: z.boolean().default(false),
     generatedFileName: z.string().default("project-fusioned"),
     generateHtml: z.boolean().default(true),

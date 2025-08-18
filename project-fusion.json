@@ -1,4 +1,5 @@
 {
+    "allowSymlinks": false,
     "copyToClipboard": false,
     "generateHtml": true,
     "generateMarkdown": true,

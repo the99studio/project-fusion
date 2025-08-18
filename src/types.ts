@@ -83,6 +83,7 @@ export class FusionError extends Error {
  * Main configuration interface
  */
 export interface Config {
+    allowSymlinks: boolean;
     copyToClipboard: boolean;
     generatedFileName: string;
     generateHtml: boolean;

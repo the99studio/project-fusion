@@ -17,6 +17,7 @@ import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from
  * Default configuration for Project Fusion
  */
 export const defaultConfig = {
+    allowSymlinks: false,
     copyToClipboard: false,
     generatedFileName: "project-fusioned",
     generateHtml: true,

@@ -2,11 +2,6 @@
 
 ## 🟠 HIGH - Core Functionality
 
-### ❤️ Symlink Configuration
-- [ ] **Expose allowSymlinks in config**: Currently hardcoded, should be in `project-fusion.json`
-  - Add CLI flag `--allow-symlinks` with security warning
-  - Document security implications in README
-
 ### ⚠️ Ignore Patterns Optimization
 - [ ] **Test default ignore patterns**: Validate they don't over-match
 - [ ] **WARNING**: Be careful about making defaults too lean. Current patterns are comprehensive for a reason:

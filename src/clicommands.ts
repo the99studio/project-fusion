@@ -18,7 +18,7 @@ import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
  * Run the fusion command
  * @param options Command options
  */
-export async function runFusionCommand(options: { extensions?: string, root?: string }): Promise<void> {
+export async function runFusionCommand(options: { extensions?: string, root?: string, allowSymlinks?: boolean }): Promise<void> {
     try {
         console.log(chalk.blue('🔄 Starting Fusion Process...'));
 
@@ -27,6 +27,13 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
         if (options.root) {
             config.rootDirectory = options.root;
             console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
+        }
+
+        if (options.allowSymlinks !== undefined) {
+            config.allowSymlinks = options.allowSymlinks;
+            if (options.allowSymlinks) {
+                console.log(chalk.yellow('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.'));
+            }
         }
 
         // Parse extension groups from command line (comma-separated)
@@ -210,6 +217,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Scan Subdirectories: ${config.parseSubDirectories ? 'Yes' : 'No'}`);
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
     console.log(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`);
+    console.log(`   Allow Symlinks: ${config.allowSymlinks ? chalk.yellow('Yes (⚠️ Security Risk)') : chalk.green('No (Secure)')}`);
     console.log(`   Max File Size: ${config.maxFileSizeKB} KB`);
     console.log(`   Max Files: ${config.maxFiles.toLocaleString()}`);
     console.log(`   Max Total Size: ${config.maxTotalSizeMB} MB`);
