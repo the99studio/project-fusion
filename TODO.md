@@ -1,21 +1,6 @@
 # TODO — Project Fusion (Prioritized Review)
 
-## 🟡 MEDIUM - Developer Experience
-
-### ❤️ CLI Enhancements
-- [ ] **Output format flags**: `--html`, `--md`, `--txt` (override config)
-- [ ] **Naming flags**: `--name <filename>`, `--out <directory>`
-- [ ] **Control flags**: `--no-clipboard`, `--groups <csv>`
-- [ ] **Preview mode**: `--preview` to list files without generating output
-- [ ] **Summary on empty**: Show helpful message when no files match
-
 ## 🧪 TESTING - Quality Assurance
-
-### ❤️ End-to-End Testing
-- [ ] **CLI E2E test suite**: Spawn actual binary with fixtures
-  - Test exit codes, file generation, error messages
-  - Test all CLI flags and combinations
-  - Validate output file integrity
 
 ### ❤️ Performance Testing
 - [ ] **Stress tests**: Generate thousands of files to validate caps
