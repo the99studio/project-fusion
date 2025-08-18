@@ -12,6 +12,275 @@ import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
 import { BenchmarkTracker } from '../src/benchmark.js';
 
+// Standalone benchmark functionality integrated into tests
+class PerformanceBenchmark {
+    constructor() {
+        this.results = [];
+        this.testDir = join(process.cwd(), 'temp', 'benchmark');
+    }
+
+    async setup() {
+        if (existsSync(this.testDir)) {
+            await rm(this.testDir, { recursive: true, force: true });
+        }
+        await mkdir(this.testDir, { recursive: true });
+    }
+
+    async cleanup() {
+        if (existsSync(this.testDir)) {
+            await rm(this.testDir, { recursive: true, force: true });
+        }
+    }
+
+    async runComprehensiveBenchmark() {
+        await this.setup();
+        const originalDir = process.cwd();
+        
+        try {
+            await this.runScalabilityBenchmark();
+            await this.runThroughputBenchmark();
+            await this.runMemoryStressBenchmark();
+            
+            const report = this.generateReport();
+            await this.saveReport(join(process.cwd(), 'temp', 'performance-report.json'));
+            
+            return report;
+        } finally {
+            process.chdir(originalDir);
+            await this.cleanup();
+        }
+    }
+
+    async runScalabilityBenchmark() {
+        const testCases = [
+            { name: 'small', files: 50, sizeKB: 1 },
+            { name: 'medium', files: 200, sizeKB: 5 },
+            { name: 'large', files: 500, sizeKB: 10 },
+        ];
+
+        for (const testCase of testCases) {
+            await this.setup();
+            process.chdir(this.testDir);
+
+            try {
+                // Generate test files
+                const content = 'X'.repeat(testCase.sizeKB * 1024);
+                for (let i = 0; i < testCase.files; i++) {
+                    await writeFile(`file_${i}.js`, `// Test file ${i}\n${content}`);
+                }
+
+                const config = {
+                    ...defaultConfig,
+                    rootDirectory: this.testDir,
+                    maxFiles: testCase.files + 100,
+                    generateHtml: false,
+                    generateMarkdown: false,
+                    generateText: true,
+                    parsedFileExtensions: { web: ['.js'] }
+                };
+
+                const tracker = new BenchmarkTracker();
+                const startTime = Date.now();
+                const startMemory = process.memoryUsage().heapUsed;
+
+                const result = await processFusion(config);
+                
+                const endTime = Date.now();
+                const endMemory = process.memoryUsage().heapUsed;
+                
+                // Track files processed
+                for (let i = 0; i < testCase.files; i++) {
+                    tracker.markFileProcessed(testCase.sizeKB * 1024);
+                }
+
+                const metrics = tracker.getMetrics();
+                const processingTime = endTime - startTime;
+                const memoryUsed = (endMemory - startMemory) / (1024 * 1024);
+
+                this.results.push({
+                    testCase: testCase.name,
+                    success: result.success,
+                    filesProcessed: testCase.files,
+                    totalSizeKB: testCase.files * testCase.sizeKB,
+                    processingTimeMs: processingTime,
+                    memoryUsedMB: memoryUsed,
+                    throughputKBps: (testCase.files * testCase.sizeKB) / (processingTime / 1000),
+                    benchmarkMetrics: metrics
+                });
+            } finally {
+                process.chdir(join(this.testDir, '..', '..'));
+            }
+        }
+    }
+
+    async runThroughputBenchmark() {
+        const workloads = [
+            { name: 'many-tiny', files: 500, sizeBytes: 50 },
+            { name: 'some-small', files: 100, sizeBytes: 500 },
+            { name: 'few-medium', files: 25, sizeBytes: 5000 }
+        ];
+
+        for (const workload of workloads) {
+            await this.setup();
+            process.chdir(this.testDir);
+
+            try {
+                // Create workload
+                for (let i = 0; i < workload.files; i++) {
+                    const content = `// ${workload.name} ${i}\n${'T'.repeat(workload.sizeBytes)}`;
+                    await writeFile(`throughput_${i}.js`, content);
+                }
+
+                const config = {
+                    ...defaultConfig,
+                    rootDirectory: this.testDir,
+                    generateHtml: false,
+                    generateMarkdown: false,
+                    generateText: true,
+                    parsedFileExtensions: { web: ['.js'] }
+                };
+
+                const runs = [];
+                for (let run = 0; run < 3; run++) {
+                    const startTime = Date.now();
+                    await processFusion(config);
+                    const endTime = Date.now();
+                    runs.push(endTime - startTime);
+                    
+                    if (existsSync('project-fusioned.txt')) {
+                        await rm('project-fusioned.txt');
+                    }
+                }
+
+                const avgTime = runs.reduce((a, b) => a + b, 0) / runs.length;
+                const totalBytes = workload.files * workload.sizeBytes;
+                const throughput = totalBytes / (avgTime / 1000); // bytes per second
+
+                this.results.push({
+                    testCase: `throughput-${workload.name}`,
+                    files: workload.files,
+                    bytesPerFile: workload.sizeBytes,
+                    totalBytes: totalBytes,
+                    avgProcessingTimeMs: avgTime,
+                    throughputBytesPerSec: throughput,
+                    throughputMBPerSec: throughput / (1024 * 1024)
+                });
+            } finally {
+                process.chdir(join(this.testDir, '..', '..'));
+            }
+        }
+    }
+
+    async runMemoryStressBenchmark() {
+        await this.setup();
+        process.chdir(this.testDir);
+
+        try {
+            const largeFileCount = 50;
+            const largeFileSizeKB = 25;
+            
+            const memoryReadings = [];
+            
+            for (let iteration = 0; iteration < 3; iteration++) {
+                // Create files for this iteration
+                for (let i = 0; i < largeFileCount; i++) {
+                    const content = `// Memory test iteration ${iteration}, file ${i}\n${'M'.repeat(largeFileSizeKB * 1024)}`;
+                    await writeFile(`memory_${iteration}_${i}.js`, content);
+                }
+
+                const config = {
+                    ...defaultConfig,
+                    rootDirectory: this.testDir,
+                    generateHtml: false,
+                    generateMarkdown: false,
+                    generateText: true,
+                    parsedFileExtensions: { web: ['.js'] }
+                };
+
+                const beforeMemory = process.memoryUsage().heapUsed;
+                await processFusion(config);
+                
+                // Force GC if available
+                if (global.gc) global.gc();
+                
+                const afterMemory = process.memoryUsage().heapUsed;
+                memoryReadings.push({
+                    iteration,
+                    beforeMB: beforeMemory / (1024 * 1024),
+                    afterMB: afterMemory / (1024 * 1024),
+                    growthMB: (afterMemory - beforeMemory) / (1024 * 1024)
+                });
+
+                // Clean output files
+                if (existsSync('project-fusioned.txt')) {
+                    await rm('project-fusioned.txt');
+                }
+            }
+
+            this.results.push({
+                testCase: 'memory-stress',
+                memoryReadings,
+                totalGrowthMB: memoryReadings[memoryReadings.length - 1].afterMB - memoryReadings[0].beforeMB,
+                avgGrowthPerIterationMB: memoryReadings.reduce((sum, r) => sum + r.growthMB, 0) / memoryReadings.length
+            });
+
+        } finally {
+            process.chdir(join(this.testDir, '..', '..'));
+        }
+    }
+
+    generateReport() {
+        const timestamp = new Date().toISOString();
+        const nodeVersion = process.version;
+        const platform = `${process.platform} ${process.arch}`;
+        
+        const report = {
+            metadata: {
+                timestamp,
+                nodeVersion,
+                platform,
+                testDuration: 'varies'
+            },
+            scalability: this.results.filter(r => ['small', 'medium', 'large'].includes(r.testCase)),
+            throughput: this.results.filter(r => r.testCase?.startsWith('throughput-')),
+            memory: this.results.find(r => r.testCase === 'memory-stress'),
+            summary: this.generateSummary()
+        };
+
+        return report;
+    }
+
+    generateSummary() {
+        const scalabilityResults = this.results.filter(r => ['small', 'medium', 'large'].includes(r.testCase));
+        const throughputResults = this.results.filter(r => r.testCase?.startsWith('throughput-'));
+        
+        const avgThroughput = throughputResults.length > 0 
+            ? throughputResults.reduce((sum, r) => sum + r.throughputMBPerSec, 0) / throughputResults.length 
+            : 0;
+
+        const maxProcessingTime = scalabilityResults.length > 0
+            ? Math.max(...scalabilityResults.map(r => r.processingTimeMs))
+            : 0;
+
+        const maxMemoryUsage = scalabilityResults.length > 0
+            ? Math.max(...scalabilityResults.map(r => r.memoryUsedMB))
+            : 0;
+
+        return {
+            overallThroughputMBPerSec: avgThroughput,
+            maxProcessingTimeMs: maxProcessingTime,
+            maxMemoryUsageMB: maxMemoryUsage,
+            allTestsPassed: this.results.every(r => r.success !== false)
+        };
+    }
+
+    async saveReport(filename) {
+        const report = this.generateReport();
+        await writeFile(filename, JSON.stringify(report, null, 2));
+        return report;
+    }
+}
+
 describe('Performance Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'performance-test');
 
@@ -675,5 +944,63 @@ describe('Performance Tests', () => {
                 expect(output).toContain(`Size category ${i}`);
             }
         });
+    });
+
+    describe('Comprehensive Benchmark Suite', () => {
+        it('should run complete benchmark suite and generate report', async () => {
+            const benchmark = new PerformanceBenchmark();
+            
+            const report = await benchmark.runComprehensiveBenchmark();
+            
+            // Verify report structure
+            expect(report).toHaveProperty('metadata');
+            expect(report).toHaveProperty('scalability');
+            expect(report).toHaveProperty('throughput');
+            expect(report).toHaveProperty('memory');
+            expect(report).toHaveProperty('summary');
+            
+            // Verify metadata
+            expect(report.metadata.nodeVersion).toBe(process.version);
+            expect(report.metadata.platform).toContain(process.platform);
+            expect(report.metadata.timestamp).toBeDefined();
+            
+            // Verify scalability results
+            expect(report.scalability).toHaveLength(3); // small, medium, large
+            for (const result of report.scalability) {
+                expect(result.success).toBe(true);
+                expect(result.processingTimeMs).toBeGreaterThan(0);
+                expect(result.filesProcessed).toBeGreaterThan(0);
+            }
+            
+            // Verify throughput results
+            expect(report.throughput.length).toBeGreaterThan(0);
+            for (const result of report.throughput) {
+                expect(result.throughputMBPerSec).toBeGreaterThan(0);
+                expect(result.avgProcessingTimeMs).toBeGreaterThan(0);
+            }
+            
+            // Verify memory stress results
+            expect(report.memory).toBeDefined();
+            expect(report.memory.memoryReadings).toHaveLength(3);
+            
+            // Verify summary
+            expect(report.summary.allTestsPassed).toBe(true);
+            expect(report.summary.overallThroughputMBPerSec).toBeGreaterThan(0);
+            expect(report.summary.maxProcessingTimeMs).toBeGreaterThan(0);
+            
+            // Verify report file exists
+            expect(existsSync(join(process.cwd(), 'temp', 'performance-report.json'))).toBe(true);
+            
+            // Verify report file content
+            const savedReport = JSON.parse(await readFile(join(process.cwd(), 'temp', 'performance-report.json'), 'utf8'));
+            expect(savedReport).toEqual(report);
+            
+            console.log(`Benchmark Summary:
+                Throughput: ${report.summary.overallThroughputMBPerSec.toFixed(2)} MB/s
+                Max Processing Time: ${report.summary.maxProcessingTimeMs}ms
+                Max Memory Usage: ${report.summary.maxMemoryUsageMB.toFixed(1)}MB
+                All Tests Passed: ${report.summary.allTestsPassed ? '✅' : '❌'}`);
+                
+        }, 120000); // 2 minute timeout for comprehensive benchmark
     });
 });

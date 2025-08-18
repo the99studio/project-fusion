@@ -43,8 +43,6 @@
         "prepublishOnly": "npm run clean && npm run build",
         "test": "vitest run --coverage",
         "test:ui": "vitest --ui",
-        "test:perf": "vitest run tests/performance.test.ts --reporter=verbose",
-        "benchmark": "npm run build && node scripts/benchmark-runner.js",
         "typecheck": "tsc --noEmit"
     },
     "keywords": [

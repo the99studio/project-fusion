@@ -286,12 +286,143 @@ export default {
 - [ ] Output files are properly formatted
 - [ ] Package builds and installs correctly
 
+### Automated Testing
+```bash
+# Run all tests
+npm test
+
+# Run only performance tests
+npm test -- tests/performance.test.ts
+```
+
 ### Test Projects
 Use these types of projects for testing:
 - **Node.js/TypeScript** (like this project)
 - **Python projects** (test backend extensions)
 - **React/Vue projects** (test web extensions)
 - **Mixed projects** (multiple extension types)
+
+## Performance Testing
+
+Project Fusion includes comprehensive performance testing to validate scalability, detect memory leaks, and track performance regressions.
+
+### Performance Test Categories
+
+#### Stress Tests
+Validates Project Fusion's ability to handle large numbers of files and enforce resource limits:
+
+- **1000 small files**: Tests processing efficiency with many small files
+- **5000 files with caps**: Validates enforcement of file count limits  
+- **Large files**: Tests handling of files with significant content (100KB+ per file)
+
+#### Memory Leak Tests
+Ensures proper memory cleanup and prevents memory accumulation:
+
+- **Repeated processing**: Validates memory doesn't accumulate across multiple runs
+- **Resource cleanup**: Tests proper cleanup of temporary resources
+- **Memory pressure**: Tests behavior under high memory usage scenarios
+- **Recovery testing**: Validates graceful recovery from memory pressure
+
+#### Benchmark Suite
+Provides consistent performance measurements and regression detection:
+
+- **Performance metrics**: Tracks processing time, memory usage, throughput using BenchmarkTracker
+- **Regression detection**: Establishes performance baselines and detects changes
+- **Throughput analysis**: Measures performance across different workload patterns
+- **Standardized testing**: Consistent test datasets for reliable comparisons
+
+#### Scalability Tests
+Validates performance across different architectural scenarios:
+
+- **Deep directories**: Tests performance with nested directory structures (10 levels deep)
+- **Mixed file sizes**: Validates efficiency across varied file size distributions
+
+### Running Performance Tests
+
+```bash
+# Run all performance tests (included in main test suite)
+npm test -- tests/performance.test.ts
+
+# Run with verbose output to see performance metrics
+npm test -- tests/performance.test.ts --reporter=verbose
+```
+
+### Performance Baselines
+
+| Metric | Target | Good | Acceptable |
+|--------|--------|------|------------|
+| Throughput | >10 MB/s | >5 MB/s | >1 MB/s |
+| Memory Growth | <50MB | <100MB | <200MB |
+| Processing Time (1000 files) | <5s | <10s | <30s |
+| File Count Limit | 10000 | 5000 | 1000 |
+
+### Performance Reports
+
+Performance tests generate detailed reports in `temp/performance-report.json`:
+
+```json
+{
+  "metadata": {
+    "timestamp": "2025-01-01T00:00:00.000Z",
+    "nodeVersion": "v18.x.x", 
+    "platform": "darwin arm64"
+  },
+  "scalability": [...],
+  "throughput": [...],
+  "memory": {...},
+  "summary": {
+    "overallThroughputMBPerSec": 16.69,
+    "maxProcessingTimeMs": 160,
+    "maxMemoryUsageMB": 17.0,
+    "allTestsPassed": true
+  }
+}
+```
+
+### CI/CD Integration
+
+Include performance tests in your CI pipeline:
+
+```yaml
+# GitHub Actions example
+- name: Run Performance Tests
+  run: npm test -- tests/performance.test.ts
+  
+- name: Upload Performance Report  
+  uses: actions/upload-artifact@v3
+  with:
+    name: performance-report
+    path: temp/performance-report.json
+```
+
+### Troubleshooting Performance Tests
+
+**Test Timeouts**
+- Performance tests have extended timeouts (30-90 seconds)
+- Check system resources during test runs
+- Consider reducing test data sizes for slower systems
+
+**Memory Test Failures**  
+- Tests may be sensitive to Node.js garbage collection timing
+- Consider running with `--expose-gc` for more predictable GC behavior
+- Memory thresholds are tuned for typical development environments
+
+**Inconsistent Results**
+- Ensure system is not under heavy load during testing
+- Run multiple times to establish consistent baselines
+- Performance characteristics may vary between different systems
+
+### Custom Performance Testing
+
+When adding new performance tests:
+
+1. Follow existing test structure in `tests/performance.test.ts`
+2. Include appropriate timeouts for longer-running tests  
+3. Clean up test artifacts in `afterEach` hooks using the `temp/` directory
+4. Document expected performance characteristics
+5. Update performance baselines if tests introduce new expectations
+
+Performance tests use the same testing infrastructure as other tests (Vitest) and are included in the main test suite for consistent CI/CD integration.
 
 ## Troubleshooting
 
