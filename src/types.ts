@@ -118,6 +118,7 @@ export interface FusionOptions {
     pluginsDir?: string;
     enabledPlugins?: string[];
     fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    previewMode?: boolean;
 }
 
 /**

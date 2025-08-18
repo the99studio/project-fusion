@@ -30,12 +30,32 @@ program
     .option('--allow-symlinks', 'Allow processing symbolic links (SECURITY WARNING: use with caution)')
     .option('--plugins-dir <directory>', 'Directory containing plugins to load')
     .option('--plugins <names>', 'Comma-separated list of plugin names to enable')
+    // Output format flags
+    .option('--html', 'Generate HTML output (overrides config)')
+    .option('--md', 'Generate Markdown output (overrides config)')
+    .option('--txt', 'Generate text output (overrides config)')
+    // Naming flags
+    .option('--name <filename>', 'Custom filename for generated files (without extension)')
+    .option('--out <directory>', 'Output directory for generated files')
+    // Control flags
+    .option('--no-clipboard', 'Disable clipboard copying')
+    .option('--groups <csv>', 'Comma-separated extension groups (same as --extensions)')
+    // Preview mode
+    .option('--preview', 'Preview mode: list files without generating output')
     .action((options: { 
         extensions?: string; 
         root?: string; 
         allowSymlinks?: boolean;
         pluginsDir?: string;
         plugins?: string;
+        html?: boolean;
+        md?: boolean;
+        txt?: boolean;
+        name?: string;
+        out?: string;
+        clipboard?: boolean;
+        groups?: string;
+        preview?: boolean;
     }) => {
         // Default action is to run fusion
         void runFusionCommand(options);

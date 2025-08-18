@@ -24,15 +24,63 @@ export async function runFusionCommand(options: {
     allowSymlinks?: boolean;
     pluginsDir?: string;
     plugins?: string;
+    html?: boolean;
+    md?: boolean;
+    txt?: boolean;
+    name?: string;
+    out?: string;
+    clipboard?: boolean;
+    groups?: string;
+    preview?: boolean;
 }): Promise<void> {
     try {
         console.log(chalk.blue('🔄 Starting Fusion Process...'));
 
         const config = await loadConfig();
 
+        // Handle root directory
         if (options.root) {
             config.rootDirectory = options.root;
             console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
+        }
+
+        // Handle output directory
+        if (options.out) {
+            const outputPath = path.resolve(options.out);
+            config.rootDirectory = outputPath;
+            console.log(chalk.yellow(`ℹ️ Using output directory: ${outputPath}`));
+        }
+
+        // Handle custom filename
+        if (options.name) {
+            config.generatedFileName = options.name;
+            console.log(chalk.yellow(`ℹ️ Using custom filename: ${options.name}`));
+        }
+
+        // Handle output format overrides
+        if (options.html !== undefined || options.md !== undefined || options.txt !== undefined) {
+            // If any format flag is specified, only generate those formats
+            config.generateHtml = options.html || false;
+            config.generateMarkdown = options.md || false;
+            config.generateText = options.txt || false;
+            
+            const enabledFormats = [];
+            if (config.generateHtml) enabledFormats.push('HTML');
+            if (config.generateMarkdown) enabledFormats.push('Markdown');
+            if (config.generateText) enabledFormats.push('Text');
+            
+            if (enabledFormats.length > 0) {
+                console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
+            } else {
+                console.log(chalk.red('❌ No output formats selected. Please specify at least one: --html, --md, or --txt'));
+                process.exit(1);
+            }
+        }
+
+        // Handle clipboard override
+        if (options.clipboard === false) {
+            config.copyToClipboard = false;
+            console.log(chalk.yellow('ℹ️ Clipboard copying disabled'));
         }
 
         if (options.allowSymlinks !== undefined) {
@@ -43,9 +91,11 @@ export async function runFusionCommand(options: {
         }
 
         // Parse extension groups from command line (comma-separated)
+        // Support both --extensions and --groups for convenience
         let extensionGroups: string[] | undefined;
-        if (options.extensions) {
-            extensionGroups = options.extensions.split(',').map(e => e.trim());
+        const groupsOption = options.extensions || options.groups;
+        if (groupsOption) {
+            extensionGroups = groupsOption.split(',').map(e => e.trim());
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
         }
 
@@ -68,34 +118,44 @@ export async function runFusionCommand(options: {
             console.log(chalk.blue(`🔌 Enabled plugins: ${fusionOptions.enabledPlugins.join(', ')}`));
         }
 
+        // Handle preview mode
+        if (options.preview) {
+            console.log(chalk.blue('👁️ Preview Mode: Scanning files without generating output...'));
+            fusionOptions.previewMode = true;
+        }
+
         const result = await processFusion(config, fusionOptions);
 
         if (result.success) {
             console.log(chalk.green(`✅ ${result.message}`));
-            console.log(chalk.green(`📄 Generated files:`));
             
-            if (config.generateText) {
-                console.log(chalk.cyan(`   - ${config.generatedFileName}.txt`));
-            }
-            if (config.generateMarkdown) {
-                console.log(chalk.cyan(`   - ${config.generatedFileName}.md`));
-            }
-            if (config.generateHtml) {
-                console.log(chalk.cyan(`   - ${config.generatedFileName}.html`));
-            }
-
-            // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments)
-            const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
-            if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
-                try {
-                    const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
-                    await clipboardy.write(fusionContent);
-                    console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
-                } catch (clipboardError) {
-                    console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
+            // In preview mode, don't show generated files section
+            if (!options.preview) {
+                console.log(chalk.green(`📄 Generated files:`));
+                
+                if (config.generateText) {
+                    console.log(chalk.cyan(`   - ${config.generatedFileName}.txt`));
                 }
-            } else if (config.copyToClipboard === true && isNonInteractive) {
-                console.log(chalk.gray(`📋 Clipboard copy skipped (non-interactive environment)`));
+                if (config.generateMarkdown) {
+                    console.log(chalk.cyan(`   - ${config.generatedFileName}.md`));
+                }
+                if (config.generateHtml) {
+                    console.log(chalk.cyan(`   - ${config.generatedFileName}.html`));
+                }
+
+                // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments)
+                const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
+                if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
+                    try {
+                        const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+                        await clipboardy.write(fusionContent);
+                        console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
+                    } catch (clipboardError) {
+                        console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
+                    }
+                } else if (config.copyToClipboard === true && isNonInteractive) {
+                    console.log(chalk.gray(`📋 Clipboard copy skipped (non-interactive environment)`));
+                }
             }
 
             console.log(chalk.gray(`📝 Log file available at: ${result.logFilePath}`));

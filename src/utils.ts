@@ -224,6 +224,46 @@ export function formatTimestamp(date?: Date): string {
 }
 
 /**
+ * Generate a helpful message when no files match the criteria
+ */
+export function generateHelpfulEmptyMessage(extensions: string[], config: Config): string {
+    const messages = ['💡 Suggestions to find files:'];
+    
+    // Suggest different extension groups
+    const availableGroups = Object.keys(config.parsedFileExtensions);
+    if (availableGroups.length > 0) {
+        messages.push(`• Try different extension groups: ${availableGroups.join(', ')}`);
+        messages.push(`  Example: project-fusion --extensions ${availableGroups.slice(0, 2).join(',')}`);
+    }
+    
+    // Suggest checking ignore patterns
+    if (config.ignorePatterns.length > 0) {
+        messages.push(`• Check if files are being ignored by patterns`);
+        messages.push(`  Current ignore patterns: ${config.ignorePatterns.slice(0, 3).join(', ')}${config.ignorePatterns.length > 3 ? '...' : ''}`);
+    }
+    
+    // Suggest different directory
+    messages.push(`• Check if you're in the right directory: ${config.rootDirectory}`);
+    messages.push(`• Use --root <path> to specify a different directory`);
+    
+    // Suggest disabling gitignore
+    if (config.useGitIgnoreForExcludes) {
+        messages.push(`• Try without .gitignore filtering (files might be git-ignored)`);
+    }
+    
+    // Show what extensions are being looked for
+    if (extensions.length > 0) {
+        messages.push(`• Currently looking for files with extensions: ${extensions.join(', ')}`);
+    }
+    
+    // Suggest preview mode if not already in it
+    messages.push(`• Use --preview to see what files would be processed`);
+    messages.push(`• Use 'project-fusion config-check' to see your current configuration`);
+    
+    return messages.join('\n');
+}
+
+/**
  * Format a local timestamp for display
  * @param date Optional date to format, defaults to current date
  * @returns Formatted local timestamp

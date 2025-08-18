@@ -19,6 +19,7 @@ import { type Config, type FilePath, type FusionOptions, type FusionResult, crea
 import {
     formatLocalTimestamp,
     formatTimestamp,
+    generateHelpfulEmptyMessage,
     getExtensionsFromGroups,
     isBinaryFile,
     logMemoryUsageIfNeeded,
@@ -179,9 +180,14 @@ export async function processFusion(
 
         if (filePaths.length === 0) {
             const message = 'No files found to process.';
+            const helpMessage = generateHelpfulEmptyMessage(extensions, mergedConfig);
             const endTime = new Date();
             await writeLog(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2)}s`, true);
-            return { success: false, message, logFilePath };
+            return { 
+                success: false, 
+                message: `${message}\n\n${helpMessage}`, 
+                logFilePath 
+            };
         }
 
         const projectName = path.basename(process.cwd());
@@ -303,6 +309,88 @@ export async function processFusion(
         const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess);
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
+
+        // Handle preview mode - show files and exit without generating output
+        if (options.previewMode) {
+            const endTime = new Date();
+            const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
+            
+            await writeLog(logFilePath, `\n--- PREVIEW MODE RESULTS ---`, true);
+            await writeLog(logFilePath, `Files that would be processed: ${finalFilesToProcess.length}`, true);
+            
+            if (finalFilesToProcess.length === 0) {
+                await writeLog(logFilePath, `No files found matching the criteria.`, true);
+                const message = `Preview completed: No files found matching your criteria.`;
+                await writeLog(logFilePath, `Status: ${message}`, true);
+                await writeLog(logFilePath, `Duration: ${duration}s`, true);
+                return { 
+                    success: false, 
+                    message: `${message}\n\n${generateHelpfulEmptyMessage(extensions, mergedConfig)}`, 
+                    logFilePath 
+                };
+            }
+            
+            // Group files by extension for better display
+            const filesByExtension: Record<string, string[]> = {};
+            for (const file of finalFilesToProcess) {
+                const ext = path.extname(file.path).toLowerCase() || 'no extension';
+                if (!filesByExtension[ext]) {
+                    filesByExtension[ext] = [];
+                }
+                filesByExtension[ext].push(file.relativePath);
+            }
+            
+            for (const [ext, files] of Object.entries(filesByExtension)) {
+                await writeLog(logFilePath, `  ${ext}: ${files.length} files`, true);
+                for (const file of files.slice(0, 5)) { // Show first 5 files
+                    await writeLog(logFilePath, `    - ${file}`, true);
+                }
+                if (files.length > 5) {
+                    await writeLog(logFilePath, `    ... and ${files.length - 5} more`, true);
+                }
+            }
+            
+            const message = `Preview completed: ${finalFilesToProcess.length} files would be processed.`;
+            await writeLog(logFilePath, `Status: ${message}`, true);
+            await writeLog(logFilePath, `Duration: ${duration}s`, true);
+            
+            return { 
+                success: true, 
+                message, 
+                logFilePath,
+                fusionFilePath: logFilePath
+            };
+        }
+
+        // Check if no files to process and provide helpful message
+        if (finalFilesToProcess.length === 0) {
+            const endTime = new Date();
+            const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
+            
+            // If we found files initially but all were skipped (due to size/binary/etc), 
+            // this is a successful operation with 0 files processed
+            if (filePaths.length > 0) {
+                const message = `Fusion completed successfully. 0 files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
+                await writeLog(logFilePath, `Status: Fusion completed successfully\nFiles processed: 0\nFiles skipped: ${skippedCount}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${duration}s`, true);
+                
+                return { 
+                    success: true, 
+                    message, 
+                    logFilePath,
+                    fusionFilePath: logFilePath 
+                };
+            } else {
+                // No files found at all - this is a failure
+                const message = 'No files found matching your criteria.';
+                const helpMessage = generateHelpfulEmptyMessage(extensions, mergedConfig);
+                await writeLog(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${duration}s`, true);
+                return { 
+                    success: false, 
+                    message: `${message}\n\n${helpMessage}`, 
+                    logFilePath 
+                };
+            }
+        }
 
         const projectTitle = packageName && packageName.toLowerCase() !== projectName.toLowerCase() 
             ? `${projectName} / ${packageName}` 
