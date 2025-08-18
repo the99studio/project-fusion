@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "timestamp": "2025-08-18T15:38:51.204Z",
+    "nodeVersion": "v22.14.0",
+    "platform": "darwin arm64",
+    "testDuration": "varies"
+  },
+  "scalability": [
+    {
+      "testCase": "small",
+      "success": true,
+      "filesProcessed": 50,
+      "totalSizeKB": 50,
+      "processingTimeMs": 35,
+      "memoryUsedMB": 1.3049087524414062,
+      "throughputKBps": 1428.5714285714284,
+      "benchmarkMetrics": {
+        "duration": 0.035,
+        "memoryUsed": 1.3138504028320312,
+        "memoryUsedMB": 11.115318298339844,
+        "processingTimeMs": 35,
+        "filesProcessed": 50,
+        "totalBytesProcessed": 51200,
+        "totalSizeMB": 0.048828125,
+        "averageFileProcessingTime": 0,
+        "throughputMBps": 1.3950892857142856,
+        "throughputBytesPerSec": 1462857.1428571427
+      }
+    },
+    {
+      "testCase": "medium",
+      "success": true,
+      "filesProcessed": 200,
+      "totalSizeKB": 1000,
+      "processingTimeMs": 38,
+      "memoryUsedMB": -0.5423583984375,
+      "throughputKBps": 26315.78947368421,
+      "benchmarkMetrics": {
+        "duration": 0.038,
+        "memoryUsed": -0.5418548583984375,
+        "memoryUsedMB": 9.776458740234375,
+        "processingTimeMs": 38,
+        "filesProcessed": 200,
+        "totalBytesProcessed": 1024000,
+        "totalSizeMB": 0.9765625,
+        "averageFileProcessingTime": 0,
+        "throughputMBps": 25.699013157894736,
+        "throughputBytesPerSec": 26947368.42105263
+      }
+    },
+    {
+      "testCase": "large",
+      "success": true,
+      "filesProcessed": 500,
+      "totalSizeKB": 5000,
+      "processingTimeMs": 87,
+      "memoryUsedMB": 17.037254333496094,
+      "throughputKBps": 57471.2643678161,
+      "benchmarkMetrics": {
+        "duration": 0.087,
+        "memoryUsed": 17.037757873535156,
+        "memoryUsedMB": 27.52629852294922,
+        "processingTimeMs": 87,
+        "filesProcessed": 500,
+        "totalBytesProcessed": 5120000,
+        "totalSizeMB": 4.8828125,
+        "averageFileProcessingTime": 0,
+        "throughputMBps": 56.12428160919541,
+        "throughputBytesPerSec": 58850574.71264368
+      }
+    },
+    {
+      "testCase": "xlarge",
+      "success": true,
+      "filesProcessed": 1000,
+      "totalSizeKB": 2000,
+      "processingTimeMs": 160,
+      "memoryUsedMB": 9.38165283203125,
+      "throughputKBps": 12500,
+      "benchmarkMetrics": {
+        "duration": 0.16,
+        "memoryUsed": 9.382156372070312,
+        "memoryUsedMB": 29.456222534179688,
+        "processingTimeMs": 160,
+        "filesProcessed": 1000,
+        "totalBytesProcessed": 2048000,
+        "totalSizeMB": 1.953125,
+        "averageFileProcessingTime": 0,
+        "throughputMBps": 12.20703125,
+        "throughputBytesPerSec": 12800000
+      }
+    }
+  ],
+  "throughput": [
+    {
+      "testCase": "throughput-many-tiny",
+      "files": 1000,
+      "bytesPerFile": 50,
+      "totalBytes": 50000,
+      "avgProcessingTimeMs": 145.33333333333334,
+      "throughputBytesPerSec": 344036.6972477064,
+      "throughputMBPerSec": 0.3280989620663704
+    },
+    {
+      "testCase": "throughput-some-small",
+      "files": 200,
+      "bytesPerFile": 500,
+      "totalBytes": 100000,
+      "avgProcessingTimeMs": 29.333333333333332,
+      "throughputBytesPerSec": 3409090.909090909,
+      "throughputMBPerSec": 3.251162442294034
+    },
+    {
+      "testCase": "throughput-few-medium",
+      "files": 50,
+      "bytesPerFile": 5000,
+      "totalBytes": 250000,
+      "avgProcessingTimeMs": 9.333333333333334,
+      "throughputBytesPerSec": 26785714.285714284,
+      "throughputMBPerSec": 25.544847760881694
+    },
+    {
+      "testCase": "throughput-very-few-large",
+      "files": 10,
+      "bytesPerFile": 25000,
+      "totalBytes": 250000,
+      "avgProcessingTimeMs": 6.333333333333333,
+      "throughputBytesPerSec": 39473684.21052632,
+      "throughputMBPerSec": 37.64503880550987
+    }
+  ],
+  "memory": {
+    "testCase": "memory-stress",
+    "memoryReadings": [
+      {
+        "iteration": 0,
+        "beforeMB": 16.606971740722656,
+        "afterMB": 24.769004821777344,
+        "growthMB": 8.162033081054688
+      },
+      {
+        "iteration": 1,
+        "beforeMB": 30.954795837402344,
+        "afterMB": 18.600738525390625,
+        "growthMB": -12.354057312011719
+      },
+      {
+        "iteration": 2,
+        "beforeMB": 24.76032257080078,
+        "afterMB": 55.12480163574219,
+        "growthMB": 30.364479064941406
+      },
+      {
+        "iteration": 3,
+        "beforeMB": 61.31121063232422,
+        "afterMB": 85.24358367919922,
+        "growthMB": 23.932373046875
+      },
+      {
+        "iteration": 4,
+        "beforeMB": 48.37023162841797,
+        "afterMB": 118.4713363647461,
+        "growthMB": 70.10110473632812
+      }
+    ],
+    "totalGrowthMB": 101.86436462402344,
+    "avgGrowthPerIterationMB": 24.0411865234375
+  },
+  "summary": {
+    "overallThroughputMBPerSec": 16.692286992687993,
+    "maxProcessingTimeMs": 160,
+    "maxMemoryUsageMB": 17.037254333496094,
+    "allTestsPassed": true
+  }
+}

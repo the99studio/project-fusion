@@ -2,11 +2,6 @@
 
 ## 🧪 TESTING - Quality Assurance
 
-### ❤️ Performance Testing
-- [ ] **Stress tests**: Generate thousands of files to validate caps
-- [ ] **Memory leak tests**: Ensure proper cleanup in watch mode
-- [ ] **Benchmark suite**: Track performance regressions
-
 ### Security Testing
 - [ ] **Fuzzing**: Test with malformed inputs, special characters
 - [ ] **Permission tests**: Verify behavior with read-only files/dirs
