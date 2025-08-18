@@ -211,6 +211,8 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
     console.log(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`);
     console.log(`   Max File Size: ${config.maxFileSizeKB} KB`);
+    console.log(`   Max Files: ${config.maxFiles.toLocaleString()}`);
+    console.log(`   Max Total Size: ${config.maxTotalSizeMB} MB`);
 
     // File generation options
     console.log(chalk.cyan('\n📄 Output Generation:'));

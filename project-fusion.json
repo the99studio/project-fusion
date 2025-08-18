@@ -5,6 +5,8 @@
     "generateText": true,
     "generatedFileName": "project-fusioned",
     "maxFileSizeKB": 1024,
+    "maxFiles": 10000,
+    "maxTotalSizeMB": 100,
     "parseSubDirectories": true,
     "parsedFileExtensions": {
         "backend": [

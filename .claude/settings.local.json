@@ -48,7 +48,8 @@
             "Bash(tree *)",
             "Bash(tsc *)",
             "Bash(vitest *)",
-            "Bash(wc -l *)"
+            "Bash(wc -l *)",
+            "Bash(mkdir:*)"
         ],
         "deny": [
             "Bash(chmod 777 *)",
