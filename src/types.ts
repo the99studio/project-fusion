@@ -30,13 +30,13 @@ export const createNonEmptyArray = <T>(items: readonly T[]): NonEmptyArray<T> =>
 
 // Extension groups with type safety (alphabetically sorted)
 export const EXTENSION_GROUPS = {
-    web: ['.css', '.html', '.js', '.jsx', '.svelte', '.ts', '.tsx', '.vue'],
     backend: ['.cs', '.go', '.java', '.php', '.py', '.rb', '.rs'],
     config: ['.cfg', '.json', '.toml', '.xml', '.yaml', '.yml'],
     cpp: ['.c', '.cc', '.cpp', '.h', '.hpp'],
-    scripts: ['.bat', '.cmd', '.ps1', '.sh'],
+    doc: ['.adoc', '.md', '.rst'],
     godot: ['.gd', '.import', '.tres', '.tscn'],
-    doc: ['.adoc', '.md', '.rst']
+    scripts: ['.bat', '.cmd', '.ps1', '.sh'],
+    web: ['.css', '.html', '.js', '.jsx', '.svelte', '.ts', '.tsx', '.vue']
 } as const;
 
 export type ExtensionGroupName = keyof typeof EXTENSION_GROUPS;

@@ -1,29 +1,35 @@
 # Project Fusion - AI Context
 
-> 📖 **For Human Development**: See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed development workflows, testing procedures, and npm publication guide.
+> 📖 **For Human Development**: See [DEVELOPMENT.md](./DEVELOPMENT.md) for workflows, testing, and npm publication.
 
 ## Project Overview
-Project Fusion merges multiple project files into a single file for easy sharing and collaboration.
+CLI tool that merges project files into single .txt/.md/.html fusion files for easy sharing and AI collaboration.
 
 ## Essential Architecture
 - **TypeScript 5.9.2** ESM project with strict type checking
-- **CLI tool** built with Commander.js that generates .txt, .md, and .html fusion files
-- **Configuration-driven** with Zod validation and default fallbacks
-- **Multi-format output** with syntax highlighting and filtering
+- **CLI** built with Commander.js generating .txt/.md/.html files
+- **Configuration-driven** with Zod validation and defaults
+- **Multi-format output** with syntax highlighting
 
-## Core Files Structure
+## Core Files
 ```
 src/
+├── api.ts              # Programmatic API
+├── benchmark.ts        # Performance tracking
 ├── cli.ts              # CLI entry point
 ├── clicommands.ts      # Command implementations  
+├── fluent.ts           # Fluent API
 ├── fusion.ts           # Core fusion logic
-├── types.ts            # Type definitions (branded types)
+├── index.ts            # Main exports
 ├── schema.ts           # Zod validation schemas
+├── types.ts            # Type definitions (branded types)
 ├── utils.ts            # File operations & utilities
-└── index.ts            # Main exports
+├── adapters/file-system.ts    # File system abstraction
+├── plugins/plugin-system.ts   # Plugin architecture
+└── strategies/output-strategy.ts # Output format strategies
 ```
 
-## Key Commands
+## Commands
 ```bash
 npm run build           # Build TypeScript → JavaScript
 npm run typecheck       # Type checking only
@@ -32,60 +38,63 @@ project-fusion          # Run fusion process
 ```
 
 ## Testing Directory
-**⚠️ Important**: All testing and temporary files MUST be created in `temp/` directory at project root. This includes:
+**⚠️ Important**: All testing/temporary files MUST go in `temp/` directory (gitignored).
 - Package testing: `temp/package/`
-- File generation tests: `temp/test-files/`
-- Any temporary artifacts: `temp/artifacts/`
+- File tests: `temp/test-files/`
+- Artifacts: `temp/artifacts/`
 
-The `temp/` directory is gitignored and safe for any testing activities.
-
-## Configuration Schema
+## Config Schema (Essential Fields)
 ```typescript
 {
-  schemaVersion: 1
+  allowSymlinks: boolean
   copyToClipboard: boolean
   generatedFileName: string
   generateHtml: boolean
   generateMarkdown: boolean
   generateText: boolean
-  maxFileSizeKB: number
-  parseSubDirectories: boolean
-  parsedFileExtensions: {
-    web: string[]       // .js, .ts, .tsx, .vue, etc.
-    backend: string[]   // .py, .go, .java, .rs, etc. 
-    config: string[]    // .json, .yaml, .toml, etc.
-    cpp: string[]       // .c, .cpp, .h, .hpp
-    scripts: string[]   // .sh, .bat, .ps1
-    godot: string[]     // .gd, .tscn, .tres
-    doc: string[]       // .md, .rst, .adoc
-  }
-  rootDirectory: string
   ignorePatterns: string[]
+  maxFileSizeKB: number
+  maxFiles: number
+  maxTotalSizeMB: number
+  parsedFileExtensions: {
+    backend: string[]   // .cs, .go, .java, .php, .py, .rb, .rs
+    config: string[]    // .json, .toml, .xml, .yaml, .yml
+    cpp: string[]       // .c, .cc, .cpp, .h, .hpp
+    doc: string[]       // .adoc, .md, .rst
+    godot: string[]     // .cfg, .cs, .gd, .import, .tscn, .tres
+    scripts: string[]   // .bat, .cmd, .ps1, .sh
+    web: string[]       // .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
+  }
+  parseSubDirectories: boolean
+  rootDirectory: string
+  schemaVersion: 1
   useGitIgnoreForExcludes: boolean
 }
 ```
 
 ## Core Workflow
-1. Load `project-fusion.json` config with Zod validation
-2. Scan files by extensions, apply .gitignore + custom ignore patterns
-3. Generate triple output:
-   - `project-fusioned.txt` - Plain text with separators
-   - `project-fusioned.md` - Markdown with syntax highlighting + TOC
-   - `project-fusioned.html` - HTML with responsive design + interactive TOC
+1. Load/validate `project-fusion.json` config (Zod schema)
+2. Scan files by extensions, apply .gitignore + ignore patterns
+3. Generate outputs:
+   - `.txt` - Plain text with separators
+   - `.md` - Markdown with syntax highlighting + TOC
+   - `.html` - Responsive design + interactive TOC
 
-## Key Implementation Details
+## Implementation Details
 - **Branded types** (FilePath) prevent string confusion
 - **Discriminated unions** (FusionResult) for type-safe error handling  
 - **ESM modules** with strict TypeScript
-- **Configuration fallbacks** - uses defaults if config missing/invalid
+- **Plugin system** for extensibility
+- **Output strategies** for different formats
+- **File system adapters** for testability
 
 ## Quick Reference
-- **Add extensions**: Update `src/schema.ts` + `src/utils.ts` default config
+- **Add extensions**: Update `src/schema.ts` + `src/utils.ts`
 - **Add commands**: Register in `src/cli.ts`, implement in `src/clicommands.ts`
-- **Modify output**: Edit `src/fusion.ts` processing logic
+- **Modify output**: Edit output strategies in `src/strategies/`
+- **Add plugins**: Use plugin system in `src/plugins/`
 
-## Documentation Style Guide
-- **Keep it simple and professional**: Avoid superlatives and marketing language
-- **Be factual**: Describe features without overselling
-- **Use neutral tone**: Focus on functionality rather than promotional phrases
-- **No excessive adjectives**: Avoid words like "powerful", "beautiful", "smart", etc.
+## Documentation Style
+- Keep it simple and factual
+- Use neutral tone, avoid marketing language
+- No excessive adjectives or superlatives

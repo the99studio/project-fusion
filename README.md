@@ -4,17 +4,17 @@
 [![npm version](https://badge.fury.io/js/project-fusion.svg)](https://badge.fury.io/js/project-fusion)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Merge multiple project files into a single file for easy sharing and collaboration.
+Merge project files into a single file for easy sharing and collaboration.
 
 > 📚 **[Development Guide](./DEVELOPMENT.md)** | 📋 **[AI Context](./CLAUDE.md)**
 
-## What it does
+## Overview
 
-Project Fusion scans your project directory and creates a single file containing all your source code. Perfect for:
-- Sharing code for review or collaboration
-- Providing context to AI assistants
-- Creating project snapshots
-- Documentation and archiving
+Scans your project directory and creates fusion files containing all source code. Perfect for:
+- Code review/collaboration  
+- AI assistant context
+- Project snapshots
+- Documentation
 
 ## Installation
 
@@ -22,52 +22,42 @@ Project Fusion scans your project directory and creates a single file containing
 npm install -g project-fusion
 ```
 
-Requires Node.js 18.0.0 or higher.
+Requires Node.js 18.0.0+
 
 ## Quick Start
 
 ```bash
-# Navigate to your project
 cd your-project
-
-# Create fusion files
 project-fusion
 ```
 
-This generates three files:
-- `project-fusioned.txt` - Plain text for universal compatibility
+Generates:
+- `project-fusioned.txt` - Plain text 
 - `project-fusioned.md` - Markdown with syntax highlighting  
 - `project-fusioned.html` - Interactive HTML with navigation
 
-## Basic Usage
+## Usage
 
-### Default: Create fusion files
 ```bash
+# Basic fusion
 project-fusion
-```
 
-### Initialize configuration (optional)
-```bash
+# Initialize config (optional)
 project-fusion init
-```
-Creates `project-fusion.json` to customize:
-- Which file types to include
-- Directories to ignore
-- Output file names
-- File size limits
 
-### Filter by file type
-```bash
-# Only web files (JS, TS, CSS, HTML)
-project-fusion --extensions web
+# Filter by file type
+project-fusion --extensions web,backend
 
-# Multiple categories
-project-fusion --extensions web,backend,config
+# Custom output directory
+project-fusion --out ./output
+
+# Preview files without generating
+project-fusion --preview
 ```
 
 ## Configuration
 
-After running `project-fusion init`, you can edit `project-fusion.json`:
+Run `project-fusion init` to create `project-fusion.json`:
 
 ```json
 {
@@ -84,67 +74,48 @@ After running `project-fusion init`, you can edit `project-fusion.json`:
 }
 ```
 
-### Supported File Types
+## File Types
 
-**Web**: JS, TS, JSX, TSX, CSS, HTML, Vue, Svelte  
-**Backend**: Python, Go, Java, PHP, Ruby, Rust, C#  
-**Config**: JSON, YAML, TOML, XML  
-**Scripts**: Shell, Batch, PowerShell  
-**C/C++**: C, C++, Headers  
-**Docs**: Markdown, reStructuredText, AsciiDoc  
+**Backend**: .cs, .go, .java, .php, .py, .rb, .rs  
+**Config**: .json, .yaml, .toml, .xml  
+**C/C++**: .c, .cpp, .h, .hpp  
+**Docs**: .md, .rst, .adoc  
+**Scripts**: .sh, .bat, .ps1  
+**Web**: .js, .ts, .jsx, .tsx, .css, .html, .vue, .svelte  
 
-## Output Formats
-
-| Format | Best For | Features |
-|--------|----------|----------|
-| `.txt` | Universal sharing | Plain text, works everywhere |
-| `.md` | GitHub/GitLab | Syntax highlighting, table of contents |
-| `.html` | Web viewing | Interactive navigation, responsive design |
-
-## Programmatic API
-
-Project Fusion provides TypeScript APIs for integration:
+## API
 
 ```javascript
 import { projectFusion } from 'project-fusion/fluent';
 
-// Fluent API
 const result = await projectFusion()
   .include(['web'])
+  .exclude(['*.test.js'])
+  .maxSize('2MB')
+  .output(['md', 'html'])
   .generate();
 ```
 
-For advanced usage, VS Code extensions, CI/CD integration, and complete API reference, see the **[Development Guide](./DEVELOPMENT.md#advanced-api-usage)**.
+See **[Development Guide](./DEVELOPMENT.md#advanced-api-usage)** for complete API reference.
 
 ## Security
 
-Project Fusion includes built-in protection against:
-- Path traversal attacks
-- Symbolic link exploitation
-- Binary file corruption
-- XSS in HTML output
-
-All paths are validated to stay within your project directory.
+Built-in protection against path traversal, symlink exploitation, and XSS. All paths validated within project directory.
 
 ## Commands
 
 | Command | Description |
 |---------|------------|
-| `project-fusion` | Create fusion files (default) |
-| `project-fusion init` | Initialize configuration |
-| `project-fusion config-check` | Validate configuration |
+| `project-fusion` | Create fusion files |
+| `project-fusion init` | Initialize config |
+| `project-fusion config-check` | Validate config |
 | `project-fusion --help` | Show help |
-| `project-fusion --version` | Show version |
-
-## Contribution
-
-See **[Contributing](./CONTRIBUTING.md)** for details.
 
 ## License
 
-MIT - See [LICENSE](./LICENSE) for details.
+MIT - See [LICENSE](./LICENSE)
 
 ## Links
 
-- **GitHub**: [github.com/the99studio/project-fusion](https://github.com/the99studio/project-fusion)
-- **NPM**: [npmjs.com/package/project-fusion](https://www.npmjs.com/package/project-fusion)
+- [GitHub](https://github.com/the99studio/project-fusion)
+- [NPM](https://npmjs.com/package/project-fusion)

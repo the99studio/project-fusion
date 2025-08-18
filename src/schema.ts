@@ -13,7 +13,7 @@ const ParsedFileExtensionsSchema = z.object({
     config: z.array(z.string()).default([".json", ".toml", ".xml", ".yaml", ".yml"]),
     cpp: z.array(z.string()).default([".c", ".cc", ".cpp", ".h", ".hpp"]),
     doc: z.array(z.string()).default([".adoc", ".md", ".rst"]),
-    godot: z.array(z.string()).default([".cfg", ".cs", ".gd", ".import", ".tscn", ".tres"]),
+    godot: z.array(z.string()).default([".cfg", ".cs", ".gd", ".import", ".tres", ".tscn"]),
     scripts: z.array(z.string()).default([".bat", ".cmd", ".ps1", ".sh"]),
     web: z.array(z.string()).default([".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]),
 }).and(z.record(z.string(), z.array(z.string())));
@@ -37,7 +37,7 @@ export const ConfigSchemaV1 = z.object({
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
         doc: [".adoc", ".md", ".rst"],
-        godot: [".cfg", ".cs", ".gd", ".import", ".tscn", ".tres"],
+        godot: [".cfg", ".cs", ".gd", ".import", ".tres", ".tscn"],
         scripts: [".bat", ".cmd", ".ps1", ".sh"],
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
     }),
