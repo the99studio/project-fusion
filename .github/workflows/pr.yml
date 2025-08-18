@@ -1,0 +1,91 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pr-check:
+    name: PR Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for better diff analysis
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run type checking
+        run: npm run typecheck
+      
+      - name: Run linting
+        run: npm run lint
+      
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Test package integrity
+        run: |
+          # Test that the package can be packed
+          npm pack --dry-run
+          echo "✅ Package integrity check passed"
+      
+      - name: Comment PR with test results
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && comment.body.includes('🤖 PR Quality Check')
+            );
+            
+            const success = '${{ job.status }}' === 'success';
+            const body = `🤖 PR Quality Check ${success ? '✅ PASSED' : '❌ FAILED'}
+            
+            ${success ? 
+              '✅ All checks passed! This PR is ready for review.' : 
+              '❌ Some checks failed. Please review the logs and fix any issues.'
+            }
+            
+            **Checks performed:**
+            - ✅ TypeScript compilation
+            - ✅ ESLint validation  
+            - ✅ Test suite execution
+            - ✅ Build process
+            - ✅ Package integrity
+            `;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

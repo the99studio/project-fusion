@@ -1,5 +1,9 @@
 # Project Fusion
 
+[![CI](https://github.com/the99studio/project-fusion/actions/workflows/ci.yml/badge.svg)](https://github.com/the99studio/project-fusion/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/project-fusion.svg)](https://badge.fury.io/js/project-fusion)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Merge multiple project files into a single file for easy sharing and collaboration.
 
 > 📚 **[Development Guide](./DEVELOPMENT.md)** | 📋 **[AI Context](./CLAUDE.md)**
