@@ -28,7 +28,15 @@ program
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
     .option('--allow-symlinks', 'Allow processing symbolic links (SECURITY WARNING: use with caution)')
-    .action((options: { extensions?: string; root?: string; allowSymlinks?: boolean }) => {
+    .option('--plugins-dir <directory>', 'Directory containing plugins to load')
+    .option('--plugins <names>', 'Comma-separated list of plugin names to enable')
+    .action((options: { 
+        extensions?: string; 
+        root?: string; 
+        allowSymlinks?: boolean;
+        pluginsDir?: string;
+        plugins?: string;
+    }) => {
         // Default action is to run fusion
         void runFusionCommand(options);
     });

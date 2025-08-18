@@ -18,7 +18,13 @@ import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
  * Run the fusion command
  * @param options Command options
  */
-export async function runFusionCommand(options: { extensions?: string, root?: string, allowSymlinks?: boolean }): Promise<void> {
+export async function runFusionCommand(options: { 
+    extensions?: string;
+    root?: string;
+    allowSymlinks?: boolean;
+    pluginsDir?: string;
+    plugins?: string;
+}): Promise<void> {
     try {
         console.log(chalk.blue('🔄 Starting Fusion Process...'));
 
@@ -43,7 +49,25 @@ export async function runFusionCommand(options: { extensions?: string, root?: st
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
         }
 
-        const fusionOptions: FusionOptions = extensionGroups ? { extensionGroups } : {};
+        // Build fusion options with plugin support
+        const fusionOptions: FusionOptions = {};
+        
+        if (extensionGroups) {
+            fusionOptions.extensionGroups = extensionGroups;
+        }
+        
+        // Handle plugins directory
+        if (options.pluginsDir) {
+            fusionOptions.pluginsDir = path.resolve(options.pluginsDir);
+            console.log(chalk.blue(`📦 Loading plugins from: ${fusionOptions.pluginsDir}`));
+        }
+        
+        // Handle enabled plugins list
+        if (options.plugins) {
+            fusionOptions.enabledPlugins = options.plugins.split(',').map(p => p.trim());
+            console.log(chalk.blue(`🔌 Enabled plugins: ${fusionOptions.enabledPlugins.join(', ')}`));
+        }
+
         const result = await processFusion(config, fusionOptions);
 
         if (result.success) {

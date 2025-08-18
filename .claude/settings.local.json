@@ -16,6 +16,7 @@
             "Bash(jest *)",
             "Bash(ls *)",
             "Bash(mkdir *)",
+            "Bash(mkdir:*)",
             "Bash(mv *)",
             "Bash(mv:*)",
             "Bash(node *)",
@@ -48,8 +49,7 @@
             "Bash(tree *)",
             "Bash(tsc *)",
             "Bash(vitest *)",
-            "Bash(wc -l *)",
-            "Bash(mkdir:*)"
+            "Bash(wc -l *)"
         ],
         "deny": [
             "Bash(chmod 777 *)",
