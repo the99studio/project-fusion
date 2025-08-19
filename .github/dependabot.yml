@@ -24,6 +24,13 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Auto-merge configuration
+    allow:
+      - dependency-type: "direct:development"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "direct:development"
+        update-type: "version-update:semver-minor"
+      - dependency-type: "indirect"
       
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -34,3 +41,9 @@ updates:
       time: "09:00"
     commit-message:
       prefix: "ci"
+    # Auto-merge for GitHub Actions (usually safe)
+    allow:
+      - dependency-type: "direct:production"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "direct:production"
+        update-type: "version-update:semver-minor"
