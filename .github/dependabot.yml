@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Enable version updates for npm
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -10,7 +11,21 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # Group minor and patch updates
+    groups:
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "@typescript-eslint/*"
+          - "eslint*"
+          - "@vitest/*"
+          - "vitest"
+          - "typescript"
+        update-types:
+          - "minor"
+          - "patch"
       
+  # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"
     schedule:
