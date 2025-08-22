@@ -1,7 +1,7 @@
 # Project Fusion
 
-[![CI](https://github.com/the99studio/project-fusion/actions/workflows/ci.yml/badge.svg)](https://github.com/the99studio/project-fusion/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/%40the99studio%2Fproject-fusion.svg)](https://badge.fury.io/js/%40the99studio%2Fproject-fusion)
+[![CI](https://img.shields.io/github/actions/workflow/status/the99studio/project-fusion/ci.yml?label=CI&logo=github)](https://github.com/the99studio/project-fusion/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@the99studio/project-fusion.svg)](https://www.npmjs.com/package/@the99studio/project-fusion)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Merge project files into a single file for easy sharing and AI collaboration.

@@ -20,6 +20,7 @@
 - [ ] **Markdown TOC anchors**: Use a stable slugger (e.g., GitHub‑style) rather than regex replace for headers; ensure duplicates are de‑duped.
 - [ ] **HTML escaping audit**: Keep `escapeHtml()` coverage; add tests for `<script>`, quotes, and high Unicode.
 - [ ] **Language hints**: Improve `getMarkdownLanguage()` mapping for uncommon extensions (e.g., `.gd`, `.tres`, `.tscn`). Add tests.
+- [ ] **Version**: Add project-fusion version used to generate files
 
 ## 5) Tests
 - [ ] **E2E huge project test**: Generate >3,000 files in a temp dir, verify memory stays below a threshold and that streaming works (post‑refactor).
