@@ -1,0 +1,64 @@
+{
+    "editor.detectIndentation": false,
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.wordWrap": "off",
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "typescript.suggest.autoImports": true,
+    "typescript.suggest.paths": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.format.enable": true,
+    "typescript.format.insertSpaceAfterCommaDelimiter": true,
+    "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
+    "typescript.format.insertSpaceBeforeAndAfterBinaryOperators": true,
+    "typescript.format.insertSpaceAfterKeywordsInControlFlowStatements": true,
+    "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": true,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": false,
+    "typescript.format.placeOpenBraceOnNewLineForFunctions": false,
+    "typescript.format.placeOpenBraceOnNewLineForControlBlocks": false,
+    "typescript.inlayHints.enumMemberValues.enabled": true,
+    "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+    "typescript.inlayHints.parameterNames.enabled": "all",
+    "typescript.inlayHints.parameterTypes.enabled": true,
+    "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+    "typescript.inlayHints.variableTypes.enabled": true,
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/package-lock.json": true,
+        "project-fusion.log": true,
+        "project-fusioned.txt": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/package-lock.json": true,
+        "project-fusion.log": true,
+        "project-fusioned.txt": true
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
+}

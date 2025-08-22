@@ -1,0 +1,44 @@
+name: Build & Test
+
+on:
+  workflow_call:
+    outputs:
+      build-success:
+        description: 'Whether build was successful'
+        value: ${{ jobs.build-test.outputs.success }}
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.test.outcome == 'success' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Run tests
+        id: test
+        run: npm test
+      
+      - name: Test CLI functionality
+        run: |
+          node dist/cli.js --help
+          mkdir test-dir && cd test-dir
+          echo 'console.log("test");' > test.js
+          node ../dist/cli.js --preview
+          node ../dist/cli.js --txt --no-clipboard
+          test -f project-fusioned.txt && echo "CLI works"

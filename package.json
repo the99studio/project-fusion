@@ -1,0 +1,96 @@
+{
+    "name": "@the99studio/project-fusion",
+    "version": "1.0.0",
+    "description": "CLI tool for merging project files into a single file for easy sharing",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "bin": {
+        "project-fusion": "dist/cli.js"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./api": {
+            "types": "./dist/api.d.ts",
+            "import": "./dist/api.js"
+        },
+        "./fluent": {
+            "types": "./dist/fluent.d.ts",
+            "import": "./dist/fluent.js"
+        },
+        "./plugins": {
+            "types": "./dist/plugins/plugin-system.d.ts",
+            "import": "./dist/plugins/plugin-system.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "CHANGELOG.md",
+        "LICENSE",
+        "README.md",
+        "dist/**/*"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "build": "npm run lint && tsc",
+        "build:clean": "npm run clean && npm run build",
+        "clean": "rm -rf dist",
+        "lint": "eslint src/**/*.ts",
+        "prepublishOnly": "npm run test",
+        "test": "npm run build:clean && vitest run --coverage"
+    },
+    "keywords": [
+        "cli",
+        "code",
+        "collaboration",
+        "files",
+        "fusion",
+        "merge",
+        "sharing"
+    ],
+    "author": "the99studio",
+    "license": "MIT",
+    "engines": {
+        "node": ">=20.10.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/the99studio/project-fusion.git"
+    },
+    "bugs": {
+        "url": "https://github.com/the99studio/project-fusion/issues"
+    },
+    "homepage": "https://github.com/the99studio/project-fusion#readme",
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
+        "chalk": "^5.6.0",
+        "clipboardy": "^4.0.0",
+        "commander": "^14.0.0",
+        "fs-extra": "^11.3.1",
+        "glob": "^11.0.3",
+        "ignore": "^7.0.5",
+        "minimatch": "^10.0.3",
+        "zod": "^4.0.17"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/node": "^24.3.0",
+        "@typescript-eslint/eslint-plugin": "^8.40.0",
+        "@typescript-eslint/parser": "^8.40.0",
+        "@vitest/coverage-v8": "^3.2.4",
+        "eslint": "^9.33.0",
+        "eslint-import-resolver-typescript": "^4.4.4",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-node": "^11.1.0",
+        "eslint-plugin-unicorn": "^60.0.0",
+        "fast-check": "^4.2.0",
+        "typescript": "^5.9.2",
+        "typescript-eslint": "^8.40.0",
+        "vitest": "^3.2.4"
+    }
+}

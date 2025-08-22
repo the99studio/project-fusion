@@ -1,0 +1,126 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2025 the99studio
+/**
+ * Configuration schema definitions for Project Fusion
+ */
+import { z } from 'zod';
+
+/**
+ * File extension groups with support for custom categories
+ */
+const ParsedFileExtensionsSchema = z.object({
+    backend: z.array(z.string()).default([".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"]),
+    config: z.array(z.string()).default([".json", ".toml", ".xml", ".yaml", ".yml"]),
+    cpp: z.array(z.string()).default([".c", ".cc", ".cpp", ".h", ".hpp"]),
+    doc: z.array(z.string()).default([".adoc", ".md", ".rst"]),
+    godot: z.array(z.string()).default([".cfg", ".cs", ".gd", ".import", ".tres", ".tscn"]),
+    scripts: z.array(z.string()).default([".bat", ".cmd", ".ps1", ".sh"]),
+    web: z.array(z.string()).default([".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]),
+}).and(z.record(z.string(), z.array(z.string())));
+
+/**
+ * Complete configuration schema for version 1
+ * All properties organized alphabetically with contentValidation moved to top level
+ */
+export const ConfigSchemaV1 = z.object({
+    allowExternalPlugins: z.boolean().default(false),
+    allowSymlinks: z.boolean().default(false),
+    copyToClipboard: z.boolean().default(false),
+    excludeSecrets: z.boolean().default(true),
+    generatedFileName: z.string().default("project-fusioned"),
+    generateHtml: z.boolean().default(true),
+    generateMarkdown: z.boolean().default(true),
+    generateText: z.boolean().default(true),
+    ignorePatterns: z.array(z.string()).default([
+        "*.7z",
+        "*.a",
+        "*.avi",
+        "*.bmp",
+        "*.blend",
+        "*.class",
+        "*.dll",
+        "*.doc",
+        "*.docx",
+        "*.dylib",
+        "*.exe",
+        "*.fbx",
+        "*.flac",
+        "*.flv",
+        "*.gif",
+        "*.gz",
+        "*.ico",
+        "*.jar",
+        "*.jpeg",
+        "*.jpg",
+        "*.key",
+        "*.log",
+        "*.min.css",
+        "*.min.js",
+        "*.mov",
+        "*.mp3",
+        "*.mp4",
+        "*.o",
+        "*.obj",
+        "*.pdf",
+        "*.pem",
+        "*.png",
+        "*.ppt",
+        "*.pptx",
+        "*.pyc",
+        "*.pyo",
+        "*.rar",
+        "*.so",
+        "*.svg",
+        "*.swo",
+        "*.swp",
+        "*.tar",
+        "*.tgz",
+        "*.uasset",
+        "*.unitypackage",
+        "*.war",
+        "*.wav",
+        "*.webp",
+        "*.wmv",
+        "*.xls",
+        "*.xlsx",
+        "*.zip",
+        "**/credentials/*",
+        "**/secrets/*",
+        ".DS_Store",
+        ".env",
+        ".env.*",
+        ".idea/",
+        ".vscode/",
+        "build/",
+        "dist/",
+        "logs/",
+        "node_modules/",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "project-fusion.json",
+        "project-fusion.log",
+        "project-fusioned.*",
+        "Thumbs.db",
+        "yarn.lock"
+    ]),
+    maxBase64BlockKB: z.number().min(0.5).max(10).default(2),
+    maxFileSizeKB: z.number().default(1024),
+    maxFiles: z.number().min(1).default(10000),
+    maxLineLength: z.number().min(1000).max(50000).default(5000),
+    maxTokenLength: z.number().min(500).max(20000).default(2000),
+    maxTotalSizeMB: z.number().min(0.001).default(100),
+    outputDirectory: z.string().optional(),
+    parsedFileExtensions: ParsedFileExtensionsSchema.default({
+        backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
+        config: [".json", ".toml", ".xml", ".yaml", ".yml"],
+        cpp: [".c", ".cc", ".cpp", ".h", ".hpp"],
+        doc: [".adoc", ".md", ".rst"],
+        godot: [".cfg", ".cs", ".gd", ".import", ".tres", ".tscn"],
+        scripts: [".bat", ".cmd", ".ps1", ".sh"],
+        web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
+    }),
+    parseSubDirectories: z.boolean().default(true),
+    rootDirectory: z.string().default("."),
+    schemaVersion: z.literal(1).default(1),
+    useGitIgnoreForExcludes: z.boolean().default(true)
+});

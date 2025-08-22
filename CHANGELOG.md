@@ -1,0 +1,108 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.0] - 2025-01-22 (In Development)
+
+### Initial Release
+
+Project Fusion is a CLI tool that merges multiple project files into a single file for easy sharing and collaboration. This initial release provides multiple output formats.
+
+### Added
+
+#### Core Features
+- **CLI interface** built with Commander.js
+  - Command-line options for dynamic configuration overrides
+  - Simple command structure: `project-fusion`, `project-fusion init`, `project-fusion config-check`
+  - Version and help commands
+- **Configuration system** with JSON schema validation using Zod
+  - Automatic configuration generation with `init` command
+  - Customizable ignore patterns with .gitignore integration
+  - File extension support (35+ extensions) organized by category
+- **Multi-format output generation** - Supports .txt, .md, and .html formats
+  - HTML (.html) with responsive design and navigation
+  - Markdown (.md) with syntax highlighting and table of contents
+  - Plain text (.txt) with file separators
+
+#### File Extension Support (38 extensions)
+- **Backend Languages**: .cs, .go, .java, .php, .py, .rb, .rs
+- **C/C++**: .c, .cc, .cpp, .h, .hpp
+- **Configuration**: .json, .toml, .xml, .yaml, .yml
+- **Documentation**: .adoc, .md, .rst
+- **Godot Engine**: .cfg, .cs, .gd, .import, .tscn, .tres
+- **Scripts**: .bat, .cmd, .ps1, .sh
+- **Web Development**: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
+
+#### APIs and Integration
+- **File system adapters** - Abstraction layer with memory and disk implementations
+- **Fluent API** - Chainable interface for configuration (`projectFusion().include(['web']).generate()`)
+- **Memory management** - Built-in memory usage tracking and limits
+- **Output strategies** - Pluggable output format system (Text, Markdown, HTML)
+- **Plugin system** - Extensible architecture with hooks for custom processing
+- **Programmatic API** - Use Project Fusion in other applications with progress reporting
+- **VS Code Extension Support** - Progress callbacks and cancellation tokens for IDE integration
+
+#### Technical Features  
+- **Branded types** (FilePath) for type-safe path handling
+- **Clipboard integration** with automatic fallback for CI environments
+- **Content validation** - Detects base64 blocks >2KB, tokens >2000 chars, lines >5000 chars
+- **Discriminated unions** for error handling (FusionResult)
+- **Error handling** with FusionError class, error codes, and severity levels
+- **Node.js 20.10+ requirement** for enhanced performance and features
+- **Performance tracking** - BenchmarkTracker for metrics and optimization
+- **Secret redaction** - Automatic detection and masking of sensitive information
+- **TypeScript 5.9.2** with strict mode and ESM modules
+
+#### Testing and Quality
+- **Comprehensive test coverage** with Vitest - 20+ test suites
+- **Error boundaries** and failure handling
+- **ESLint v9** flat configuration with strict rules
+- **Memory filesystem testing** for isolated unit tests
+- **Modular architecture** with separation of concerns
+- **Performance benchmarks** - Resource limit and throughput tests
+- **Property-based testing** with fast-check for edge cases
+- **SPDX license headers** in all source files
+
+#### Configuration Features
+- **Custom ignore patterns** with glob support
+- **Default values** with fallback configuration
+- **gitignore integration** with automatic .gitignore parsing
+- **Preview mode** - List files without generating output
+- **Resource limits** - File size, file count, and total size limits
+- **Schema versioning** for future compatibility
+- **Subdirectory parsing** control
+
+### Technical Implementation
+- **Architecture** with separation between CLI, fusion logic, and utilities
+- **Automatic generated file exclusion** - Prevents including fusion outputs in new fusions
+- **Cross-platform compatibility** (Windows, macOS, Linux)
+- **File scanning** with glob patterns and ignore filtering
+- **File size limits** configurable per project
+- **Streaming support** for large file processing
+- **Zod validation** for configuration validation with schema versioning
+
+### Security Features
+- **Binary file detection** - Automatic detection and skipping of binary files using null byte analysis
+- **Comprehensive security testing** - 20+ security tests covering all attack vectors
+- **Content validation** - Strict validation for base64, token length, and line length limits
+- **Path traversal protection** - All file paths validated to remain within root directory
+- **Plugin security** - External plugin loading disabled by default, path validation for plugin files
+- **Safe error handling** - Security-related errors logged without exposing sensitive path information
+- **Secret exclusion** - Automatic detection and redaction of API keys, tokens, and passwords
+- **Symbolic link protection** - Symlinks detected and blocked by default, configurable via `allowSymlinks`
+- **XSS prevention** - All HTML output properly escaped to prevent cross-site scripting attacks
+
+### Documentation
+- CHANGELOG.md with version history
+- CLAUDE.md for AI context
+- CONTRIBUTING.md with guidelines
+- DEVELOPMENT.md for contributors
+- MIT License
+- README.md with quick start guide
+
+---
+
+[1.0.0]: https://github.com/the99studio/project-fusion/releases/tag/v1.0.0
