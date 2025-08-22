@@ -51,7 +51,12 @@ jobs:
       - name: Update package.json version
         run: |
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
-          npm version $TAG_VERSION --no-git-tag-version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" != "$TAG_VERSION" ]; then
+            npm version $TAG_VERSION --no-git-tag-version
+          else
+            echo "Version already set to $TAG_VERSION"
+          fi
       
       - name: Build project
         run: npm run build:clean
