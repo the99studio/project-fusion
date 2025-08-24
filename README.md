@@ -157,6 +157,10 @@ project-fusion [options]
   init [--force]                Create project-fusion.json configuration file
 ```
 
+## Important Warnings
+
+⚠️ **GDPR/PII Notice**: This tool processes and consolidates source code files. Do not use it on projects containing personal data, credentials, or sensitive information without proper consent and data protection measures. Always review output before sharing.
+
 ## License
 
 MIT - See [LICENSE](./LICENSE)
