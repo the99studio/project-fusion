@@ -1,109 +1,97 @@
 # Project Fusion - AI Context
 
-> 📖 **Human Dev**: See [DEVELOPMENT.md](./DEVELOPMENT.md)
+> 📖 **For Human Developers**: See [DEVELOPMENT.md](./DEVELOPMENT.md)
 
-## Overview
-CLI merging project files into .txt/.md/.html for AI collaboration. Node 20.10+, TS 5.9.2 ESM.
+## Quick Start
+CLI tool merging project files into single .txt/.md/.html for AI collaboration.
+- **Runtime**: Node 20.10+, TypeScript 5.9.2, ESM modules
+- **Purpose**: Generate consolidated project snapshots for LLM context
 
-## Architecture
+## Architecture Overview
 ```
 src/
-├── adapters/file-system.ts     # FS abstraction
-├── api.ts                      # Programmatic API + VS Code support
-├── benchmark.ts                # Performance tracking
-├── cli.ts, clicommands.ts      # CLI interface
-├── fluent.ts                   # Fluent API builder
-├── fusion.ts                   # Core processing logic
+├── adapters/file-system.ts     # FS abstraction layer
+├── api.ts                      # Programmatic API + VS Code integration
+├── benchmark.ts                # Performance metrics
+├── cli.ts, clicommands.ts      # CLI entry points
+├── fluent.ts                   # Fluent API builder pattern
+├── fusion.ts                   # Core processing engine
 ├── plugins/plugin-system.ts    # Plugin architecture
-├── schema.ts, types.ts         # Type definitions
-├── strategies/output-*.ts      # Output formats
-└── utils.ts                    # Utilities + validation
+├── schema.ts                   # Zod schemas + config validation
+├── types.ts                    # TypeScript type definitions
+├── strategies/output-*.ts      # Output format strategies
+├── utils.ts                    # Utilities + security validation
+└── utils/logger.ts             # Centralized logging system
 ```
 
-## Key APIs
-```typescript
-// Programmatic (with progress/cancellation)
-fusionAPI({ rootDirectory: '.', onProgress: (p) => {} })
+## Critical Security Rules
+1. **Path Traversal**: Always use `validateSecurePath()` from utils.ts
+2. **Binary Detection**: Check null bytes before processing
+3. **Content Validation**: Enforce limits (base64 >2KB, tokens >2000, lines >5000)
+4. **Secret Redaction**: Auto-redact API keys, tokens, passwords in output
+5. **Plugin Security**: External plugins require `allowExternalPlugins` flag
+6. **Symlinks**: Disabled by default, check `allowSymlinks` config
+7. **XSS Prevention**: Sanitize HTML output in output-strategy.ts
 
-// Fluent
-projectFusion().include(['web']).maxSize('2MB').generate()
+## Core Processing Flow
+1. Config validation via Zod schemas
+2. File discovery with gitignore respect
+3. Security checks (path, symlink, binary)
+4. Content validation and filtering
+5. Plugin hooks execution
+6. Output generation (text/markdown/HTML)
+7. Optional clipboard copy
 
-// Plugin hooks
-beforeFileProcessing, afterFusion, registerOutputStrategies
-```
+## Key Configuration Points
+- **File Extensions**: `schema.ts:parsedFileExtensions` object
+- **Ignore Patterns**: `utils.ts:defaultConfig.ignorePatterns`
+- **Size Limits**: `maxFileSizeKB`, `maxTotalSizeMB`, `maxFiles`
+- **Security Flags**: `allowSymlinks`, `allowExternalPlugins`, `excludeSecrets`
 
-## Config Schema
-```typescript
-{
-  // Core
-  rootDirectory: string
-  generatedFileName: string  
-  schemaVersion: 1
-  
-  // Output
-  generate{Text,Markdown,Html}: boolean
-  copyToClipboard: boolean
-  outputDirectory?: string
-  
-  // Limits
-  max{FileSizeKB,Files,TotalSizeMB}: number
-  max{Base64BlockKB,TokenLength,LineLength}: number
-  
-  // Security
-  allowSymlinks: boolean
-  allowExternalPlugins: boolean
-  excludeSecrets: boolean
-  
-  // Filtering
-  parseSubDirectories: boolean
-  useGitIgnoreForExcludes: boolean
-  ignorePatterns: string[]
-  parsedFileExtensions: {
-    backend: ['.cs','.go','.java','.php','.py','.rb','.rs']
-    config: ['.json','.toml','.xml','.yaml']
-    cpp: ['.c','.cpp','.h','.hpp']
-    doc: ['.adoc','.md','.rst']
-    godot: ['.cfg','.gd','.import','.tres','.tscn']
-    scripts: ['.bat','.cmd','.ps1','.sh']
-    web: ['.js','.jsx','.svelte','.ts','.tsx','.vue']
-  }
-}
-```
+## Plugin System
+- Hooks: `beforeFileProcessing`, `afterFileProcessing`, `beforeFusion`, `afterFusion`
+- Registration: `registerFileExtensions`, `registerOutputStrategies`
+- Lifecycle: `initialize`, `cleanup`
+- All in `plugins/plugin-system.ts`
 
-## Security Features
-- Binary file auto-skip via null byte detection
-- Content validation (base64 >2KB, tokens >2000, lines >5000)
-- Path traversal protection via `validateSecurePath()`
-- Plugin path validation
-- Secret redaction (API keys, tokens, passwords)
-- Symlink detection/blocking (configurable)
-- XSS prevention in HTML output
+## Error Handling Pattern
+- Use discriminated unions for `FusionResult`
+- Throw `FusionError` with specific codes
+- Add error placeholders for rejected content
+- Log via centralized Logger, never expose paths
 
-## Testing Strategy
-- Memory FS for isolated tests
-- Performance benchmarks
-- Property-based testing (fast-check)
-- Security test coverage
-- Vitest + 20 test suites
+## Testing Requirements
+- Coverage threshold: 80% (vitest.config.ts)
+- Use MemoryFileSystemAdapter for isolation
+- Property-based tests with fast-check
+- Security test suite mandatory for changes
 
-## Commands
+## Performance Considerations
+- Stream large files when possible
+- Early exit on binary detection
+- Respect configurable limits
+- Track metrics via benchmark.ts
+
+## VS Code Integration
+- API exports progress callbacks
+- Cancellation token support
+- Direct clipboard integration
+- See api.ts for implementation
+
+## Commands Reference
 ```bash
-npm run build          # TS→JS + lint
-npm run test           # Full test suite
-npm run typecheck      # Type validation
-project-fusion         # Run fusion
-project-fusion init    # Create config
+npm run build          # Compile + lint
+npm run test           # Test suite with coverage
+npm run typecheck      # Type checking only
+npm run lint           # ESLint validation
 ```
 
-## Quick Edits
-- CLI options: `clicommands.ts`
-- Extensions: `schema.ts:parsedFileExtensions`
-- Ignore patterns: `utils.ts:defaultConfig.ignorePatterns`
-- Output formats: `strategies/output-strategy.ts`
-- Plugin hooks: `plugins/plugin-system.ts`
-
-## Error Handling
-- Discriminated unions (`FusionResult`)
-- Error placeholders for rejected content
-- `FusionError` with codes/severity
-- Safe logging without path exposure
+## Quick Location Guide
+- **CLI Commands**: clicommands.ts (init, config-check, etc.)
+- **Config Validation**: schema.ts + utils.ts:validateConfig()
+- **File Processing**: fusion.ts:processFiles()
+- **Output Generation**: strategies/output-strategy.ts
+- **Plugin Loading**: plugins/plugin-system.ts:loadPlugin()
+- **Security Checks**: utils.ts:validateSecurePath(), isBinaryFile()
+- **Progress Reporting**: api.ts (onProgress callback)
+- **Logger Setup**: utils/logger.ts
