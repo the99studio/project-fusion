@@ -7,21 +7,45 @@ CLI tool merging project files into single .txt/.md/.html for AI collaboration.
 - **Runtime**: Node 20.10+, TypeScript 5.9.2, ESM modules
 - **Purpose**: Generate consolidated project snapshots for LLM context
 
-## Architecture Overview
+## Project Structure
 ```
-src/
-├── adapters/file-system.ts     # FS abstraction layer
-├── api.ts                      # Programmatic API + VS Code integration
-├── benchmark.ts                # Performance metrics
-├── cli.ts, clicommands.ts      # CLI entry points
-├── fluent.ts                   # Fluent API builder pattern
-├── fusion.ts                   # Core processing engine
-├── plugins/plugin-system.ts    # Plugin architecture
-├── schema.ts                   # Zod schemas + config validation
-├── types.ts                    # TypeScript type definitions
-├── strategies/output-*.ts      # Output format strategies
-├── utils.ts                    # Utilities + security validation
-└── utils/logger.ts             # Centralized logging system
+project-fusion/
+├── .github/workflows/      # CI/CD pipelines
+│   ├── build-test.yml      # PR testing (Node 20.x, 22.x)
+│   ├── ci.yml              # Main CI pipeline
+│   └── release.yml         # NPM auto-publish on tags
+├── .vscode/                # IDE configurations
+│   ├── launch.json         # Debug configurations
+│   └── settings.json       # Project settings
+├── dist/                   # Compiled JavaScript output
+├── src/                    # TypeScript source code
+│   ├── adapters/
+│   │   └── file-system.ts  # FS abstraction layer
+│   ├── api.ts              # Programmatic API + VS Code
+│   ├── benchmark.ts        # Performance metrics
+│   ├── cli.ts              # CLI entry point
+│   ├── clicommands.ts      # CLI command handlers
+│   ├── fluent.ts           # Fluent API builder
+│   ├── fusion.ts           # Core processing engine
+│   ├── index.ts            # Main exports
+│   ├── plugins/
+│   │   └── plugin-system.ts    # Plugin architecture
+│   ├── schema.ts           # Zod schemas + config
+│   ├── strategies/
+│   │   └── output-strategy.ts  # Output formats (txt/md/html)
+│   ├── types.ts            # TypeScript type definitions
+│   ├── utils.ts            # Security + validation utilities
+│   └── utils/
+│       └── logger.ts       # Centralized logging
+├── tests/                  # Test suites (30+ files)
+│   ├── __snapshots__/      # Vitest snapshots
+│   └── *.test.ts           # Unit/integration tests
+├── temp/                   # Temporary test files (gitignored)
+├── eslint.config.js        # ESLint configuration
+├── package.json            # Dependencies + scripts
+├── project-fusion.json     # Default config template
+├── tsconfig.json           # TypeScript config (ES2022, ESM)
+└── vitest.config.ts        # Test runner config (80% coverage)
 ```
 
 ## Critical Security Rules
@@ -80,10 +104,18 @@ src/
 
 ## Commands Reference
 ```bash
-npm run build          # Compile + lint
-npm run test           # Test suite with coverage
+# Development
+npm run build          # Compile TypeScript + lint
+npm run test           # Full test suite with coverage
 npm run typecheck      # Type checking only
 npm run lint           # ESLint validation
+npm run clean          # Remove dist directory
+
+# CLI Commands
+project-fusion         # Run fusion with config
+project-fusion init    # Create config file
+project-fusion config-check  # Validate configuration
+project-fusion --help  # Show all options
 ```
 
 ## Quick Location Guide
@@ -95,3 +127,21 @@ npm run lint           # ESLint validation
 - **Security Checks**: utils.ts:validateSecurePath(), isBinaryFile()
 - **Progress Reporting**: api.ts (onProgress callback)
 - **Logger Setup**: utils/logger.ts
+
+## File Extension Groups
+Located in `schema.ts:parsedFileExtensions`:
+- **backend**: .cs, .go, .java, .php, .py, .rb, .rs
+- **config**: .json, .toml, .xml, .yaml
+- **cpp**: .c, .cpp, .h, .hpp
+- **doc**: .adoc, .md, .rst
+- **godot**: .cfg, .gd, .import, .tres, .tscn
+- **scripts**: .bat, .cmd, .ps1, .sh
+- **web**: .js, .jsx, .svelte, .ts, .tsx, .vue
+
+## Default Ignore Patterns
+Located in `utils.ts:defaultConfig.ignorePatterns`:
+- node_modules/, dist/, build/, .git/
+- Binary files: .exe, .dll, .so, .dylib
+- Archives: .zip, .tar, .gz, .rar
+- Media: images, videos, audio files
+- IDE: .idea/, .vscode/, .DS_Store

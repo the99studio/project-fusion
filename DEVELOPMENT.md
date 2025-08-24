@@ -24,84 +24,22 @@ npm run build
 - **Init** - Create new config file
 - **Tests** - Run the full test suite
 
-## Project Structure
+## Architecture
 
-```
-project-fusion/
-├── .github/workflows/      # CI/CD pipelines
-│   ├── build-test.yml      # Build and test workflow
-│   ├── ci.yml              # Continuous integration
-│   └── release.yml         # NPM release automation
-├── dist/                   # Compiled output
-├── src/
-│   ├── adapters/
-│   │   └── file-system.ts  # FS abstraction
-│   ├── api.ts              # Programmatic API
-│   ├── benchmark.ts        # Performance tracking
-│   ├── cli.ts              # CLI entry point
-│   ├── clicommands.ts      # CLI commands
-│   ├── fluent.ts           # Fluent API builder
-│   ├── fusion.ts           # Core processing
-│   ├── index.ts            # Main export
-│   ├── plugins/
-│   │   └── plugin-system.ts    # Plugin manager
-│   ├── schema.ts           # Zod schemas & config
-│   ├── strategies/
-│   │   └── output-strategy.ts  # Output formats
-│   ├── types.ts            # TypeScript types
-│   ├── utils.ts            # Utilities & validation
-│   └── utils/
-│       └── logger.ts       # Centralized logging
-├── tests/                  # Test suites (30+ test files)
-│   └── __snapshots__/      # Vitest snapshots
-└── temp/                   # Test temp files (gitignored)
-```
-
-## Configuration
-
-- **[eslint.config.js](./eslint.config.js)**: Linting rules
-- **[package.json](./package.json)**: Package metadata and scripts
-- **[project-fusion.json](./project-fusion.json)**: Default project config
-- **[tsconfig.json](./tsconfig.json)**: TypeScript configuration (ES2022, ESM)
-- **[vitest.config.ts](./vitest.config.ts)**: Test configuration
+> See [CLAUDE.md](./CLAUDE.md#project-structure) for complete project structure and file organization.
 
 ## Testing
 
 ```bash
-npm run test # Run full test suite with coverage
+npm run test           # Run full test suite with coverage
 ```
 
-- **Coverage**: V8 provider, reports in `./coverage/` (80% threshold)
-- **Framework**: [Vitest](./vitest.config.ts)
-- **Memory FS**: Isolated testing environment using [MemoryFileSystemAdapter](./src/adapters/file-system.ts)
-- **Property tests**: fast-check for edge cases
-- **Temp files**: Use `temp/` directory (gitignored)
-- **Test files**: All in [`tests/`](./tests/) directory
+> See [CLAUDE.md](./CLAUDE.md#testing-requirements) for testing architecture and requirements.
 
-## Performance
-
-- Benchmark tracking via [`benchmark.ts`](./src/benchmark.ts)
-- Binary files automatically detected via null byte check ([`utils.ts`](./src/utils.ts))
-- Configurable limits prevent memory exhaustion ([`schema.ts`](./src/schema.ts))
-- Content validation prevents processing malformed files
-- Parallel test execution with Vitest forks
-- Progress reporting for long-running operations
-
-## Security
-
-- Comprehensive security test suite ([`tests/security*.test.ts`](./tests/))
-- Content validation for suspicious patterns ([`utils.ts`](./src/utils.ts))
-- External plugins require `allowExternalPlugins` flag
-- Path traversal protection via `validateSecurePath()` ([`utils.ts`](./src/utils.ts))
-- Secret redaction in output files (API keys, tokens, passwords)
-- Symlinks disabled by default (configurable via `allowSymlinks`)
-- XSS prevention in HTML output ([`output-strategy.ts`](./src/strategies/output-strategy.ts))
 
 ## CI/CD
 
-- **[build-test.yml](./.github/workflows/build-test.yml)**: Runs on PRs, tests Node 20.x and 22.x
-- **[ci.yml](./.github/workflows/ci.yml)**: Main CI pipeline
-- **[release.yml](./.github/workflows/release.yml)**: Automated NPM publishing on version tags
+> See [CLAUDE.md](./CLAUDE.md#project-structure) for CI/CD pipeline details.
 
 ## Local Package Testing
 
