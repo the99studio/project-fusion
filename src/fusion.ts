@@ -557,10 +557,25 @@ export async function processFusion(
 
         for (const strategy of enabledStrategies) {
             checkCancellation();
-            reportProgress('generating', `Generating ${strategy.name} output...`, finalFilesToProcess.length, finalFilesToProcess.length);
+            reportProgress('generating', `Generating ${strategy.name} output...`, 0, finalFilesToProcess.length);
             
             try {
-                const outputPath = await outputManager.generateOutput(strategy, outputContext, fs);
+                // Use the streaming version with progress callback
+                const outputPath = await outputManager.generateOutput(
+                    strategy, 
+                    outputContext, 
+                    fs,
+                    (fileInfo, index, total) => {
+                        checkCancellation();
+                        reportProgress(
+                            'generating', 
+                            `Generating ${strategy.name} output - processing ${fileInfo.relativePath}`,
+                            index + 1,
+                            total,
+                            fileInfo.relativePath
+                        );
+                    }
+                );
                 generatedPaths.push(outputPath);
                 benchmark.markFileProcessed(0);
             } catch (error) {

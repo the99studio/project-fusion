@@ -1,7 +1,6 @@
 # TODO — Project Fusion (polish for npm release)
 
 ## 1) Reliability & Performance
-- [ ] **Streamed writers for all formats**: Refactor `OutputStrategyManager.generateOutput` to use streams for Markdown/HTML/Text instead of accumulating a giant string. Implement `createStream()` on each strategy and pipe `processFile(...)` chunks to it (handles very large projects gracefully).
 - [ ] **Progress granularity**: In `processFusion`, emit progress every N files + on each phase transition; include ETA and MB processed using `BenchmarkTracker`.
 - [ ] **Cancellation safety**: Wrap long loops with `checkCancellation()` (scan, validate, redact, write). Ensure any open WriteStreams are closed on cancellation.
 - [ ] **Clipboard copy guards**: Skip clipboard work when file size > 5 MB, or when CI/non‑TTY. Already partly handled; add size guard.
