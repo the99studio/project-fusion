@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 23/08/2025 22:09:37 UTC−4
+**Generated:** 23/08/2025 22:27:16 UTC−4
 
-**UTC:** 2025-08-24T02:09:37.483Z
+**UTC:** 2025-08-24T02:27:16.388Z
 
 **Files:** 58
 
@@ -2903,16 +2903,19 @@ export async function processFusion(
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
                     await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks);
                     
+                    checkCancellation();
                     if (await isBinaryFile(safePath)) {
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
                         console.warn(`Skipping binary file: ${relativePath}`);
                         continue;
                     }
                     
+                    checkCancellation();
                     let content = await fs.readFile(createFilePath(safePath));
                     
                     // Redact secrets if enabled
                     if (config.excludeSecrets) {
+                        checkCancellation();
                         const { redactedContent, detectedSecrets } = redactSecrets(content);
                         if (detectedSecrets.length > 0) {
                             content = redactedContent;
@@ -2920,6 +2923,7 @@ export async function processFusion(
                     }
                     
                     // Validate content according to content validation rules
+                    checkCancellation();
                     const validationResult = validateFileContent(content, relativePath, config);
                     
                     // Log warnings and errors
@@ -2976,7 +2980,8 @@ export async function processFusion(
                         isErrorPlaceholder // Track if this is an error placeholder
                     };
 
-                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config) || fileInfo;
+                    checkCancellation();
+                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config, options.cancellationToken) || fileInfo;
                     
                     if (fileInfo) {
                         filesToProcess.push(fileInfo);
@@ -2992,7 +2997,8 @@ export async function processFusion(
         // await logMemoryUsageIfNeeded(logFilePath, 'After file processing');
         // TODO: Implement memory check inline if needed
 
-        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess);
+        checkCancellation();
+        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess, options.cancellationToken);
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
 
@@ -3118,7 +3124,8 @@ export async function processFusion(
                             fileInfo.relativePath,
                             false // Use normal granularity
                         );
-                    }
+                    },
+                    options.cancellationToken
                 );
                 generatedPaths.push(outputPath);
                 benchmark.markFileProcessed(0);
@@ -3485,10 +3492,19 @@ export class PluginManager {
         }
     }
 
-    async executeBeforeFileProcessing(fileInfo: FileInfo, config: Config): Promise<FileInfo | null> {
+    async executeBeforeFileProcessing(
+        fileInfo: FileInfo, 
+        config: Config, 
+        cancellationToken?: import('../api.js').CancellationToken
+    ): Promise<FileInfo | null> {
         let currentFileInfo = fileInfo;
         
         for (const plugin of this.getEnabledPlugins()) {
+            // Check for cancellation before each plugin execution
+            if (cancellationToken?.isCancellationRequested) {
+                throw new Error('Operation was cancelled');
+            }
+            
             if (plugin.beforeFileProcessing) {
                 try {
                     const result = await plugin.beforeFileProcessing(currentFileInfo, config);
@@ -3527,12 +3543,18 @@ export class PluginManager {
 
     async executeBeforeFusion(
         config: Config, 
-        filesToProcess: FileInfo[]
+        filesToProcess: FileInfo[],
+        cancellationToken?: import('../api.js').CancellationToken
     ): Promise<{ config: Config; filesToProcess: FileInfo[] }> {
         let currentConfig = config;
         let currentFiles = filesToProcess;
         
         for (const plugin of this.getEnabledPlugins()) {
+            // Check for cancellation before each plugin execution
+            if (cancellationToken?.isCancellationRequested) {
+                throw new Error('Operation was cancelled');
+            }
+            
             if (plugin.beforeFusion) {
                 try {
                     const result = await plugin.beforeFusion(currentConfig, currentFiles);
@@ -4183,7 +4205,8 @@ export class OutputStrategyManager {
         strategy: OutputStrategy, 
         context: OutputContext, 
         fs: FileSystemAdapter,
-        onFileProcessed?: (fileInfo: FileInfo, index: number, total: number) => void
+        onFileProcessed?: (fileInfo: FileInfo, index: number, total: number) => void,
+        cancellationToken?: import('../api.js').CancellationToken
     ): Promise<FilePath> {
         const outputPath = this.getOutputPath(strategy, context.config);
         
@@ -4197,6 +4220,11 @@ export class OutputStrategyManager {
             let content = strategy.generateHeader(context);
             
             for (let i = 0; i < context.filesToProcess.length; i++) {
+                // Check for cancellation
+                if (cancellationToken?.isCancellationRequested) {
+                    throw new Error('Operation was cancelled');
+                }
+                
                 const fileInfo = context.filesToProcess[i];
                 if (fileInfo) {
                     content += strategy.processFile(fileInfo, context);
@@ -4216,15 +4244,28 @@ export class OutputStrategyManager {
         
         // For real file system, use streaming
         const outputStream = strategy.createStream(outputPath);
+        let streamClosed = false;
+        
+        // Helper to safely close the stream
+        const closeStream = (): void => {
+            if (!streamClosed) {
+                streamClosed = true;
+                outputStream.destroy();
+            }
+        };
         
         return new Promise<FilePath>((resolve, reject) => {
             let filesWritten = 0;
             
             // Handle stream errors
-            outputStream.on('error', reject);
+            outputStream.on('error', (err) => {
+                closeStream();
+                reject(err);
+            });
             
             // Handle stream finish
             outputStream.on('finish', () => {
+                streamClosed = true;
                 resolve(outputPath);
             });
             
@@ -4232,6 +4273,12 @@ export class OutputStrategyManager {
             
             // Process files with backpressure handling
             const processNextFile = (): void => {
+                // Check for cancellation
+                if (cancellationToken?.isCancellationRequested) {
+                    closeStream();
+                    reject(new Error('Operation was cancelled'));
+                    return;
+                }
                 // Write header first if not yet written
                 if (!headerWritten) {
                     headerWritten = true;
@@ -4283,6 +4330,13 @@ export class OutputStrategyManager {
                     let offset = 0;
                     
                     const writeNextChunk = (): void => {
+                        // Check for cancellation during chunk writing
+                        if (cancellationToken?.isCancellationRequested) {
+                            closeStream();
+                            reject(new Error('Operation was cancelled'));
+                            return;
+                        }
+                        
                         if (offset >= fileContent.length) {
                             // Move to next file
                             processNextFile();
@@ -15840,7 +15894,6 @@ dist/
 # TODO — Project Fusion (polish for npm release)
 
 ## 1) Reliability & Performance
-- [x] **Progress granularity**: In `processFusion`, emit progress every N files + on each phase transition; include ETA and MB processed using `BenchmarkTracker`.
 - [ ] **Cancellation safety**: Wrap long loops with `checkCancellation()` (scan, validate, redact, write). Ensure any open WriteStreams are closed on cancellation.
 - [ ] **Clipboard copy guards**: Skip clipboard work when file size > 5 MB, or when CI/non‑TTY. Already partly handled; add size guard.
 

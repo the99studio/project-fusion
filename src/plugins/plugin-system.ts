@@ -171,10 +171,19 @@ export class PluginManager {
         }
     }
 
-    async executeBeforeFileProcessing(fileInfo: FileInfo, config: Config): Promise<FileInfo | null> {
+    async executeBeforeFileProcessing(
+        fileInfo: FileInfo, 
+        config: Config, 
+        cancellationToken?: import('../api.js').CancellationToken
+    ): Promise<FileInfo | null> {
         let currentFileInfo = fileInfo;
         
         for (const plugin of this.getEnabledPlugins()) {
+            // Check for cancellation before each plugin execution
+            if (cancellationToken?.isCancellationRequested) {
+                throw new Error('Operation was cancelled');
+            }
+            
             if (plugin.beforeFileProcessing) {
                 try {
                     const result = await plugin.beforeFileProcessing(currentFileInfo, config);
@@ -213,12 +222,18 @@ export class PluginManager {
 
     async executeBeforeFusion(
         config: Config, 
-        filesToProcess: FileInfo[]
+        filesToProcess: FileInfo[],
+        cancellationToken?: import('../api.js').CancellationToken
     ): Promise<{ config: Config; filesToProcess: FileInfo[] }> {
         let currentConfig = config;
         let currentFiles = filesToProcess;
         
         for (const plugin of this.getEnabledPlugins()) {
+            // Check for cancellation before each plugin execution
+            if (cancellationToken?.isCancellationRequested) {
+                throw new Error('Operation was cancelled');
+            }
+            
             if (plugin.beforeFusion) {
                 try {
                     const result = await plugin.beforeFusion(currentConfig, currentFiles);

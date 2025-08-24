@@ -433,16 +433,19 @@ export async function processFusion(
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
                     await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks);
                     
+                    checkCancellation();
                     if (await isBinaryFile(safePath)) {
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
                         console.warn(`Skipping binary file: ${relativePath}`);
                         continue;
                     }
                     
+                    checkCancellation();
                     let content = await fs.readFile(createFilePath(safePath));
                     
                     // Redact secrets if enabled
                     if (config.excludeSecrets) {
+                        checkCancellation();
                         const { redactedContent, detectedSecrets } = redactSecrets(content);
                         if (detectedSecrets.length > 0) {
                             content = redactedContent;
@@ -450,6 +453,7 @@ export async function processFusion(
                     }
                     
                     // Validate content according to content validation rules
+                    checkCancellation();
                     const validationResult = validateFileContent(content, relativePath, config);
                     
                     // Log warnings and errors
@@ -506,7 +510,8 @@ export async function processFusion(
                         isErrorPlaceholder // Track if this is an error placeholder
                     };
 
-                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config) || fileInfo;
+                    checkCancellation();
+                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config, options.cancellationToken) || fileInfo;
                     
                     if (fileInfo) {
                         filesToProcess.push(fileInfo);
@@ -522,7 +527,8 @@ export async function processFusion(
         // await logMemoryUsageIfNeeded(logFilePath, 'After file processing');
         // TODO: Implement memory check inline if needed
 
-        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess);
+        checkCancellation();
+        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess, options.cancellationToken);
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
 
@@ -648,7 +654,8 @@ export async function processFusion(
                             fileInfo.relativePath,
                             false // Use normal granularity
                         );
-                    }
+                    },
+                    options.cancellationToken
                 );
                 generatedPaths.push(outputPath);
                 benchmark.markFileProcessed(0);

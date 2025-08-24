@@ -425,7 +425,8 @@ export class OutputStrategyManager {
         strategy: OutputStrategy, 
         context: OutputContext, 
         fs: FileSystemAdapter,
-        onFileProcessed?: (fileInfo: FileInfo, index: number, total: number) => void
+        onFileProcessed?: (fileInfo: FileInfo, index: number, total: number) => void,
+        cancellationToken?: import('../api.js').CancellationToken
     ): Promise<FilePath> {
         const outputPath = this.getOutputPath(strategy, context.config);
         
@@ -439,6 +440,11 @@ export class OutputStrategyManager {
             let content = strategy.generateHeader(context);
             
             for (let i = 0; i < context.filesToProcess.length; i++) {
+                // Check for cancellation
+                if (cancellationToken?.isCancellationRequested) {
+                    throw new Error('Operation was cancelled');
+                }
+                
                 const fileInfo = context.filesToProcess[i];
                 if (fileInfo) {
                     content += strategy.processFile(fileInfo, context);
@@ -458,15 +464,28 @@ export class OutputStrategyManager {
         
         // For real file system, use streaming
         const outputStream = strategy.createStream(outputPath);
+        let streamClosed = false;
+        
+        // Helper to safely close the stream
+        const closeStream = (): void => {
+            if (!streamClosed) {
+                streamClosed = true;
+                outputStream.destroy();
+            }
+        };
         
         return new Promise<FilePath>((resolve, reject) => {
             let filesWritten = 0;
             
             // Handle stream errors
-            outputStream.on('error', reject);
+            outputStream.on('error', (err) => {
+                closeStream();
+                reject(err);
+            });
             
             // Handle stream finish
             outputStream.on('finish', () => {
+                streamClosed = true;
                 resolve(outputPath);
             });
             
@@ -474,6 +493,12 @@ export class OutputStrategyManager {
             
             // Process files with backpressure handling
             const processNextFile = (): void => {
+                // Check for cancellation
+                if (cancellationToken?.isCancellationRequested) {
+                    closeStream();
+                    reject(new Error('Operation was cancelled'));
+                    return;
+                }
                 // Write header first if not yet written
                 if (!headerWritten) {
                     headerWritten = true;
@@ -525,6 +550,13 @@ export class OutputStrategyManager {
                     let offset = 0;
                     
                     const writeNextChunk = (): void => {
+                        // Check for cancellation during chunk writing
+                        if (cancellationToken?.isCancellationRequested) {
+                            closeStream();
+                            reject(new Error('Operation was cancelled'));
+                            return;
+                        }
+                        
                         if (offset >= fileContent.length) {
                             // Move to next file
                             processNextFile();
