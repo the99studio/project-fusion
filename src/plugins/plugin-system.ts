@@ -7,6 +7,7 @@ import path from 'node:path';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
 import type { FileInfo, OutputStrategy } from '../strategies/output-strategy.js';
 import { type Config, createFilePath, FusionError } from '../types.js';
+import { logger } from '../utils/logger.js';
 
 export interface PluginMetadata {
     name: string;
@@ -92,9 +93,9 @@ export class PluginManager {
             }
             
             this.plugins.set(plugin.metadata.name, plugin);
-            console.log(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`);
+            logger.info(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`, { pluginPath });
         } catch (error) {
-            console.error(`Failed to load plugin from ${pluginPath}:`, error);
+            logger.error(`Failed to load plugin from ${pluginPath}`, { error, pluginPath });
             throw error;
         }
     }
@@ -111,11 +112,11 @@ export class PluginManager {
                 try {
                     await this.loadPlugin(pluginFile, config);
                 } catch (error) {
-                    console.warn(`Skipping plugin ${pluginFile} due to error:`, error);
+                    logger.warn(`Skipping plugin ${pluginFile} due to error`, { error, pluginFile });
                 }
             }
         } catch (error) {
-            console.error(`Error loading plugins from directory ${pluginsDir}:`, error);
+            logger.error(`Error loading plugins from directory ${pluginsDir}`, { error, pluginsDir });
         }
     }
 
@@ -152,7 +153,7 @@ export class PluginManager {
                     await plugin.initialize(config);
                 }
             } catch (error) {
-                console.error(`Error initializing plugin ${plugin.metadata.name}:`, error);
+                logger.pluginError(plugin.metadata.name, 'Error during plugin initialization', error);
             }
         }
     }
@@ -166,7 +167,7 @@ export class PluginManager {
                     await plugin.cleanup();
                 }
             } catch (error) {
-                console.error(`Error cleaning up plugin ${plugin.metadata.name}:`, error);
+                logger.pluginError(plugin.metadata.name, 'Error during plugin cleanup', error);
             }
         }
     }
@@ -192,7 +193,7 @@ export class PluginManager {
                     }
                     currentFileInfo = result;
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} beforeFileProcessing:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in beforeFileProcessing hook', error, { fileInfo: currentFileInfo });
                 }
             }
         }
@@ -212,7 +213,7 @@ export class PluginManager {
                 try {
                     currentContent = await plugin.afterFileProcessing(fileInfo, currentContent, config);
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} afterFileProcessing:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in afterFileProcessing hook', error, { fileInfo });
                 }
             }
         }
@@ -240,7 +241,7 @@ export class PluginManager {
                     currentConfig = result.config;
                     currentFiles = result.filesToProcess;
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} beforeFusion:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in beforeFusion hook', error, { filesCount: currentFiles.length });
                 }
             }
         }
@@ -256,7 +257,7 @@ export class PluginManager {
                 try {
                     currentResult = await plugin.afterFusion(currentResult, config) as T;
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} afterFusion:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in afterFusion hook', error);
                 }
             }
         }
@@ -273,7 +274,7 @@ export class PluginManager {
                     const pluginStrategies = plugin.registerOutputStrategies();
                     strategies.push(...pluginStrategies);
                 } catch (error) {
-                    console.error(`Error getting output strategies from plugin ${plugin.metadata.name}:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error getting output strategies', error);
                 }
             }
         }
@@ -290,7 +291,7 @@ export class PluginManager {
                     const pluginExtensions = plugin.registerFileExtensions();
                     Object.assign(extensions, pluginExtensions);
                 } catch (error) {
-                    console.error(`Error getting file extensions from plugin ${plugin.metadata.name}:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error getting file extensions', error);
                 }
             }
         }

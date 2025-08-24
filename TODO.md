@@ -1,10 +1,4 @@
-# TODO — Project Fusion (polish for npm release)
-
-## 1) Reliability & Performance
-- [ ] **Clipboard copy guards**: Skip clipboard work when file size > 5 MB, or when CI/non‑TTY. Already partly handled; add size guard.
-
 ## 2) Security Hardening
-- [ ] **Centralized logger**: Replace scattered `console.error` in plugins manager with a structured logger so plugin errors cannot spam stdout and to add severity levels.
 - [ ] **Schema constraints**: Add sane bounds to numeric config: `maxFiles (1..100000)`, `maxFileSizeKB (1..1048576)`, `maxTotalSizeMB (1..10240)`. Fail fast on out‑of‑range.
 - [ ] **Explicit allowlist for external plugins**: When `allowExternalPlugins` is true, require a list of approved plugin names/paths. Log a bright warning banner.
 - [ ] **Symlink warnings**: On `--allow-symlinks`, print the first N resolved targets and add them to the log for auditability (tests already demonstrate the risk).
