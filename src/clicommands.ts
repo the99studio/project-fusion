@@ -106,17 +106,32 @@ export async function runFusionCommand(options: {
             }
         }
 
-        // Handle size limits
+        // Handle size limits with validation
         if (options.maxFileSize) {
-            config.maxFileSizeKB = parseInt(options.maxFileSize, 10);
+            const maxFileSize = parseInt(options.maxFileSize, 10);
+            if (isNaN(maxFileSize) || maxFileSize <= 0) {
+                logger.consoleError(`❌ Invalid value for --max-file-size: "${options.maxFileSize}". Expected a positive number (KB).`);
+                process.exit(1);
+            }
+            config.maxFileSizeKB = maxFileSize;
             console.log(chalk.yellow(`ℹ️ Maximum file size set to: ${config.maxFileSizeKB} KB`));
         }
         if (options.maxFiles) {
-            config.maxFiles = parseInt(options.maxFiles, 10);
+            const maxFiles = parseInt(options.maxFiles, 10);
+            if (isNaN(maxFiles) || maxFiles <= 0) {
+                logger.consoleError(`❌ Invalid value for --max-files: "${options.maxFiles}". Expected a positive integer.`);
+                process.exit(1);
+            }
+            config.maxFiles = maxFiles;
             console.log(chalk.yellow(`ℹ️ Maximum files set to: ${config.maxFiles}`));
         }
         if (options.maxTotalSize) {
-            config.maxTotalSizeMB = parseFloat(options.maxTotalSize);
+            const maxTotalSize = parseFloat(options.maxTotalSize);
+            if (isNaN(maxTotalSize) || maxTotalSize <= 0) {
+                logger.consoleError(`❌ Invalid value for --max-total-size: "${options.maxTotalSize}". Expected a positive number (MB).`);
+                process.exit(1);
+            }
+            config.maxTotalSizeMB = maxTotalSize;
             console.log(chalk.yellow(`ℹ️ Maximum total size set to: ${config.maxTotalSizeMB} MB`));
         }
 

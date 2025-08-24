@@ -324,6 +324,66 @@ describe('CLI Commands', () => {
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌'));
         });
 
+        it('should validate numeric flags and show error for invalid maxFileSize', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFileSize: 'abc' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-file-size: "abc". Expected a positive number (KB).'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for invalid maxFiles', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFiles: 'invalid' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-files: "invalid". Expected a positive integer.'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for invalid maxTotalSize', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxTotalSize: 'xyz' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-total-size: "xyz". Expected a positive number (MB).'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for zero values', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFileSize: '0' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-file-size: "0". Expected a positive number (KB).'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for negative values', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFiles: '-5' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-files: "-5". Expected a positive integer.'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should accept valid numeric values', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ 
+                maxFileSize: '2048', 
+                maxFiles: '500', 
+                maxTotalSize: '50.5' 
+            });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum file size set to: 2048 KB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum files set to: 500'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum total size set to: 50.5 MB'));
+            expect(mockExit).not.toHaveBeenCalledWith(1);
+        });
+
     });
 
     describe('runInitCommand', () => {
