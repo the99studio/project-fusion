@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 24/08/2025 17:58:42 UTC−4
+**Generated:** 24/08/2025 18:28:39 UTC−4
 
-**UTC:** 2025-08-24T21:58:42.413Z
+**UTC:** 2025-08-24T22:28:39.426Z
 
 **Files:** 59
 
@@ -15735,6 +15735,12 @@ describe('utils', () => {
       expect(getMarkdownLanguage('.TS')).toBe('typescript');
       expect(getMarkdownLanguage('.JS')).toBe('javascript');
     });
+
+    it('should handle Godot extensions correctly', () => {
+      expect(getMarkdownLanguage('.gd')).toBe('gdscript');
+      expect(getMarkdownLanguage('.tres')).toBe('gdscript');
+      expect(getMarkdownLanguage('.tscn')).toBe('gdscript');
+    });
   });
 
   describe('getExtensionsFromGroups', () => {
@@ -16742,8 +16748,6 @@ dist/
 ## 4) Output Quality
 - [ ] **Markdown TOC anchors**: Use a stable slugger (e.g., GitHub‑style) rather than regex replace for headers; ensure duplicates are de‑duped.
 - [ ] **HTML escaping audit**: Keep `escapeHtml()` coverage; add tests for `<script>`, quotes, and high Unicode.
-- [ ] **Language hints**: Improve `getMarkdownLanguage()` mapping for uncommon extensions (e.g., `.gd`, `.tres`, `.tscn`). Add tests.
-- [ ] **Version**: Add project-fusion version used to generate files
 
 ## 5) Tests
 - [ ] **E2E huge project test**: Generate >3,000 files in a temp dir, verify memory stays below a threshold and that streaming works (post‑refactor).

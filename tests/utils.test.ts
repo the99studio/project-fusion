@@ -36,6 +36,12 @@ describe('utils', () => {
       expect(getMarkdownLanguage('.TS')).toBe('typescript');
       expect(getMarkdownLanguage('.JS')).toBe('javascript');
     });
+
+    it('should handle Godot extensions correctly', () => {
+      expect(getMarkdownLanguage('.gd')).toBe('gdscript');
+      expect(getMarkdownLanguage('.tres')).toBe('gdscript');
+      expect(getMarkdownLanguage('.tscn')).toBe('gdscript');
+    });
   });
 
   describe('getExtensionsFromGroups', () => {
