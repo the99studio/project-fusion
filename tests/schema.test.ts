@@ -91,5 +91,91 @@ describe('schema', () => {
       const result = ConfigSchemaV1.safeParse(validConfig);
       expect(result.success).toBe(true);
     });
+
+    describe('Numeric constraints validation', () => {
+      it('should reject maxFiles below minimum (1)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFiles: 0
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject maxFiles above maximum (100000)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFiles: 100001
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept maxFiles at boundaries', () => {
+        const minConfig = { ...defaultConfig, maxFiles: 1 };
+        const maxConfig = { ...defaultConfig, maxFiles: 100000 };
+
+        expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
+        expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
+      });
+
+      it('should reject maxFileSizeKB below minimum (1)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFileSizeKB: 0
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject maxFileSizeKB above maximum (1048576)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFileSizeKB: 1048577
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept maxFileSizeKB at boundaries', () => {
+        const minConfig = { ...defaultConfig, maxFileSizeKB: 1 };
+        const maxConfig = { ...defaultConfig, maxFileSizeKB: 1048576 };
+
+        expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
+        expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
+      });
+
+      it('should reject maxTotalSizeMB below minimum (1)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxTotalSizeMB: 0.5
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject maxTotalSizeMB above maximum (10240)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxTotalSizeMB: 10241
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept maxTotalSizeMB at boundaries', () => {
+        const minConfig = { ...defaultConfig, maxTotalSizeMB: 1 };
+        const maxConfig = { ...defaultConfig, maxTotalSizeMB: 10240 };
+
+        expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
+        expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
+      });
+    });
   });
 });

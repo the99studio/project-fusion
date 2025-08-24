@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 23/08/2025 23:24:17 UTC−4
+**Generated:** 23/08/2025 23:37:06 UTC−4
 
-**UTC:** 2025-08-24T03:24:17.734Z
+**UTC:** 2025-08-24T03:37:06.010Z
 
 **Files:** 60
 
@@ -3764,11 +3764,11 @@ export const ConfigSchemaV1 = z.object({
         "yarn.lock"
     ]),
     maxBase64BlockKB: z.number().min(0.5).max(10).default(2),
-    maxFileSizeKB: z.number().default(1024),
-    maxFiles: z.number().min(1).default(10000),
+    maxFileSizeKB: z.number().min(1).max(1048576).default(1024),
+    maxFiles: z.number().min(1).max(100000).default(10000),
     maxLineLength: z.number().min(1000).max(50000).default(5000),
     maxTokenLength: z.number().min(500).max(20000).default(2000),
-    maxTotalSizeMB: z.number().min(0.001).default(100),
+    maxTotalSizeMB: z.number().min(1).max(10240).default(100),
     outputDirectory: z.string().optional(),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
@@ -12206,6 +12206,92 @@ describe('schema', () => {
       const result = ConfigSchemaV1.safeParse(validConfig);
       expect(result.success).toBe(true);
     });
+
+    describe('Numeric constraints validation', () => {
+      it('should reject maxFiles below minimum (1)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFiles: 0
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject maxFiles above maximum (100000)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFiles: 100001
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept maxFiles at boundaries', () => {
+        const minConfig = { ...defaultConfig, maxFiles: 1 };
+        const maxConfig = { ...defaultConfig, maxFiles: 100000 };
+
+        expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
+        expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
+      });
+
+      it('should reject maxFileSizeKB below minimum (1)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFileSizeKB: 0
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject maxFileSizeKB above maximum (1048576)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxFileSizeKB: 1048577
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept maxFileSizeKB at boundaries', () => {
+        const minConfig = { ...defaultConfig, maxFileSizeKB: 1 };
+        const maxConfig = { ...defaultConfig, maxFileSizeKB: 1048576 };
+
+        expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
+        expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
+      });
+
+      it('should reject maxTotalSizeMB below minimum (1)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxTotalSizeMB: 0.5
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject maxTotalSizeMB above maximum (10240)', () => {
+        const invalidConfig = {
+          ...defaultConfig,
+          maxTotalSizeMB: 10241
+        };
+
+        const result = ConfigSchemaV1.safeParse(invalidConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept maxTotalSizeMB at boundaries', () => {
+        const minConfig = { ...defaultConfig, maxTotalSizeMB: 1 };
+        const maxConfig = { ...defaultConfig, maxTotalSizeMB: 10240 };
+
+        expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
+        expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
+      });
+    });
   });
 });
 ```
@@ -16148,7 +16234,6 @@ dist/
 
 ```markdown
 ## 2) Security Hardening
-- [ ] **Centralized logger**: Replace scattered `console.error` in plugins manager with a structured logger so plugin errors cannot spam stdout and to add severity levels.
 - [ ] **Schema constraints**: Add sane bounds to numeric config: `maxFiles (1..100000)`, `maxFileSizeKB (1..1048576)`, `maxTotalSizeMB (1..10240)`. Fail fast on out‑of‑range.
 - [ ] **Explicit allowlist for external plugins**: When `allowExternalPlugins` is true, require a list of approved plugin names/paths. Log a bright warning banner.
 - [ ] **Symlink warnings**: On `--allow-symlinks`, print the first N resolved targets and add them to the log for auditability (tests already demonstrate the risk).
