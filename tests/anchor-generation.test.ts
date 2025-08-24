@@ -305,5 +305,21 @@ describe('Anchor Generation with github-slugger', () => {
             expect(slugger.slug('.')).toBe('-1'); // Period becomes -1 (github-slugger behavior)
             expect(slugger.slug('/')).toBe('-2'); // Slash becomes -2 (github-slugger behavior)
         });
+
+        it('should handle strategy with empty filesToProcess array', () => {
+            const strategy = new MarkdownOutputStrategy();
+            const context: OutputContext = {
+                projectTitle: 'Test Project',
+                versionInfo: '',
+                filesToProcess: [], // Empty array
+                config: defaultConfig,
+                toolVersion: '1.0.0'
+            };
+            
+            // Should handle gracefully without throwing
+            expect(() => strategy.generateHeader(context)).not.toThrow();
+            const header = strategy.generateHeader(context);
+            expect(header).toContain('Test Project');
+        });
     });
 });
