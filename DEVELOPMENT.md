@@ -29,13 +29,15 @@ npm run typecheck      # Type validation only
 ```
 
 ### Testing
-- **Memory FS**: Isolated testing environment
+- **Framework**: [Vitest](./vitest.config.ts) with coverage reporting (80% threshold)
+- **Memory FS**: Isolated testing environment using [MemoryFileSystemAdapter](./src/adapters/file-system.ts)
 - **Property tests**: fast-check for edge cases
-- **Test files**: All `temp/` directory (gitignored)
-- **Unit tests**: Vitest with coverage reporting
+- **Test files**: All in [`tests/`](./tests/) directory
+- **Temp files**: Use `temp/` directory (gitignored)
+- **Coverage**: V8 provider, reports in `./coverage/`
 
 ### VS Code Debug Configurations
-Launch with F5:
+[Launch configurations](./.vscode/launch.json) available (F5):
 - **Fusion (Default)** - Standard fusion
 - **Fusion (Preview)** - Preview mode
 - **Fusion (Web)** - Web files only
@@ -77,66 +79,20 @@ npm publish
 ## Plugin Development
 
 ### Plugin Interface
-```typescript
-import type { Plugin, PluginHooks } from '@the99studio/project-fusion/plugins';
+See [`src/plugins/plugin-system.ts`](./src/plugins/plugin-system.ts) for the complete Plugin interface.
 
-export const myPlugin: Plugin = {
-    metadata: {
-        name: 'my-plugin',
-        version: '1.0.0',
-        description: 'Custom plugin'
-    },
-    
-    // Lifecycle hooks
-    async initialize(config) {
-        // Setup code
-    },
-    
-    async beforeFileProcessing(fileInfo, config) {
-        // Return null to skip file
-        // Return modified fileInfo to process
-        return fileInfo;
-    },
-    
-    async afterFileProcessing(fileInfo, content, config) {
-        // Transform content
-        return modifiedContent;
-    },
-    
-    async beforeFusion(config, files) {
-        // Modify config or file list
-        return { config, filesToProcess: files };
-    },
-    
-    async afterFusion(result, config) {
-        // Post-process result
-        return result;
-    },
-    
-    // Registration methods
-    registerFileExtensions() {
-        return { 
-            custom: ['.xyz', '.abc']
-        };
-    },
-    
-    registerOutputStrategies() {
-        return [{
-            name: 'json',
-            extension: '.json',
-            generateHeader: (ctx) => '{\n',
-            processFile: (file, ctx) => JSON.stringify(file),
-            generateFooter: (ctx) => '\n}'
-        }];
-    },
-    
-    async cleanup() {
-        // Cleanup code
-    }
-};
-```
+Key plugin hooks:
+- `initialize` - Setup code
+- `beforeFileProcessing` - Filter/modify files before processing
+- `afterFileProcessing` - Transform file content
+- `beforeFusion` - Modify config or file list
+- `afterFusion` - Post-process result
+- `registerFileExtensions` - Add custom extensions
+- `registerOutputStrategies` - Add output formats
+- `cleanup` - Cleanup resources
 
 ### Loading Plugins
+Plugins can be loaded via the [API](./src/api.ts):
 ```javascript
 import { fusionAPI } from '@the99studio/project-fusion/api';
 
@@ -150,63 +106,38 @@ await fusionAPI({
 ## Advanced API Usage
 
 ### Programmatic API with Progress
+The [fusionAPI](./src/api.ts) supports progress tracking and cancellation:
 ```javascript
 import { fusionAPI } from '@the99studio/project-fusion/api';
 
 const result = await fusionAPI({
     rootDirectory: './src',
     extensionGroups: ['web', 'backend'],
-    outputDirectory: './output',
-    
-    // Progress callback
-    onProgress: (progress) => {
-        console.log(`${progress.step}: ${progress.percentage}%`);
-        console.log(progress.message);
-    },
-    
-    // Cancellation support
-    cancellationToken: {
-        isCancellationRequested: false,
-        onCancellationRequested: (cb) => {
-            process.on('SIGINT', cb);
-        }
-    },
-    
-    // Completion callback
-    onDidFinish: (result) => {
-        if (result.success) {
-            console.log('Files:', result.filesProcessed);
-        }
-    }
+    onProgress: (progress) => console.log(`${progress.percentage}%`),
+    cancellationToken: { /* ... */ }
 });
 ```
 
 ### Custom File System Adapter
+Use [MemoryFileSystemAdapter](./src/adapters/file-system.ts) for testing:
 ```javascript
 import { MemoryFileSystemAdapter } from '@the99studio/project-fusion/adapters';
 
 const memFs = new MemoryFileSystemAdapter();
 memFs.addFile('/src/app.js', 'console.log("Hello");');
-
-await fusionAPI({
-    fs: memFs,
-    rootDirectory: '/src'
-});
+await fusionAPI({ fs: memFs, rootDirectory: '/src' });
 ```
 
 ### Fluent API Builder
+The [Fluent API](./src/fluent.ts) provides a chainable interface:
 ```javascript
 import { projectFusion } from '@the99studio/project-fusion/fluent';
 
 await projectFusion()
     .root('./src')
     .include(['web', 'backend'])
-    .exclude(['*.test.js', '*.spec.ts'])
     .maxSize('5MB')
-    .maxFiles(500)
     .output(['md', 'html'])
-    .plugin('minify-plugin')
-    .clipboard()
     .generate();
 ```
 
@@ -214,6 +145,10 @@ await projectFusion()
 
 ```
 project-fusion/
+├── .github/workflows/      # CI/CD pipelines
+│   ├── build-test.yml      # Build and test workflow
+│   ├── ci.yml              # Continuous integration
+│   └── release.yml         # NPM release automation
 ├── dist/                   # Compiled output
 ├── src/
 │   ├── adapters/
@@ -224,42 +159,65 @@ project-fusion/
 │   ├── clicommands.ts      # CLI commands
 │   ├── fluent.ts           # Fluent API builder
 │   ├── fusion.ts           # Core processing
+│   ├── index.ts            # Main export
 │   ├── plugins/
 │   │   └── plugin-system.ts    # Plugin manager
-│   ├── schema.ts           # Zod schemas
+│   ├── schema.ts           # Zod schemas & config
 │   ├── strategies/
 │   │   └── output-strategy.ts  # Output formats
 │   ├── types.ts            # TypeScript types
-│   └── utils.ts            # Utilities
-├── temp/                   # Test temp files (gitignored)
-└── tests/                  # Test suites
+│   ├── utils.ts            # Utilities & validation
+│   └── utils/
+│       └── logger.ts       # Centralized logging
+├── tests/                  # Test suites (30+ test files)
+│   └── __snapshots__/      # Vitest snapshots
+└── temp/                   # Test temp files (gitignored)
 ```
 
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
+## CI/CD
+
+### GitHub Actions Workflows
+- **[build-test.yml](./.github/workflows/build-test.yml)**: Runs on PRs, tests Node 20.x and 22.x
+- **[ci.yml](./.github/workflows/ci.yml)**: Main CI pipeline
+- **[release.yml](./.github/workflows/release.yml)**: Automated NPM publishing on version tags
+
+## Configuration
+
+### Main Config Files
+- **[project-fusion.json](./project-fusion.json)**: Default project config
+- **[tsconfig.json](./tsconfig.json)**: TypeScript configuration (ES2022, ESM)
+- **[vitest.config.ts](./vitest.config.ts)**: Test configuration
+- **[eslint.config.js](./eslint.config.js)**: Linting rules
+- **[package.json](./package.json)**: Package metadata and scripts
+
 ## Debugging Tips
 
 1. **Check logs**: Generated `.log` file in output directory
-2. **Config validation**: Run `project-fusion config-check`
-3. **Enable verbose logging**: Set `DEBUG=project-fusion:*` environment variable
+2. **Config validation**: Run `project-fusion config-check` (see [`src/clicommands.ts`](./src/clicommands.ts#L268))
+3. **Logger**: Use centralized [`Logger`](./src/utils/logger.ts) for structured logging
 4. **Memory issues**: Adjust `maxTotalSizeMB` and `maxFiles` limits
 5. **Preview mode**: Use `--preview` to see what files would be processed
+6. **VS Code**: Use [debug configurations](./.vscode/launch.json) for debugging
 
 ## Performance Optimization
 
-- Binary files automatically detected and skipped
-- Configurable limits prevent memory exhaustion
+- Binary files automatically detected via null byte check ([`utils.ts`](./src/utils.ts))
+- Configurable limits prevent memory exhaustion ([`schema.ts`](./src/schema.ts))
 - Content validation prevents processing malformed files
-- Files are processed in streaming mode for large projects
+- Benchmark tracking via [`benchmark.ts`](./src/benchmark.ts)
 - Progress reporting for long-running operations
+- Parallel test execution with Vitest forks
 
 ## Security Considerations
 
-- Content validation for suspicious patterns
-- External plugins require explicit flag
-- Path traversal protection enforced
-- Secret redaction in output files
-- Symlinks disabled by default
-- XSS prevention in HTML output
+- Content validation for suspicious patterns ([`utils.ts`](./src/utils.ts))
+- External plugins require `allowExternalPlugins` flag
+- Path traversal protection via `validateSecurePath()` ([`utils.ts`](./src/utils.ts))
+- Secret redaction in output files (API keys, tokens, passwords)
+- Symlinks disabled by default (configurable via `allowSymlinks`)
+- XSS prevention in HTML output ([`output-strategy.ts`](./src/strategies/output-strategy.ts))
+- Comprehensive security test suite ([`tests/security*.test.ts`](./tests/))
