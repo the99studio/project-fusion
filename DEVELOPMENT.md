@@ -31,7 +31,7 @@ npm run build
 ## Testing
 
 ```bash
-npm run test           # Run full test suite with coverage
+npm run test # Run full test suite with coverage
 ```
 
 > See [CLAUDE.md](./CLAUDE.md#testing-requirements) for testing architecture and requirements.

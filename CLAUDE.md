@@ -66,34 +66,37 @@ project-fusion/
 6. Output generation (text/markdown/HTML)
 7. Optional clipboard copy
 
-## Key Configuration Points
-- **File Extensions**: `schema.ts:parsedFileExtensions` object
-- **Ignore Patterns**: `utils.ts:defaultConfig.ignorePatterns`
-- **Size Limits**: `maxFileSizeKB`, `maxTotalSizeMB`, `maxFiles`
-- **Security Flags**: `allowSymlinks`, `allowExternalPlugins`, `excludeSecrets`
+## Key Configuration Schema
+Config object structure in `schema.ts`:
+- **File Extensions**: `parsedFileExtensions` (backend, config, cpp, doc, godot, scripts, web)
+- **Ignore Patterns**: `ignorePatterns` array + `useGitIgnoreForExcludes`
+- **Output**: `generateText`, `generateMarkdown`, `generateHtml`, `copyToClipboard`
+- **Processing**: `parseSubDirectories`, `rootDirectory`, `outputDirectory`
+- **Security Flags**: `allowSymlinks` (false), `allowExternalPlugins` (false), `excludeSecrets` (true)
+- **Size Limits**: `maxFileSizeKB` (5000), `maxTotalSizeMB` (50), `maxFiles` (1000)
 
 ## Plugin System
-- Hooks: `beforeFileProcessing`, `afterFileProcessing`, `beforeFusion`, `afterFusion`
-- Registration: `registerFileExtensions`, `registerOutputStrategies`
-- Lifecycle: `initialize`, `cleanup`
 - All in `plugins/plugin-system.ts`
+- Hooks: `beforeFileProcessing`, `afterFileProcessing`, `beforeFusion`, `afterFusion`
+- Lifecycle: `initialize`, `cleanup`
+- Registration: `registerFileExtensions`, `registerOutputStrategies`
 
 ## Error Handling Pattern
-- Use discriminated unions for `FusionResult`
-- Throw `FusionError` with specific codes
 - Add error placeholders for rejected content
 - Log via centralized Logger, never expose paths
+- Throw `FusionError` with specific codes
+- Use discriminated unions for `FusionResult`
 
 ## Testing Requirements
 - Coverage threshold: 80% (vitest.config.ts)
-- Use MemoryFileSystemAdapter for isolation
 - Property-based tests with fast-check
 - Security test suite mandatory for changes
+- Use MemoryFileSystemAdapter for isolation
 
 ## Performance Considerations
-- Stream large files when possible
 - Early exit on binary detection
 - Respect configurable limits
+- Stream large files when possible
 - Track metrics via benchmark.ts
 
 ## VS Code Integration
@@ -104,29 +107,29 @@ project-fusion/
 
 ## Commands Reference
 ```bash
-# Development
-npm run build          # Compile TypeScript + lint
-npm run test           # Full test suite with coverage
-npm run typecheck      # Type checking only
-npm run lint           # ESLint validation
-npm run clean          # Remove dist directory
+# Development (package.json scripts)
+npm run build          # tsc + lint
+npm run test           # build:clean + vitest --coverage
+npm run lint           # eslint src/**/*.ts
+npm run clean          # rm -rf dist
 
-# CLI Commands
-project-fusion         # Run fusion with config
+# CLI Usage
+project-fusion         # Run with project-fusion.json config
 project-fusion init    # Create config file
-project-fusion config-check  # Validate configuration
-project-fusion --help  # Show all options
+project-fusion config-check  # Validate config
+project-fusion --extensions web  # Process only web files
+project-fusion --help  # Show all CLI options
 ```
 
 ## Quick Location Guide
 - **CLI Commands**: clicommands.ts (init, config-check, etc.)
 - **Config Validation**: schema.ts + utils.ts:validateConfig()
 - **File Processing**: fusion.ts:processFiles()
+- **Logger Setup**: utils/logger.ts
 - **Output Generation**: strategies/output-strategy.ts
 - **Plugin Loading**: plugins/plugin-system.ts:loadPlugin()
-- **Security Checks**: utils.ts:validateSecurePath(), isBinaryFile()
 - **Progress Reporting**: api.ts (onProgress callback)
-- **Logger Setup**: utils/logger.ts
+- **Security Checks**: utils.ts:validateSecurePath(), isBinaryFile()
 
 ## File Extension Groups
 Located in `schema.ts:parsedFileExtensions`:
@@ -138,10 +141,14 @@ Located in `schema.ts:parsedFileExtensions`:
 - **scripts**: .bat, .cmd, .ps1, .sh
 - **web**: .js, .jsx, .svelte, .ts, .tsx, .vue
 
-## Default Ignore Patterns
-Located in `utils.ts:defaultConfig.ignorePatterns`:
-- node_modules/, dist/, build/, .git/
-- Binary files: .exe, .dll, .so, .dylib
-- Archives: .zip, .tar, .gz, .rar
-- Media: images, videos, audio files
-- IDE: .idea/, .vscode/, .DS_Store
+## Package.json Key Info
+- **Bin**: project-fusion -> dist/cli.js
+- **Dependencies**: chalk, clipboardy, commander, fs-extra, glob, ignore, minimatch, zod
+- **Engine**: Node >=20.10.0
+- **Exports**: main, /api, /fluent, /plugins
+- **Name**: @the99studio/project-fusion
+- **Type**: "module" (ESM only)
+- **Version**: 1.0.0 (semantic versioning)
+
+## Default Ignore Patterns (utils.ts)
+node_modules/, dist/, build/, .git/, .idea/, .vscode/, .DS_Store, *.exe, *.dll, *.so, *.dylib, *.zip, *.tar, *.gz, *.rar, images, videos, audio files
