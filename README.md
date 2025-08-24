@@ -134,9 +134,6 @@ project-fusion [options]
 # Output Formats (override config)
   --html                        Generate HTML output only
   --md                          Generate Markdown output only  
-  --no-html                     Skip HTML generation (legacy)
-  --no-markdown                 Skip Markdown generation (legacy)
-  --no-text                     Skip text generation (legacy)
   --txt                         Generate text output only
   
 # Processing Limits
