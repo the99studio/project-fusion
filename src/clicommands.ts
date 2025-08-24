@@ -193,13 +193,21 @@ export async function runFusionCommand(options: {
                     console.log(chalk.cyan(`   - ${config.generatedFileName}.html`));
                 }
 
-                // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments)
+                // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments and large files)
                 const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
                 if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
                     try {
-                        const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
-                        await clipboardy.write(fusionContent);
-                        console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
+                        // Check file size before reading (skip if > 5 MB)
+                        const fileStats = await fs.stat(result.fusionFilePath);
+                        const fileSizeMB = fileStats.size / (1024 * 1024);
+                        
+                        if (fileSizeMB > 5) {
+                            console.log(chalk.gray(`📋 Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
+                        } else {
+                            const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+                            await clipboardy.write(fusionContent);
+                            console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
+                        }
                     } catch (clipboardError) {
                         console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
                     }
