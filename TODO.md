@@ -24,5 +24,3 @@
 
 ## 9) Potential Improvements
 - [ ] **RGPD/PII warning**: Add documentation note about not merging personal data without consent
-- [ ] **Dependabot**: Enable security updates automation on GitHub repo
-- [ ] **Node CI matrix**: Test on multiple Node versions (LTS-1, LTS, Current) instead of just 20.x and 22.x

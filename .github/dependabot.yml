@@ -1,0 +1,81 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    target-branch: "main"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+    # Reviewers will be automatically assigned based on CODEOWNERS or repository settings
+    # Group patch and minor updates together
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/*"
+          - "eslint*"
+          - "vitest*"
+          - "@vitest/*"
+          - "typescript*"
+          - "prettier*"
+          - "tsup*"
+          - "tsx*"
+          - "rimraf*"
+          - "husky*"
+          - "lint-staged*"
+          - "@commitlint/*"
+        update-types:
+          - "patch"
+          - "minor"
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*" 
+          - "vitest*"
+          - "@vitest/*"
+          - "typescript*"
+          - "prettier*"
+          - "tsup*"
+          - "tsx*"
+          - "rimraf*"
+          - "husky*"
+          - "lint-staged*"
+          - "@commitlint/*"
+        update-types:
+          - "patch"
+          - "minor"
+    # Security updates are always separate PRs
+    security-updates: true
+    rebase-strategy: "auto"
+    versioning-strategy: "increase-if-necessary"
+
+  # Enable security updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    rebase-strategy: "auto"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "github-actions"
+      - "dependencies"
+    groups:
+      ghactions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+          - "minor"
