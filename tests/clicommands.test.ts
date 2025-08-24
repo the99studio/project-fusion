@@ -12,6 +12,7 @@ import {
     runInitCommand, 
     runConfigCheckCommand 
 } from '../src/clicommands.js';
+import { logger } from '../src/utils/logger.js';
 
 // Mock external dependencies
 vi.mock('chalk', () => ({
@@ -507,6 +508,99 @@ describe('CLI Commands', () => {
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🚫 Ignore Patterns'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔍 File Discovery Preview'));
+        });
+
+        it('should display structured table for extension groups', async () => {
+            await runConfigCheckCommand();
+
+            // Check for structured table elements
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups (Structured View)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('┌─────────────┬─────────┬────────────────────────────────────────────┐'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('│ Group       │ Count   │ Extensions                                 │'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('└─────────────┴─────────┴────────────────────────────────────────────┘'));
+        });
+
+        it('should highlight differences from default config', async () => {
+            // Create a modified config
+            const modifiedConfig = {
+                schemaVersion: 1,
+                generatedFileName: "custom-fusion", // Modified
+                generateHtml: true,
+                generateMarkdown: true,
+                generateText: true,
+                maxFileSizeKB: 2048, // Modified
+                parseSubDirectories: true,
+                parsedFileExtensions: {
+                    web: [".js", ".ts"], // Modified - fewer extensions
+                    backend: [".py"]
+                },
+                rootDirectory: ".",
+                useGitIgnoreForExcludes: true,
+                copyToClipboard: false,
+                ignorePatterns: ["custom-pattern"], // Modified
+                allowSymlinks: false,
+                maxFiles: 10000,
+                maxTotalSizeMB: 100
+            };
+            
+            await writeFile('project-fusion.json', JSON.stringify(modifiedConfig, null, 2));
+
+            await runConfigCheckCommand();
+
+            // Should show modifications in the output
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('custom-fusion'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('2048 KB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Legend'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Green: Default values'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Yellow: Modified from defaults'));
+        });
+
+        it('should log config check details', async () => {
+            // Mock the logger to capture calls
+            const loggerSpy = vi.spyOn(logger, 'info');
+
+            await runConfigCheckCommand();
+
+            // Should log the config check details
+            expect(loggerSpy).toHaveBeenCalledWith('Config check details logged', expect.objectContaining({
+                configCheckOutput: expect.any(String),
+                isDefault: true,
+                timestamp: expect.any(String)
+            }));
+
+            loggerSpy.mockRestore();
+        });
+
+        it('should show pattern changes for modified ignore patterns', async () => {
+            // Create config with modified ignore patterns
+            const configWithModifiedPatterns = {
+                schemaVersion: 1,
+                generatedFileName: "project-fusioned",
+                generateHtml: true,
+                generateMarkdown: true,
+                generateText: true,
+                maxFileSizeKB: 1024,
+                parseSubDirectories: true,
+                parsedFileExtensions: {
+                    web: [".js", ".ts"],
+                    backend: [".py"]
+                },
+                rootDirectory: ".",
+                useGitIgnoreForExcludes: true,
+                copyToClipboard: false,
+                ignorePatterns: ["*.custom", "new-pattern"], // Different from defaults
+                allowSymlinks: false,
+                maxFiles: 10000,
+                maxTotalSizeMB: 100
+            };
+            
+            await writeFile('project-fusion.json', JSON.stringify(configWithModifiedPatterns, null, 2));
+
+            await runConfigCheckCommand();
+
+            // Should show pattern changes summary
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Pattern Changes'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Added:'));
         });
     });
 });

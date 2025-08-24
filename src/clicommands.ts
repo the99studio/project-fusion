@@ -360,64 +360,72 @@ export async function runConfigCheckCommand(): Promise<void> {
  * Display comprehensive configuration summary with preview
  */
 async function displayConfigInfo(config: Config, isDefault: boolean): Promise<void> {
-    console.log(chalk.blue('\n📋 Configuration Summary:'));
+    const output: string[] = [];
+    
+    // Helper function to add both console and log output
+    const addLine = (line: string, coloredLine?: string): void => {
+        console.log(coloredLine || line);
+        output.push(line.replace(/\u001b\[[0-9;]*m/g, '')); // Strip ANSI colors for log
+    };
+
+    addLine('\n📋 Configuration Summary:', chalk.blue('\n📋 Configuration Summary:'));
     
     if (isDefault) {
-        console.log(chalk.gray('   (Using default configuration)\n'));
+        addLine('   (Using default configuration)\n', chalk.gray('   (Using default configuration)\n'));
     } else {
-        console.log('');
+        addLine('');
     }
 
-    // Core configuration settings
-    console.log(chalk.cyan('🔧 Basic Settings:'));
-    console.log(`   Schema Version: ${config.schemaVersion}`);
-    console.log(`   Root Directory: ${config.rootDirectory}`);
-    console.log(`   Scan Subdirectories: ${config.parseSubDirectories ? 'Yes' : 'No'}`);
-    console.log(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}`);
-    console.log(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}`);
-    console.log(`   Allow Symlinks: ${config.allowSymlinks ? chalk.yellow('Yes (⚠️ Security Risk)') : chalk.green('No (Secure)')}`);
-    console.log(`   Max File Size: ${config.maxFileSizeKB} KB`);
-    console.log(`   Max Files: ${config.maxFiles.toLocaleString()}`);
-    console.log(`   Max Total Size: ${config.maxTotalSizeMB} MB`);
+    // Core configuration settings with diff highlighting
+    addLine('🔧 Basic Settings:', chalk.cyan('🔧 Basic Settings:'));
+    addLine(`   Schema Version: ${config.schemaVersion}${isDefault || config.schemaVersion === defaultConfig.schemaVersion ? '' : ' (modified)'}`,
+           `   Schema Version: ${highlightDiff(config.schemaVersion.toString(), defaultConfig.schemaVersion.toString(), config.schemaVersion.toString())}`);
+    addLine(`   Root Directory: ${config.rootDirectory}${isDefault || config.rootDirectory === defaultConfig.rootDirectory ? '' : ' (modified)'}`,
+           `   Root Directory: ${highlightDiff(config.rootDirectory, defaultConfig.rootDirectory, config.rootDirectory)}`);
+    addLine(`   Scan Subdirectories: ${config.parseSubDirectories ? 'Yes' : 'No'}${isDefault || config.parseSubDirectories === defaultConfig.parseSubDirectories ? '' : ' (modified)'}`,
+           `   Scan Subdirectories: ${highlightDiff(config.parseSubDirectories ? 'Yes' : 'No', defaultConfig.parseSubDirectories ? 'Yes' : 'No', config.parseSubDirectories ? 'Yes' : 'No')}`);
+    addLine(`   Use .gitignore: ${config.useGitIgnoreForExcludes ? 'Yes' : 'No'}${isDefault || config.useGitIgnoreForExcludes === defaultConfig.useGitIgnoreForExcludes ? '' : ' (modified)'}`,
+           `   Use .gitignore: ${highlightDiff(config.useGitIgnoreForExcludes ? 'Yes' : 'No', defaultConfig.useGitIgnoreForExcludes ? 'Yes' : 'No', config.useGitIgnoreForExcludes ? 'Yes' : 'No')}`);
+    addLine(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}${isDefault || config.copyToClipboard === defaultConfig.copyToClipboard ? '' : ' (modified)'}`,
+           `   Copy to Clipboard: ${highlightDiff(config.copyToClipboard ? 'Yes' : 'No', defaultConfig.copyToClipboard ? 'Yes' : 'No', config.copyToClipboard ? 'Yes' : 'No')}`);
+    const symlinkValue = config.allowSymlinks ? 'Yes (⚠️ Security Risk)' : 'No (Secure)';
+    const symlinkDefault = defaultConfig.allowSymlinks ? 'Yes (⚠️ Security Risk)' : 'No (Secure)';
+    const symlinkColor = config.allowSymlinks ? chalk.yellow(symlinkValue) : chalk.green(symlinkValue);
+    addLine(`   Allow Symlinks: ${symlinkValue}${isDefault || config.allowSymlinks === defaultConfig.allowSymlinks ? '' : ' (modified)'}`,
+           `   Allow Symlinks: ${isDefault || config.allowSymlinks === defaultConfig.allowSymlinks ? symlinkColor : chalk.yellow(symlinkValue)}`);
+    addLine(`   Max File Size: ${config.maxFileSizeKB} KB${isDefault || config.maxFileSizeKB === defaultConfig.maxFileSizeKB ? '' : ' (modified)'}`,
+           `   Max File Size: ${highlightDiff(`${config.maxFileSizeKB} KB`, `${defaultConfig.maxFileSizeKB} KB`, `${config.maxFileSizeKB} KB`)}`);
+    addLine(`   Max Files: ${config.maxFiles.toLocaleString()}${isDefault || config.maxFiles === defaultConfig.maxFiles ? '' : ' (modified)'}`,
+           `   Max Files: ${highlightDiff(config.maxFiles.toLocaleString(), defaultConfig.maxFiles.toLocaleString(), config.maxFiles.toLocaleString())}`);
+    addLine(`   Max Total Size: ${config.maxTotalSizeMB} MB${isDefault || config.maxTotalSizeMB === defaultConfig.maxTotalSizeMB ? '' : ' (modified)'}`,
+           `   Max Total Size: ${highlightDiff(`${config.maxTotalSizeMB} MB`, `${defaultConfig.maxTotalSizeMB} MB`, `${config.maxTotalSizeMB} MB`)}`);
 
     // File generation options
-    console.log(chalk.cyan('\n📄 Output Generation:'));
-    console.log(`   Generated File Name: ${config.generatedFileName}`);
-    console.log(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}`);
-    console.log(`   Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}`);
-    console.log(`   Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}`);
-    console.log(`   Log File: project-fusion.log`);
+    addLine('\n📄 Output Generation:', chalk.cyan('\n📄 Output Generation:'));
+    addLine(`   Generated File Name: ${config.generatedFileName}${isDefault || config.generatedFileName === defaultConfig.generatedFileName ? '' : ' (modified)'}`,
+           `   Generated File Name: ${highlightDiff(config.generatedFileName, defaultConfig.generatedFileName, config.generatedFileName)}`);
+    addLine(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}${isDefault || config.generateText === defaultConfig.generateText ? '' : ' (modified)'}`,
+           `   Generate Text: ${highlightDiff(config.generateText ? 'Yes' : 'No', defaultConfig.generateText ? 'Yes' : 'No', config.generateText ? 'Yes' : 'No')}`);
+    addLine(`   Generate Markdown: ${config.generateMarkdown ? 'Yes' : 'No'}${isDefault || config.generateMarkdown === defaultConfig.generateMarkdown ? '' : ' (modified)'}`,
+           `   Generate Markdown: ${highlightDiff(config.generateMarkdown ? 'Yes' : 'No', defaultConfig.generateMarkdown ? 'Yes' : 'No', config.generateMarkdown ? 'Yes' : 'No')}`);
+    addLine(`   Generate HTML: ${config.generateHtml ? 'Yes' : 'No'}${isDefault || config.generateHtml === defaultConfig.generateHtml ? '' : ' (modified)'}`,
+           `   Generate HTML: ${highlightDiff(config.generateHtml ? 'Yes' : 'No', defaultConfig.generateHtml ? 'Yes' : 'No', config.generateHtml ? 'Yes' : 'No')}`);
+    addLine('   Log File: project-fusion.log');
 
-    // File type configuration
-    console.log(chalk.cyan('\n📁 File Extension Groups:'));
-    const totalExtensions = getExtensionsFromGroups(config);
-    
-    for (const [group, extensions] of Object.entries(config.parsedFileExtensions)) {
-        if (extensions) {
-            console.log(`   ${group}: ${extensions.length} extensions (${extensions.join(', ')})`);
-        }
-    }
-    
-    console.log(chalk.gray(`   Total: ${totalExtensions.length} unique extensions`));
+    // File type configuration - structured table
+    addLine('\n📁 File Extension Groups (Structured View):', chalk.cyan('\n📁 File Extension Groups (Structured View):'));
+    await displayExtensionGroupsTable(config, isDefault, addLine);
 
-    // Pattern exclusions
-    console.log(chalk.cyan('\n🚫 Ignore Patterns:'));
-    if (config.ignorePatterns.length === 0) {
-        console.log('   None defined');
-    } else {
-        for (const pattern of config.ignorePatterns.slice(0, 10)) {
-            console.log(`   ${pattern}`);
-        }
-        if (config.ignorePatterns.length > 10) {
-            console.log(chalk.gray(`   ... and ${config.ignorePatterns.length - 10} more`));
-        }
-    }
+    // Pattern exclusions with diff
+    addLine('\n🚫 Ignore Patterns:', chalk.cyan('\n🚫 Ignore Patterns:'));
+    displayIgnorePatternsWithDiff(config, isDefault, addLine);
 
     // Preview matching files using current configuration
-    console.log(chalk.cyan('\n🔍 File Discovery Preview:'));
+    addLine('\n🔍 File Discovery Preview:', chalk.cyan('\n🔍 File Discovery Preview:'));
     try {
         const { glob } = await import('glob');
         const rootDir = path.resolve(config.rootDirectory);
+        const totalExtensions = getExtensionsFromGroups(config);
         
         // Create glob pattern to preview file discovery
         const allExtensionsPattern = totalExtensions.map(ext => ext.startsWith('.') ? ext : `.${ext}`);
@@ -430,20 +438,124 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
             follow: false
         });
 
-        console.log(`   Pattern: ${pattern}`);
-        console.log(`   Files found: ${filePaths.length}`);
+        addLine(`   Pattern: ${pattern}`);
+        addLine(`   Files found: ${filePaths.length}`);
         
         if (filePaths.length > 0) {
-            console.log(`   Sample files:`);
+            addLine('   Sample files:');
             for (const file of filePaths.slice(0, 5)) {
                 const relativePath = path.relative(rootDir, file);
-                console.log(`     ${relativePath}`);
+                addLine(`     ${relativePath}`);
             }
             if (filePaths.length > 5) {
-                console.log(chalk.gray(`     ... and ${filePaths.length - 5} more`));
+                addLine(`     ... and ${filePaths.length - 5} more`, chalk.gray(`     ... and ${filePaths.length - 5} more`));
             }
         }
     } catch (error) {
-        console.log(chalk.yellow(`   Could not preview files: ${String(error)}`));
+        addLine(`   Could not preview files: ${String(error)}`, chalk.yellow(`   Could not preview files: ${String(error)}`));
+    }
+
+    // Log the detailed config check output
+    logger.info('Config check details logged', {
+        configCheckOutput: output.join('\n'),
+        isDefault,
+        timestamp: new Date().toISOString()
+    });
+}
+
+/**
+ * Helper function to highlight differences from default values
+ */
+function highlightDiff(current: string, defaultValue: string, actualValue: string): string {
+    if (current === defaultValue) {
+        return chalk.green(actualValue); // Default value - green
+    } else {
+        return chalk.yellow(actualValue); // Modified value - yellow
+    }
+}
+
+/**
+ * Display extension groups in a structured table format
+ */
+async function displayExtensionGroupsTable(config: Config, isDefault: boolean, addLine: (line: string, coloredLine?: string) => void): Promise<void> {
+    const totalExtensions = getExtensionsFromGroups(config);
+    
+    // Table header
+    addLine('   ┌─────────────┬─────────┬────────────────────────────────────────────┐');
+    addLine('   │ Group       │ Count   │ Extensions                                 │');
+    addLine('   ├─────────────┼─────────┼────────────────────────────────────────────┤');
+    
+    // Table rows for each group
+    for (const [group, extensions] of Object.entries(config.parsedFileExtensions)) {
+        if (extensions) {
+            const defaultExtensions = defaultConfig.parsedFileExtensions[group as keyof typeof defaultConfig.parsedFileExtensions] || [];
+            const isModified = !isDefault && JSON.stringify(extensions) !== JSON.stringify(defaultExtensions);
+            
+            const groupPadded = group.padEnd(11);
+            const countPadded = extensions.length.toString().padEnd(7);
+            const extString = extensions.join(', ');
+            const extTruncated = extString.length > 42 ? extString.substring(0, 39) + '...' : extString.padEnd(42);
+            
+            const line = `   │ ${groupPadded} │ ${countPadded} │ ${extTruncated} │`;
+            const coloredLine = isModified 
+                ? `   │ ${chalk.yellow(groupPadded)} │ ${chalk.yellow(countPadded)} │ ${chalk.yellow(extTruncated)} │`
+                : `   │ ${chalk.green(groupPadded)} │ ${chalk.green(countPadded)} │ ${chalk.green(extTruncated)} │`;
+            
+            addLine(line, coloredLine);
+        }
+    }
+    
+    // Table footer
+    addLine('   └─────────────┴─────────┴────────────────────────────────────────────┘');
+    addLine(`   Total: ${totalExtensions.length} unique extensions`, 
+           chalk.gray(`   Total: ${totalExtensions.length} unique extensions`));
+    
+    if (!isDefault) {
+        addLine('   ', '   ');
+        addLine('   Legend: ', chalk.gray('   Legend: '));
+        addLine('   • Green: Default values', `   • ${chalk.green('Green: Default values')}`);
+        addLine('   • Yellow: Modified from defaults', `   • ${chalk.yellow('Yellow: Modified from defaults')}`);
+    }
+}
+
+/**
+ * Display ignore patterns with diff highlighting
+ */
+function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLine: (line: string, coloredLine?: string) => void): void {
+    if (config.ignorePatterns.length === 0) {
+        addLine('   None defined');
+        return;
+    }
+    
+    const defaultPatterns = new Set(defaultConfig.ignorePatterns);
+    const maxDisplay = 15;
+    
+    for (const [index, pattern] of config.ignorePatterns.slice(0, maxDisplay).entries()) {
+        const isDefaultPattern = isDefault || defaultPatterns.has(pattern as any);
+        const line = `   ${pattern}`;
+        const coloredLine = isDefaultPattern ? chalk.green(line) : chalk.yellow(line);
+        addLine(line, coloredLine);
+    }
+    
+    if (config.ignorePatterns.length > maxDisplay) {
+        const remaining = config.ignorePatterns.length - maxDisplay;
+        addLine(`   ... and ${remaining} more`, chalk.gray(`   ... and ${remaining} more`));
+    }
+    
+    if (!isDefault) {
+        // Show summary of modifications
+        const added = config.ignorePatterns.filter(p => !defaultPatterns.has(p as any));
+        const removed = defaultConfig.ignorePatterns.filter(p => !config.ignorePatterns.includes(p as any));
+        
+        if (added.length > 0 || removed.length > 0) {
+            addLine('   ');
+            addLine('   Pattern Changes:', chalk.gray('   Pattern Changes:'));
+            if (added.length > 0) {
+                addLine(`   • Added: ${added.length} pattern(s)`, chalk.yellow(`   • Added: ${added.length} pattern(s)`));
+            }
+            if (removed.length > 0) {
+                addLine(`   • Removed: ${removed.length} pattern(s)`, chalk.red(`   • Removed: ${removed.length} pattern(s)`));
+            }
+        }
     }
 }

@@ -1,7 +1,3 @@
-## 3) CLI/UX
-- [ ] **Option validation**: Validate numeric flags and show friendly errors when NaN (e.g., `--max-files=abc`).
-- [ ] **`config-check` improvements**: Print effective groups/extensions table and highlight diffs from defaults. (Partially implemented; ensure coverage test exists.)
-
 ## 4) Output Quality
 - [ ] **Markdown TOC anchors**: Use a stable slugger (e.g., GitHub‑style) rather than regex replace for headers; ensure duplicates are de‑duped.
 - [ ] **HTML escaping audit**: Keep `escapeHtml()` coverage; add tests for `<script>`, quotes, and high Unicode.
