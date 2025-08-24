@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 23/08/2025 21:55:16 UTC−4
+**Generated:** 23/08/2025 22:09:37 UTC−4
 
-**UTC:** 2025-08-24T01:55:16.453Z
+**UTC:** 2025-08-24T02:09:37.483Z
 
 **Files:** 58
 
@@ -1361,6 +1361,12 @@ export interface FusionProgress {
     percentage: number;
     /** Human-readable message */
     message: string;
+    /** Estimated time remaining in seconds (if calculable) */
+    etaSeconds?: number;
+    /** Total MB processed so far */
+    mbProcessed?: number;
+    /** Processing speed in MB/s */
+    throughputMBps?: number;
 }
 
 /**
@@ -2517,6 +2523,19 @@ export async function processFusion(
     const fs = options.fs || new DefaultFileSystemAdapter();
     const outputManager = new OutputStrategyManager();
     const pluginManager = new PluginManager(fs);
+    
+    // Progress tracking state
+    const progressState = {
+        lastProgressEmit: 0,
+        filesProcessedSinceLastEmit: 0,
+        totalBytesProcessed: 0,
+        startTime: Date.now(),
+        phaseStartTime: Date.now(),
+        currentPhase: 'scanning' as import('./api.js').FusionProgress['step']
+    };
+    
+    // Configure progress granularity (emit every N files or on phase change)
+    const PROGRESS_EMIT_INTERVAL = 10; // Emit progress every 10 files
 
     // Helper function to write logs using the FileSystemAdapter
     const writeLogWithFs = async (logFilePath: string, content: string, append = false, consoleOutput = false): Promise<void> => {
@@ -2543,24 +2562,74 @@ export async function processFusion(
         }
     };
 
-    // Helper function to report progress
-    const reportProgress = (step: import('./api.js').FusionProgress['step'], message: string, filesProcessed = 0, totalFiles = 0, currentFile?: string | undefined) => {
-        if (options.onProgress) {
-            const percentage = totalFiles > 0 ? Math.round((filesProcessed / totalFiles) * 100) : 0;
-            options.onProgress({
-                step,
-                message,
-                filesProcessed,
-                totalFiles,
-                percentage,
-                currentFile
-            });
+    // Helper function to report progress with ETA and throughput
+    const reportProgress = (
+        step: import('./api.js').FusionProgress['step'], 
+        message: string, 
+        filesProcessed = 0, 
+        totalFiles = 0, 
+        currentFile?: string | undefined,
+        forceEmit = false
+    ) => {
+        if (!options.onProgress) return;
+        
+        // Check if we should emit (phase change, forced, or interval reached)
+        const phaseChanged = step !== progressState.currentPhase;
+        progressState.filesProcessedSinceLastEmit++;
+        
+        // Always emit for first file in processing, small file sets, or when forced
+        const isFirstFileInProcessing = step === 'processing' && filesProcessed === 1;
+        const isSmallFileSet = totalFiles <= PROGRESS_EMIT_INTERVAL;
+        
+        const shouldEmit = forceEmit || 
+                          phaseChanged || 
+                          isFirstFileInProcessing ||
+                          isSmallFileSet || // Always emit for small file sets
+                          progressState.filesProcessedSinceLastEmit >= PROGRESS_EMIT_INTERVAL ||
+                          filesProcessed === totalFiles; // Always emit on completion
+        
+        if (!shouldEmit && !phaseChanged) return;
+        
+        // Reset counter and update phase
+        if (phaseChanged) {
+            progressState.currentPhase = step;
+            progressState.phaseStartTime = Date.now();
         }
+        progressState.filesProcessedSinceLastEmit = 0;
+        progressState.lastProgressEmit = Date.now();
+        
+        const percentage = totalFiles > 0 ? Math.round((filesProcessed / totalFiles) * 100) : 0;
+        const elapsedSeconds = (Date.now() - progressState.startTime) / 1000;
+        
+        // Calculate ETA based on current progress
+        let etaSeconds: number | undefined;
+        if (filesProcessed > 0 && totalFiles > 0 && filesProcessed < totalFiles) {
+            const averageTimePerFile = elapsedSeconds / filesProcessed;
+            const remainingFiles = totalFiles - filesProcessed;
+            etaSeconds = Math.round(averageTimePerFile * remainingFiles);
+        }
+        
+        // Get current metrics from benchmark
+        const metrics = benchmark.getMetrics();
+        const mbProcessed = metrics.totalSizeMB;
+        const throughputMBps = metrics.throughputMBps;
+        
+        options.onProgress({
+            step,
+            message,
+            filesProcessed,
+            totalFiles,
+            percentage,
+            currentFile,
+            ...(etaSeconds !== undefined && { etaSeconds }),
+            ...(mbProcessed !== undefined && { mbProcessed }),
+            ...(throughputMBps !== undefined && { throughputMBps })
+        });
     };
 
     try {
         checkCancellation();
-        reportProgress('scanning', 'Initializing fusion process...');
+        reportProgress('scanning', 'Initializing fusion process...', 0, 0, undefined, true);
         const outputDir = config.outputDirectory ?? config.rootDirectory;
         const logFilePath = createFilePath(path.resolve(outputDir, `${config.generatedFileName}.log`));
         const startTime = new Date();
@@ -2703,7 +2772,7 @@ export async function processFusion(
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
 
         checkCancellation();
-        reportProgress('scanning', 'Scanning for files...');
+        reportProgress('scanning', 'Scanning for files...', 0, 0, undefined, true);
         
         let filePaths = await fs.glob(pattern, { 
             nodir: true,
@@ -2716,7 +2785,7 @@ export async function processFusion(
             return !ig.ignores(relativePath);
         });
 
-        reportProgress('scanning', `Found ${filePaths.length} files after filtering`, 0, filePaths.length);
+        reportProgress('scanning', `Found ${filePaths.length} files after filtering`, 0, filePaths.length, undefined, true);
         console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
@@ -2781,14 +2850,24 @@ export async function processFusion(
         let skippedCount = 0;
         let totalSizeBytes = 0;
 
-        reportProgress('processing', 'Processing files...', 0, filePaths.length);
+        reportProgress('processing', 'Processing files...', 0, filePaths.length, undefined, true);
         
         for (let i = 0; i < filePaths.length; i++) {
             const filePath = filePaths[i]!; // filePaths array is never sparse
             const relativePath = path.relative(rootDir, filePath);
 
             checkCancellation();
-            reportProgress('processing', `Processing ${relativePath}`, i, filePaths.length, relativePath);
+            
+            // Update bytes processed for accurate throughput
+            if (i > 0) {
+                const lastFile = filesToProcess[filesToProcess.length - 1];
+                if (lastFile) {
+                    progressState.totalBytesProcessed += lastFile.size;
+                    benchmark.markFileProcessed(lastFile.size);
+                }
+            }
+            
+            reportProgress('processing', `Processing ${relativePath}`, i + 1, filePaths.length, relativePath);
 
             try {
                 const stats = await fs.stat(filePath);
@@ -3014,14 +3093,14 @@ export async function processFusion(
         };
 
         checkCancellation();
-        reportProgress('generating', 'Generating output files...', finalFilesToProcess.length, finalFilesToProcess.length);
+        reportProgress('generating', 'Generating output files...', finalFilesToProcess.length, finalFilesToProcess.length, undefined, true);
         
         const enabledStrategies = outputManager.getEnabledStrategies(finalConfig);
         const generatedPaths: FilePath[] = [];
 
         for (const strategy of enabledStrategies) {
             checkCancellation();
-            reportProgress('generating', `Generating ${strategy.name} output...`, 0, finalFilesToProcess.length);
+            reportProgress('generating', `Generating ${strategy.name} output...`, 0, finalFilesToProcess.length, undefined, true);
             
             try {
                 // Use the streaming version with progress callback
@@ -3036,7 +3115,8 @@ export async function processFusion(
                             `Generating ${strategy.name} output - processing ${fileInfo.relativePath}`,
                             index + 1,
                             total,
-                            fileInfo.relativePath
+                            fileInfo.relativePath,
+                            false // Use normal granularity
                         );
                     }
                 );
@@ -3052,7 +3132,7 @@ export async function processFusion(
         // await logMemoryUsageIfNeeded(logFilePath, 'Final memory check');
         // TODO: Implement memory check inline if needed
 
-        reportProgress('writing', 'Finalizing...', finalFilesToProcess.length, finalFilesToProcess.length);
+        reportProgress('writing', 'Finalizing...', finalFilesToProcess.length, finalFilesToProcess.length, undefined, true);
         
         const message = `Fusion completed successfully. ${finalFilesToProcess.length} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
         const endTime = new Date();
@@ -15760,8 +15840,7 @@ dist/
 # TODO — Project Fusion (polish for npm release)
 
 ## 1) Reliability & Performance
-- [ ] **Streamed writers for all formats**: Refactor `OutputStrategyManager.generateOutput` to use streams for Markdown/HTML/Text instead of accumulating a giant string. Implement `createStream()` on each strategy and pipe `processFile(...)` chunks to it (handles very large projects gracefully).
-- [ ] **Progress granularity**: In `processFusion`, emit progress every N files + on each phase transition; include ETA and MB processed using `BenchmarkTracker`.
+- [x] **Progress granularity**: In `processFusion`, emit progress every N files + on each phase transition; include ETA and MB processed using `BenchmarkTracker`.
 - [ ] **Cancellation safety**: Wrap long loops with `checkCancellation()` (scan, validate, redact, write). Ensure any open WriteStreams are closed on cancellation.
 - [ ] **Clipboard copy guards**: Skip clipboard work when file size > 5 MB, or when CI/non‑TTY. Already partly handled; add size guard.
 

@@ -26,6 +26,12 @@ export interface FusionProgress {
     percentage: number;
     /** Human-readable message */
     message: string;
+    /** Estimated time remaining in seconds (if calculable) */
+    etaSeconds?: number;
+    /** Total MB processed so far */
+    mbProcessed?: number;
+    /** Processing speed in MB/s */
+    throughputMBps?: number;
 }
 
 /**
