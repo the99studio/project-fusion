@@ -2,7 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: 
+      - '**'
+      - '!skip-ci/**'
+      - '!no-ci/**'
+      - '!wip/**'
   pull_request:
     branches: [ main, develop ]
 
