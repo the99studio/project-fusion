@@ -4,6 +4,7 @@
  * Centralized logger for Project Fusion
  * Provides structured logging with severity levels to replace scattered console.error calls
  */
+import chalk from 'chalk';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -177,6 +178,31 @@ export class Logger {
             warn: 0,
             error: 0
         });
+    }
+
+    // Simple console methods with colors (replaces old consoleLogger)
+    consoleInfo(message: string): void {
+        console.log(chalk.blue(message));
+    }
+
+    consoleSuccess(message: string): void {
+        console.log(chalk.green(message));
+    }
+
+    consoleWarning(message: string): void {
+        console.log(chalk.yellow(message));
+    }
+
+    consoleError(message: string): void {
+        console.log(chalk.red(message));
+    }
+
+    consoleSecondary(message: string): void {
+        console.log(chalk.cyan(message));
+    }
+
+    consoleMuted(message: string): void {
+        console.log(chalk.gray(message));
     }
 }
 

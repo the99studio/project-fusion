@@ -12,7 +12,8 @@ import fs from 'fs-extra';
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FusionOptions } from './types.js';
-import { defaultConfig, getExtensionsFromGroups, loadConfig, consoleLogger } from './utils.js';
+import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
+import { logger } from './utils/logger.js';
 
 /**
  * Run the fusion command
@@ -42,7 +43,7 @@ export async function runFusionCommand(options: {
     preview?: boolean;
 }): Promise<void> {
     try {
-        consoleLogger.info('🔄 Starting Fusion Process...');
+        logger.consoleInfo('🔄 Starting Fusion Process...');
 
         const config = await loadConfig();
 
@@ -80,7 +81,7 @@ export async function runFusionCommand(options: {
             if (enabledFormats.length > 0) {
                 console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
             } else {
-                consoleLogger.error('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
+                logger.consoleError('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
                 process.exit(1);
             }
         }
@@ -88,20 +89,20 @@ export async function runFusionCommand(options: {
         // Handle clipboard override
         if (options.clipboard === false) {
             config.copyToClipboard = false;
-            consoleLogger.warning('ℹ️ Clipboard copying disabled');
+            logger.consoleWarning('ℹ️ Clipboard copying disabled');
         }
 
         if (options.allowSymlinks !== undefined) {
             config.allowSymlinks = options.allowSymlinks;
             if (options.allowSymlinks) {
-                consoleLogger.warning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
+                logger.consoleWarning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
             }
         }
 
         if (options.allowExternalPlugins !== undefined) {
             config.allowExternalPlugins = options.allowExternalPlugins;
             if (options.allowExternalPlugins) {
-                consoleLogger.warning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
+                logger.consoleWarning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
             }
         }
 

@@ -12,7 +12,7 @@ import { z } from 'zod';
 
 import { ConfigSchemaV1 } from './schema.js';
 import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from './types.js';
-import { logger as structuredLogger } from './utils/logger.js';
+import { logger } from './utils/logger.js';
 
 // Global symlink audit tracker
 const symlinkAuditTracker = new Map<string, { count: number; entries: Array<{ symlink: string; target: string; timestamp: Date }> }>();
@@ -221,17 +221,6 @@ export async function writeLog(
 }
 
 
-/**
- * Console logging utilities with consistent styling
- */
-export const consoleLogger = {
-    info: (message: string) => console.log(chalk.blue(message)),
-    success: (message: string) => console.log(chalk.green(message)),
-    warning: (message: string) => console.log(chalk.yellow(message)),
-    error: (message: string) => console.log(chalk.red(message)),
-    secondary: (message: string) => console.log(chalk.cyan(message)),
-    muted: (message: string) => console.log(chalk.gray(message))
-};
 
 /**
  * Format a timestamp
@@ -474,7 +463,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             tracker.entries.push(auditEntry);
             
             // Log with security warning banner
-            structuredLogger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
+            logger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
                 symlink: symlinkPath,
                 target: resolvedTarget,
                 targetExists,
@@ -485,7 +474,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             });
         } else if (tracker.entries.length === maxEntries) {
             // Log limit reached message once
-            structuredLogger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
+            logger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
                 totalSymlinks: tracker.count,
                 maxEntries,
                 sessionKey
@@ -494,7 +483,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
         
     } catch (error) {
         // Log symlink resolution failure
-        structuredLogger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
+        logger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
             symlink: symlinkPath,
             error: error instanceof Error ? error.message : String(error),
             auditCount: tracker.count

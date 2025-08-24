@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 24/08/2025 00:36:25 UTC−4
+**Generated:** 24/08/2025 00:57:37 UTC−4
 
-**UTC:** 2025-08-24T04:36:25.455Z
+**UTC:** 2025-08-24T04:57:37.513Z
 
 **Files:** 60
 
@@ -1835,7 +1835,8 @@ import fs from 'fs-extra';
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FusionOptions } from './types.js';
-import { defaultConfig, getExtensionsFromGroups, loadConfig, consoleLogger } from './utils.js';
+import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
+import { logger } from './utils/logger.js';
 
 /**
  * Run the fusion command
@@ -1865,7 +1866,7 @@ export async function runFusionCommand(options: {
     preview?: boolean;
 }): Promise<void> {
     try {
-        consoleLogger.info('🔄 Starting Fusion Process...');
+        logger.consoleInfo('🔄 Starting Fusion Process...');
 
         const config = await loadConfig();
 
@@ -1903,7 +1904,7 @@ export async function runFusionCommand(options: {
             if (enabledFormats.length > 0) {
                 console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
             } else {
-                consoleLogger.error('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
+                logger.consoleError('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
                 process.exit(1);
             }
         }
@@ -1911,20 +1912,20 @@ export async function runFusionCommand(options: {
         // Handle clipboard override
         if (options.clipboard === false) {
             config.copyToClipboard = false;
-            consoleLogger.warning('ℹ️ Clipboard copying disabled');
+            logger.consoleWarning('ℹ️ Clipboard copying disabled');
         }
 
         if (options.allowSymlinks !== undefined) {
             config.allowSymlinks = options.allowSymlinks;
             if (options.allowSymlinks) {
-                consoleLogger.warning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
+                logger.consoleWarning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
             }
         }
 
         if (options.allowExternalPlugins !== undefined) {
             config.allowExternalPlugins = options.allowExternalPlugins;
             if (options.allowExternalPlugins) {
-                consoleLogger.warning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
+                logger.consoleWarning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
             }
         }
 
@@ -4598,7 +4599,7 @@ import { z } from 'zod';
 
 import { ConfigSchemaV1 } from './schema.js';
 import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from './types.js';
-import { logger as structuredLogger } from './utils/logger.js';
+import { logger } from './utils/logger.js';
 
 // Global symlink audit tracker
 const symlinkAuditTracker = new Map<string, { count: number; entries: Array<{ symlink: string; target: string; timestamp: Date }> }>();
@@ -4807,17 +4808,6 @@ export async function writeLog(
 }
 
 
-/**
- * Console logging utilities with consistent styling
- */
-export const consoleLogger = {
-    info: (message: string) => console.log(chalk.blue(message)),
-    success: (message: string) => console.log(chalk.green(message)),
-    warning: (message: string) => console.log(chalk.yellow(message)),
-    error: (message: string) => console.log(chalk.red(message)),
-    secondary: (message: string) => console.log(chalk.cyan(message)),
-    muted: (message: string) => console.log(chalk.gray(message))
-};
 
 /**
  * Format a timestamp
@@ -5060,7 +5050,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             tracker.entries.push(auditEntry);
             
             // Log with security warning banner
-            structuredLogger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
+            logger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
                 symlink: symlinkPath,
                 target: resolvedTarget,
                 targetExists,
@@ -5071,7 +5061,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             });
         } else if (tracker.entries.length === maxEntries) {
             // Log limit reached message once
-            structuredLogger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
+            logger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
                 totalSymlinks: tracker.count,
                 maxEntries,
                 sessionKey
@@ -5080,7 +5070,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
         
     } catch (error) {
         // Log symlink resolution failure
-        structuredLogger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
+        logger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
             symlink: symlinkPath,
             error: error instanceof Error ? error.message : String(error),
             auditCount: tracker.count
@@ -5592,6 +5582,7 @@ export function isMinifiedContent(content: string, filePath: string): boolean {
  * Centralized logger for Project Fusion
  * Provides structured logging with severity levels to replace scattered console.error calls
  */
+import chalk from 'chalk';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -5765,6 +5756,31 @@ export class Logger {
             warn: 0,
             error: 0
         });
+    }
+
+    // Simple console methods with colors (replaces old consoleLogger)
+    consoleInfo(message: string): void {
+        console.log(chalk.blue(message));
+    }
+
+    consoleSuccess(message: string): void {
+        console.log(chalk.green(message));
+    }
+
+    consoleWarning(message: string): void {
+        console.log(chalk.yellow(message));
+    }
+
+    consoleError(message: string): void {
+        console.log(chalk.red(message));
+    }
+
+    consoleSecondary(message: string): void {
+        console.log(chalk.cyan(message));
+    }
+
+    consoleMuted(message: string): void {
+        console.log(chalk.gray(message));
     }
 }
 
