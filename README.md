@@ -90,7 +90,6 @@ Run `project-fusion init` to create `project-fusion.json` if you want to fine-tu
   "useGitIgnoreForExcludes": true,             // Use .gitignore patterns
   
   // Security settings
-  "allowExternalPlugins": false,               // Allow external plugins
   "allowSymlinks": false,                      // Allow symbolic links
   "allowedExternalPluginPaths": [],            // Allowed external plugin paths
   "excludeSecrets": true,                      // Exclude files with secrets
@@ -147,7 +146,6 @@ project-fusion [options]
   --no-subdirs                  Don't scan subdirectories
   
 # Security Options (use with caution)
-  --allow-external-plugins      Allow plugins from outside root directory (SECURITY WARNING)
   --allow-symlinks              Allow processing symbolic links (SECURITY WARNING)
   
 # Plugin System

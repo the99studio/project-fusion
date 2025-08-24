@@ -24,7 +24,7 @@ const testConfig: Config = {
   ignorePatterns: [],
   useGitIgnoreForExcludes: false,
   allowSymlinks: false,
-  allowExternalPlugins: false,
+  
   maxBase64BlockKB: 100,
   maxLineLength: 5000,
   maxTokenLength: 2000

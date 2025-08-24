@@ -53,7 +53,7 @@ project-fusion/
 2. **Binary Detection**: Check null bytes before processing
 3. **Content Validation**: Enforce limits (base64 >2KB, tokens >2000, lines >5000)
 4. **Secret Redaction**: Auto-redact API keys, tokens, passwords in output
-5. **Plugin Security**: External plugins require `allowExternalPlugins` flag
+5. **Plugin Security**: External plugins require `allowedExternalPluginPaths` config
 6. **Symlinks**: Disabled by default, check `allowSymlinks` config
 7. **XSS Prevention**: Sanitize HTML output in output-strategy.ts
 
@@ -72,7 +72,7 @@ Config object structure in `schema.ts`:
 - **Ignore Patterns**: `ignorePatterns` array + `useGitIgnoreForExcludes`
 - **Output**: `generateText`, `generateMarkdown`, `generateHtml`, `copyToClipboard`
 - **Processing**: `parseSubDirectories`, `rootDirectory`, `outputDirectory`
-- **Security Flags**: `allowSymlinks` (false), `allowExternalPlugins` (false), `excludeSecrets` (true)
+- **Security Flags**: `allowSymlinks` (false), `allowedExternalPluginPaths` ([]), `excludeSecrets` (true)
 - **Size Limits**: `maxFileSizeKB` (5000), `maxTotalSizeMB` (50), `maxFiles` (1000)
 
 ## Plugin System

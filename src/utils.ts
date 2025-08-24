@@ -22,7 +22,6 @@ const symlinkAuditTracker = new Map<string, { count: number; entries: Array<{ sy
  * Default configuration for Project Fusion
  */
 export const defaultConfig = {
-    allowExternalPlugins: false,
     allowedExternalPluginPaths: [],
     allowSymlinks: false,
     copyToClipboard: false,

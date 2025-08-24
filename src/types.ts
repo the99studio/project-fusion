@@ -80,9 +80,7 @@ export class FusionError extends Error {
  * Main configuration interface (properties in alphabetical order)
  */
 export interface Config {
-    /** Allow loading plugins from outside rootDirectory (security risk) */
-    allowExternalPlugins?: boolean;
-    /** Explicit list of allowed external plugin paths (replaces allowExternalPlugins when not empty) */
+    /** Explicit list of allowed external plugin paths for security */
     allowedExternalPluginPaths?: string[];
     allowSymlinks: boolean;
     copyToClipboard: boolean;

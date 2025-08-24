@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 24/08/2025 17:26:35 UTC−4
+**Generated:** 24/08/2025 17:37:38 UTC−4
 
-**UTC:** 2025-08-24T21:26:35.665Z
+**UTC:** 2025-08-24T21:37:38.630Z
 
 **Files:** 59
 
@@ -253,7 +253,7 @@ project-fusion/
 2. **Binary Detection**: Check null bytes before processing
 3. **Content Validation**: Enforce limits (base64 >2KB, tokens >2000, lines >5000)
 4. **Secret Redaction**: Auto-redact API keys, tokens, passwords in output
-5. **Plugin Security**: External plugins require `allowExternalPlugins` flag
+5. **Plugin Security**: External plugins require `allowedExternalPluginPaths` config
 6. **Symlinks**: Disabled by default, check `allowSymlinks` config
 7. **XSS Prevention**: Sanitize HTML output in output-strategy.ts
 
@@ -272,7 +272,7 @@ Config object structure in `schema.ts`:
 - **Ignore Patterns**: `ignorePatterns` array + `useGitIgnoreForExcludes`
 - **Output**: `generateText`, `generateMarkdown`, `generateHtml`, `copyToClipboard`
 - **Processing**: `parseSubDirectories`, `rootDirectory`, `outputDirectory`
-- **Security Flags**: `allowSymlinks` (false), `allowExternalPlugins` (false), `excludeSecrets` (true)
+- **Security Flags**: `allowSymlinks` (false), `allowedExternalPluginPaths` ([]), `excludeSecrets` (true)
 - **Size Limits**: `maxFileSizeKB` (5000), `maxTotalSizeMB` (50), `maxFiles` (1000)
 
 ## Plugin System
@@ -470,7 +470,7 @@ import { fusionAPI } from '@the99studio/project-fusion/api';
 await fusionAPI({
     pluginsDir: './plugins',
     enabledPlugins: ['my-plugin'],
-    allowExternalPlugins: true  // Required for external plugins
+    allowedExternalPluginPaths: ['./plugins']  // Required for external plugins
 });
 ```
 
@@ -884,7 +884,6 @@ Run `project-fusion init` to create `project-fusion.json` if you want to fine-tu
   "useGitIgnoreForExcludes": true,             // Use .gitignore patterns
   
   // Security settings
-  "allowExternalPlugins": false,               // Allow external plugins
   "allowSymlinks": false,                      // Allow symbolic links
   "allowedExternalPluginPaths": [],            // Allowed external plugin paths
   "excludeSecrets": true,                      // Exclude files with secrets
@@ -941,7 +940,6 @@ project-fusion [options]
   --no-subdirs                  Don't scan subdirectories
   
 # Security Options (use with caution)
-  --allow-external-plugins      Allow plugins from outside root directory (SECURITY WARNING)
   --allow-symlinks              Allow processing symbolic links (SECURITY WARNING)
   
 # Plugin System
@@ -1349,7 +1347,6 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
     const rootDirectory = partialConfig.rootDirectory ?? cwd;
     
     return {
-        allowExternalPlugins: partialConfig.allowExternalPlugins ?? defaultConfig.allowExternalPlugins,
         allowedExternalPluginPaths: partialConfig.allowedExternalPluginPaths ?? defaultConfig.allowedExternalPluginPaths,
         allowSymlinks: partialConfig.allowSymlinks ?? defaultConfig.allowSymlinks,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
@@ -1665,7 +1662,6 @@ program
     .option('--allow-symlinks', 'Allow processing symbolic links (SECURITY WARNING: use with caution)')
     .option('--plugins-dir <directory>', 'Directory containing plugins to load')
     .option('--plugins <names>', 'Comma-separated list of plugin names to enable')
-    .option('--allow-external-plugins', 'Allow loading plugins from outside root directory (SECURITY WARNING)')
     // Output format flags
     .option('--html', 'Generate HTML output (overrides config)')
     .option('--md', 'Generate Markdown output (overrides config)')
@@ -1693,7 +1689,6 @@ program
         allowSymlinks?: boolean;
         pluginsDir?: string;
         plugins?: string;
-        allowExternalPlugins?: boolean;
         html?: boolean;
         md?: boolean;
         txt?: boolean;
@@ -1761,7 +1756,6 @@ import { logger } from './utils/logger.js';
  * @param options Command options
  */
 export async function runFusionCommand(options: { 
-    allowExternalPlugins?: boolean;
     allowSymlinks?: boolean;
     clipboard?: boolean;
     extensions?: string;
@@ -1840,12 +1834,6 @@ export async function runFusionCommand(options: {
             }
         }
 
-        if (options.allowExternalPlugins !== undefined) {
-            config.allowExternalPlugins = options.allowExternalPlugins;
-            if (options.allowExternalPlugins) {
-                logger.consoleWarning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
-            }
-        }
 
         // Handle size limits with validation
         if (options.maxFileSize) {
@@ -3439,7 +3427,7 @@ export class PluginManager {
         const isExternalPlugin = relativePath.startsWith('..') || path.isAbsolute(relativePath);
         
         if (isExternalPlugin) {
-            // If allowedExternalPluginPaths is provided, use it as the authority
+            // Check if path is in allowedExternalPluginPaths
             if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
                 const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
                     const resolvedAllowedPath = path.resolve(allowedPath);
@@ -3447,37 +3435,18 @@ export class PluginManager {
                            resolvedPluginPath.startsWith(resolvedAllowedPath + path.sep);
                 });
                 
-                if (!isAllowed) {
-                    logger.error(`Plugin path '${pluginPath}' is not in allowedExternalPluginPaths`, {
-                        pluginPath,
-                        allowedPaths: config.allowedExternalPluginPaths
-                    });
-                    throw new FusionError(
-                        `Plugin path '${pluginPath}' is not in the allowedExternalPluginPaths list. ` +
-                        `Add it to the allowedExternalPluginPaths array in your configuration.`,
-                        'PLUGIN_NOT_ALLOWED',
-                        'error',
-                        { pluginPath, allowedPaths: config.allowedExternalPluginPaths }
-                    );
+                if (isAllowed) {
+                    // Log warning banner for external plugin usage
+                    logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
+                               `Ensure this plugin is from a trusted source.`, { pluginPath });
+                    return;
                 }
-                
-                // Log warning banner for external plugin usage
-                logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
-                           `Ensure this plugin is from a trusted source.`, { pluginPath });
-                return;
             }
             
-            // Fallback to legacy allowExternalPlugins behavior
-            if (config.allowExternalPlugins) {
-                logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}' using legacy allowExternalPlugins. ` +
-                           `Consider using allowedExternalPluginPaths for better security.`, { pluginPath });
-                return;
-            }
-            
-            // Neither allowlist nor legacy flag is set - deny
+            // Path is outside root directory and not in allowlist - deny
             throw new FusionError(
                 `Plugin path '${pluginPath}' is outside root directory. ` +
-                `Add it to allowedExternalPluginPaths or use --allow-external-plugins.`,
+                `Add it to allowedExternalPluginPaths in your configuration.`,
                 'PATH_TRAVERSAL',
                 'error',
                 { pluginPath, rootDirectory: config.rootDirectory }
@@ -3759,7 +3728,6 @@ const ParsedFileExtensionsSchema = z.object({
  * All properties organized alphabetically with contentValidation moved to top level
  */
 export const ConfigSchemaV1 = z.object({
-    allowExternalPlugins: z.boolean().default(false),
     allowedExternalPluginPaths: z.array(z.string()).default([]),
     allowSymlinks: z.boolean().default(false),
     copyToClipboard: z.boolean().default(false),
@@ -4549,9 +4517,7 @@ export class FusionError extends Error {
  * Main configuration interface (properties in alphabetical order)
  */
 export interface Config {
-    /** Allow loading plugins from outside rootDirectory (security risk) */
-    allowExternalPlugins?: boolean;
-    /** Explicit list of allowed external plugin paths (replaces allowExternalPlugins when not empty) */
+    /** Explicit list of allowed external plugin paths for security */
     allowedExternalPluginPaths?: string[];
     allowSymlinks: boolean;
     copyToClipboard: boolean;
@@ -4651,7 +4617,6 @@ const symlinkAuditTracker = new Map<string, { count: number; entries: Array<{ sy
  * Default configuration for Project Fusion
  */
 export const defaultConfig = {
-    allowExternalPlugins: false,
     allowedExternalPluginPaths: [],
     allowSymlinks: false,
     copyToClipboard: false,
@@ -6674,7 +6639,7 @@ describe('Architecture Tests', () => {
                 rootDirectory: testDir,
                 useGitIgnoreForExcludes: false,
                 allowSymlinks: false,
-                allowExternalPlugins: false,
+                
                 maxBase64BlockKB: 100,
                 maxLineLength: 50000,
                 maxTokenLength: 20000
@@ -9600,7 +9565,7 @@ const testConfig: Config = {
   ignorePatterns: [],
   useGitIgnoreForExcludes: false,
   allowSymlinks: false,
-  allowExternalPlugins: false,
+  
   maxBase64BlockKB: 100,
   maxLineLength: 5000,
   maxTokenLength: 2000
@@ -11185,7 +11150,7 @@ export default {
         it('should allow loading plugins from within root directory', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -11211,7 +11176,7 @@ export default {
         it('should reject loading plugins from outside root directory by default', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -11240,7 +11205,7 @@ export default {
                 if (error instanceof FusionError) {
                     expect(error.code).toBe('PATH_TRAVERSAL');
                     expect(error.message).toContain('outside root directory');
-                    expect(error.message).toContain('--allow-external-plugins');
+                    expect(error.message).toContain('allowedExternalPluginPaths');
                 }
             }
         });
@@ -11248,7 +11213,7 @@ export default {
         it('should allow external plugins when in allowedExternalPluginPaths', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowedExternalPluginPaths: [join(externalDir, 'external.js')],
                 allowSymlinks: false,
                 copyToClipboard: false,
@@ -11275,7 +11240,7 @@ export default {
         it('should reject external plugins not in allowedExternalPluginPaths', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowedExternalPluginPaths: ['/some/other/path'], // Different path
                 allowSymlinks: false,
                 copyToClipboard: false,
@@ -11295,40 +11260,14 @@ export default {
 
             await expect(
                 pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
-            ).rejects.toThrow('not in the allowedExternalPluginPaths list');
+            ).rejects.toThrow('outside root directory');
         });
 
-        it('should allow external plugins with legacy allowExternalPlugins when no allowlist provided', async () => {
-            const config: Config = {
-                rootDirectory: projectDir,
-                allowExternalPlugins: true,
-                allowedExternalPluginPaths: [], // Empty allowlist - falls back to legacy
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
-            };
-
-            // Should not throw with legacy flag
-            await expect(
-                pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
-            ).resolves.not.toThrow();
-        });
 
         it('should validate plugins when loading from directory', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -11359,7 +11298,7 @@ export default {
         it('should handle relative paths correctly', async () => {
             const config: Config = {
                 rootDirectory: '.',
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',

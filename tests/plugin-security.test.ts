@@ -52,7 +52,7 @@ export default {
         it('should allow loading plugins from within root directory', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -78,7 +78,7 @@ export default {
         it('should reject loading plugins from outside root directory by default', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -107,7 +107,7 @@ export default {
                 if (error instanceof FusionError) {
                     expect(error.code).toBe('PATH_TRAVERSAL');
                     expect(error.message).toContain('outside root directory');
-                    expect(error.message).toContain('--allow-external-plugins');
+                    expect(error.message).toContain('allowedExternalPluginPaths');
                 }
             }
         });
@@ -115,7 +115,7 @@ export default {
         it('should allow external plugins when in allowedExternalPluginPaths', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowedExternalPluginPaths: [join(externalDir, 'external.js')],
                 allowSymlinks: false,
                 copyToClipboard: false,
@@ -142,7 +142,7 @@ export default {
         it('should reject external plugins not in allowedExternalPluginPaths', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowedExternalPluginPaths: ['/some/other/path'], // Different path
                 allowSymlinks: false,
                 copyToClipboard: false,
@@ -162,40 +162,14 @@ export default {
 
             await expect(
                 pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
-            ).rejects.toThrow('not in the allowedExternalPluginPaths list');
+            ).rejects.toThrow('outside root directory');
         });
 
-        it('should allow external plugins with legacy allowExternalPlugins when no allowlist provided', async () => {
-            const config: Config = {
-                rootDirectory: projectDir,
-                allowExternalPlugins: true,
-                allowedExternalPluginPaths: [], // Empty allowlist - falls back to legacy
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
-            };
-
-            // Should not throw with legacy flag
-            await expect(
-                pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
-            ).resolves.not.toThrow();
-        });
 
         it('should validate plugins when loading from directory', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -226,7 +200,7 @@ export default {
         it('should handle relative paths correctly', async () => {
             const config: Config = {
                 rootDirectory: '.',
-                allowExternalPlugins: false,
+                
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',

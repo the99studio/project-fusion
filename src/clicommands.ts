@@ -20,7 +20,6 @@ import { logger } from './utils/logger.js';
  * @param options Command options
  */
 export async function runFusionCommand(options: { 
-    allowExternalPlugins?: boolean;
     allowSymlinks?: boolean;
     clipboard?: boolean;
     extensions?: string;
@@ -99,12 +98,6 @@ export async function runFusionCommand(options: {
             }
         }
 
-        if (options.allowExternalPlugins !== undefined) {
-            config.allowExternalPlugins = options.allowExternalPlugins;
-            if (options.allowExternalPlugins) {
-                logger.consoleWarning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
-            }
-        }
 
         // Handle size limits with validation
         if (options.maxFileSize) {

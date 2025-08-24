@@ -111,7 +111,7 @@ import { fusionAPI } from '@the99studio/project-fusion/api';
 await fusionAPI({
     pluginsDir: './plugins',
     enabledPlugins: ['my-plugin'],
-    allowExternalPlugins: true  // Required for external plugins
+    allowedExternalPluginPaths: ['./plugins']  // Required for external plugins
 });
 ```
 

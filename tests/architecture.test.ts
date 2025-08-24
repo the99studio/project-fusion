@@ -172,7 +172,7 @@ describe('Architecture Tests', () => {
                 rootDirectory: testDir,
                 useGitIgnoreForExcludes: false,
                 allowSymlinks: false,
-                allowExternalPlugins: false,
+                
                 maxBase64BlockKB: 100,
                 maxLineLength: 50000,
                 maxTokenLength: 20000

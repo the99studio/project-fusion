@@ -30,7 +30,6 @@ program
     .option('--allow-symlinks', 'Allow processing symbolic links (SECURITY WARNING: use with caution)')
     .option('--plugins-dir <directory>', 'Directory containing plugins to load')
     .option('--plugins <names>', 'Comma-separated list of plugin names to enable')
-    .option('--allow-external-plugins', 'Allow loading plugins from outside root directory (SECURITY WARNING)')
     // Output format flags
     .option('--html', 'Generate HTML output (overrides config)')
     .option('--md', 'Generate Markdown output (overrides config)')
@@ -58,7 +57,6 @@ program
         allowSymlinks?: boolean;
         pluginsDir?: string;
         plugins?: string;
-        allowExternalPlugins?: boolean;
         html?: boolean;
         md?: boolean;
         txt?: boolean;
