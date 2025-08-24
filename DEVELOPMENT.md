@@ -1,6 +1,6 @@
 # Development Guide
 
-> 📋 **For AI Context**: See [CLAUDE.md](./CLAUDE.md) | 📖 **For Users**: See [README.md](./README.md)
+> 📋 **For Claude Code Context**: See [CLAUDE.md](./CLAUDE.md) | 📖 **For Users**: See [README.md](./README.md)
 
 ## Project Setup
 
