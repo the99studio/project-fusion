@@ -14,8 +14,6 @@
 
 ## 7) Documentation
 - [ ] **README: Security knobs** section showing why `--allow-symlinks` and `--allow-external-plugins` are dangerous, with a small code sample (link to tests).
-- [ ] **DEVELOPMENT.md**: Add "Local plugin dev" example and notes on sandboxing expectations.
-- [ ] **SECURITY.md**: Create security policy with vulnerability reporting process and contact information.
 
 ## 8) Security Enhancements
 - [ ] **Extended default ignore patterns**: Add more sensitive patterns (.ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, dist/**/*.map)

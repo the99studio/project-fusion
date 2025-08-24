@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 24/08/2025 18:54:21 UTC−4
+**Generated:** 24/08/2025 18:58:34 UTC−4
 
-**UTC:** 2025-08-24T22:54:21.904Z
+**UTC:** 2025-08-24T22:58:34.990Z
 
 **Files:** 61
 
@@ -17185,8 +17185,6 @@ dist/
 
 ## 7) Documentation
 - [ ] **README: Security knobs** section showing why `--allow-symlinks` and `--allow-external-plugins` are dangerous, with a small code sample (link to tests).
-- [ ] **DEVELOPMENT.md**: Add "Local plugin dev" example and notes on sandboxing expectations.
-- [ ] **SECURITY.md**: Create security policy with vulnerability reporting process and contact information.
 
 ## 8) Security Enhancements
 - [ ] **Extended default ignore patterns**: Add more sensitive patterns (.ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, dist/**/*.map)
