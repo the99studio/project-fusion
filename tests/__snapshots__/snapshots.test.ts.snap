@@ -183,46 +183,46 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate HTML wi
     <nav class="toc" role="navigation" aria-labelledby="toc-heading">
         <h2 id="toc-heading">📁 Table of Contents</h2>
         <ul role="list">
-            <li><a href="#api-posts-js">api/posts.js</a></li>
-            <li><a href="#api-users-js">api/users.js</a></li>
-            <li><a href="#components-footer-js">components/Footer.js</a></li>
-            <li><a href="#components-header-js">components/Header.js</a></li>
-            <li><a href="#utils-database-js">utils/database.js</a></li>
+            <li><a href="#apipostsjs">api/posts.js</a></li>
+            <li><a href="#apiusersjs">api/users.js</a></li>
+            <li><a href="#componentsfooterjs">components/Footer.js</a></li>
+            <li><a href="#componentsheaderjs">components/Header.js</a></li>
+            <li><a href="#utilsdatabasejs">utils/database.js</a></li>
         </ul>
     </nav>
     
     <main id="main-content" role="main">
-        <article class="file-section" id="api-posts-js" aria-labelledby="heading-api-posts-js">
+        <article class="file-section" id="apipostsjs" aria-labelledby="heading-apipostsjs">
             <div class="file-title">
-                <h2 id="heading-api-posts-js">📄 api/posts.js</h2>
+                <h2 id="heading-apipostsjs">📄 api/posts.js</h2>
             </div>
             <pre role="region" aria-label="Source code for api/posts.js"><code class="language-javascript" lang="javascript">const posts = [];</code></pre>
         </article>
 
-        <article class="file-section" id="api-users-js" aria-labelledby="heading-api-users-js">
+        <article class="file-section" id="apiusersjs" aria-labelledby="heading-apiusersjs">
             <div class="file-title">
-                <h2 id="heading-api-users-js">📄 api/users.js</h2>
+                <h2 id="heading-apiusersjs">📄 api/users.js</h2>
             </div>
             <pre role="region" aria-label="Source code for api/users.js"><code class="language-javascript" lang="javascript">const users = [];</code></pre>
         </article>
 
-        <article class="file-section" id="components-footer-js" aria-labelledby="heading-components-footer-js">
+        <article class="file-section" id="componentsfooterjs" aria-labelledby="heading-componentsfooterjs">
             <div class="file-title">
-                <h2 id="heading-components-footer-js">📄 components/Footer.js</h2>
+                <h2 id="heading-componentsfooterjs">📄 components/Footer.js</h2>
             </div>
             <pre role="region" aria-label="Source code for components/Footer.js"><code class="language-javascript" lang="javascript">export default function Footer() {}</code></pre>
         </article>
 
-        <article class="file-section" id="components-header-js" aria-labelledby="heading-components-header-js">
+        <article class="file-section" id="componentsheaderjs" aria-labelledby="heading-componentsheaderjs">
             <div class="file-title">
-                <h2 id="heading-components-header-js">📄 components/Header.js</h2>
+                <h2 id="heading-componentsheaderjs">📄 components/Header.js</h2>
             </div>
             <pre role="region" aria-label="Source code for components/Header.js"><code class="language-javascript" lang="javascript">export default function Header() {}</code></pre>
         </article>
 
-        <article class="file-section" id="utils-database-js" aria-labelledby="heading-utils-database-js">
+        <article class="file-section" id="utilsdatabasejs" aria-labelledby="heading-utilsdatabasejs">
             <div class="file-title">
-                <h2 id="heading-utils-database-js">📄 utils/database.js</h2>
+                <h2 id="heading-utilsdatabasejs">📄 utils/database.js</h2>
             </div>
             <pre role="region" aria-label="Source code for utils/database.js"><code class="language-javascript" lang="javascript">class Database {}</code></pre>
         </article>
@@ -415,15 +415,15 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate consist
     <nav class="toc" role="navigation" aria-labelledby="toc-heading">
         <h2 id="toc-heading">📁 Table of Contents</h2>
         <ul role="list">
-            <li><a href="#app-js">app.js</a></li>
-            <li><a href="#helpers-js">helpers.js</a></li>
+            <li><a href="#appjs">app.js</a></li>
+            <li><a href="#helpersjs">helpers.js</a></li>
         </ul>
     </nav>
     
     <main id="main-content" role="main">
-        <article class="file-section" id="app-js" aria-labelledby="heading-app-js">
+        <article class="file-section" id="appjs" aria-labelledby="heading-appjs">
             <div class="file-title">
-                <h2 id="heading-app-js">📄 app.js</h2>
+                <h2 id="heading-appjs">📄 app.js</h2>
             </div>
             <pre role="region" aria-label="Source code for app.js"><code class="language-javascript" lang="javascript">// Simple Express application
 const express = require(&#39;express&#39;);
@@ -451,9 +451,9 @@ app.listen(PORT, () =&gt; {
 });</code></pre>
         </article>
 
-        <article class="file-section" id="helpers-js" aria-labelledby="heading-helpers-js">
+        <article class="file-section" id="helpersjs" aria-labelledby="heading-helpersjs">
             <div class="file-title">
-                <h2 id="heading-helpers-js">📄 helpers.js</h2>
+                <h2 id="heading-helpersjs">📄 helpers.js</h2>
             </div>
             <pre role="region" aria-label="Source code for helpers.js"><code class="language-javascript" lang="javascript">// Helper functions
 const crypto = require(&#39;crypto&#39;);
@@ -671,15 +671,15 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate consist
     <nav class="toc" role="navigation" aria-labelledby="toc-heading">
         <h2 id="toc-heading">📁 Table of Contents</h2>
         <ul role="list">
-            <li><a href="#styles-css">styles.css</a></li>
-            <li><a href="#template-html">template.html</a></li>
+            <li><a href="#stylescss">styles.css</a></li>
+            <li><a href="#templatehtml">template.html</a></li>
         </ul>
     </nav>
     
     <main id="main-content" role="main">
-        <article class="file-section" id="styles-css" aria-labelledby="heading-styles-css">
+        <article class="file-section" id="stylescss" aria-labelledby="heading-stylescss">
             <div class="file-title">
-                <h2 id="heading-styles-css">📄 styles.css</h2>
+                <h2 id="heading-stylescss">📄 styles.css</h2>
             </div>
             <pre role="region" aria-label="Source code for styles.css"><code class="language-css" lang="css">/* Global styles */
 * {
@@ -729,9 +729,9 @@ body {
 }</code></pre>
         </article>
 
-        <article class="file-section" id="template-html" aria-labelledby="heading-template-html">
+        <article class="file-section" id="templatehtml" aria-labelledby="heading-templatehtml">
             <div class="file-title">
-                <h2 id="heading-template-html">📄 template.html</h2>
+                <h2 id="heading-templatehtml">📄 template.html</h2>
             </div>
             <pre role="region" aria-label="Source code for template.html"><code class="language-html" lang="html">&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
@@ -807,12 +807,12 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ## 📁 Table of Contents
 
-- [index.js](#index-js)
-- [utils.js](#utils-js)
+- [index.js](#indexjs)
+- [utils.js](#utilsjs)
 
 ---
 
-## 📄 index.js
+## 📄 index.js {#indexjs}
 
 \`\`\`javascript
 // Main application entry point
@@ -828,7 +828,7 @@ app.listen(3000, () => {
 });
 \`\`\`
 
-## 📄 utils.js
+## 📄 utils.js {#utilsjs}
 
 \`\`\`javascript
 // Utility functions
@@ -863,12 +863,12 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ## 📁 Table of Contents
 
-- [service.ts](#service-ts)
-- [types.ts](#types-ts)
+- [service.ts](#servicets)
+- [types.ts](#typests)
 
 ---
 
-## 📄 service.ts
+## 📄 service.ts {#servicets}
 
 \`\`\`typescript
 // User service
@@ -896,7 +896,7 @@ export class UserService {
 }
 \`\`\`
 
-## 📄 types.ts
+## 📄 types.ts {#typests}
 
 \`\`\`typescript
 // Type definitions
@@ -936,13 +936,13 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ## 📁 Table of Contents
 
-- [config.json](#config-json)
-- [README.md](#readme-md)
-- [script.sh](#script-sh)
+- [config.json](#configjson)
+- [README.md](#readmemd)
+- [script.sh](#scriptsh)
 
 ---
 
-## 📄 config.json
+## 📄 config.json {#configjson}
 
 \`\`\`json
 {
@@ -959,7 +959,7 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 }
 \`\`\`
 
-## 📄 README.md
+## 📄 README.md {#readmemd}
 
 \`\`\`markdown
 # Test Project
@@ -984,7 +984,7 @@ npm start
 MIT License
 \`\`\`
 
-## 📄 script.sh
+## 📄 script.sh {#scriptsh}
 
 \`\`\`bash
 #!/bin/bash

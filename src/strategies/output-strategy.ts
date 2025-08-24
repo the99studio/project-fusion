@@ -5,6 +5,7 @@
  */
 import { WriteStream, createWriteStream } from 'node:fs';
 import path from 'node:path';
+import GithubSlugger from 'github-slugger';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
 import { type Config, type FilePath, createFilePath } from '../types.js';
 import { formatLocalTimestamp, formatTimestamp, getMarkdownLanguage } from '../utils.js';
@@ -77,11 +78,16 @@ ${fileInfo.content}
 export class MarkdownOutputStrategy implements OutputStrategy {
     readonly name = 'markdown';
     readonly extension = '.md';
+    private readonly slugger = new GithubSlugger();
 
     generateHeader(context: OutputContext): string {
+        // Reset slugger for each new document to ensure consistent anchors
+        this.slugger.reset();
         const tocEntries = context.filesToProcess
-            .map(fileInfo => `- [${fileInfo.relativePath}](#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()})`)
+            .map(fileInfo => `- [${fileInfo.relativePath}](#${this.slugger.slug(fileInfo.relativePath)})`)
             .join('\n');
+        // Reset again so processFile generates same anchors
+        this.slugger.reset();
 
         return `# Generated Project Fusion File
 
@@ -107,9 +113,10 @@ ${tocEntries}
     }
 
     processFile(fileInfo: FileInfo): string {
+        const anchor = this.slugger.slug(fileInfo.relativePath);
         if (fileInfo.isErrorPlaceholder) {
             // For error placeholders, display without code block
-            return `## ⚠️ ${fileInfo.relativePath}
+            return `## ⚠️ ${fileInfo.relativePath} {#${anchor}}
 
 > **Content Validation Error**
 
@@ -122,7 +129,7 @@ ${fileInfo.content}
         const basename = path.basename(fileInfo.path);
         const language = getMarkdownLanguage(fileExt || basename);
 
-        return `## 📄 ${fileInfo.relativePath}
+        return `## 📄 ${fileInfo.relativePath} {#${anchor}}
 
 \`\`\`${language}
 ${fileInfo.content}
@@ -139,11 +146,16 @@ ${fileInfo.content}
 export class HtmlOutputStrategy implements OutputStrategy {
     readonly name = 'html';
     readonly extension = '.html';
+    private readonly slugger = new GithubSlugger();
 
     generateHeader(context: OutputContext): string {
+        // Reset slugger for each new document to ensure consistent anchors
+        this.slugger.reset();
         const tocEntries = context.filesToProcess
-            .map(fileInfo => `            <li><a href="#${fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase()}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
+            .map(fileInfo => `            <li><a href="#${this.slugger.slug(fileInfo.relativePath)}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
             .join('\n');
+        // Reset again so processFile generates same anchors
+        this.slugger.reset();
 
         return `<!DOCTYPE html>
 <html lang="en">
@@ -336,7 +348,7 @@ ${tocEntries}
     }
 
     processFile(fileInfo: FileInfo): string {
-        const fileAnchor = fileInfo.relativePath.replaceAll(/[^\dA-Za-z]/g, '-').toLowerCase();
+        const fileAnchor = this.slugger.slug(fileInfo.relativePath);
         const escapedPath = escapeHtml(fileInfo.relativePath);
         
         if (fileInfo.isErrorPlaceholder) {

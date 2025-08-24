@@ -457,11 +457,11 @@ body {
 
             const htmlContent = await readFile('toc-test.html', 'utf8');
             
-            // Check TOC structure
+            // Check TOC structure with new github-slugger format
             expect(htmlContent).toContain('<nav class="toc"');
             expect(htmlContent).toContain('<h2 id="toc-heading">📁 Table of Contents</h2>');
-            expect(htmlContent).toContain('href="#api-users-js"');
-            expect(htmlContent).toContain('href="#components-header-js"');
+            expect(htmlContent).toContain('href="#apiusersjs"');
+            expect(htmlContent).toContain('href="#componentsheaderjs"');
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
