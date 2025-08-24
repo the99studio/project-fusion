@@ -21,6 +21,3 @@
 - [ ] **HTML CSP header**: Add Content-Security-Policy meta tag to generated HTML (no scripts, restricted styles)
 - [ ] **HTML link security**: Add rel="noopener noreferrer" to all external links (currently only has rel="external")
 - [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag
-
-## 9) Potential Improvements
-- [ ] **RGPD/PII warning**: Add documentation note about not merging personal data without consent
