@@ -180,7 +180,7 @@ export class Logger {
         });
     }
 
-    // Simple console methods with colors (replaces old consoleLogger)
+    // Simple console methods with colors
     consoleInfo(message: string): void {
         console.log(chalk.blue(message));
     }

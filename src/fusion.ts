@@ -353,7 +353,6 @@ export async function processFusion(
 
         // Initial memory check
         // await logMemoryUsageIfNeeded(logFilePath, 'Initial memory check');
-        // TODO: Implement memory check inline if needed
 
         // Check resource limits early
         if (filePaths.length > config.maxFiles) {
@@ -525,7 +524,6 @@ export async function processFusion(
 
         // Memory check after file processing
         // await logMemoryUsageIfNeeded(logFilePath, 'After file processing');
-        // TODO: Implement memory check inline if needed
 
         checkCancellation();
         const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess, options.cancellationToken);
@@ -667,7 +665,6 @@ export async function processFusion(
 
         // Final memory check
         // await logMemoryUsageIfNeeded(logFilePath, 'Final memory check');
-        // TODO: Implement memory check inline if needed
 
         reportProgress('writing', 'Finalizing...', finalFilesToProcess.length, finalFilesToProcess.length, undefined, true);
         

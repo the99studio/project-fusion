@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 24/08/2025 17:18:10 UTC−4
+**Generated:** 24/08/2025 17:26:35 UTC−4
 
-**UTC:** 2025-08-24T21:18:10.743Z
+**UTC:** 2025-08-24T21:26:35.665Z
 
 **Files:** 59
 
@@ -2881,7 +2881,6 @@ export async function processFusion(
 
         // Initial memory check
         // await logMemoryUsageIfNeeded(logFilePath, 'Initial memory check');
-        // TODO: Implement memory check inline if needed
 
         // Check resource limits early
         if (filePaths.length > config.maxFiles) {
@@ -3053,7 +3052,6 @@ export async function processFusion(
 
         // Memory check after file processing
         // await logMemoryUsageIfNeeded(logFilePath, 'After file processing');
-        // TODO: Implement memory check inline if needed
 
         checkCancellation();
         const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess, options.cancellationToken);
@@ -3195,7 +3193,6 @@ export async function processFusion(
 
         // Final memory check
         // await logMemoryUsageIfNeeded(logFilePath, 'Final memory check');
-        // TODO: Implement memory check inline if needed
 
         reportProgress('writing', 'Finalizing...', finalFilesToProcess.length, finalFilesToProcess.length, undefined, true);
         
@@ -5803,7 +5800,7 @@ export class Logger {
         });
     }
 
-    // Simple console methods with colors (replaces old consoleLogger)
+    // Simple console methods with colors
     consoleInfo(message: string): void {
         console.log(chalk.blue(message));
     }
@@ -7593,7 +7590,6 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Configuration Summary:');
             expect(output).toContain('Schema Version: 1');
             expect(output).toContain('Generated File Name: test-fusion');
-            // Updated to match new structured table format
             expect(output).toContain('│ web         │ 2       │ .js, .ts');
             expect(output).toContain('│ backend     │ 1       │ .py');
         });

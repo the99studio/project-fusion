@@ -209,7 +209,6 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Configuration Summary:');
             expect(output).toContain('Schema Version: 1');
             expect(output).toContain('Generated File Name: test-fusion');
-            // Updated to match new structured table format
             expect(output).toContain('│ web         │ 2       │ .js, .ts');
             expect(output).toContain('│ backend     │ 1       │ .py');
         });
