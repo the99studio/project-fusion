@@ -431,7 +431,7 @@ export async function processFusion(
                     await writeLogWithFs(logFilePath, `Skipped large file: ${relativePath} (${sizeKB.toFixed(2)} KB)`, true);
                 } else {
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
-                    await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks);
+                    await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks, config);
                     
                     checkCancellation();
                     if (await isBinaryFile(safePath)) {

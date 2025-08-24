@@ -12,7 +12,7 @@ import fs from 'fs-extra';
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FusionOptions } from './types.js';
-import { defaultConfig, getExtensionsFromGroups, loadConfig, logger } from './utils.js';
+import { defaultConfig, getExtensionsFromGroups, loadConfig, consoleLogger } from './utils.js';
 
 /**
  * Run the fusion command
@@ -42,7 +42,7 @@ export async function runFusionCommand(options: {
     preview?: boolean;
 }): Promise<void> {
     try {
-        logger.info('🔄 Starting Fusion Process...');
+        consoleLogger.info('🔄 Starting Fusion Process...');
 
         const config = await loadConfig();
 
@@ -80,7 +80,7 @@ export async function runFusionCommand(options: {
             if (enabledFormats.length > 0) {
                 console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
             } else {
-                logger.error('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
+                consoleLogger.error('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
                 process.exit(1);
             }
         }
@@ -88,20 +88,20 @@ export async function runFusionCommand(options: {
         // Handle clipboard override
         if (options.clipboard === false) {
             config.copyToClipboard = false;
-            logger.warning('ℹ️ Clipboard copying disabled');
+            consoleLogger.warning('ℹ️ Clipboard copying disabled');
         }
 
         if (options.allowSymlinks !== undefined) {
             config.allowSymlinks = options.allowSymlinks;
             if (options.allowSymlinks) {
-                logger.warning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
+                consoleLogger.warning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
             }
         }
 
         if (options.allowExternalPlugins !== undefined) {
             config.allowExternalPlugins = options.allowExternalPlugins;
             if (options.allowExternalPlugins) {
-                logger.warning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
+                consoleLogger.warning('⚠️ SECURITY WARNING: External plugins loading is enabled. This allows executing code from outside the project directory.');
             }
         }
 

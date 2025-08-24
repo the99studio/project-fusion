@@ -54,23 +54,54 @@ export class PluginManager {
      * @throws FusionError if the path is not allowed
      */
     private validatePluginPath(pluginPath: string, config: Config): void {
-        // Skip validation if external plugins are explicitly allowed
-        if (config.allowExternalPlugins) {
-            return;
-        }
-
         // Resolve paths for comparison
         const resolvedPluginPath = path.resolve(pluginPath);
         const resolvedRootDir = path.resolve(config.rootDirectory);
         
         // Check if plugin path is within root directory
         const relativePath = path.relative(resolvedRootDir, resolvedPluginPath);
+        const isExternalPlugin = relativePath.startsWith('..') || path.isAbsolute(relativePath);
         
-        // If relative path starts with '..' or is absolute, it's outside root
-        if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+        if (isExternalPlugin) {
+            // If allowedExternalPluginPaths is provided, use it as the authority
+            if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
+                const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
+                    const resolvedAllowedPath = path.resolve(allowedPath);
+                    return resolvedPluginPath === resolvedAllowedPath || 
+                           resolvedPluginPath.startsWith(resolvedAllowedPath + path.sep);
+                });
+                
+                if (!isAllowed) {
+                    logger.error(`Plugin path '${pluginPath}' is not in allowedExternalPluginPaths`, {
+                        pluginPath,
+                        allowedPaths: config.allowedExternalPluginPaths
+                    });
+                    throw new FusionError(
+                        `Plugin path '${pluginPath}' is not in the allowedExternalPluginPaths list. ` +
+                        `Add it to the allowedExternalPluginPaths array in your configuration.`,
+                        'PLUGIN_NOT_ALLOWED',
+                        'error',
+                        { pluginPath, allowedPaths: config.allowedExternalPluginPaths }
+                    );
+                }
+                
+                // Log warning banner for external plugin usage
+                logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
+                           `Ensure this plugin is from a trusted source.`, { pluginPath });
+                return;
+            }
+            
+            // Fallback to legacy allowExternalPlugins behavior
+            if (config.allowExternalPlugins) {
+                logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}' using legacy allowExternalPlugins. ` +
+                           `Consider using allowedExternalPluginPaths for better security.`, { pluginPath });
+                return;
+            }
+            
+            // Neither allowlist nor legacy flag is set - deny
             throw new FusionError(
                 `Plugin path '${pluginPath}' is outside root directory. ` +
-                `Use --allow-external-plugins to load plugins from external directories.`,
+                `Add it to allowedExternalPluginPaths or use --allow-external-plugins.`,
                 'PATH_TRAVERSAL',
                 'error',
                 { pluginPath, rootDirectory: config.rootDirectory }

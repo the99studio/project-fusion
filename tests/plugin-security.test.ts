@@ -112,10 +112,11 @@ export default {
             }
         });
 
-        it('should allow external plugins when explicitly allowed', async () => {
+        it('should allow external plugins when in allowedExternalPluginPaths', async () => {
             const config: Config = {
                 rootDirectory: projectDir,
-                allowExternalPlugins: true, // Explicitly allow external plugins
+                allowExternalPlugins: false,
+                allowedExternalPluginPaths: [join(externalDir, 'external.js')],
                 allowSymlinks: false,
                 copyToClipboard: false,
                 generatedFileName: 'test',
@@ -132,7 +133,60 @@ export default {
                 useGitIgnoreForExcludes: false
             };
 
-            // Should not throw when external plugins are allowed
+            // Should not throw when external plugins are in allowlist
+            await expect(
+                pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
+            ).resolves.not.toThrow();
+        });
+
+        it('should reject external plugins not in allowedExternalPluginPaths', async () => {
+            const config: Config = {
+                rootDirectory: projectDir,
+                allowExternalPlugins: false,
+                allowedExternalPluginPaths: ['/some/other/path'], // Different path
+                allowSymlinks: false,
+                copyToClipboard: false,
+                generatedFileName: 'test',
+                generateHtml: false,
+                generateMarkdown: false,
+                generateText: true,
+                ignorePatterns: [],
+                maxFileSizeKB: 1000,
+                maxFiles: 100,
+                maxTotalSizeMB: 10,
+                parsedFileExtensions: {},
+                parseSubDirectories: true,
+                schemaVersion: 1,
+                useGitIgnoreForExcludes: false
+            };
+
+            await expect(
+                pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
+            ).rejects.toThrow('not in the allowedExternalPluginPaths list');
+        });
+
+        it('should allow external plugins with legacy allowExternalPlugins when no allowlist provided', async () => {
+            const config: Config = {
+                rootDirectory: projectDir,
+                allowExternalPlugins: true,
+                allowedExternalPluginPaths: [], // Empty allowlist - falls back to legacy
+                allowSymlinks: false,
+                copyToClipboard: false,
+                generatedFileName: 'test',
+                generateHtml: false,
+                generateMarkdown: false,
+                generateText: true,
+                ignorePatterns: [],
+                maxFileSizeKB: 1000,
+                maxFiles: 100,
+                maxTotalSizeMB: 10,
+                parsedFileExtensions: {},
+                parseSubDirectories: true,
+                schemaVersion: 1,
+                useGitIgnoreForExcludes: false
+            };
+
+            // Should not throw with legacy flag
             await expect(
                 pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
             ).resolves.not.toThrow();

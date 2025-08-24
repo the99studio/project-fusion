@@ -24,6 +24,7 @@ const ParsedFileExtensionsSchema = z.object({
  */
 export const ConfigSchemaV1 = z.object({
     allowExternalPlugins: z.boolean().default(false),
+    allowedExternalPluginPaths: z.array(z.string()).default([]),
     allowSymlinks: z.boolean().default(false),
     copyToClipboard: z.boolean().default(false),
     excludeSecrets: z.boolean().default(true),
@@ -107,6 +108,7 @@ export const ConfigSchemaV1 = z.object({
     maxFileSizeKB: z.number().min(1).max(1048576).default(1024),
     maxFiles: z.number().min(1).max(100000).default(10000),
     maxLineLength: z.number().min(1000).max(50000).default(5000),
+    maxSymlinkAuditEntries: z.number().min(1).max(100).default(10),
     maxTokenLength: z.number().min(500).max(20000).default(2000),
     maxTotalSizeMB: z.number().min(1).max(10240).default(100),
     outputDirectory: z.string().optional(),

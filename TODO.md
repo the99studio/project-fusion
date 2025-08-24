@@ -1,8 +1,3 @@
-## 2) Security Hardening
-- [ ] **Schema constraints**: Add sane bounds to numeric config: `maxFiles (1..100000)`, `maxFileSizeKB (1..1048576)`, `maxTotalSizeMB (1..10240)`. Fail fast on out‑of‑range.
-- [ ] **Explicit allowlist for external plugins**: When `allowExternalPlugins` is true, require a list of approved plugin names/paths. Log a bright warning banner.
-- [ ] **Symlink warnings**: On `--allow-symlinks`, print the first N resolved targets and add them to the log for auditability (tests already demonstrate the risk).
-
 ## 3) CLI/UX
 - [ ] **Option validation**: Validate numeric flags and show friendly errors when NaN (e.g., `--max-files=abc`).
 - [ ] **`config-check` improvements**: Print effective groups/extensions table and highlight diffs from defaults. (Partially implemented; ensure coverage test exists.)

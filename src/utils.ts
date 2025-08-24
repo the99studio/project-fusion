@@ -12,6 +12,10 @@ import { z } from 'zod';
 
 import { ConfigSchemaV1 } from './schema.js';
 import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from './types.js';
+import { logger as structuredLogger } from './utils/logger.js';
+
+// Global symlink audit tracker
+const symlinkAuditTracker = new Map<string, { count: number; entries: Array<{ symlink: string; target: string; timestamp: Date }> }>();
 
 
 /**
@@ -19,6 +23,7 @@ import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from
  */
 export const defaultConfig = {
     allowExternalPlugins: false,
+    allowedExternalPluginPaths: [],
     allowSymlinks: false,
     copyToClipboard: false,
     excludeSecrets: true,
@@ -103,6 +108,7 @@ export const defaultConfig = {
     maxFileSizeKB: 1024,
     maxFiles: 10000,
     maxLineLength: 5000,
+    maxSymlinkAuditEntries: 10,
     maxTokenLength: 2000,
     maxTotalSizeMB: 100,
     parsedFileExtensions: {
@@ -218,7 +224,7 @@ export async function writeLog(
 /**
  * Console logging utilities with consistent styling
  */
-export const logger = {
+export const consoleLogger = {
     info: (message: string) => console.log(chalk.blue(message)),
     success: (message: string) => console.log(chalk.green(message)),
     warning: (message: string) => console.log(chalk.yellow(message)),
@@ -382,7 +388,7 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
  * @returns True if the path is safe to process
  * @throws FusionError if symlink is found and not allowed
  */
-export async function validateNoSymlinks(filePath: string, allowSymlinks: boolean = false): Promise<boolean> {
+export async function validateNoSymlinks(filePath: string, allowSymlinks: boolean = false, config?: Config): Promise<boolean> {
     try {
         const stats = await fs.lstat(filePath);
         
@@ -395,8 +401,9 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks: boolea
                     { filePath }
                 );
             }
-            // If symlinks are allowed, we still want to log them for transparency
-            console.warn(`Processing symbolic link: ${filePath}`);
+            
+            // If symlinks are allowed, perform audit logging
+            await auditSymlink(filePath, config);
         }
         
         return true;
@@ -404,9 +411,119 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks: boolea
         if (error instanceof FusionError) {
             throw error;
         }
+        
+        // Check if this is a broken symlink (lstat failed but readlink might work)
+        if (allowSymlinks) {
+            try {
+                await fs.readlink(filePath);
+                // It's a broken symlink, audit it
+                await auditSymlink(filePath, config);
+                return false; // File doesn't exist but symlink was processed
+            } catch {
+                // Not a symlink, just a missing file
+            }
+        }
+        
         // If lstat fails, the file doesn't exist or is inaccessible
         return false;
     }
+}
+
+/**
+ * Audit a symlink by resolving its target and logging for security tracking
+ * @param symlinkPath Path to the symbolic link
+ * @param config Configuration containing audit limits
+ */
+async function auditSymlink(symlinkPath: string, config?: Config): Promise<void> {
+    const maxEntries = config?.maxSymlinkAuditEntries ?? 10;
+    const sessionKey = config?.rootDirectory ?? 'default';
+    
+    // Get or create session tracker
+    if (!symlinkAuditTracker.has(sessionKey)) {
+        symlinkAuditTracker.set(sessionKey, { count: 0, entries: [] });
+    }
+    
+    const tracker = symlinkAuditTracker.get(sessionKey)!;
+    tracker.count++;
+    
+    try {
+        // Resolve the symlink target
+        const resolvedTarget = await fs.realpath(symlinkPath);
+        const relativePath = path.relative(process.cwd(), resolvedTarget);
+        const isRelative = !path.isAbsolute(relativePath) && !relativePath.startsWith('..');
+        
+        // Check if target exists and get additional info
+        let targetExists = true;
+        let targetType = 'unknown';
+        try {
+            const targetStats = await fs.stat(resolvedTarget);
+            targetType = targetStats.isDirectory() ? 'directory' : 
+                        targetStats.isFile() ? 'file' : 'other';
+        } catch {
+            targetExists = false;
+        }
+        
+        // Log within limit
+        if (tracker.entries.length < maxEntries) {
+            const auditEntry = {
+                symlink: symlinkPath,
+                target: resolvedTarget,
+                timestamp: new Date()
+            };
+            
+            tracker.entries.push(auditEntry);
+            
+            // Log with security warning banner
+            structuredLogger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
+                symlink: symlinkPath,
+                target: resolvedTarget,
+                targetExists,
+                targetType,
+                isExternalTarget: !isRelative,
+                auditCount: tracker.count,
+                sessionKey
+            });
+        } else if (tracker.entries.length === maxEntries) {
+            // Log limit reached message once
+            structuredLogger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
+                totalSymlinks: tracker.count,
+                maxEntries,
+                sessionKey
+            });
+        }
+        
+    } catch (error) {
+        // Log symlink resolution failure
+        structuredLogger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
+            symlink: symlinkPath,
+            error: error instanceof Error ? error.message : String(error),
+            auditCount: tracker.count
+        });
+    }
+}
+
+/**
+ * Get symlink audit summary for the current session
+ * @param sessionKey Session identifier (typically rootDirectory)
+ * @returns Audit summary or null if no symlinks processed
+ */
+export function getSymlinkAuditSummary(sessionKey: string = 'default'): { 
+    totalSymlinks: number; 
+    entries: Array<{ symlink: string; target: string; timestamp: Date }> 
+} | null {
+    const tracker = symlinkAuditTracker.get(sessionKey);
+    return tracker ? { 
+        totalSymlinks: tracker.count, 
+        entries: [...tracker.entries] 
+    } : null;
+}
+
+/**
+ * Clear symlink audit data for a session
+ * @param sessionKey Session identifier (typically rootDirectory)
+ */
+export function clearSymlinkAudit(sessionKey: string = 'default'): void {
+    symlinkAuditTracker.delete(sessionKey);
 }
 
 /**

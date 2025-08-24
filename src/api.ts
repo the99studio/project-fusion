@@ -95,6 +95,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
     
     return {
         allowExternalPlugins: partialConfig.allowExternalPlugins ?? defaultConfig.allowExternalPlugins,
+        allowedExternalPluginPaths: partialConfig.allowedExternalPluginPaths ?? defaultConfig.allowedExternalPluginPaths,
         allowSymlinks: partialConfig.allowSymlinks ?? defaultConfig.allowSymlinks,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
         excludeSecrets: partialConfig.excludeSecrets ?? defaultConfig.excludeSecrets,
@@ -107,6 +108,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         maxFileSizeKB: partialConfig.maxFileSizeKB ?? defaultConfig.maxFileSizeKB,
         maxFiles: partialConfig.maxFiles ?? defaultConfig.maxFiles,
         maxLineLength: partialConfig.maxLineLength ?? defaultConfig.maxLineLength,
+        maxSymlinkAuditEntries: partialConfig.maxSymlinkAuditEntries ?? defaultConfig.maxSymlinkAuditEntries,
         maxTokenLength: partialConfig.maxTokenLength ?? defaultConfig.maxTokenLength,
         maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
         outputDirectory: partialConfig.outputDirectory,
