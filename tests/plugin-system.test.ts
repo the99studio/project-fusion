@@ -9,7 +9,7 @@ import {
     createPlugin,
     type PluginMetadata
 } from '../src/plugins/plugin-system.js';
-import { type OutputStrategy } from '../src/strategies/output-strategy.js';
+import type { OutputStrategy } from '../src/strategies/output-strategy.js';
 import { createFilePath, type Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 

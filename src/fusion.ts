@@ -593,17 +593,16 @@ export async function processFusion(
                     fusionFilePath: logFilePath,
                     filesProcessed: 0
                 };
-            } else {
-                // No files found at all - this is a failure
-                const message = 'No files found matching your criteria.';
-                const helpMessage = generateHelpfulEmptyMessage(extensions, mergedConfig);
-                await writeLogWithFs(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${duration}s`, true);
-                return { 
-                    success: false, 
-                    message: `${message}\n\n${helpMessage}`, 
-                    logFilePath 
-                };
             }
+            // No files found at all - this is a failure
+            const message = 'No files found matching your criteria.';
+            const helpMessage = generateHelpfulEmptyMessage(extensions, mergedConfig);
+            await writeLogWithFs(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${duration}s`, true);
+            return { 
+                success: false, 
+                message: `${message}\n\n${helpMessage}`, 
+                logFilePath 
+            };
         }
 
         const projectTitle = packageName && packageName.toLowerCase() !== projectName.toLowerCase() 

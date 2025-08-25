@@ -63,6 +63,41 @@ export default [
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/require-await': 'error',
+      
+      // State-of-the-art TypeScript rules (2025) - Balanced for practicality
+      '@typescript-eslint/strict-boolean-expressions': 'off', // Too strict, causes too many changes
+      '@typescript-eslint/no-non-null-assertion': 'warn', // Warn instead of error
+      '@typescript-eslint/prefer-reduce-type-parameter': 'error',
+      '@typescript-eslint/prefer-return-this-type': 'error',
+      '@typescript-eslint/promise-function-async': 'off', // Too many false positives
+      '@typescript-eslint/no-unnecessary-condition': 'warn', // Warn for now
+      '@typescript-eslint/no-unnecessary-type-arguments': 'error',
+      '@typescript-eslint/prefer-readonly-parameter-types': 'off', // Too strict
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/no-redundant-type-constituents': 'error',
+      '@typescript-eslint/no-useless-empty-export': 'error',
+      '@typescript-eslint/consistent-type-exports': 'error',
+      '@typescript-eslint/consistent-type-imports': 'off', // Causes too many changes
+      '@typescript-eslint/no-import-type-side-effects': 'error',
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'interface',
+          format: ['PascalCase']
+        },
+        {
+          selector: 'typeAlias',
+          format: ['PascalCase']
+        },
+        {
+          selector: 'enum',
+          format: ['PascalCase']
+        },
+        {
+          selector: 'enumMember',
+          format: ['UPPER_CASE']
+        }
+      ],
 
       // General code quality
       'no-console': 'off', // CLI app needs console output
@@ -75,6 +110,41 @@ export default [
       'object-shorthand': 'error',
       'quote-props': ['error', 'as-needed'],
       'no-duplicate-imports': 'error',
+      
+      // Modern JavaScript best practices - Balanced
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ForInStatement',
+          message: 'Use for...of or Object.keys/entries/values instead'
+        },
+        {
+          selector: 'WithStatement',
+          message: 'With statements are not allowed'
+        }
+      ],
+      'no-implicit-coercion': 'off', // Too many false positives
+      'no-nested-ternary': 'warn', // Warn instead of error
+      'no-unneeded-ternary': 'error',
+      'no-mixed-operators': 'warn',
+      'yoda': ['error', 'never'],
+      'curly': 'off', // Too strict for simple statements
+      'eqeqeq': ['error', 'always'],
+      'no-else-return': ['error', { allowElseIf: true }], // Allow else-if
+      'no-lonely-if': 'error',
+      'no-magic-numbers': 'off', // Too many warnings
+      'max-depth': ['warn', 5], // Increase to 5
+      'max-lines': ['warn', {
+        max: 600, // Increase limit
+        skipBlankLines: true,
+        skipComments: true
+      }],
+      'max-lines-per-function': ['warn', {
+        max: 200, // Increase limit for complex functions
+        skipBlankLines: true,
+        skipComments: true
+      }],
+      'complexity': ['warn', 20], // Increase complexity limit
       
       // Import rules with TypeScript resolver
       'import/order': [
@@ -164,7 +234,28 @@ export default [
       'unicorn/prefer-string-trim-start-end': 'error',
       'unicorn/prefer-switch': 'error',
       'unicorn/prefer-type-error': 'error',
-      'unicorn/throw-new-error': 'error'
+      'unicorn/throw-new-error': 'error',
+      
+      // Additional modern unicorn rules - Practical selection
+      'unicorn/no-null': 'off', // Too restrictive
+      'unicorn/prevent-abbreviations': 'off', // Too verbose
+      'unicorn/no-nested-ternary': 'warn', // Warn instead
+      'unicorn/no-typeof-undefined': 'error',
+      'unicorn/no-useless-undefined': 'off', // Can be useful for clarity
+      'unicorn/prefer-export-from': 'warn',
+      'unicorn/prefer-at': 'warn', // Suggest but don't enforce
+      'unicorn/prefer-string-raw': 'off', // Too many changes needed
+      'unicorn/no-unreadable-iife': 'error',
+      'unicorn/prefer-modern-math-apis': 'error',
+      'unicorn/prefer-native-coercion-functions': 'error',
+      'unicorn/no-document-cookie': 'error',
+      'unicorn/prefer-blob-reading-methods': 'error',
+      'unicorn/prefer-top-level-await': 'off', // Not applicable
+      'unicorn/no-anonymous-default-export': 'error',
+      'unicorn/no-empty-file': 'error',
+      'unicorn/consistent-function-scoping': 'off', // Too strict for tests
+      'unicorn/no-invalid-fetch-options': 'error',
+      'unicorn/no-magic-array-flat-depth': 'error'
     }
   },
   {
@@ -173,7 +264,15 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/unbound-method': 'off',
-      'no-console': 'off'
+      '@typescript-eslint/strict-boolean-expressions': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+      'no-console': 'off',
+      'no-magic-numbers': 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+      'complexity': 'off'
     }
   }
 ];

@@ -590,15 +590,12 @@ export class OutputStrategyManager {
                     };
                     
                     writeNextChunk();
+                } else if (!outputStream.write(fileContent)) {
+                    // Wait for drain event before continuing
+                    outputStream.once('drain', processNextFile);
                 } else {
-                    // For smaller content, write all at once
-                    if (!outputStream.write(fileContent)) {
-                        // Wait for drain event before continuing
-                        outputStream.once('drain', processNextFile);
-                    } else {
-                        // Continue with next file
-                        setImmediate(processNextFile);
-                    }
+                    // Continue with next file
+                    setImmediate(processNextFile);
                 }
             };
             
