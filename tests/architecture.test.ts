@@ -110,13 +110,13 @@ describe('Architecture Tests', () => {
                     description: 'Test plugin'
                 },
                 {
-                    beforeFileProcessing: (fileInfo) => {
+                    beforeFileProcessing: async (fileInfo) => {
                         beforeCalled = true;
-                        return fileInfo;
+                        return Promise.resolve(fileInfo);
                     },
-                    afterFileProcessing: (fileInfo, content) => {
+                    afterFileProcessing: async (fileInfo, content) => {
                         afterCalled = true;
-                        return `${content  }\n// Plugin processed`;
+                        return Promise.resolve(`${content  }\n// Plugin processed`);
                     }
                 }
             );
@@ -154,6 +154,8 @@ describe('Architecture Tests', () => {
             const config: Config = {
                 schemaVersion: 1,
                 copyToClipboard: false,
+                excludeSecrets: true,
+                maxSymlinkAuditEntries: 100,
                 generatedFileName: 'test-fusion',
                 generateHtml: true,
                 generateMarkdown: true,

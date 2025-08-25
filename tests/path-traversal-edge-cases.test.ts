@@ -259,7 +259,7 @@ describe('Path Traversal Edge Cases', () => {
                 expect(error).toBeInstanceOf(FusionError);
                 const fusionError = error as FusionError;
                 expect(fusionError.context).toHaveProperty('relativePath');
-                expect(fusionError.context.relativePath).toBeDefined();
+                expect(fusionError.context?.['relativePath']).toBeDefined();
             }
         });
     });

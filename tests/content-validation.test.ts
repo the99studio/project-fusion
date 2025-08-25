@@ -11,7 +11,8 @@ import { validateFileContent, isMinifiedContent, defaultConfig } from '../src/ut
 
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 5000,
             maxTokenLength: 2000,
@@ -44,7 +45,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Long Line Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 100, // Very short for testing
             maxTokenLength: 2000,
@@ -75,7 +77,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Long Token Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 5000,
             maxTokenLength: 50, // Very short for testing
@@ -107,7 +110,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Multiple Issues Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 1,
             maxLineLength: 50,
             maxTokenLength: 30,
@@ -216,7 +220,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Edge Cases', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 100,
             maxTokenLength: 50,

@@ -68,10 +68,12 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            await processFusion(config, { fs: memFS });
+            const result = await processFusion(config, { fs: memFS });
             
             expect(result.success).toBe(true);
-            expect(result.filesProcessed).toBe(2);
+            if (result.success) {
+                expect(result.filesProcessed).toBe(2);
+            }
             
             const output = await memFS.readFile(createFilePath('project-fusioned.txt'));
             
@@ -104,10 +106,12 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            await processFusion(config, { fs: memFS });
+            const result = await processFusion(config, { fs: memFS });
             
             expect(result.success).toBe(true);
-            expect(result.filesProcessed).toBe(2);
+            if (result.success) {
+                expect(result.filesProcessed).toBe(2);
+            }
             
             const output = await memFS.readFile(createFilePath('project-fusioned.txt'));
             

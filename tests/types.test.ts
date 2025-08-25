@@ -198,7 +198,7 @@ describe('FusionError', () => {
             
             expect(fusionError.message).toContain('Original error');
             expect(fusionError.context).toHaveProperty('originalError');
-            expect(fusionError.context?.originalError).toBe('Original error');
+            expect(fusionError.context?.['originalError']).toBe('Original error');
         });
         
         it('should be serializable', () => {

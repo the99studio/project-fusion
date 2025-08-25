@@ -53,13 +53,15 @@ describe('Resource Limits Tests', () => {
             const result = await processFusion(config);
             
             expect(result.success).toBe(false);
-            expect(result.code).toBe('TOO_MANY_FILES');
-            expect(result.error).toContain(`Too many files found (${numFiles} > ${maxFiles})`);
-            expect(result.details).toEqual({
-                filesFound: numFiles,
-                maxFiles,
-                suggestion: 'Use --include patterns to filter files or increase maxFiles limit'
-            });
+            if (!result.success) {
+                expect(result.code).toBe('TOO_MANY_FILES');
+                expect(result.error).toContain(`Too many files found (${numFiles} > ${maxFiles})`);
+                expect(result.details).toEqual({
+                    filesFound: numFiles,
+                    maxFiles,
+                    suggestion: 'Use --include patterns to filter files or increase maxFiles limit'
+                });
+            }
         });
 
         it('should pass when file count is within limit', async () => {
@@ -114,8 +116,10 @@ describe('Resource Limits Tests', () => {
             const result = await processFusion(config);
             
             expect(result.success).toBe(false);
-            expect(result.code).toBe('SIZE_LIMIT_EXCEEDED');
-            expect(result.error).toContain('Total size limit exceeded');
+            if (!result.success) {
+                expect(result.code).toBe('SIZE_LIMIT_EXCEEDED');
+                expect(result.error).toContain('Total size limit exceeded');
+            }
             expect((result as { details?: { maxTotalSizeMB: number; suggestion: string } }).details?.maxTotalSizeMB).toBe(maxTotalSizeMB);
             expect((result as { details?: { maxTotalSizeMB: number; suggestion: string } }).details?.suggestion).toContain('Use --include patterns to filter files');
         });
@@ -172,7 +176,9 @@ describe('Resource Limits Tests', () => {
             
             // Should fail on file count, not size
             expect(result.success).toBe(false);
-            expect(result.code).toBe('TOO_MANY_FILES');
+            if (!result.success) {
+                expect(result.code).toBe('TOO_MANY_FILES');
+            }
         });
     });
 
