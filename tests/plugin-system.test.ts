@@ -455,8 +455,8 @@ describe('Plugin System', () => {
 
             const plugin = new TestPlugin();
             
-            if (plugin.initialize) await plugin.initialize();
-            if (plugin.cleanup) await plugin.cleanup();
+            if (plugin.initialize) { await plugin.initialize(); }
+            if (plugin.cleanup) { await plugin.cleanup(); }
 
             expect(plugin.initCalled).toBe(true);
             expect(plugin.cleanupCalled).toBe(true);

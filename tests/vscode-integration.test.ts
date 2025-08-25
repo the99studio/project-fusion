@@ -213,7 +213,7 @@ dist/
                 // Simulate user clicking cancel button after scanning
                 if (progress.step === 'processing') {
                     shouldCancel = true;
-                    for (const listener of cancellationListeners) listener();
+                    for (const listener of cancellationListeners) { listener(); }
                 }
             });
             

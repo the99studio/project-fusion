@@ -208,7 +208,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
 
     exists(filePath: FilePath): Promise<boolean> {
         const hasExact = this.files.has(filePath) || this.directories.has(filePath);
-        if (hasExact) return Promise.resolve(true);
+        if (hasExact) { return Promise.resolve(true); }
         
         // Try resolved absolute path
         const resolved = path.resolve(filePath);

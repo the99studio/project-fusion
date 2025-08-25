@@ -248,7 +248,7 @@ describe('VS Code API enhancements', () => {
             // Trigger cancellation immediately using setImmediate to ensure it happens in the next event loop tick
             setImmediate(() => {
                 isCancelled = true;
-                for (const listener of cancellationListeners) listener();
+                for (const listener of cancellationListeners) { listener(); }
             });
             
             const result = await fusionPromise;

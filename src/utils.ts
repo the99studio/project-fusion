@@ -556,7 +556,7 @@ export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise
         let nonPrintable = 0;
         for (let i = 0; i < actualBytesToCheck; i++) {
             const byte = buffer[i];
-            if (byte === undefined) continue; // Skip undefined bytes
+            if (byte === undefined) { continue; } // Skip undefined bytes
             // Allow common whitespace chars: space(32), tab(9), newline(10), carriage return(13)
             if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
                 nonPrintable++;
@@ -970,7 +970,7 @@ export function isMinifiedContent(content: string, filePath: string): boolean {
     const lines = content.split('\n');
     const nonEmptyLines = lines.filter(line => line.trim().length > 0);
     
-    if (nonEmptyLines.length === 0) return false;
+    if (nonEmptyLines.length === 0) { return false; }
 
     // Calculate average line length
     const totalLength = nonEmptyLines.reduce((sum, line) => sum + line.length, 0);

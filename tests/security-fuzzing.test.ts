@@ -527,7 +527,7 @@ describe('Security Fuzzing Tests', () => {
         it('should handle zip bomb-like structures', async () => {
             // Create a much smaller structure to avoid timeouts
             const createNestedStructure = async (dir: string, depth: number, branching: number) => {
-                if (depth <= 0) return;
+                if (depth <= 0) { return; }
                 
                 for (let i = 0; i < branching; i++) {
                     const subDir = join(dir, `level${depth}_branch${i}`);

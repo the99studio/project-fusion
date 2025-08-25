@@ -80,7 +80,7 @@ const sharedRules = {
   'no-unneeded-ternary': 'error',
   'no-mixed-operators': 'error',
   'yoda': ['error', 'never'],
-  'curly': 'off',
+  'curly': ['error', 'all'],
   'eqeqeq': ['error', 'always'],
   'no-else-return': ['error', { allowElseIf: true }],
   'no-lonely-if': 'error',

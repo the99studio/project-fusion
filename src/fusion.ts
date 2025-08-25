@@ -95,7 +95,7 @@ export async function processFusion(
         currentFile?: string  ,
         forceEmit = false
     ): void => {
-        if (!options.onProgress) return;
+        if (!options.onProgress) { return; }
         
         // Check if we should emit (phase change, forced, or interval reached)
         const phaseChanged = step !== progressState.currentPhase;
@@ -112,7 +112,7 @@ export async function processFusion(
                           progressState.filesProcessedSinceLastEmit >= PROGRESS_EMIT_INTERVAL ||
                           filesProcessed === totalFiles; // Always emit on completion
         
-        if (!shouldEmit && !phaseChanged) return;
+        if (!shouldEmit && !phaseChanged) { return; }
         
         // Reset counter and update phase
         if (phaseChanged) {
@@ -377,7 +377,7 @@ export async function processFusion(
         
         for (let i = 0; i < filePaths.length; i++) {
             const filePath = filePaths[i];
-            if (!filePath) continue; // Skip if undefined (shouldn't happen)
+            if (!filePath) { continue; } // Skip if undefined (shouldn't happen)
             const relativePath = path.relative(rootDir, filePath);
 
             checkCancellation();

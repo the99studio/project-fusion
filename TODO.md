@@ -20,14 +20,7 @@
 - [ ] **HTML link security**: Add rel="noopener noreferrer" to external links (currently has rel="external" in output-strategy.ts:335)
 - [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag
 
-
- @typescript-eslint/promise-function-async
-
-   @typescript-eslint/consistent-type-imports
-  curly
- 
- 
-   unicorn/prevent-abbreviations
-      no-magic-numbers
-
-      '@typescript-eslint/no-unnecessary-condition'
+@typescript-eslint/promise-function-async
+@typescript-eslint/consistent-type-imports
+unicorn/prevent-abbreviations
+no-magic-numbers

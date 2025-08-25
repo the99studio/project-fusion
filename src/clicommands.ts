@@ -71,9 +71,9 @@ export async function runFusionCommand(options: {
             config.generateText = options.txt ?? false;
             
             const enabledFormats = [];
-            if (config.generateHtml) enabledFormats.push('HTML');
-            if (config.generateMarkdown) enabledFormats.push('Markdown');
-            if (config.generateText) enabledFormats.push('Text');
+            if (config.generateHtml) { enabledFormats.push('HTML'); }
+            if (config.generateMarkdown) { enabledFormats.push('Markdown'); }
+            if (config.generateText) { enabledFormats.push('Text'); }
             
             if (enabledFormats.length > 0) {
                 console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));

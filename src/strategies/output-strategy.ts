@@ -414,17 +414,17 @@ export class OutputStrategyManager {
         
         if (config.generateText) {
             const strategy = this.getStrategy('text');
-            if (strategy) enabled.push(strategy);
+            if (strategy) { enabled.push(strategy); }
         }
         
         if (config.generateMarkdown) {
             const strategy = this.getStrategy('markdown');
-            if (strategy) enabled.push(strategy);
+            if (strategy) { enabled.push(strategy); }
         }
         
         if (config.generateHtml) {
             const strategy = this.getStrategy('html');
-            if (strategy) enabled.push(strategy);
+            if (strategy) { enabled.push(strategy); }
         }
         
         return enabled;
