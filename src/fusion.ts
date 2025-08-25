@@ -16,7 +16,7 @@ import {
     OutputStrategyManager
 } from './strategies/output-strategy.js';
 import { type Config, type FilePath, type FusionOptions, type FusionResult, createFilePath } from './types.js';
-import pkg from '../package.json' with { type: 'json' };
+import { getVersionSync } from './version.js';
 import {
     formatLocalTimestamp,
     formatTimestamp,
@@ -625,7 +625,7 @@ export async function processFusion(
             versionInfo,
             filesToProcess: finalFilesToProcess,
             config: finalConfig,
-            toolVersion: pkg.version
+            toolVersion: getVersionSync()
         };
 
         checkCancellation();

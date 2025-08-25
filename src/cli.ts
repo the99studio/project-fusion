@@ -6,8 +6,7 @@
  */
 import { Command } from 'commander';
 
-import pkg from '../package.json' with { type: 'json' };
-
+import { getVersionSync } from './version.js';
 import {
     runConfigCheckCommand,
     runFusionCommand,
@@ -19,7 +18,7 @@ const program = new Command();
 program
     .name('project-fusion')
     .description('Project Fusion - Efficient project file management and sharing')
-    .version(pkg.version, '-v, --version')
+    .version(getVersionSync(), '-v, --version')
     .allowUnknownOption(false)
     .showHelpAfterError(true);
 
