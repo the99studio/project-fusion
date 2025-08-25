@@ -473,7 +473,7 @@ function generateId(length = 8) {
  * @returns {boolean} True if valid
  */
 function isValidEmail(email) {
-    const regex = /^[^s@]+@[^s@]+.[^s@]+$/;
+    const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
     return regex.test(email);
 }
 

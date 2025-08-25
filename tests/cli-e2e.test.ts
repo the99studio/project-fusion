@@ -332,10 +332,11 @@ describe('CLI E2E Tests', () => {
                 });
                 expect.fail('Should have thrown an error');
             } catch (error) {
-                const execError = error as { status: number };
+                const execError = error as { status: number; stdout: string; stderr: string; message: string };
                 expect(execError.status).toBe(1);
                 // Commander.js should show help after error
-                expect((execError as { stdout?: string; stderr?: string }).stdout ?? (execError as { stdout?: string; stderr?: string }).stderr).toContain('Usage:');
+                const errorOutput = execError.stderr || execError.stdout || execError.message;
+                expect(errorOutput).toContain('Usage:');
             }
         });
 
