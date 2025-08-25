@@ -63,7 +63,7 @@ describe('version fallback mechanism', () => {
 
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-        const version = await mockGetVersion();
+        const version = mockGetVersion();
         expect(version).toBe('1.0.0-unknown');
         expect(warnSpy).toHaveBeenCalledWith('Warning: Could not read package version, using fallback');
         

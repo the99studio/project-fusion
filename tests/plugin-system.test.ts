@@ -434,7 +434,7 @@ describe('Plugin System', () => {
             expect(plugin.metadata.name).toBe('test-plugin');
         });
 
-        it('should support optional lifecycle methods', async () => {
+        it('should support optional lifecycle methods', () => {
             class TestPlugin extends BasePlugin {
                 metadata = {
                     name: 'test-plugin',

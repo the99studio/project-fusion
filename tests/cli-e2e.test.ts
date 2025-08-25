@@ -77,7 +77,7 @@ describe('CLI E2E Tests', () => {
             expect(htmlContent).toContain('<code class="language-typescript" lang="typescript">');
         });
 
-        it('should handle empty directory gracefully', async () => {
+        it('should handle empty directory gracefully', () => {
             // Run CLI in empty directory
             const output = execSync(`node "${cliBin}"`, { 
                 encoding: 'utf8',
@@ -237,7 +237,7 @@ describe('CLI E2E Tests', () => {
             }
         });
 
-        it('should handle missing configuration file', async () => {
+        it('should handle missing configuration file', () => {
             const output = execSync(`node "${cliBin}" config-check`, { 
                 encoding: 'utf8',
                 env: { ...process.env, CI: 'true' }
@@ -314,7 +314,7 @@ describe('CLI E2E Tests', () => {
     });
 
     describe('Error Handling', () => {
-        it('should handle invalid command line options', async () => {
+        it('should handle invalid command line options', () => {
             try {
                 execSync(`node "${cliBin}" --unknown-option`, { 
                     encoding: 'utf8',

@@ -362,7 +362,7 @@ dist/
             const errorFs = {
                 ...memoryFs,
                 readFile: vi.fn().mockRejectedValue(new Error('Permission denied'))
-            } as any;
+            };
             
             let errorResult: ProgrammaticFusionResult | null = null;
             const onDidFinish = (result: ProgrammaticFusionResult) => {
@@ -372,7 +372,7 @@ dist/
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/project',
                 generateText: true,
-                fs: errorFs,
+                fs: errorFs as any,
                 onDidFinish
             };
 

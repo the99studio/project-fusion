@@ -356,6 +356,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     // Helper function to add both console and log output
     const addLine = (line: string, coloredLine?: string): void => {
         console.log(coloredLine ?? line);
+        // eslint-disable-next-line no-control-regex
         output.push(line.replaceAll(/\u001B\[[\d;]*m/gu, '')); // Strip ANSI colors for log
     };
 

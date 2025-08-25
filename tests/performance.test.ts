@@ -124,7 +124,7 @@ describe('Performance Tests - Optimized', () => {
             expect(memoryIncrease).toBeLessThan(50); // Should not use more than 50MB
         });
 
-        it('should handle benchmark tracker correctly', async () => {
+        it('should handle benchmark tracker correctly', () => {
             const tracker = new BenchmarkTracker();
             
             // Simulate file processing

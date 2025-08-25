@@ -78,12 +78,12 @@ describe('VS Code API enhancements', () => {
             const mockFs = {
                 ...memoryFs,
                 glob: vi.fn().mockRejectedValue(new Error('Test error'))
-            } as any;
+            };
             
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/test',
                 generateText: true,
-                fs: mockFs,
+                fs: mockFs as any,
                 onDidFinish
             };
 

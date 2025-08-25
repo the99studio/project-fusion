@@ -3,11 +3,11 @@
 /**
  * Content validation tests for Project Fusion
  */
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { processFusion } from '../src/fusion.js';
 import { createFilePath, type Config } from '../src/types.js';
-import { validateFileContent, isMinifiedContent, defaultConfig, type ContentValidationResult } from '../src/utils.js';
+import { validateFileContent, isMinifiedContent, defaultConfig } from '../src/utils.js';
 
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {
@@ -176,7 +176,7 @@ describe('Content Validation Tests', () => {
                 }
             };
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             const output = await memFS.readFile(createFilePath('project-fusioned.txt'));
             
