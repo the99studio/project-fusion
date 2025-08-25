@@ -4,11 +4,11 @@
  * Tests for plugin security validation
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { PluginManager } from '../src/plugins/plugin-system.js';
 import { DefaultFileSystemAdapter } from '../src/adapters/file-system.js';
+import { PluginManager } from '../src/plugins/plugin-system.js';
 import { FusionError } from '../src/types.js';
 import type { Config } from '../src/types.js';
 

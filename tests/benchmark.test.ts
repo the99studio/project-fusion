@@ -132,7 +132,7 @@ describe('BenchmarkTracker', () => {
             
             const metrics = tracker.getMetrics();
             expect(metrics.filesProcessed).toBe(1000);
-            expect(metrics.totalBytesProcessed).toBe(499500); // Sum of 0 to 999
+            expect(metrics.totalBytesProcessed).toBe(499_500); // Sum of 0 to 999
         });
         
         it('should handle special characters in filenames', () => {

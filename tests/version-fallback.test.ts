@@ -56,7 +56,7 @@ describe('version fallback mechanism', () => {
             try {
                 // Force import to fail by using invalid syntax
                 throw new Error('Simulated import failure');
-            } catch (importError) {
+            } catch {
                 // Simulate the fallback logic without file system access
                 console.warn('Warning: Could not read package version, using fallback');
                 return '1.0.0-unknown';

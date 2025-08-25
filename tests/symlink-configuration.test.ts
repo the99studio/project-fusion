@@ -3,10 +3,10 @@
 /**
  * Symlink configuration tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, symlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, symlink } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig, getSymlinkAuditSummary, clearSymlinkAudit } from '../src/utils.js';
 
@@ -65,7 +65,7 @@ describe('Symlink Configuration Tests', () => {
             expect(result.success).toBe(true);
             
             // Should process the target file but not the symlink
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -105,7 +105,7 @@ describe('Symlink Configuration Tests', () => {
             expect(result.success).toBe(true);
             
             // Should process both the target file and the symlink
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -139,7 +139,7 @@ describe('Symlink Configuration Tests', () => {
             expect(result.success).toBe(true);
             
             // Should process the symlink (content from outside)
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -172,7 +172,7 @@ describe('Symlink Configuration Tests', () => {
             // Should succeed and process the normal file, skip the broken symlink
             expect(result.success).toBe(true);
             
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -215,7 +215,7 @@ describe('Symlink Configuration Tests', () => {
             
             expect(result.success).toBe(true);
             
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -288,7 +288,7 @@ describe('Symlink Configuration Tests', () => {
             
             expect(result.success).toBe(true);
             
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             

@@ -4,16 +4,14 @@
  * CLI commands implementation
  */
 import path from 'node:path';
-
 import chalk from 'chalk';
 import clipboardy from 'clipboardy';
 import fs from 'fs-extra';
-
 import { processFusion } from './fusion.js';
 import { ConfigSchemaV1 } from './schema.js';
 import type { Config, FusionOptions } from './types.js';
-import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
 import { logger } from './utils/logger.js';
+import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
 
 /**
  * Run the fusion command
@@ -68,9 +66,9 @@ export async function runFusionCommand(options: {
         // Handle output format overrides
         if (options.html !== undefined || options.md !== undefined || options.txt !== undefined) {
             // If any format flag is specified, only generate those formats
-            config.generateHtml = options.html || false;
-            config.generateMarkdown = options.md || false;
-            config.generateText = options.txt || false;
+            config.generateHtml = options.html ?? false;
+            config.generateMarkdown = options.md ?? false;
+            config.generateText = options.txt ?? false;
             
             const enabledFormats = [];
             if (config.generateHtml) enabledFormats.push('HTML');
@@ -101,8 +99,8 @@ export async function runFusionCommand(options: {
 
         // Handle size limits with validation
         if (options.maxFileSize) {
-            const maxFileSize = parseInt(options.maxFileSize, 10);
-            if (isNaN(maxFileSize) || maxFileSize <= 0) {
+            const maxFileSize = Number.parseInt(options.maxFileSize, 10);
+            if (Number.isNaN(maxFileSize) || maxFileSize <= 0) {
                 logger.consoleError(`❌ Invalid value for --max-file-size: "${options.maxFileSize}". Expected a positive number (KB).`);
                 process.exit(1);
             }
@@ -110,8 +108,8 @@ export async function runFusionCommand(options: {
             console.log(chalk.yellow(`ℹ️ Maximum file size set to: ${config.maxFileSizeKB} KB`));
         }
         if (options.maxFiles) {
-            const maxFiles = parseInt(options.maxFiles, 10);
-            if (isNaN(maxFiles) || maxFiles <= 0) {
+            const maxFiles = Number.parseInt(options.maxFiles, 10);
+            if (Number.isNaN(maxFiles) || maxFiles <= 0) {
                 logger.consoleError(`❌ Invalid value for --max-files: "${options.maxFiles}". Expected a positive integer.`);
                 process.exit(1);
             }
@@ -119,8 +117,8 @@ export async function runFusionCommand(options: {
             console.log(chalk.yellow(`ℹ️ Maximum files set to: ${config.maxFiles}`));
         }
         if (options.maxTotalSize) {
-            const maxTotalSize = parseFloat(options.maxTotalSize);
-            if (isNaN(maxTotalSize) || maxTotalSize <= 0) {
+            const maxTotalSize = Number.parseFloat(options.maxTotalSize);
+            if (Number.isNaN(maxTotalSize) || maxTotalSize <= 0) {
                 logger.consoleError(`❌ Invalid value for --max-total-size: "${options.maxTotalSize}". Expected a positive number (MB).`);
                 process.exit(1);
             }
@@ -152,7 +150,7 @@ export async function runFusionCommand(options: {
         // Parse extension groups from command line (comma-separated)
         // Support both --extensions and --groups for convenience
         let extensionGroups: string[] | undefined;
-        const groupsOption = options.extensions || options.groups;
+        const groupsOption = options.extensions ?? options.groups;
         if (groupsOption) {
             extensionGroups = groupsOption.split(',').map(e => e.trim());
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
@@ -357,8 +355,8 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     
     // Helper function to add both console and log output
     const addLine = (line: string, coloredLine?: string): void => {
-        console.log(coloredLine || line);
-        output.push(line.replace(/\u001b\[[0-9;]*m/g, '')); // Strip ANSI colors for log
+        console.log(coloredLine ?? line);
+        output.push(line.replaceAll(/\u001b\[[\d;]*m/gu, '')); // Strip ANSI colors for log
     };
 
     addLine('\n📋 Configuration Summary:', chalk.blue('\n📋 Configuration Summary:'));
@@ -382,7 +380,6 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     addLine(`   Copy to Clipboard: ${config.copyToClipboard ? 'Yes' : 'No'}${isDefault || config.copyToClipboard === defaultConfig.copyToClipboard ? '' : ' (modified)'}`,
            `   Copy to Clipboard: ${highlightDiff(config.copyToClipboard ? 'Yes' : 'No', defaultConfig.copyToClipboard ? 'Yes' : 'No', config.copyToClipboard ? 'Yes' : 'No')}`);
     const symlinkValue = config.allowSymlinks ? 'Yes (⚠️ Security Risk)' : 'No (Secure)';
-    const symlinkDefault = defaultConfig.allowSymlinks ? 'Yes (⚠️ Security Risk)' : 'No (Secure)';
     const symlinkColor = config.allowSymlinks ? chalk.yellow(symlinkValue) : chalk.green(symlinkValue);
     addLine(`   Allow Symlinks: ${symlinkValue}${isDefault || config.allowSymlinks === defaultConfig.allowSymlinks ? '' : ' (modified)'}`,
            `   Allow Symlinks: ${isDefault || config.allowSymlinks === defaultConfig.allowSymlinks ? symlinkColor : chalk.yellow(symlinkValue)}`);
@@ -407,7 +404,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
 
     // File type configuration - structured table
     addLine('\n📁 File Extension Groups (Structured View):', chalk.cyan('\n📁 File Extension Groups (Structured View):'));
-    await displayExtensionGroupsTable(config, isDefault, addLine);
+    displayExtensionGroupsTable(config, isDefault, addLine);
 
     // Pattern exclusions with diff
     addLine('\n🚫 Ignore Patterns:', chalk.cyan('\n🚫 Ignore Patterns:'));
@@ -460,17 +457,15 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
  * Helper function to highlight differences from default values
  */
 function highlightDiff(current: string, defaultValue: string, actualValue: string): string {
-    if (current === defaultValue) {
-        return chalk.green(actualValue); // Default value - green
-    } else {
-        return chalk.yellow(actualValue); // Modified value - yellow
-    }
+    return current === defaultValue ?
+        chalk.green(actualValue) : // Default value - green
+        chalk.yellow(actualValue); // Modified value - yellow
 }
 
 /**
  * Display extension groups in a structured table format
  */
-async function displayExtensionGroupsTable(config: Config, isDefault: boolean, addLine: (line: string, coloredLine?: string) => void): Promise<void> {
+function displayExtensionGroupsTable(config: Config, isDefault: boolean, addLine: (line: string, coloredLine?: string) => void): void {
     const totalExtensions = getExtensionsFromGroups(config);
     
     // Table header
@@ -487,7 +482,7 @@ async function displayExtensionGroupsTable(config: Config, isDefault: boolean, a
             const groupPadded = group.padEnd(11);
             const countPadded = extensions.length.toString().padEnd(7);
             const extString = extensions.join(', ');
-            const extTruncated = extString.length > 42 ? extString.substring(0, 39) + '...' : extString.padEnd(42);
+            const extTruncated = extString.length > 42 ? `${extString.slice(0, 39)  }...` : extString.padEnd(42);
             
             const line = `   │ ${groupPadded} │ ${countPadded} │ ${extTruncated} │`;
             const coloredLine = isModified 
@@ -523,8 +518,8 @@ function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLi
     const defaultPatterns = new Set(defaultConfig.ignorePatterns);
     const maxDisplay = 15;
     
-    for (const [index, pattern] of config.ignorePatterns.slice(0, maxDisplay).entries()) {
-        const isDefaultPattern = isDefault || defaultPatterns.has(pattern as any);
+    for (const pattern of config.ignorePatterns.slice(0, maxDisplay)) {
+        const isDefaultPattern = isDefault || defaultPatterns.has(pattern);
         const line = `   ${pattern}`;
         const coloredLine = isDefaultPattern ? chalk.green(line) : chalk.yellow(line);
         addLine(line, coloredLine);

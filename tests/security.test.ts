@@ -3,10 +3,10 @@
 /**
  * Security tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -56,7 +56,7 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Read generated HTML
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 
@@ -97,7 +97,7 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Read generated HTML
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 
@@ -112,11 +112,11 @@ console.log("test");
             expect(titleSections.length).toBeGreaterThan(1);
             
             // All file references should not contain unescaped HTML
-            titleSections.slice(1).forEach(section => {
+            for (const section of titleSections.slice(1)) {
                 const title = section.split('</h2>')[0];
                 expect(title).not.toContain('<script');
                 expect(title).not.toContain('onerror=');
-            });
+            }
         });
 
         it('should escape HTML in project title and version', async () => {
@@ -145,7 +145,7 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Read generated HTML
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 
@@ -182,7 +182,7 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Should only process files within the root directory
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 

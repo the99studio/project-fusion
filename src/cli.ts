@@ -5,13 +5,12 @@
  * Command-line interface for Project Fusion
  */
 import { Command } from 'commander';
-
-import { getVersionSync } from './version.js';
 import {
     runConfigCheckCommand,
     runFusionCommand,
     runInitCommand
 } from './clicommands.js';
+import { getVersionSync } from './version.js';
 
 const program = new Command();
 

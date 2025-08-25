@@ -40,10 +40,10 @@ describe('Branded Types', () => {
                 '../parent/path/file.txt'
             ];
             
-            specialPaths.forEach(p => {
+            for (const p of specialPaths) {
                 const filePath = createFilePath(p);
                 expect(filePath).toBe(p);
-            });
+            }
         });
         
         it('should maintain type safety', () => {
@@ -113,10 +113,10 @@ describe('FusionError', () => {
                 'UNKNOWN_EXTENSION_GROUP'
             ];
             
-            validCodes.forEach(code => {
+            for (const code of validCodes) {
                 const error = new FusionError('Test', code);
                 expect(error.code).toBe(code);
-            });
+            }
         });
         
         it('should maintain type safety for error codes', () => {
@@ -141,10 +141,10 @@ describe('FusionError', () => {
                 'info'
             ];
             
-            validSeverities.forEach(severity => {
+            for (const severity of validSeverities) {
                 const error = new FusionError('Test', 'INVALID_PATH', severity);
                 expect(error.severity).toBe(severity);
-            });
+            }
         });
         
         it('should maintain type safety for severity', () => {
@@ -191,7 +191,7 @@ describe('FusionError', () => {
             const originalError = new Error('Original error');
             
             const fusionError = new FusionError(
-                'Wrapped error: ' + originalError.message,
+                `Wrapped error: ${  originalError.message}`,
                 'INVALID_PATH',
                 'error',
                 { originalError: originalError.message, timestamp: Date.now() }

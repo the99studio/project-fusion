@@ -5,11 +5,8 @@
  */
 import path from 'node:path';
 import process from 'node:process';
-
-import chalk from 'chalk';
 import fs from 'fs-extra';
 import { z } from 'zod';
-
 import { ConfigSchemaV1 } from './schema.js';
 import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from './types.js';
 import { logger } from './utils/logger.js';
@@ -105,7 +102,7 @@ export const defaultConfig = {
     ],
     maxBase64BlockKB: 2,
     maxFileSizeKB: 1024,
-    maxFiles: 10000,
+    maxFiles: 10_000,
     maxLineLength: 5000,
     maxSymlinkAuditEntries: 10,
     maxTokenLength: 2000,
@@ -376,7 +373,7 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
  * @returns True if the path is safe to process
  * @throws FusionError if symlink is found and not allowed
  */
-export async function validateNoSymlinks(filePath: string, allowSymlinks: boolean = false, config?: Config): Promise<boolean> {
+export async function validateNoSymlinks(filePath: string, allowSymlinks = false, config?: Config): Promise<boolean> {
     try {
         const stats = await fs.lstat(filePath);
         
@@ -495,7 +492,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
  * @param sessionKey Session identifier (typically rootDirectory)
  * @returns Audit summary or null if no symlinks processed
  */
-export function getSymlinkAuditSummary(sessionKey: string = 'default'): { 
+export function getSymlinkAuditSummary(sessionKey = 'default'): { 
     totalSymlinks: number; 
     entries: Array<{ symlink: string; target: string; timestamp: Date }> 
 } | null {
@@ -510,7 +507,7 @@ export function getSymlinkAuditSummary(sessionKey: string = 'default'): {
  * Clear symlink audit data for a session
  * @param sessionKey Session identifier (typically rootDirectory)
  */
-export function clearSymlinkAudit(sessionKey: string = 'default'): void {
+export function clearSymlinkAudit(sessionKey = 'default'): void {
     symlinkAuditTracker.delete(sessionKey);
 }
 
@@ -520,7 +517,7 @@ export function clearSymlinkAudit(sessionKey: string = 'default'): void {
  * @param sampleSize Number of bytes to sample (default: 1024)
  * @returns True if the file appears to be binary
  */
-export async function isBinaryFile(filePath: string, sampleSize: number = 1024): Promise<boolean> {
+export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise<boolean> {
     // Check cache first
     const cached = binaryFileCache.get(filePath);
     if (cached !== undefined) {
@@ -714,8 +711,8 @@ export function getMemoryUsage(): MemoryUsage {
  * @returns Warning/error information if thresholds exceeded
  */
 export function checkMemoryUsage(
-    warnThresholdPercent: number = 80,
-    errorThresholdPercent: number = 90
+    warnThresholdPercent = 80,
+    errorThresholdPercent = 90
 ): { level: 'ok' | 'warn' | 'error'; usage: MemoryUsage; message?: string } {
     const usage = getMemoryUsage();
     
@@ -750,9 +747,9 @@ export function checkMemoryUsage(
  */
 export async function logMemoryUsageIfNeeded(
     logPath: string,
-    prefix: string = '',
-    warnThreshold: number = 80,
-    errorThreshold: number = 90
+    prefix = '',
+    warnThreshold = 80,
+    errorThreshold = 90
 ): Promise<void> {
     const memCheck = checkMemoryUsage(warnThreshold, errorThreshold);
     
@@ -794,26 +791,26 @@ export interface ContentValidationResult {
  * Secret detection patterns for common API keys and sensitive data
  */
 export const SECRET_PATTERNS = [
-    { name: 'AWS Access Key', regex: /(AKIA[0-9A-Z]{16})/ },
-    { name: 'AWS Secret Key', regex: /([A-Za-z0-9/+=]{40})(?=.*aws|.*secret|.*key)/i },
+    { name: 'AWS Access Key', regex: /(AKIA[\dA-Z]{16})/ },
+    { name: 'AWS Secret Key', regex: /([\d+/=a-z]{40})(?=.*aws|.*secret|.*key)/i },
     { name: 'RSA Private Key', regex: /-----BEGIN (?:RSA|EC|DSA|OPENSSH) PRIVATE KEY-----/ },
     { name: 'SSH Private Key', regex: /-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----/ },
     { name: 'PGP Private Key', regex: /-----BEGIN PGP PRIVATE KEY BLOCK-----/ },
-    { name: 'Slack Token', regex: /(xox[abpr]-[0-9A-Za-z-]{10,100})/ },
-    { name: 'Google API Key', regex: /(AIza[0-9A-Za-z-_]{20,})/ },
-    { name: 'GitHub Token', regex: /(gh[ps]_[A-Za-z0-9]{36,})/ },
-    { name: 'Stripe Key', regex: /(sk_(?:test_|live_)[0-9a-zA-Z]{24,})/ },
-    { name: 'PayPal/Braintree Token', regex: /(access_token\$production\$[0-9a-z]{16}\$[0-9a-f]{32})/ },
-    { name: 'Square Token', regex: /(sq0[a-z]{3}-[0-9A-Za-z-_]{22,43})/ },
-    { name: 'Twilio Key', regex: /(SK[0-9a-fA-F]{32})/ },
-    { name: 'MailChimp Key', regex: /([0-9a-f]{32}-us[0-9]{1,2})/ },
-    { name: 'SendGrid Key', regex: /(SG\.[0-9A-Za-z-_]{22}\.[0-9A-Za-z-_]{43})/ },
-    { name: 'Heroku API Key', regex: /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?=.*heroku)/i },
-    { name: 'JWT Token', regex: /(ey[A-Za-z0-9-_]+\.ey[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*)/ },
-    { name: 'npm Token', regex: /(npm_[A-Za-z0-9]{36})/ },
-    { name: 'Generic API Key', regex: /(api[_-]?key[_-]?[=:]\s*["']?[A-Za-z0-9-_]{32,}["']?)/i },
-    { name: 'Generic Secret', regex: /(secret[_-]?[=:]\s*["']?[A-Za-z0-9-_]{16,}["']?)/i },
-    { name: 'Password Field', regex: /(password[_-]?[=:]\s*["']?[^\s"']{8,}["']?)/i }
+    { name: 'Slack Token', regex: /(xox[abpr]-[\dA-Za-z-]{10,100})/ },
+    { name: 'Google API Key', regex: /(AIza[\w-]{20,})/ },
+    { name: 'GitHub Token', regex: /(gh[ps]_[\dA-Za-z]{36,})/ },
+    { name: 'Stripe Key', regex: /(sk_(?:test_|live_)[\dA-Za-z]{24,})/ },
+    { name: 'PayPal/Braintree Token', regex: /(access_token\$production\$[\da-z]{16}\$[\da-f]{32})/ },
+    { name: 'Square Token', regex: /(sq0[a-z]{3}-[\w-]{22,43})/ },
+    { name: 'Twilio Key', regex: /(SK[\dA-Fa-f]{32})/ },
+    { name: 'MailChimp Key', regex: /([\da-f]{32}-us\d{1,2})/ },
+    { name: 'SendGrid Key', regex: /(SG\.[\w-]{22}\.[\w-]{43})/ },
+    { name: 'Heroku API Key', regex: /([\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12})(?=.*heroku)/i },
+    { name: 'JWT Token', regex: /((?:ey[\w-]+\.){2}[\w+./=-]*)/ },
+    { name: 'npm Token', regex: /(npm_[\dA-Za-z]{36})/ },
+    { name: 'Generic API Key', regex: /(api[_-]?key[_-]?[:=]\s*["']?[\w-]{32,}["']?)/i },
+    { name: 'Generic Secret', regex: /(secret[_-]?[:=]\s*["']?[\w-]{16,}["']?)/i },
+    { name: 'Password Field', regex: /(password[_-]?[:=]\s*["']?[^\s"']{8,}["']?)/i }
 ];
 
 /**
@@ -863,7 +860,7 @@ export function validateFileContent(
     };
 
     // Check for large base64 blocks
-    const base64Regex = /[A-Za-z0-9+/]{100,}={0,2}/g;
+    const base64Regex = /[\d+/A-Za-z]{100,}={0,2}/g;
     const base64Matches = content.match(base64Regex);
     if (base64Matches) {
         const largestBase64 = Math.max(...base64Matches.map(match => match.length));
@@ -904,7 +901,7 @@ export function validateFileContent(
             continue;
         }
         
-        const base64Chars = token.match(/[A-Za-z0-9+/=]/g);
+        const base64Chars = token.match(/[\d+/=A-Za-z]/g);
         const base64Ratio = base64Chars ? base64Chars.length / token.length : 0;
         
         // Check if it's actually base64-like:
@@ -913,7 +910,7 @@ export function validateFileContent(
         // 3. Proper base64 ending pattern (handles quotes around base64 strings)
         const hasUnderscores = token.includes('_');
         // Check for base64 ending pattern, accounting for quotes and semicolons
-        const hasProperBase64Ending = /[A-Za-z0-9+/]={0,2}[";]*$/.test(token);
+        const hasProperBase64Ending = /[\d+/A-Za-z]={0,2}[";]*$/.test(token);
         const isLikelyBase64 = base64Ratio > 0.95 && !hasUnderscores && hasProperBase64Ending;
         
         if (!isLikelyBase64) {

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-
 import { ConfigSchemaV1 } from '../src/schema.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -106,7 +105,7 @@ describe('schema', () => {
       it('should reject maxFiles above maximum (100000)', () => {
         const invalidConfig = {
           ...defaultConfig,
-          maxFiles: 100001
+          maxFiles: 100_001
         };
 
         const result = ConfigSchemaV1.safeParse(invalidConfig);
@@ -115,7 +114,7 @@ describe('schema', () => {
 
       it('should accept maxFiles at boundaries', () => {
         const minConfig = { ...defaultConfig, maxFiles: 1 };
-        const maxConfig = { ...defaultConfig, maxFiles: 100000 };
+        const maxConfig = { ...defaultConfig, maxFiles: 100_000 };
 
         expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
         expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
@@ -134,7 +133,7 @@ describe('schema', () => {
       it('should reject maxFileSizeKB above maximum (1048576)', () => {
         const invalidConfig = {
           ...defaultConfig,
-          maxFileSizeKB: 1048577
+          maxFileSizeKB: 1_048_577
         };
 
         const result = ConfigSchemaV1.safeParse(invalidConfig);
@@ -143,7 +142,7 @@ describe('schema', () => {
 
       it('should accept maxFileSizeKB at boundaries', () => {
         const minConfig = { ...defaultConfig, maxFileSizeKB: 1 };
-        const maxConfig = { ...defaultConfig, maxFileSizeKB: 1048576 };
+        const maxConfig = { ...defaultConfig, maxFileSizeKB: 1_048_576 };
 
         expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
         expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);
@@ -162,7 +161,7 @@ describe('schema', () => {
       it('should reject maxTotalSizeMB above maximum (10240)', () => {
         const invalidConfig = {
           ...defaultConfig,
-          maxTotalSizeMB: 10241
+          maxTotalSizeMB: 10_241
         };
 
         const result = ConfigSchemaV1.safeParse(invalidConfig);
@@ -171,7 +170,7 @@ describe('schema', () => {
 
       it('should accept maxTotalSizeMB at boundaries', () => {
         const minConfig = { ...defaultConfig, maxTotalSizeMB: 1 };
-        const maxConfig = { ...defaultConfig, maxTotalSizeMB: 10240 };
+        const maxConfig = { ...defaultConfig, maxTotalSizeMB: 10_240 };
 
         expect(ConfigSchemaV1.safeParse(minConfig).success).toBe(true);
         expect(ConfigSchemaV1.safeParse(maxConfig).success).toBe(true);

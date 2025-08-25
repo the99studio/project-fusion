@@ -4,10 +4,8 @@
  * Fusion functionality - Refactored with new architecture patterns
  */
 import path from 'node:path';
-
 import ignoreLib from 'ignore';
-
-import { type FileSystemAdapter, DefaultFileSystemAdapter } from './adapters/file-system.js';
+import { DefaultFileSystemAdapter } from './adapters/file-system.js';
 import { BenchmarkTracker } from './benchmark.js';
 import { PluginManager } from './plugins/plugin-system.js';
 import { 
@@ -16,9 +14,7 @@ import {
     OutputStrategyManager
 } from './strategies/output-strategy.js';
 import { type Config, type FilePath, type FusionOptions, type FusionResult, createFilePath } from './types.js';
-import { getVersionSync } from './version.js';
 import {
-    formatLocalTimestamp,
     formatTimestamp,
     generateHelpfulEmptyMessage,
     getExtensionsFromGroups,
@@ -29,6 +25,7 @@ import {
     validateNoSymlinks,
     validateSecurePath
 } from './utils.js';
+import { getVersionSync } from './version.js';
 
 /**
  * Create an error placeholder for rejected files
@@ -51,7 +48,7 @@ export async function processFusion(
     } = {}
 ): Promise<FusionResult> {
     const benchmark = new BenchmarkTracker();
-    const fs = options.fs || new DefaultFileSystemAdapter();
+    const fs = options.fs ?? new DefaultFileSystemAdapter();
     const outputManager = new OutputStrategyManager();
     const pluginManager = new PluginManager(fs);
     
@@ -73,11 +70,7 @@ export async function processFusion(
         try {
             await fs.ensureDir(path.dirname(logFilePath));
             const filePath = createFilePath(logFilePath);
-            if (append) {
-                await fs.appendFile(filePath, content + '\n');
-            } else {
-                await fs.writeFile(filePath, content + '\n');
-            }
+            await (append ? fs.appendFile(filePath, `${content  }\n`) : fs.writeFile(filePath, `${content  }\n`));
             if (consoleOutput) {
                 console.log(content);
             }
@@ -87,7 +80,7 @@ export async function processFusion(
     };
 
     // Helper function to check cancellation
-    const checkCancellation = () => {
+    const checkCancellation = (): void => {
         if (options.cancellationToken?.isCancellationRequested) {
             throw new Error('Operation was cancelled');
         }
@@ -99,9 +92,9 @@ export async function processFusion(
         message: string, 
         filesProcessed = 0, 
         totalFiles = 0, 
-        currentFile?: string | undefined,
+        currentFile?: string  ,
         forceEmit = false
-    ) => {
+    ): void => {
         if (!options.onProgress) return;
         
         // Check if we should emit (phase change, forced, or interval reached)
@@ -170,7 +163,7 @@ export async function processFusion(
         
         // Log initial configuration and session info
         await writeLogWithFs(logFilePath, `=== PROJECT FUSION SESSION START ===`, true);
-        await writeLogWithFs(logFilePath, `Session ID: ${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`, true);
+        await writeLogWithFs(logFilePath, `Session ID: ${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`, true);
         await writeLogWithFs(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
         await writeLogWithFs(logFilePath, `Working directory: ${config.rootDirectory}`, true);
         await writeLogWithFs(logFilePath, `Generated file name: ${config.generatedFileName}`, true);
@@ -415,7 +408,7 @@ export async function processFusion(
                         message,
                         code: 'SIZE_LIMIT_EXCEEDED' as const,
                         details: {
-                            totalSizeMB: totalSizeMB,
+                            totalSizeMB,
                             maxTotalSizeMB: config.maxTotalSizeMB,
                             filesProcessed: filesToProcess.length,
                             suggestion: 'Use --include patterns to filter files or increase maxTotalSizeMB limit'
@@ -511,7 +504,7 @@ export async function processFusion(
                     };
 
                     checkCancellation();
-                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config, options.cancellationToken) || fileInfo;
+                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config, options.cancellationToken) ?? fileInfo;
                     
                     if (fileInfo) {
                         filesToProcess.push(fileInfo);
@@ -555,9 +548,7 @@ export async function processFusion(
             const filesByExtension: Record<string, string[]> = {};
             for (const file of finalFilesToProcess) {
                 const ext = path.extname(file.path).toLowerCase() || 'no extension';
-                if (!filesByExtension[ext]) {
-                    filesByExtension[ext] = [];
-                }
+                filesByExtension[ext] ??= [];
                 filesByExtension[ext].push(file.relativePath);
             }
             
@@ -683,15 +674,12 @@ export async function processFusion(
         
         // File type statistics
         const fileTypeStats: Record<string, { count: number; sizeKB: number }> = {};
-        let binaryFilesCount = 0;
         
         for (const fileInfo of finalFilesToProcess) {
             const ext = path.extname(fileInfo.path).toLowerCase();
             const displayExt = ext || 'no extension';
             
-            if (!fileTypeStats[displayExt]) {
-                fileTypeStats[displayExt] = { count: 0, sizeKB: 0 };
-            }
+            fileTypeStats[displayExt] ??= { count: 0, sizeKB: 0 };
             fileTypeStats[displayExt].count++;
             fileTypeStats[displayExt].sizeKB += fileInfo.size / 1024;
         }
@@ -726,7 +714,7 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `\n--- PERFORMANCE METRICS ---`, true);
         await writeLogWithFs(logFilePath, `Duration breakdown:`, true);
         await writeLogWithFs(logFilePath, `  Total execution: ${duration}s`, true);
-        await writeLogWithFs(logFilePath, `  File discovery: ${((Date.now() - startTime.getTime()) / 1000 / parseFloat(duration) * 100).toFixed(1)}% of total`, true);
+        await writeLogWithFs(logFilePath, `  File discovery: ${((Date.now() - startTime.getTime()) / 1000 / Number.parseFloat(duration) * 100).toFixed(1)}% of total`, true);
         
         await writeLogWithFs(logFilePath, `Memory usage:`, true);
         await writeLogWithFs(logFilePath, `  Peak memory: ${metrics.memoryUsed.toFixed(2)} MB`, true);
@@ -747,7 +735,7 @@ export async function processFusion(
         const result = {
             success: true as const,
             message: `${message} Generated formats: ${generatedFormats.join(', ')}.`,
-            fusionFilePath: generatedPaths[0] || logFilePath,
+            fusionFilePath: generatedPaths[0] ?? logFilePath,
             logFilePath,
             filesProcessed: filesToProcess.length
         };

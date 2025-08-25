@@ -3,11 +3,10 @@
 /**
  * Property-based tests for Project Fusion using fast-check
  */
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
+import { describe, it, expect } from 'vitest';
+import { isValidExtensionGroup, type Config } from '../src/types.js';
 import { getExtensionsFromGroups, defaultConfig } from '../src/utils.js';
-import { isValidExtensionGroup } from '../src/types.js';
-import type { Config } from '../src/types.js';
 
 describe('Property-Based Tests', () => {
     describe('Extension Filtering', () => {
@@ -128,7 +127,7 @@ describe('Property-Based Tests', () => {
                     const extensions = getExtensionsFromGroups(config, [group]);
                     
                     // Extensions should come from the specified group in config
-                    const expectedExtensions = config.parsedFileExtensions[group] || [];
+                    const expectedExtensions = config.parsedFileExtensions[group] ?? [];
                     expect(extensions).toEqual([...expectedExtensions]);
                 }
             ));
@@ -175,7 +174,7 @@ describe('Property-Based Tests', () => {
             generateText: fc.boolean(),
             generateMarkdown: fc.boolean(),
             generateHtml: fc.boolean(),
-            maxFileSizeKB: fc.integer({ min: 1, max: 10000 }),
+            maxFileSizeKB: fc.integer({ min: 1, max: 10_000 }),
             parseSubDirectories: fc.boolean(),
             copyToClipboard: fc.boolean(),
             useGitIgnoreForExcludes: fc.boolean(),
@@ -193,11 +192,11 @@ describe('Property-Based Tests', () => {
                     const merged = { ...defaultConfig, ...partialConfig };
                     
                     // User-provided values should be preserved
-                    Object.keys(partialConfig).forEach(key => {
+                    for (const key of Object.keys(partialConfig)) {
                         expect(merged[key as keyof typeof merged]).toEqual(
                             partialConfig[key as keyof typeof partialConfig]
                         );
-                    });
+                    }
                     
                     // Required fields should always be present
                     expect(merged).toHaveProperty('schemaVersion');

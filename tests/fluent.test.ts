@@ -3,10 +3,10 @@
 /**
  * Tests for Fluent API
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFile, mkdir, rm } from 'fs-extra';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { projectFusion, ProjectFusionBuilder } from '../src/fluent.js';
 import { defaultConfig } from '../src/utils.js';
 

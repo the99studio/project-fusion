@@ -32,18 +32,18 @@ function initializeVersion(): string {
         const packagePath = path.resolve(__dirname, '..', 'package.json');
         
         const packageContent = readFileSync(packagePath, 'utf-8');
-        const packageJson = JSON.parse(packageContent);
+        const packageJson = JSON.parse(packageContent) as { version?: unknown };
         
         if (!packageJson.version || typeof packageJson.version !== 'string') {
             throw new Error('Invalid version field in package.json');
         }
         
         cachedVersion = packageJson.version;
-        return cachedVersion as string;
-    } catch (error) {
+        return cachedVersion;
+    } catch {
         // Fallback version
         cachedVersion = '1.0.0-unknown';
-        return cachedVersion as string;
+        return cachedVersion;
     }
 }
 
@@ -61,7 +61,7 @@ export async function getVersion(): Promise<string> {
         const pkg = await import('../package.json', { with: { type: 'json' } });
         cachedVersion = pkg.default.version;
         return cachedVersion;
-    } catch (importError) {
+    } catch {
         // Use the synchronous fallback
         return initializeVersion();
     }

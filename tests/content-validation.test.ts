@@ -4,11 +4,11 @@
  * Content validation tests for Project Fusion
  */
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { validateFileContent, isMinifiedContent, type ContentValidationResult } from '../src/utils.js';
-import { processFusion } from '../src/fusion.js';
 import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
-import { defaultConfig } from '../src/utils.js';
+import { processFusion } from '../src/fusion.js';
 import { createFilePath, type Config } from '../src/types.js';
+import { validateFileContent, isMinifiedContent, type ContentValidationResult } from '../src/utils.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {
@@ -20,7 +20,7 @@ describe('Content Validation Tests', () => {
 
         it('should reject large base64 blocks', () => {
             // Create a base64 string larger than 2KB
-            const largeBase64 = 'A'.repeat(3000) + '='; // ~3KB when decoded
+            const largeBase64 = `${'A'.repeat(3000)  }=`; // ~3KB when decoded
             const content = `const data = "${largeBase64}";`;
             
             const result = validateFileContent(content, 'test.js', validationConfig);
@@ -143,7 +143,7 @@ describe('Content Validation Tests', () => {
         });
 
         it('should detect content with high average line length as minified', () => {
-            const longContent = Array(20).fill('a'.repeat(800)).join('\n');
+            const longContent = new Array(20).fill('a'.repeat(800)).join('\n');
             expect(isMinifiedContent(longContent, 'script.js')).toBe(true);
         });
 
@@ -194,7 +194,7 @@ describe('Content Validation Tests', () => {
         it('should handle minified content appropriately', async () => {
             const memFS = new MemoryFileSystemAdapter();
             
-            const minifiedContent = 'var a=' + 'x'.repeat(1600); // Long line
+            const minifiedContent = `var a=${  'x'.repeat(1600)}`; // Long line
             memFS.addFile('minified.js', minifiedContent);
             memFS.addFile('normal.js', 'console.log("hello");');
             

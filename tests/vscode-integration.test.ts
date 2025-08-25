@@ -4,8 +4,8 @@
  * Integration tests that simulate VS Code extension usage
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions, type ProgrammaticFusionResult } from '../src/index.js';
 import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
+import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions, type ProgrammaticFusionResult } from '../src/index.js';
 
 // Mock VS Code-like progress reporting
 interface VSCodeProgress {
@@ -214,7 +214,7 @@ dist/
                 // Simulate user clicking cancel button after scanning
                 if (progress.step === 'processing') {
                     shouldCancel = true;
-                    cancellationListeners.forEach(listener => listener());
+                    for (const listener of cancellationListeners) listener();
                 }
             });
             

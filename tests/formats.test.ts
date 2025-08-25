@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import path from 'node:path';
 import fs from 'fs-extra';
-import path from 'path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import pkg from '../package.json' with { type: 'json' };
 import { processFusion } from '../src/fusion.js';
 import { Config } from '../src/types.js';
-import pkg from '../package.json' with { type: 'json' };
 
 // Test configuration for multiple output formats
 const testConfig: Config = {
@@ -20,7 +20,7 @@ const testConfig: Config = {
   parseSubDirectories: false,
   rootDirectory: '.',
   maxFileSizeKB: 1024,
-  maxFiles: 10000,
+  maxFiles: 10_000,
   maxTotalSizeMB: 100,
   ignorePatterns: [],
   useGitIgnoreForExcludes: false,

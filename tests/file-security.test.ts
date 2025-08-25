@@ -3,14 +3,13 @@
 /**
  * File security tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, symlink, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { validateSecurePath, validateNoSymlinks, isBinaryFile } from '../src/utils.js';
+import { writeFile, mkdir, rm, symlink, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
-import { defaultConfig } from '../src/utils.js';
 import { FusionError } from '../src/types.js';
+import { validateSecurePath, validateNoSymlinks, isBinaryFile , defaultConfig } from '../src/utils.js';
 
 describe('File Security Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'file-security-test');
@@ -355,9 +354,9 @@ describe('File Security Tests', () => {
             
             // Verify all symlink attempts were logged as errors
             const logContent = await readFile(result.logFilePath!, 'utf8');
-            traversalAttempts.forEach(filename => {
+            for (const filename of traversalAttempts) {
                 expect(logContent).toContain(filename);
-            });
+            }
         });
     });
 });

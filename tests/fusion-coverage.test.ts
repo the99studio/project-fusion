@@ -3,10 +3,10 @@
 /**
  * Additional tests to achieve 100% coverage for fusion.ts
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFile, mkdir, rm, chmod, symlink } from 'fs-extra';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -121,7 +121,7 @@ describe('Fusion Coverage Tests', () => {
                 
                 // Restore permissions for cleanup
                 await chmod('restricted.js', 0o644);
-            } catch (error) {
+            } catch {
                 // If chmod fails on this system, skip the test
                 console.warn('Skipping permission test - chmod not supported properly');
             }
@@ -141,7 +141,7 @@ describe('Fusion Coverage Tests', () => {
                 const result = await processFusion(defaultConfig);
                 
                 expect(result.success).toBe(true);
-            } catch (error) {
+            } catch {
                 // If symlink creation fails (permissions), skip the test
                 console.warn('Skipping symlink test due to permissions');
             }
@@ -149,7 +149,7 @@ describe('Fusion Coverage Tests', () => {
 
         it('should handle gitignore parsing errors', async () => {
             // Create malformed .gitignore
-            await writeFile('.gitignore', '\x00invalid\x00content\x00');
+            await writeFile('.gitignore', '\u0000invalid\u0000content\u0000');
             await writeFile('test.js', 'console.log("test");');
 
             const result = await processFusion(defaultConfig);
@@ -233,7 +233,7 @@ Some **bold** and *italic* text.
         });
 
         it('should handle very long file names', async () => {
-            const longName = 'a'.repeat(200) + '.js';
+            const longName = `${'a'.repeat(200)  }.js`;
             await writeFile(longName, 'console.log("long name");');
 
             const result = await processFusion(defaultConfig);

@@ -4,11 +4,11 @@
  * Comprehensive End-to-End CLI Binary Tests
  * Tests the actual CLI executable with real process spawning, exit codes, and file generation
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync, spawn } from 'node:child_process';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, readFile, access, chmod } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, readFile, access, chmod } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('CLI Binary E2E Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'cli-binary-e2e-test');

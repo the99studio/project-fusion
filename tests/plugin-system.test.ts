@@ -1,8 +1,9 @@
 /**
  * Tests for Plugin System
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { join } from 'node:path';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { 
     PluginManager, 
     BasePlugin, 
@@ -11,7 +12,6 @@ import {
     type PluginMetadata,
     type OutputStrategy
 } from '../src/plugins/plugin-system.js';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { createFilePath, type Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 

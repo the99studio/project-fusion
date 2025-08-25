@@ -3,11 +3,11 @@
 /**
  * Advanced path traversal tests for the new path.relative validation
  */
-import { describe, it, expect } from 'vitest';
-import { validateSecurePath } from '../src/utils.js';
-import { FusionError } from '../src/types.js';
-import path from 'node:path';
 import os from 'node:os';
+import path from 'node:path';
+import { describe, it, expect } from 'vitest';
+import { FusionError } from '../src/types.js';
+import { validateSecurePath } from '../src/utils.js';
 
 describe('Path Traversal Edge Cases', () => {
     describe('Windows Path Prefix Collision', () => {
@@ -61,9 +61,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/Users/test/../Test/secrets.txt' // Case variation in escape
             ];
 
-            variations.forEach(maliciousPath => {
+            for (const maliciousPath of variations) {
                 expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-            });
+            }
         });
     });
 
@@ -73,13 +73,13 @@ describe('Path Traversal Edge Cases', () => {
             
             // Unicode characters that could normalize to path separators
             const unicodePaths = [
-                '/safe/directory\u002e\u002e/evil.txt', // Unicode dots
-                '/safe/directory\uff0e\uff0e/evil.txt', // Fullwidth dots
+                '/safe/directory\u002E\u002E/evil.txt', // Unicode dots
+                '/safe/directory\uFF0E\uFF0E/evil.txt', // Fullwidth dots
                 '/safe/directory\u2024\u2024/evil.txt', // One dot leader
                 '/safe/directory\u2025\u2025/evil.txt', // Two dot leader
             ];
 
-            unicodePaths.forEach(maliciousPath => {
+            for (const maliciousPath of unicodePaths) {
                 try {
                     validateSecurePath(maliciousPath, root);
                     // If it doesn't throw, verify it's actually safe
@@ -89,7 +89,7 @@ describe('Path Traversal Edge Cases', () => {
                     expect(error).toBeInstanceOf(FusionError);
                     expect((error as FusionError).code).toBe('PATH_TRAVERSAL');
                 }
-            });
+            }
         });
 
         it('should handle mixed normalization forms', () => {
@@ -103,9 +103,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/evil/directory/file.txt' // Different root entirely
             ];
 
-            normalizedPaths.forEach(maliciousPath => {
+            for (const maliciousPath of normalizedPaths) {
                 expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-            });
+            }
             
             // Verify that Unicode directory names within safe bounds are allowed
             const safePaths = [
@@ -113,9 +113,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/safe/directory/\u00E9/file.txt' // é as single character
             ];
             
-            safePaths.forEach(safePath => {
+            for (const safePath of safePaths) {
                 expect(() => validateSecurePath(safePath, root)).not.toThrow();
-            });
+            }
         });
     });
 
@@ -131,9 +131,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/safe/directory/.///../evil.txt'
             ];
 
-            tricky.forEach(maliciousPath => {
+            for (const maliciousPath of tricky) {
                 expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-            });
+            }
         });
 
         it('should handle long path segments', () => {
@@ -146,7 +146,7 @@ describe('Path Traversal Edge Cases', () => {
                 `/${longSegment}/../safe/directory/evil.txt`
             ];
 
-            longPaths.forEach(maliciousPath => {
+            for (const maliciousPath of longPaths) {
                 try {
                     validateSecurePath(maliciousPath, root);
                     // If it passes, make sure it's actually safe
@@ -155,7 +155,7 @@ describe('Path Traversal Edge Cases', () => {
                 } catch (error) {
                     expect(error).toBeInstanceOf(FusionError);
                 }
-            });
+            }
         });
     });
 
@@ -169,9 +169,9 @@ describe('Path Traversal Edge Cases', () => {
                     '\\\\?\\UNC\\server\\share\\evil.txt'
                 ];
 
-                uncPaths.forEach(maliciousPath => {
+                for (const maliciousPath of uncPaths) {
                     expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-                });
+                }
             }
         });
 
@@ -183,7 +183,7 @@ describe('Path Traversal Edge Cases', () => {
                 '\\safe\\directory\\..\\evil.txt'
             ];
 
-            mixedPaths.forEach(maliciousPath => {
+            for (const maliciousPath of mixedPaths) {
                 try {
                     validateSecurePath(maliciousPath, root);
                     // If it doesn't throw, verify safety
@@ -192,7 +192,7 @@ describe('Path Traversal Edge Cases', () => {
                 } catch (error) {
                     expect(error).toBeInstanceOf(FusionError);
                 }
-            });
+            }
         });
     });
 
@@ -216,14 +216,14 @@ describe('Path Traversal Edge Cases', () => {
                 }
             ];
 
-            testCases.forEach(({ root, malicious, description }) => {
+            for (const { root, malicious, description } of testCases) {
                 // The new method should catch these
                 expect(() => validateSecurePath(malicious, root)).toThrow(FusionError);
                 
                 // Verify with direct path.relative check
                 const rel = path.relative(root, path.resolve(malicious));
                 expect(rel.startsWith('..') || path.isAbsolute(rel)).toBe(true);
-            });
+            }
         });
 
         it('should still allow legitimate paths', () => {
@@ -235,7 +235,7 @@ describe('Path Traversal Edge Cases', () => {
                 '/safe/directory/.hidden/file.txt'
             ];
 
-            legitimatePaths.forEach(safePath => {
+            for (const safePath of legitimatePaths) {
                 expect(() => validateSecurePath(safePath, root)).not.toThrow();
                 
                 const result = validateSecurePath(safePath, root);
@@ -245,7 +245,7 @@ describe('Path Traversal Edge Cases', () => {
                 const rel = path.relative(root, result);
                 expect(rel.startsWith('..')).toBe(false);
                 expect(path.isAbsolute(rel)).toBe(false);
-            });
+            }
         });
     });
 

@@ -5,7 +5,6 @@
  * Allows external packages to use fusion functionality without config files
  */
 import path from 'node:path';
-
 import { processFusion } from './fusion.js';
 import type { Config, FilePath, FusionOptions, FusionResult } from './types.js';
 import { defaultConfig } from './utils.js';

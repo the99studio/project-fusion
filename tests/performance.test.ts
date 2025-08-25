@@ -4,20 +4,20 @@
  * Performance tests for Project Fusion - Optimized version
  * Tests essential performance scenarios with minimal overhead
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, stat } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { BenchmarkTracker } from '../src/benchmark.js';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
-import { BenchmarkTracker } from '../src/benchmark.js';
 
 // Performance tests config
 const performanceConfig = {
     ...defaultConfig,
     maxBase64BlockKB: 100,
-    maxLineLength: 50000,
-    maxTokenLength: 20000
+    maxLineLength: 50_000,
+    maxTokenLength: 20_000
 };
 
 /**
@@ -95,7 +95,7 @@ describe('Performance Tests - Optimized', () => {
             const processingTime = Date.now() - startTime;
 
             expect(result.success).toBe(true);
-            expect(processingTime).toBeLessThan(10000); // Should finish in < 10s
+            expect(processingTime).toBeLessThan(10_000); // Should finish in < 10s
         });
 
         it('should track memory usage during processing', async () => {
@@ -200,7 +200,7 @@ describe('Performance Tests - Optimized', () => {
             const config = {
                 ...performanceConfig,
                 rootDirectory: testDir,
-                maxFiles: maxFiles,
+                maxFiles,
                 generateHtml: false,
                 generateMarkdown: false,
                 generateText: true,

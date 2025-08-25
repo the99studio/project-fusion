@@ -4,12 +4,12 @@
  * Tests for programmatic API
  */
 import { existsSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createConfig, fusionAPI, runFusion } from '../src/api.js';
-import { defaultConfig } from '../src/utils.js';
 import type { Config } from '../src/types.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('API Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'test-api');

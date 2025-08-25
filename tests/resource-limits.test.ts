@@ -3,13 +3,12 @@
 /**
  * Resource limits tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
-import { defaultConfig } from '../src/utils.js';
-import { getMemoryUsage, checkMemoryUsage, logMemoryUsageIfNeeded } from '../src/utils.js';
+import { defaultConfig , getMemoryUsage, checkMemoryUsage, logMemoryUsageIfNeeded } from '../src/utils.js';
 
 describe('Resource Limits Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'resource-limits-test');
@@ -179,7 +178,7 @@ describe('Resource Limits Tests', () => {
 
     describe('Default Values', () => {
         it('should have sensible default limits', () => {
-            expect(defaultConfig.maxFiles).toBe(10000);
+            expect(defaultConfig.maxFiles).toBe(10_000);
             expect(defaultConfig.maxTotalSizeMB).toBe(100);
         });
 
@@ -307,7 +306,7 @@ describe('Memory Monitoring', () => {
             // Log file should exist and contain memory info
             expect(existsSync(logFile)).toBe(true);
             
-            const logContent = await import('fs').then(fs => 
+            const logContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(logFile, 'utf8')
             );
             expect(logContent).toContain('Test:');

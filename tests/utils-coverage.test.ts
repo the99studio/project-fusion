@@ -3,10 +3,11 @@
 /**
  * Additional tests to achieve 100% coverage for utils.ts
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFile, mkdir, rm, chmod, readFile } from 'fs-extra';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { FusionError } from '../src/types.js';
 import {
     loadConfig,
     writeLog,
@@ -15,7 +16,6 @@ import {
     isBinaryFile,
     getMarkdownLanguage
 } from '../src/utils.js';
-import { FusionError } from '../src/types.js';
 
 describe('Utils Coverage Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'utils-coverage-test');
@@ -83,7 +83,7 @@ describe('Utils Coverage Tests', () => {
 
         it('should handle invalid paths', () => {
             expect(() => {
-                validateSecurePath('\x00invalid', '/safe/directory');
+                validateSecurePath('\u0000invalid', '/safe/directory');
             }).toThrow(FusionError);
         });
 

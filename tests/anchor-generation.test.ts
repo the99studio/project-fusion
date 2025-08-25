@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import GithubSlugger from 'github-slugger';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { MarkdownOutputStrategy, HtmlOutputStrategy } from '../src/strategies/output-strategy.js';
 import type { OutputContext, FileInfo } from '../src/strategies/output-strategy.js';
-import { defaultConfig } from '../src/utils.js';
 import { createFilePath } from '../src/types.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('Anchor Generation with github-slugger', () => {
     describe('github-slugger behavior', () => {

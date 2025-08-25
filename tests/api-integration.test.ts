@@ -78,7 +78,7 @@ describe('API Integration for VS Code', () => {
             
             // Simulate cancellation
             cancelled = true;
-            listeners.forEach(listener => listener());
+            for (const listener of listeners) listener();
             
             expect(cancellationToken.isCancellationRequested).toBe(true);
         });

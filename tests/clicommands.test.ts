@@ -3,10 +3,10 @@
 /**
  * Tests for CLI commands
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFile, mkdir, rm, readFile, pathExists } from 'fs-extra';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { 
     runFusionCommand, 
     runInitCommand, 
@@ -125,7 +125,7 @@ describe('CLI Commands', () => {
                 ignorePatterns: [],
                 allowSymlinks: false,
                 copyToClipboard: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             await writeFile('project-fusion.json', JSON.stringify(config));
@@ -161,7 +161,7 @@ describe('CLI Commands', () => {
                 ignorePatterns: [],
                 allowSymlinks: false,
                 copyToClipboard: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             await writeFile('project-fusion.json', JSON.stringify(config));
@@ -200,7 +200,7 @@ describe('CLI Commands', () => {
                 ignorePatterns: [],
                 allowSymlinks: false,
                 copyToClipboard: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             await writeFile('project-fusion.json', JSON.stringify(config));
@@ -539,7 +539,7 @@ describe('CLI Commands', () => {
                 copyToClipboard: false,
                 ignorePatterns: ["custom-pattern"], // Modified
                 allowSymlinks: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             
@@ -590,7 +590,7 @@ describe('CLI Commands', () => {
                 copyToClipboard: false,
                 ignorePatterns: ["*.custom", "new-pattern"], // Different from defaults
                 allowSymlinks: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             

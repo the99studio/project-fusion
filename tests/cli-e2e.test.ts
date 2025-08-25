@@ -3,11 +3,11 @@
 /**
  * End-to-end CLI tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync } from 'node:child_process';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, readFile, access } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, readFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('CLI E2E Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'cli-e2e-test');

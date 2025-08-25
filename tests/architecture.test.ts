@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import fs from 'fs-extra';
 import path from 'node:path';
+import fs from 'fs-extra';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { 
     DefaultFileSystemAdapter, 
     MemoryFileSystemAdapter,
@@ -119,7 +119,7 @@ describe('Architecture Tests', () => {
                     },
                     afterFileProcessing: async (fileInfo, content) => {
                         afterCalled = true;
-                        return content + '\n// Plugin processed';
+                        return `${content  }\n// Plugin processed`;
                     }
                 }
             );
@@ -162,7 +162,7 @@ describe('Architecture Tests', () => {
                 generateMarkdown: true,
                 generateText: true,
                 maxFileSizeKB: 1024,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100,
                 parseSubDirectories: false,
                 parsedFileExtensions: {
@@ -174,8 +174,8 @@ describe('Architecture Tests', () => {
                 allowSymlinks: false,
                 
                 maxBase64BlockKB: 100,
-                maxLineLength: 50000,
-                maxTokenLength: 20000
+                maxLineLength: 50_000,
+                maxTokenLength: 20_000
             };
 
             const result = await processFusion(config, {

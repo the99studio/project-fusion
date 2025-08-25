@@ -19,14 +19,14 @@ describe('Clipboard Size Guard Tests', () => {
         // Test the formatting logic (matches src/clicommands.ts:205)
         const testCases = [
             { bytes: 5.5 * 1024 * 1024, expectedMB: 5.5, expectedFormatted: '5.5' },
-            { bytes: 5.123456 * 1024 * 1024, expectedMB: 5.123456, expectedFormatted: '5.1' },
+            { bytes: 5.123_456 * 1024 * 1024, expectedMB: 5.123_456, expectedFormatted: '5.1' },
             { bytes: 10 * 1024 * 1024, expectedMB: 10, expectedFormatted: '10.0' }
         ];
 
-        testCases.forEach(({ bytes, expectedMB, expectedFormatted }) => {
+        for (const { bytes, expectedMB, expectedFormatted } of testCases) {
             const calculatedMB = bytes / (1024 * 1024);
             expect(calculatedMB).toBeCloseTo(expectedMB);
             expect(calculatedMB.toFixed(1)).toBe(expectedFormatted);
-        });
+        }
     });
 });

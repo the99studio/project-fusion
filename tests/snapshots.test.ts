@@ -3,10 +3,10 @@
 /**
  * Snapshot tests for verifying MD/HTML format output
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -75,8 +75,8 @@ module.exports = { formatDate, capitalize };`);
             
             // Normalize timestamps for consistent snapshots
             const normalizedMd = mdContent
-                .replace(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replace(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
             
             // Test structure and content
             expect(normalizedMd).toMatchSnapshot('javascript-files.md');
@@ -142,8 +142,8 @@ export class UserService {
             
             // Normalize timestamps for consistent snapshots
             const normalizedMd = mdContent
-                .replace(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replace(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
                 
             expect(normalizedMd).toMatchSnapshot('typescript-files.md');
         });
@@ -221,8 +221,8 @@ echo "Deployment complete!"`);
             
             // Normalize timestamps for consistent snapshots
             const normalizedMd = mdContent
-                .replace(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replace(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
                 
             expect(normalizedMd).toMatchSnapshot('mixed-files.md');
         });
@@ -301,7 +301,7 @@ module.exports = {
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
             
             expect(normalizedHtml).toMatchSnapshot('javascript-files.html');
         });
@@ -424,7 +424,7 @@ body {
             
             // Normalize timestamps
             const normalizedHtml = htmlContent
-                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
             
             expect(normalizedHtml).toMatchSnapshot('html-with-escaping.html');
         });
@@ -465,7 +465,7 @@ body {
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>')
+                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>')
             
             expect(normalizedHtml).toMatchSnapshot('html-with-toc.html');
         });
