@@ -428,7 +428,10 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
         symlinkAuditTracker.set(sessionKey, { count: 0, entries: [] });
     }
     
-    const tracker = symlinkAuditTracker.get(sessionKey)!;
+    const tracker = symlinkAuditTracker.get(sessionKey);
+    if (!tracker) {
+        throw new Error(`Symlink tracker not found for session: ${sessionKey}`);
+    };
     tracker.count++;
     
     try {
@@ -442,8 +445,13 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
         let targetType = 'unknown';
         try {
             const targetStats = await fs.stat(resolvedTarget);
-            targetType = targetStats.isDirectory() ? 'directory' : 
-                        targetStats.isFile() ? 'file' : 'other';
+            if (targetStats.isDirectory()) {
+                targetType = 'directory';
+            } else if (targetStats.isFile()) {
+                targetType = 'file';
+            } else {
+                targetType = 'other';
+            }
         } catch {
             targetExists = false;
         }

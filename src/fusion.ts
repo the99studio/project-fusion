@@ -376,14 +376,15 @@ export async function processFusion(
         reportProgress('processing', 'Processing files...', 0, filePaths.length, undefined, true);
         
         for (let i = 0; i < filePaths.length; i++) {
-            const filePath = filePaths[i]!; // filePaths array is never sparse
+            const filePath = filePaths[i];
+            if (!filePath) continue; // Skip if undefined (shouldn't happen)
             const relativePath = path.relative(rootDir, filePath);
 
             checkCancellation();
             
             // Update bytes processed for accurate throughput
             if (i > 0) {
-                const lastFile = filesToProcess[filesToProcess.length - 1];
+                const lastFile = filesToProcess.at(-1);
                 if (lastFile) {
                     progressState.totalBytesProcessed += lastFile.size;
                     benchmark.markFileProcessed(lastFile.size);

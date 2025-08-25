@@ -585,7 +585,14 @@ describe('Security Fuzzing Tests', () => {
             for (const name of circularNames) {
                 const nextFile = name.replace(/file[A-C]/, (match) => {
                     const current = match.charAt(4);
-                    const next = current === 'A' ? 'B' : current === 'B' ? 'C' : 'A';
+                    let next: string;
+                    if (current === 'A') {
+                        next = 'B';
+                    } else if (current === 'B') {
+                        next = 'C';
+                    } else {
+                        next = 'A';
+                    }
                     return `file${  next}`;
                 });
                 await writeFile(name, `// References ${nextFile}\nrequire('./${nextFile}');`);

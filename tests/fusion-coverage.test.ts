@@ -39,7 +39,7 @@ describe('Fusion Coverage Tests', () => {
 
         it('should handle very large files (size limit)', async () => {
             // Create a file larger than the default limit (1024 KB)
-            const largeContent = 'x'.repeat(1024 * 1024 + 1); // 1MB + 1 byte
+            const largeContent = 'x'.repeat((1024 * 1024) + 1); // 1MB + 1 byte
             await writeFile('large.txt', largeContent);
 
             const config = {

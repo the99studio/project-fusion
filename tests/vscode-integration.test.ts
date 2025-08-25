@@ -257,7 +257,7 @@ dist/
             
             expect(statusUpdates.length).toBeGreaterThan(0);
             expect(statusUpdates[0]).toContain('scanning');
-            expect(statusUpdates[statusUpdates.length - 1]).toContain('100%');
+            expect(statusUpdates.at(-1)).toContain('100%');
         });
     });
 

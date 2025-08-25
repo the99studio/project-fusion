@@ -149,7 +149,10 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
     stat(filePath: FilePath): Promise<FileSystemStats> {
         // Try exact match first
         if (this.files.has(filePath)) {
-            const content = this.files.get(filePath)!;
+            const content = this.files.get(filePath);
+            if (!content) {
+                throw new Error(`File content not found: ${filePath}`);
+            }
             return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
@@ -161,7 +164,10 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         // Try resolved absolute path
         const resolved = path.resolve(filePath);
         if (this.files.has(resolved)) {
-            const content = this.files.get(resolved)!;
+            const content = this.files.get(resolved);
+            if (!content) {
+                throw new Error(`File content not found: ${resolved}`);
+            }
             return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
@@ -173,7 +179,10 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         // Try basename match for MemoryFS compatibility
         const basename = path.basename(filePath);
         if (this.files.has(basename)) {
-            const content = this.files.get(basename)!;
+            const content = this.files.get(basename);
+            if (!content) {
+                throw new Error(`File content not found: ${basename}`);
+            }
             return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
