@@ -532,8 +532,8 @@ function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLi
     
     if (!isDefault) {
         // Show summary of modifications
-        const added = config.ignorePatterns.filter(p => !defaultPatterns.has(p as string));
-        const removed = defaultConfig.ignorePatterns.filter(p => !config.ignorePatterns.includes(p as string));
+        const added = config.ignorePatterns.filter(p => !defaultPatterns.has(p));
+        const removed = defaultConfig.ignorePatterns.filter(p => !config.ignorePatterns.includes(p));
         
         if (added.length > 0 || removed.length > 0) {
             addLine('   ');

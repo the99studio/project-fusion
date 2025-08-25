@@ -110,11 +110,11 @@ describe('Architecture Tests', () => {
                     description: 'Test plugin'
                 },
                 {
-                    beforeFileProcessing: async (fileInfo) => {
+                    beforeFileProcessing: (fileInfo) => {
                         beforeCalled = true;
                         return fileInfo;
                     },
-                    afterFileProcessing: async (fileInfo, content) => {
+                    afterFileProcessing: (fileInfo, content) => {
                         afterCalled = true;
                         return `${content  }\n// Plugin processed`;
                     }

@@ -7,11 +7,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { BenchmarkTracker } from '../src/benchmark.js';
 
 describe('BenchmarkTracker', () => {
-    let originalMemoryUsage: NodeJS.MemoryUsage;
     
     beforeEach(() => {
         // Mock process.memoryUsage
-        originalMemoryUsage = process.memoryUsage();
         vi.spyOn(process, 'memoryUsage').mockReturnValue({
             rss: 100 * 1024 * 1024, // 100MB
             heapTotal: 80 * 1024 * 1024,

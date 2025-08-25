@@ -20,8 +20,6 @@ describe('Path Traversal Edge Cases', () => {
                 const maliciousPath = 'C:\\foobar\\evil.txt';
                 
                 // Mock path.resolve to simulate Windows behavior
-                const originalResolve = path.resolve;
-                const originalRelative = path.relative;
                 
                 // Test with actual path.relative (the fix)
                 try {
@@ -216,7 +214,7 @@ describe('Path Traversal Edge Cases', () => {
                 }
             ];
 
-            for (const { root, malicious, description } of testCases) {
+            for (const { root, malicious } of testCases) {
                 // The new method should catch these
                 expect(() => validateSecurePath(malicious, root)).toThrow(FusionError);
                 

@@ -7,8 +7,7 @@ import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { processFusion } from '../src/fusion.js';
 import { createFilePath, type Config } from '../src/types.js';
-import { validateFileContent, isMinifiedContent, type ContentValidationResult } from '../src/utils.js';
-import { defaultConfig } from '../src/utils.js';
+import { validateFileContent, isMinifiedContent, defaultConfig, type ContentValidationResult } from '../src/utils.js';
 
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {

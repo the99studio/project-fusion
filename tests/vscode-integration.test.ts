@@ -125,11 +125,10 @@ dist/
     describe('VS Code Command: Generate Fusion', () => {
         it('should simulate VS Code extension command execution', async () => {
             // Mock VS Code progress API
-            let progressValue = 0;
             const vscodeProgress: VSCodeProgress = {
                 report: vi.fn((value) => {
-                    if (value.increment) {
-                        progressValue += value.increment;
+                    if ((value as { increment?: number }).increment) {
+                        // Increment tracking removed
                     }
                 })
             };

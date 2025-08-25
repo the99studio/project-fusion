@@ -5,7 +5,7 @@
  * Tests essential performance scenarios with minimal overhead
  */
 import { existsSync } from 'node:fs';
-import { writeFile, mkdir, rm, stat } from 'node:fs/promises';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { BenchmarkTracker } from '../src/benchmark.js';

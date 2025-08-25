@@ -5,7 +5,7 @@
  */
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { writeFile, mkdir, rm, readFile, access } from 'node:fs/promises';
+import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 

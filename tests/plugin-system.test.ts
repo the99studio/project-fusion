@@ -1,14 +1,12 @@
 /**
  * Tests for Plugin System
  */
-import { join } from 'node:path';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { 
     PluginManager, 
     BasePlugin, 
     createPlugin,
-    type Plugin,
     type PluginMetadata,
     type OutputStrategy
 } from '../src/plugins/plugin-system.js';
@@ -161,7 +159,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Failing plugin'
                 }, {
-                    initialize: async () => { throw new Error('Init failed'); }
+                    initialize: () => { throw new Error('Init failed'); }
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -178,7 +176,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Failing plugin'
                 }, {
-                    cleanup: async () => { throw new Error('Cleanup failed'); }
+                    cleanup: () => { throw new Error('Cleanup failed'); }
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -227,7 +225,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Filter plugin'
                 }, {
-                    beforeFileProcessing: async () => null
+                    beforeFileProcessing: () => null
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -318,7 +316,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Failing plugin'
                 }, {
-                    beforeFileProcessing: async () => { throw new Error('Hook failed'); }
+                    beforeFileProcessing: () => { throw new Error('Hook failed'); }
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -352,7 +350,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Strategy plugin'
                 }, {
-                    registerOutputStrategies: () => [strategy]
+                    registerOutputStrategies: () => [strategy] as OutputStrategy[]
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -458,8 +456,8 @@ describe('Plugin System', () => {
 
             const plugin = new TestPlugin();
             
-            if (plugin.initialize) await plugin.initialize(config);
-            if (plugin.cleanup) await plugin.cleanup();
+            if (plugin.initialize) plugin.initialize(config);
+            if (plugin.cleanup) plugin.cleanup();
 
             expect(plugin.initCalled).toBe(true);
             expect(plugin.cleanupCalled).toBe(true);

@@ -3,14 +3,13 @@
 /**
  * Tests for plugin security validation
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DefaultFileSystemAdapter } from '../src/adapters/file-system.js';
 import { PluginManager } from '../src/plugins/plugin-system.js';
-import { FusionError } from '../src/types.js';
-import type { Config } from '../src/types.js';
+import { FusionError, type Config } from '../src/types.js';
 
 describe('Plugin Security Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'test-plugin-security');
