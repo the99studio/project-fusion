@@ -71,7 +71,6 @@ export default [
       '@typescript-eslint/prefer-reduce-type-parameter': 'error',
       '@typescript-eslint/prefer-return-this-type': 'error',
       '@typescript-eslint/promise-function-async': 'off', // Not all promise-returning functions need async
-      '@typescript-eslint/no-unnecessary-condition': 'off', // Too many false positives
       '@typescript-eslint/no-unnecessary-type-arguments': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       '@typescript-eslint/no-redundant-type-constituents': 'error',
