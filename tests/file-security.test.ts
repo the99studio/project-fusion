@@ -154,11 +154,9 @@ describe('File Security Tests', () => {
             // Create content with >30% non-printable characters
             const content = Buffer.alloc(100);
             for (let i = 0; i < 100; i++) {
-                if (i < 40) {
-                    content[i] = Math.floor(Math.random() * 32); // Non-printable
-                } else {
-                    content[i] = 65 + (i % 26); // Printable letters
-                }
+                content[i] = i < 40 ? 
+                    Math.floor(Math.random() * 32) : // Non-printable
+                    65 + (i % 26); // Printable letters
             }
             await writeFile(nonPrintableFile, content);
             

@@ -33,7 +33,7 @@ describe('Strict Content Validation (In-Memory)', () => {
             const result = await processFusion(config, { fs: memFS });
             
             expect(result.success).toBe(true);
-            expect(result.filesProcessed).toBe(2); // Both files processed
+            expect((result as { filesProcessed: number }).filesProcessed).toBe(2); // Both files processed
             
             // Read the generated content from the correct path
             const output = await memFS.readFile(createFilePath('project-fusioned.txt'));
@@ -68,7 +68,7 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             expect(result.success).toBe(true);
             expect(result.filesProcessed).toBe(2);
@@ -104,7 +104,7 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             expect(result.success).toBe(true);
             expect(result.filesProcessed).toBe(2);
@@ -140,7 +140,7 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             const output = await memFS.readFile(createFilePath('project-fusioned.txt'));
             
@@ -168,7 +168,7 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             const output = await memFS.readFile(createFilePath('project-fusioned.md'));
             
@@ -194,7 +194,7 @@ describe('Strict Content Validation (In-Memory)', () => {
                 }
             };
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             const output = await memFS.readFile(createFilePath('project-fusioned.html'));
             

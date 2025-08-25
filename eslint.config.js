@@ -7,6 +7,16 @@ import unicorn from 'eslint-plugin-unicorn';
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
+  // Test file specific rules
+  {
+    files: ['tests/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off'
+    }
+  },
   {
     files: ['src/**/*.ts', 'tests/**/*.ts'],
     languageOptions: {

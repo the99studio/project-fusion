@@ -48,7 +48,7 @@ describe('version fallback mechanism', () => {
         expect(syncVersion === '1.0.0-unknown' || syncVersion.match(/^\d+\.\d+\.\d+/)).toBeTruthy();
     });
 
-    it('should handle module import failure gracefully', async () => {
+    it('should handle module import failure gracefully', () => {
         // Create a version of getVersion that will fail on import
         const mockGetVersion = () => {
             try {

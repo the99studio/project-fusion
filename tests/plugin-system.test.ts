@@ -350,7 +350,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Strategy plugin'
                 }, {
-                    registerOutputStrategies: () => [strategy] as OutputStrategy[]
+                    registerOutputStrategies(): OutputStrategy[] { return [strategy]; }
                 });
 
                 pluginManager.registerPlugin(plugin);

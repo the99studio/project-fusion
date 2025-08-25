@@ -116,8 +116,8 @@ describe('Resource Limits Tests', () => {
             expect(result.success).toBe(false);
             expect(result.code).toBe('SIZE_LIMIT_EXCEEDED');
             expect(result.error).toContain('Total size limit exceeded');
-            expect(result.details?.maxTotalSizeMB).toBe(maxTotalSizeMB);
-            expect(result.details?.suggestion).toContain('Use --include patterns to filter files');
+            expect((result as { details?: { maxTotalSizeMB: number; suggestion: string } }).details?.maxTotalSizeMB).toBe(maxTotalSizeMB);
+            expect((result as { details?: { maxTotalSizeMB: number; suggestion: string } }).details?.suggestion).toContain('Use --include patterns to filter files');
         });
 
         it('should pass when total size is within limit', async () => {
@@ -197,8 +197,8 @@ describe('Resource Limits Tests', () => {
             };
 
             // Remove the limit properties to test defaults
-            delete (configWithoutLimits as any).maxFiles;
-            delete (configWithoutLimits as any).maxTotalSizeMB;
+            delete (configWithoutLimits as { maxFiles?: number }).maxFiles;
+            delete (configWithoutLimits as { maxTotalSizeMB?: number }).maxTotalSizeMB;
 
             const result = await processFusion(configWithoutLimits);
             

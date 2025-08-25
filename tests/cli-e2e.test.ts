@@ -127,7 +127,11 @@ describe('CLI E2E Tests', () => {
             expect(existsSync('project-fusion.json')).toBe(true);
             
             // Validate config content
-            const config = JSON.parse(await readFile('project-fusion.json', 'utf8'));
+            const config = JSON.parse(await readFile('project-fusion.json', 'utf8')) as {
+                schemaVersion: number;
+                generatedFileName: string;
+                parsedFileExtensions: { web?: string[]; backend?: string[] };
+            };
             expect(config).toHaveProperty('schemaVersion', 1);
             expect(config).toHaveProperty('generatedFileName', 'project-fusioned');
             expect(config).toHaveProperty('parsedFileExtensions');
@@ -146,10 +150,11 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
-                expect(error.stdout).toContain('already exists');
-                expect(error.stdout).toContain('Use --force to override');
+            } catch (error) {
+                const execError = error as { status: number; stdout: string };
+                expect(execError.status).toBe(1);
+                expect(execError.stdout).toContain('already exists');
+                expect(execError.stdout).toContain('Use --force to override');
             }
             
             // Config should be unchanged
@@ -171,7 +176,10 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Overriding existing configuration');
             
             // Config should be replaced with default
-            const config = JSON.parse(await readFile('project-fusion.json', 'utf8'));
+            const config = JSON.parse(await readFile('project-fusion.json', 'utf8')) as {
+                custom?: unknown;
+                schemaVersion: number;
+            };
             expect(config).not.toHaveProperty('custom');
             expect(config).toHaveProperty('schemaVersion', 1);
         });
@@ -229,11 +237,12 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
-                expect(error.stdout).toContain('❌ Configuration validation failed:');
-                expect(error.stdout).toContain('schemaVersion');
-                expect(error.stdout).toContain('expected 1');
+            } catch (error) {
+                const execError = error as { status: number; stdout: string };
+                expect(execError.status).toBe(1);
+                expect(execError.stdout).toContain('❌ Configuration validation failed:');
+                expect(execError.stdout).toContain('schemaVersion');
+                expect(execError.stdout).toContain('expected 1');
             }
         });
 
@@ -259,9 +268,10 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
-                expect(error.stdout).toContain('❌ Invalid JSON in configuration file:');
+            } catch (error) {
+                const execError = error as { status: number; stdout: string };
+                expect(execError.status).toBe(1);
+                expect(execError.stdout).toContain('❌ Invalid JSON in configuration file:');
             }
         });
     });
@@ -321,14 +331,15 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
+            } catch (error) {
+                const execError = error as { status: number };
+                expect(execError.status).toBe(1);
                 // Commander.js should show help after error
-                expect(error.stdout || error.stderr).toContain('Usage:');
+                expect((execError as { stdout?: string; stderr?: string }).stdout ?? (execError as { stdout?: string; stderr?: string }).stderr).toContain('Usage:');
             }
         });
 
-        it('should show help information', async () => {
+        it('should show help information', () => {
             const output = execSync(`node "${cliBin}" --help`, { 
                 encoding: 'utf8',
                 env: { ...process.env, CI: 'true' }
@@ -341,7 +352,7 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Options:');
         });
 
-        it('should show version information', async () => {
+        it('should show version information', () => {
             const output = execSync(`node "${cliBin}" --version`, { 
                 encoding: 'utf8',
                 env: { ...process.env, CI: 'true' }

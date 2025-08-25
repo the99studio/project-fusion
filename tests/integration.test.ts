@@ -50,11 +50,11 @@ describe('integration', () => {
       expect(result.fusionFilePath).toBeDefined();
       
       // Check if fusion files were created
-      expect(await fs.pathExists(result.fusionFilePath)).toBe(true);
-      expect(await fs.pathExists(result.fusionFilePath!.replace('.txt', '.md'))).toBe(true);
+      expect(await fs.pathExists(result.fusionFilePath as string)).toBe(true);
+      expect(await fs.pathExists((result.fusionFilePath as string).replace('.txt', '.md'))).toBe(true);
       
       // Check content of fusion file
-      const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+      const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
       expect(fusionContent).toContain('test.js');
       expect(fusionContent).toContain('test.ts');
       expect(fusionContent).toContain('console.log("Hello World");');
@@ -95,7 +95,7 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only test.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+      const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
       expect(fusionContent).toContain('test.js');
       expect(fusionContent).not.toContain('ignored.js');
     });
@@ -173,7 +173,7 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only app.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+      const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
       expect(fusionContent).toContain('app.js');
       expect(fusionContent).not.toContain('build.js');
       expect(fusionContent).not.toContain('node_modules');
@@ -202,7 +202,7 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only small.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+      const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
       expect(fusionContent).toContain('small.js');
       expect(fusionContent).not.toContain('large.js');
     });
@@ -228,7 +228,7 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only root.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+      const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
       expect(fusionContent).toContain('root.js');
       expect(fusionContent).not.toContain('nested.js');
     });
@@ -251,7 +251,7 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       
       // Check HTML file was created
-      const htmlPath = result.fusionFilePath!.replace('.txt', '.html');
+      const htmlPath = (result.fusionFilePath as string).replace('.txt', '.html');
       expect(await fs.pathExists(htmlPath)).toBe(true);
       
       const htmlContent = await fs.readFile(htmlPath, 'utf8');

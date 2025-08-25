@@ -90,7 +90,7 @@ describe('API Integration for VS Code', () => {
                 expect(typeof (result as { success: boolean }).success).toBe('boolean');
                 expect(typeof (result as { message: string }).message).toBe('string');
                 
-                if (result.success) {
+                if ((result as { success: boolean }).success) {
                     expect(result).toHaveProperty('fusionFilePath');
                 } else {
                     expect(result).toHaveProperty('error');
@@ -101,8 +101,8 @@ describe('API Integration for VS Code', () => {
             const successResult = {
                 success: true as const,
                 message: 'Fusion completed successfully',
-                fusionFilePath: '/test/output.txt' as any,
-                logFilePath: '/test/output.log' as any
+                fusionFilePath: '/test/output.txt' as string,
+                logFilePath: '/test/output.log' as string
             };
             
             onDidFinish(successResult);
@@ -253,13 +253,13 @@ describe('API Integration for VS Code', () => {
                     generateMarkdown: true,
                     generateHtml: false,
                     extensionGroups: ['web', 'backend'],
-                    onProgress: (progressInfo) => {
-                        progress.report({
+                    onProgress: (progressInfo: { message: string; percentage: number }) => {
+                        (progress as { report: (value: { message: string; increment: number }) => void }).report({
                             message: progressInfo.message,
                             increment: progressInfo.percentage
                         });
                     },
-                    onDidFinish: (result) => {
+                    onDidFinish: (result: { success: boolean; fusionFilePath?: string; message: string }) => {
                         if (result.success) {
                             console.log('Fusion completed:', result.fusionFilePath);
                         } else {
@@ -268,9 +268,9 @@ describe('API Integration for VS Code', () => {
                     },
                     cancellationToken: {
                         get isCancellationRequested() {
-                            return token.isCancellationRequested;
+                            return (token as { isCancellationRequested: boolean }).isCancellationRequested;
                         },
-                        onCancellationRequested: token.onCancellationRequested
+                        onCancellationRequested: (token as { onCancellationRequested: () => void }).onCancellationRequested
                     }
                 };
                 

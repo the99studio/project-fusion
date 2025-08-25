@@ -83,7 +83,7 @@ describe('VS Code API enhancements', () => {
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/test',
                 generateText: true,
-                fs: mockFs as any,
+                fs: mockFs as import('../src/adapters/file-system.js').FileSystemAdapter,
                 onDidFinish
             };
 

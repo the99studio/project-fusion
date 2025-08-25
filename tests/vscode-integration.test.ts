@@ -372,7 +372,7 @@ dist/
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/project',
                 generateText: true,
-                fs: errorFs as any,
+                fs: errorFs as import('../src/adapters/file-system.js').FileSystemAdapter,
                 onDidFinish
             };
 

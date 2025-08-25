@@ -49,11 +49,11 @@ describe('CLI Binary E2E Tests', () => {
             let stdout = '';
             let stderr = '';
 
-            child.stdout?.on('data', (data) => {
+            child.stdout?.on('data', (data: Buffer) => {
                 stdout += data.toString();
             });
 
-            child.stderr?.on('data', (data) => {
+            child.stderr?.on('data', (data: Buffer) => {
                 stderr += data.toString();
             });
 
