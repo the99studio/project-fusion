@@ -183,7 +183,7 @@ dist/
             
             // Verify progress was reported
             expect(vscodeProgress.report).toHaveBeenCalled();
-            expect(lastProgress?.percentage).toBe(100);
+            expect((lastProgress as any)?.percentage).toBe(100);
             
             // Verify files were processed
             expect(result.message).toContain('files processed');
@@ -295,7 +295,7 @@ dist/
             expect(outputLogs.some(log => log.toLowerCase().includes('scanning'))).toBe(true);
             expect(outputLogs.some(log => log.toLowerCase().includes('processing'))).toBe(true);
             expect(outputLogs.some(log => log.toLowerCase().includes('completed'))).toBe(true);
-            expect(finalResult?.success).toBe(true);
+            expect((finalResult as any)?.success).toBe(true);
         });
     });
 
@@ -372,7 +372,7 @@ dist/
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/project',
                 generateText: true,
-                fs: errorFs as import('../src/adapters/file-system.js').FileSystemAdapter,
+                fs: errorFs as unknown as import('../src/adapters/file-system.js').FileSystemAdapter,
                 onDidFinish
             };
 
@@ -412,7 +412,7 @@ dist/
             
             // Verify timing progression
             for (let i = 1; i < timings.length; i++) {
-                expect(timings[i].timestamp).toBeGreaterThanOrEqual(timings[i-1].timestamp);
+                expect(timings[i]!.timestamp).toBeGreaterThanOrEqual(timings[i-1]!.timestamp);
             }
             
             const totalDuration = endTime - startTime;

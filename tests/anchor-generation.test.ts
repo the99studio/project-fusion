@@ -251,8 +251,8 @@ describe('Anchor Generation with github-slugger', () => {
             context.filesToProcess = files;
             strategy.generateHeader(context);
             
-            const file1 = strategy.processFile(files[0]!, context);
-            const file2 = strategy.processFile(files[1]!, context);
+            const file1 = strategy.processFile(files[0]!);
+            const file2 = strategy.processFile(files[1]!);
             
             expect(file1).toContain('id="errorfiletxt"');
             expect(file2).toContain('id="errorfiletxt-1"');

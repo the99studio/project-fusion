@@ -203,7 +203,7 @@ describe('Utils Coverage Tests', () => {
             ];
 
             for (const [ext, expected] of testCases) {
-                expect(getMarkdownLanguage(ext)).toBe(expected);
+                expect(getMarkdownLanguage(ext!)).toBe(expected);
             }
         });
     });

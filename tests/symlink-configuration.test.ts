@@ -334,9 +334,9 @@ describe('Symlink Configuration Tests', () => {
             expect(auditSummary!.entries).toHaveLength(1);
             
             const entry = auditSummary!.entries[0];
-            expect(entry.symlink).toBe(symlinkFile);
-            expect(entry.target).toBe(targetFile);
-            expect(entry.timestamp).toBeInstanceOf(Date);
+            expect(entry!.symlink).toBe(symlinkFile);
+            expect(entry!.target).toBe(targetFile);
+            expect(entry!.timestamp).toBeInstanceOf(Date);
         });
 
         it('should limit audit entries based on maxSymlinkAuditEntries', async () => {
@@ -395,8 +395,8 @@ describe('Symlink Configuration Tests', () => {
             expect(auditSummary!.totalSymlinks).toBe(1);
             
             const entry = auditSummary!.entries[0];
-            expect(entry.symlink).toBe(symlinkFile);
-            expect(entry.target).toBe(externalFile);
+            expect(entry!.symlink).toBe(symlinkFile);
+            expect(entry!.target).toBe(externalFile);
         });
 
         it('should handle broken symlinks gracefully in audit', async () => {
