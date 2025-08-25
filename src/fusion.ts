@@ -6,6 +6,7 @@
 import path from 'node:path';
 import ignoreLib from 'ignore';
 import { DefaultFileSystemAdapter } from './adapters/file-system.js';
+import type { FusionProgress, CancellationToken } from './api.js';
 import { BenchmarkTracker } from './benchmark.js';
 import { PluginManager } from './plugins/plugin-system.js';
 import { 
@@ -43,8 +44,8 @@ To include this file anyway, adjust validation limits in your config.
 export async function processFusion(
     config: Config,
     options: FusionOptions & {
-        onProgress?: (progress: import('./api.js').FusionProgress) => void;
-        cancellationToken?: import('./api.js').CancellationToken;
+        onProgress?: (progress: FusionProgress) => void;
+        cancellationToken?: CancellationToken;
     } = {}
 ): Promise<FusionResult> {
     const benchmark = new BenchmarkTracker();
@@ -59,7 +60,7 @@ export async function processFusion(
         totalBytesProcessed: 0,
         startTime: Date.now(),
         phaseStartTime: Date.now(),
-        currentPhase: 'scanning' as import('./api.js').FusionProgress['step']
+        currentPhase: 'scanning' as FusionProgress['step']
     };
     
     // Configure progress granularity (emit every N files or on phase change)
@@ -88,7 +89,7 @@ export async function processFusion(
 
     // Helper function to report progress with ETA and throughput
     const reportProgress = (
-        step: import('./api.js').FusionProgress['step'], 
+        step: FusionProgress['step'], 
         message: string, 
         filesProcessed = 0, 
         totalFiles = 0, 

@@ -4,7 +4,7 @@
  * Integration tests that simulate VS Code extension usage
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
+import { MemoryFileSystemAdapter, type FileSystemAdapter } from '../src/adapters/file-system.js';
 import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions, type ProgrammaticFusionResult } from '../src/index.js';
 
 // Mock VS Code-like progress reporting
@@ -372,7 +372,7 @@ dist/
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/project',
                 generateText: true,
-                fs: errorFs as unknown as import('../src/adapters/file-system.js').FileSystemAdapter,
+                fs: errorFs as unknown as FileSystemAdapter,
                 onDidFinish
             };
 

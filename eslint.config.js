@@ -32,7 +32,7 @@ const sharedRules = {
   '@typescript-eslint/no-redundant-type-constituents': 'error',
   '@typescript-eslint/no-useless-empty-export': 'error',
   '@typescript-eslint/consistent-type-exports': 'error',
-  '@typescript-eslint/consistent-type-imports': 'off',
+  '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'separate-type-imports' }],
   '@typescript-eslint/no-import-type-side-effects': 'error',
   '@typescript-eslint/naming-convention': [
     'error',

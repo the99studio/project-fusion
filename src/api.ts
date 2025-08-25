@@ -5,6 +5,7 @@
  * Allows external packages to use fusion functionality without config files
  */
 import path from 'node:path';
+import type { FileSystemAdapter } from './adapters/file-system.js';
 import { processFusion } from './fusion.js';
 import type { Config, FilePath, FusionOptions, FusionResult } from './types.js';
 import { defaultConfig } from './utils.js';
@@ -56,7 +57,7 @@ export interface ProgrammaticFusionOptions extends Partial<Config> {
     /** Root directory override */
     rootDirectory?: string;
     /** FileSystem adapter to use */
-    fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    fs?: FileSystemAdapter;
     /** Callback fired when fusion completes (success or failure) */
     onDidFinish?: (result: ProgrammaticFusionResult) => void;
     /** Callback fired during processing to report progress */

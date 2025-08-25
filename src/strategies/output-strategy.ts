@@ -3,10 +3,11 @@
 /**
  * Output strategy pattern for different fusion formats
  */
-import { WriteStream, createWriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'node:fs';
 import path from 'node:path';
 import GithubSlugger from 'github-slugger';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
+import type { CancellationToken } from '../api.js';
 import { type Config, type FilePath, createFilePath } from '../types.js';
 import { formatLocalTimestamp, formatTimestamp, getMarkdownLanguage } from '../utils.js';
 
@@ -440,7 +441,7 @@ export class OutputStrategyManager {
         context: OutputContext, 
         fs: FileSystemAdapter,
         onFileProcessed?: (fileInfo: FileInfo, index: number, total: number) => void,
-        cancellationToken?: import('../api.js').CancellationToken
+        cancellationToken?: CancellationToken
     ): Promise<FilePath> {
         const outputPath = this.getOutputPath(strategy, context.config);
         

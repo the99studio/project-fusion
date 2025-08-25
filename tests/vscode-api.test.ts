@@ -4,7 +4,7 @@
  * Tests for VS Code extension API enhancements
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
+import { MemoryFileSystemAdapter, type FileSystemAdapter } from '../src/adapters/file-system.js';
 import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions } from '../src/index.js';
 
 describe('VS Code API enhancements', () => {
@@ -83,7 +83,7 @@ describe('VS Code API enhancements', () => {
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/test',
                 generateText: true,
-                fs: mockFs as unknown as import('../src/adapters/file-system.js').FileSystemAdapter,
+                fs: mockFs as unknown as FileSystemAdapter,
                 onDidFinish
             };
 

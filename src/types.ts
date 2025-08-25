@@ -3,6 +3,7 @@
 /**
  * Type definitions for the fusion functionality
  */
+import type { FileSystemAdapter } from './adapters/file-system.js';
 
 export type FilePath = string & { readonly __brand: unique symbol };
 
@@ -126,7 +127,7 @@ export interface Config {
 export interface FusionOptions {
     enabledPlugins?: readonly string[];
     extensionGroups?: readonly string[];
-    fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    fs?: FileSystemAdapter;
     pluginsDir?: string;
     previewMode?: boolean;
 }

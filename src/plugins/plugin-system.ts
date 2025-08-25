@@ -5,6 +5,7 @@
  */
 import path from 'node:path';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
+import type { CancellationToken } from '../api.js';
 import type { FileInfo, OutputStrategy } from '../strategies/output-strategy.js';
 import { type Config, createFilePath, FusionError } from '../types.js';
 import { logger } from '../utils/logger.js';
@@ -187,7 +188,7 @@ export class PluginManager {
     async executeBeforeFileProcessing(
         fileInfo: FileInfo, 
         config: Config, 
-        cancellationToken?: import('../api.js').CancellationToken
+        cancellationToken?: CancellationToken
     ): Promise<FileInfo | null> {
         let currentFileInfo = fileInfo;
         
@@ -236,7 +237,7 @@ export class PluginManager {
     async executeBeforeFusion(
         config: Config, 
         filesToProcess: FileInfo[],
-        cancellationToken?: import('../api.js').CancellationToken
+        cancellationToken?: CancellationToken
     ): Promise<{ config: Config; filesToProcess: FileInfo[] }> {
         let currentConfig = config;
         let currentFiles = filesToProcess;

@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 25/08/2025 17:49:48 UTC−4
+**Generated:** 25/08/2025 18:05:03 UTC−4
 
-**UTC:** 2025-08-25T21:49:48.302Z
+**UTC:** 2025-08-25T22:05:03.284Z
 
 **Files:** 64
 
@@ -555,7 +555,7 @@ const sharedRules = {
   '@typescript-eslint/no-redundant-type-constituents': 'error',
   '@typescript-eslint/no-useless-empty-export': 'error',
   '@typescript-eslint/consistent-type-exports': 'error',
-  '@typescript-eslint/consistent-type-imports': 'off',
+  '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'separate-type-imports' }],
   '@typescript-eslint/no-import-type-side-effects': 'error',
   '@typescript-eslint/naming-convention': [
     'error',
@@ -1390,6 +1390,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
  * Allows external packages to use fusion functionality without config files
  */
 import path from 'node:path';
+import type { FileSystemAdapter } from './adapters/file-system.js';
 import { processFusion } from './fusion.js';
 import type { Config, FilePath, FusionOptions, FusionResult } from './types.js';
 import { defaultConfig } from './utils.js';
@@ -1441,7 +1442,7 @@ export interface ProgrammaticFusionOptions extends Partial<Config> {
     /** Root directory override */
     rootDirectory?: string;
     /** FileSystem adapter to use */
-    fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    fs?: FileSystemAdapter;
     /** Callback fired when fusion completes (success or failure) */
     onDidFinish?: (result: ProgrammaticFusionResult) => void;
     /** Callback fired during processing to report progress */
@@ -2645,6 +2646,7 @@ export function projectFusion(): ProjectFusionBuilder {
 import path from 'node:path';
 import ignoreLib from 'ignore';
 import { DefaultFileSystemAdapter } from './adapters/file-system.js';
+import type { FusionProgress, CancellationToken } from './api.js';
 import { BenchmarkTracker } from './benchmark.js';
 import { PluginManager } from './plugins/plugin-system.js';
 import { 
@@ -2682,8 +2684,8 @@ To include this file anyway, adjust validation limits in your config.
 export async function processFusion(
     config: Config,
     options: FusionOptions & {
-        onProgress?: (progress: import('./api.js').FusionProgress) => void;
-        cancellationToken?: import('./api.js').CancellationToken;
+        onProgress?: (progress: FusionProgress) => void;
+        cancellationToken?: CancellationToken;
     } = {}
 ): Promise<FusionResult> {
     const benchmark = new BenchmarkTracker();
@@ -2698,7 +2700,7 @@ export async function processFusion(
         totalBytesProcessed: 0,
         startTime: Date.now(),
         phaseStartTime: Date.now(),
-        currentPhase: 'scanning' as import('./api.js').FusionProgress['step']
+        currentPhase: 'scanning' as FusionProgress['step']
     };
     
     // Configure progress granularity (emit every N files or on phase change)
@@ -2727,7 +2729,7 @@ export async function processFusion(
 
     // Helper function to report progress with ETA and throughput
     const reportProgress = (
-        step: import('./api.js').FusionProgress['step'], 
+        step: FusionProgress['step'], 
         message: string, 
         filesProcessed = 0, 
         totalFiles = 0, 
@@ -3482,6 +3484,7 @@ export * from './utils.js';
  */
 import path from 'node:path';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
+import type { CancellationToken } from '../api.js';
 import type { FileInfo, OutputStrategy } from '../strategies/output-strategy.js';
 import { type Config, createFilePath, FusionError } from '../types.js';
 import { logger } from '../utils/logger.js';
@@ -3664,7 +3667,7 @@ export class PluginManager {
     async executeBeforeFileProcessing(
         fileInfo: FileInfo, 
         config: Config, 
-        cancellationToken?: import('../api.js').CancellationToken
+        cancellationToken?: CancellationToken
     ): Promise<FileInfo | null> {
         let currentFileInfo = fileInfo;
         
@@ -3713,7 +3716,7 @@ export class PluginManager {
     async executeBeforeFusion(
         config: Config, 
         filesToProcess: FileInfo[],
-        cancellationToken?: import('../api.js').CancellationToken
+        cancellationToken?: CancellationToken
     ): Promise<{ config: Config; filesToProcess: FileInfo[] }> {
         let currentConfig = config;
         let currentFiles = filesToProcess;
@@ -3953,10 +3956,11 @@ export const ConfigSchemaV1 = z.object({
 /**
  * Output strategy pattern for different fusion formats
  */
-import { WriteStream, createWriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'node:fs';
 import path from 'node:path';
 import GithubSlugger from 'github-slugger';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
+import type { CancellationToken } from '../api.js';
 import { type Config, type FilePath, createFilePath } from '../types.js';
 import { formatLocalTimestamp, formatTimestamp, getMarkdownLanguage } from '../utils.js';
 
@@ -4390,7 +4394,7 @@ export class OutputStrategyManager {
         context: OutputContext, 
         fs: FileSystemAdapter,
         onFileProcessed?: (fileInfo: FileInfo, index: number, total: number) => void,
-        cancellationToken?: import('../api.js').CancellationToken
+        cancellationToken?: CancellationToken
     ): Promise<FilePath> {
         const outputPath = this.getOutputPath(strategy, context.config);
         
@@ -4564,6 +4568,7 @@ export class OutputStrategyManager {
 /**
  * Type definitions for the fusion functionality
  */
+import type { FileSystemAdapter } from './adapters/file-system.js';
 
 export type FilePath = string & { readonly __brand: unique symbol };
 
@@ -4687,7 +4692,7 @@ export interface Config {
 export interface FusionOptions {
     enabledPlugins?: readonly string[];
     extensionGroups?: readonly string[];
-    fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    fs?: FileSystemAdapter;
     pluginsDir?: string;
     previewMode?: boolean;
 }
@@ -16621,7 +16626,7 @@ describe('version fallback mechanism', () => {
  * Tests for VS Code extension API enhancements
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
+import { MemoryFileSystemAdapter, type FileSystemAdapter } from '../src/adapters/file-system.js';
 import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions } from '../src/index.js';
 
 describe('VS Code API enhancements', () => {
@@ -16700,7 +16705,7 @@ describe('VS Code API enhancements', () => {
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/test',
                 generateText: true,
-                fs: mockFs as unknown as import('../src/adapters/file-system.js').FileSystemAdapter,
+                fs: mockFs as unknown as FileSystemAdapter,
                 onDidFinish
             };
 
@@ -16992,7 +16997,7 @@ describe('VS Code API enhancements', () => {
  * Integration tests that simulate VS Code extension usage
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
+import { MemoryFileSystemAdapter, type FileSystemAdapter } from '../src/adapters/file-system.js';
 import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions, type ProgrammaticFusionResult } from '../src/index.js';
 
 // Mock VS Code-like progress reporting
@@ -17360,7 +17365,7 @@ dist/
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/project',
                 generateText: true,
-                fs: errorFs as unknown as import('../src/adapters/file-system.js').FileSystemAdapter,
+                fs: errorFs as unknown as FileSystemAdapter,
                 onDidFinish
             };
 
@@ -17436,9 +17441,6 @@ dist/
 - [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag
 
 @typescript-eslint/promise-function-async
-@typescript-eslint/consistent-type-imports
-unicorn/prevent-abbreviations
-no-magic-numbers
 ```
 
 ## 📄 tsconfig.json {#tsconfigjson}

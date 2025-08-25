@@ -21,6 +21,3 @@
 - [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag
 
 @typescript-eslint/promise-function-async
-@typescript-eslint/consistent-type-imports
-unicorn/prevent-abbreviations
-no-magic-numbers
