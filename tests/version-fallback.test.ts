@@ -4,8 +4,6 @@
  * Tests for version.ts fallback mechanism
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-// Import version functions
 import { getVersionSync, clearVersionCache } from '../src/version.js';
 
 describe('version fallback mechanism', () => {
@@ -52,7 +50,7 @@ describe('version fallback mechanism', () => {
 
     it('should handle module import failure gracefully', async () => {
         // Create a version of getVersion that will fail on import
-        const mockGetVersion = async () => {
+        const mockGetVersion = () => {
             try {
                 // Force import to fail by using invalid syntax
                 throw new Error('Simulated import failure');

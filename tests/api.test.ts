@@ -6,9 +6,8 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createConfig, fusionAPI, runFusion } from '../src/api.js';
-import type { Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 
 describe('API Tests', () => {

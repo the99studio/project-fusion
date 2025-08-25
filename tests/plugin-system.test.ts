@@ -447,11 +447,11 @@ describe('Plugin System', () => {
                 initCalled = false;
                 cleanupCalled = false;
 
-                async initialize() {
+                initialize() {
                     this.initCalled = true;
                 }
 
-                async cleanup() {
+                cleanup() {
                     this.cleanupCalled = true;
                 }
             }

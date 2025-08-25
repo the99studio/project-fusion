@@ -74,7 +74,6 @@ console.log("test");
 
         it('should escape HTML in file paths', async () => {
             // Create files with dangerous names
-            const dangerousFileName = '<script>alert("path").js';
             const safeFileName = 'safe-file.js';
 
             await writeFile(safeFileName, 'console.log("safe");');

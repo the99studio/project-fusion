@@ -5,7 +5,7 @@
  * Tests with malformed inputs, special characters, and edge cases
  */
 import { existsSync } from 'node:fs';
-import { writeFile, mkdir, rm, chmod, access, constants } from 'node:fs/promises';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as fc from 'fast-check';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -88,7 +88,7 @@ describe('Security Fuzzing Tests', () => {
                 'const mixed = "αβγ ABC 123 !@# 中文 🎯";', // Mixed content
                 `const longLine = "${  'A'.repeat(10_000)  }";`, // Very long line
                 'const binary = "\\x00\\xFF\\xDE\\xAD\\xBE\\xEF";', // Binary-like content
-                'const quotes = "\\"\'`${}`\'\\\"";', // Mixed quotes
+                'const quotes = "\\"\'`${}`\'\"";', // Mixed quotes
                 'const escapes = "\\n\\r\\t\\v\\f\\b\\a\\\\";', // Escape sequences
                 'const null_bytes = "before\\x00after";', // Null bytes
                 'const ansi = "\\x1b[31mRed\\x1b[0m Normal";' // ANSI escape codes

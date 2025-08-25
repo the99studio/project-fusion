@@ -87,8 +87,8 @@ describe('API Integration for VS Code', () => {
             const onDidFinish = vi.fn((result) => {
                 expect(result).toHaveProperty('success');
                 expect(result).toHaveProperty('message');
-                expect(typeof result.success).toBe('boolean');
-                expect(typeof result.message).toBe('string');
+                expect(typeof (result as { success: boolean }).success).toBe('boolean');
+                expect(typeof (result as { message: string }).message).toBe('string');
                 
                 if (result.success) {
                     expect(result).toHaveProperty('fusionFilePath');

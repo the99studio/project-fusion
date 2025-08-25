@@ -102,7 +102,6 @@ describe('utils', () => {
 
   describe('file operations', () => {
     const testDir = path.resolve('./temp/test-utils');
-    const testFile = path.join(testDir, 'test.txt');
 
     beforeEach(async () => {
       await fs.ensureDir(testDir);

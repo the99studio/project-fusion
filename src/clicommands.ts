@@ -356,7 +356,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     // Helper function to add both console and log output
     const addLine = (line: string, coloredLine?: string): void => {
         console.log(coloredLine ?? line);
-        output.push(line.replaceAll(/\u001b\[[\d;]*m/gu, '')); // Strip ANSI colors for log
+        output.push(line.replaceAll(/\u001B\[[\d;]*m/gu, '')); // Strip ANSI colors for log
     };
 
     addLine('\n📋 Configuration Summary:', chalk.blue('\n📋 Configuration Summary:'));
@@ -532,8 +532,8 @@ function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLi
     
     if (!isDefault) {
         // Show summary of modifications
-        const added = config.ignorePatterns.filter(p => !defaultPatterns.has(p as any));
-        const removed = defaultConfig.ignorePatterns.filter(p => !config.ignorePatterns.includes(p as any));
+        const added = config.ignorePatterns.filter(p => !defaultPatterns.has(p as string));
+        const removed = defaultConfig.ignorePatterns.filter(p => !config.ignorePatterns.includes(p as string));
         
         if (added.length > 0 || removed.length > 0) {
             addLine('   ');

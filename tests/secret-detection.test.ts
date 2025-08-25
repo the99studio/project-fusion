@@ -161,7 +161,7 @@ describe('Secret Detection Tests', () => {
             expect(result.detectedSecrets).toContain('JWT Token');
             
             // All secrets should be redacted
-            const redactedCount = (result.redactedContent.match(/\[REDACTED]/g) || []).length;
+            const redactedCount = (result.redactedContent.match(/\[REDACTED]/g) ?? []).length;
             expect(redactedCount).toBe(4);
         });
 
@@ -201,7 +201,7 @@ describe('Secret Detection Tests', () => {
             expect(result.detectedSecrets).toContain('AWS Access Key');
             
             // All three keys should be redacted
-            const redactedCount = (result.redactedContent.match(/\[REDACTED]/g) || []).length;
+            const redactedCount = (result.redactedContent.match(/\[REDACTED]/g) ?? []).length;
             expect(redactedCount).toBe(3);
         });
     });

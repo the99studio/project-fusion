@@ -5,7 +5,7 @@
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { writeFile, mkdir, rm, chmod, readFile } from 'fs-extra';
+import { writeFile, mkdir, rm } from 'fs-extra';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FusionError } from '../src/types.js';
 import {

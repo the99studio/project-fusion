@@ -1,7 +1,6 @@
 import GithubSlugger from 'github-slugger';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MarkdownOutputStrategy, HtmlOutputStrategy } from '../src/strategies/output-strategy.js';
-import type { OutputContext, FileInfo } from '../src/strategies/output-strategy.js';
+import { MarkdownOutputStrategy, HtmlOutputStrategy, type OutputContext, type FileInfo } from '../src/strategies/output-strategy.js';
 import { createFilePath } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -69,7 +68,7 @@ describe('Anchor Generation with github-slugger', () => {
         });
 
         it('should reset properly for new documents', () => {
-            const path1 = slugger.slug('test.js');
+            slugger.slug('test.js');
             const path2 = slugger.slug('test.js');
             expect(path2).toBe('testjs-1');
             
@@ -118,7 +117,7 @@ describe('Anchor Generation with github-slugger', () => {
             ];
             
             context.filesToProcess = files;
-            const header = strategy.generateHeader(context);
+            strategy.generateHeader(context);
             
             // Check that TOC contains unique anchors
             expect(header).toContain('#srcindexts');
@@ -145,7 +144,7 @@ describe('Anchor Generation with github-slugger', () => {
             context.filesToProcess = files;
             
             // Generate header (which resets slugger twice)
-            const header = strategy.generateHeader(context);
+            strategy.generateHeader(context);
             
             // Process files should generate same anchors
             const file1 = strategy.processFile(files[0]!, context);
@@ -194,7 +193,7 @@ describe('Anchor Generation with github-slugger', () => {
             ];
             
             context.filesToProcess = files;
-            const header = strategy.generateHeader(context);
+            strategy.generateHeader(context);
             
             // Check that TOC contains unique anchors
             expect(header).toContain('#appmainpy');
@@ -221,7 +220,7 @@ describe('Anchor Generation with github-slugger', () => {
             context.filesToProcess = files;
             
             // Generate header (which resets slugger twice)
-            const header = strategy.generateHeader(context);
+            strategy.generateHeader(context);
             
             // Process files should generate same anchors
             const file1 = strategy.processFile(files[0]!, context);
@@ -250,7 +249,7 @@ describe('Anchor Generation with github-slugger', () => {
             ];
             
             context.filesToProcess = files;
-            const header = strategy.generateHeader(context);
+            strategy.generateHeader(context);
             
             const file1 = strategy.processFile(files[0]!, context);
             const file2 = strategy.processFile(files[1]!, context);
@@ -318,7 +317,7 @@ describe('Anchor Generation with github-slugger', () => {
             
             // Should handle gracefully without throwing
             expect(() => strategy.generateHeader(context)).not.toThrow();
-            const header = strategy.generateHeader(context);
+            strategy.generateHeader(context);
             expect(header).toContain('Test Project');
         });
     });

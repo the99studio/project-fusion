@@ -5,9 +5,6 @@ import {
     DefaultFileSystemAdapter, 
     MemoryFileSystemAdapter,
     OutputStrategyManager,
-    TextOutputStrategy,
-    MarkdownOutputStrategy,
-    HtmlOutputStrategy,
     PluginManager,
     createPlugin,
     processFusion

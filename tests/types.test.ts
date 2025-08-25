@@ -4,8 +4,7 @@
  * Tests for type definitions and branded types
  */
 import { describe, expect, it } from 'vitest';
-import { createFilePath, FusionError } from '../src/types.js';
-import type { FilePath, FusionErrorCode, FusionErrorSeverity } from '../src/types.js';
+import { createFilePath, FusionError, type FilePath, type FusionErrorCode, type FusionErrorSeverity } from '../src/types.js';
 
 describe('Branded Types', () => {
     describe('createFilePath', () => {
@@ -129,7 +128,7 @@ describe('FusionError', () => {
             
             // TypeScript should prevent invalid codes at compile time
             // @ts-expect-error Invalid error code
-            const invalidError = new FusionError('Test', 'INVALID_CODE');
+            new FusionError('Test', 'INVALID_CODE');
         });
     });
     
@@ -159,7 +158,7 @@ describe('FusionError', () => {
             
             // TypeScript should prevent invalid severity at compile time
             // @ts-expect-error Invalid severity
-            const invalidError = new FusionError('Test', 'INVALID_PATH', 'critical');
+            new FusionError('Test', 'INVALID_PATH', 'critical');
         });
     });
     
@@ -217,7 +216,7 @@ describe('FusionError', () => {
                 context: error.context
             });
             
-            const deserialized = JSON.parse(serialized);
+            const deserialized = JSON.parse(serialized) as { message: string; code: string; severity: string; context: { data: string } };
             
             expect(deserialized.message).toBe('Serializable error');
             expect(deserialized.code).toBe('INVALID_PATH');
