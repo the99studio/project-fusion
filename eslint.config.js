@@ -65,19 +65,19 @@ export default [
       '@typescript-eslint/require-await': 'error',
       
       // State-of-the-art TypeScript rules (2025) - Balanced for practicality
-      '@typescript-eslint/strict-boolean-expressions': 'off', // Too strict, causes too many changes
-      '@typescript-eslint/no-non-null-assertion': 'warn', // Warn instead of error
+      // Disabled rules that would be too strict for this project
+      '@typescript-eslint/strict-boolean-expressions': 'off', // Would require explicit boolean checks everywhere
+      '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/prefer-reduce-type-parameter': 'error',
       '@typescript-eslint/prefer-return-this-type': 'error',
-      '@typescript-eslint/promise-function-async': 'off', // Too many false positives
-      '@typescript-eslint/no-unnecessary-condition': 'warn', // Warn for now
+      '@typescript-eslint/promise-function-async': 'off', // Not all promise-returning functions need async
+      '@typescript-eslint/no-unnecessary-condition': 'error',
       '@typescript-eslint/no-unnecessary-type-arguments': 'error',
-      '@typescript-eslint/prefer-readonly-parameter-types': 'off', // Too strict
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       '@typescript-eslint/no-redundant-type-constituents': 'error',
       '@typescript-eslint/no-useless-empty-export': 'error',
       '@typescript-eslint/consistent-type-exports': 'error',
-      '@typescript-eslint/consistent-type-imports': 'off', // Causes too many changes
+      '@typescript-eslint/consistent-type-imports': 'off', // Would require rewriting all imports
       '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/naming-convention': [
         'error',
@@ -123,28 +123,26 @@ export default [
           message: 'With statements are not allowed'
         }
       ],
-      'no-implicit-coercion': 'off', // Too many false positives
-      'no-nested-ternary': 'warn', // Warn instead of error
+      'no-nested-ternary': 'error',
       'no-unneeded-ternary': 'error',
-      'no-mixed-operators': 'warn',
+      'no-mixed-operators': 'error',
       'yoda': ['error', 'never'],
-      'curly': 'off', // Too strict for simple statements
+      'curly': 'off', // Single-line statements don't need braces in this project
       'eqeqeq': ['error', 'always'],
       'no-else-return': ['error', { allowElseIf: true }], // Allow else-if
       'no-lonely-if': 'error',
-      'no-magic-numbers': 'off', // Too many warnings
-      'max-depth': ['warn', 5], // Increase to 5
-      'max-lines': ['warn', {
-        max: 600, // Increase limit
+      'max-depth': ['error', 5],
+      'max-lines': ['error', {
+        max: 600,
         skipBlankLines: true,
         skipComments: true
       }],
-      'max-lines-per-function': ['warn', {
-        max: 200, // Increase limit for complex functions
+      'max-lines-per-function': ['error', {
+        max: 200,
         skipBlankLines: true,
         skipComments: true
       }],
-      'complexity': ['warn', 20], // Increase complexity limit
+      'complexity': ['error', 20],
       
       // Import rules with TypeScript resolver
       'import/order': [
@@ -179,9 +177,9 @@ export default [
       // Unicorn rules for modern JS practices
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/prefer-module': 'error',
-      'unicorn/prefer-ternary': 'warn',
+      'unicorn/prefer-ternary': 'error',
       'unicorn/prefer-logical-operator-over-ternary': 'error',
-      'unicorn/no-array-for-each': 'warn',
+      'unicorn/no-array-for-each': 'error',
       'unicorn/prefer-array-some': 'error',
       'unicorn/prefer-array-find': 'error',
       'unicorn/prefer-array-flat': 'error',
@@ -237,23 +235,20 @@ export default [
       'unicorn/throw-new-error': 'error',
       
       // Additional modern unicorn rules - Practical selection
-      'unicorn/no-null': 'off', // Too restrictive
-      'unicorn/prevent-abbreviations': 'off', // Too verbose
-      'unicorn/no-nested-ternary': 'warn', // Warn instead
+      // Additional modern unicorn rules
+      'unicorn/no-null': 'off', // null is needed in many APIs
+      'unicorn/prevent-abbreviations': 'off', // Would require renaming many variables
+      'unicorn/no-nested-ternary': 'error',
       'unicorn/no-typeof-undefined': 'error',
-      'unicorn/no-useless-undefined': 'off', // Can be useful for clarity
-      'unicorn/prefer-export-from': 'warn',
-      'unicorn/prefer-at': 'warn', // Suggest but don't enforce
-      'unicorn/prefer-string-raw': 'off', // Too many changes needed
+      'unicorn/prefer-export-from': 'error',
+      'unicorn/prefer-at': 'error',
       'unicorn/no-unreadable-iife': 'error',
       'unicorn/prefer-modern-math-apis': 'error',
       'unicorn/prefer-native-coercion-functions': 'error',
       'unicorn/no-document-cookie': 'error',
       'unicorn/prefer-blob-reading-methods': 'error',
-      'unicorn/prefer-top-level-await': 'off', // Not applicable
       'unicorn/no-anonymous-default-export': 'error',
       'unicorn/no-empty-file': 'error',
-      'unicorn/consistent-function-scoping': 'off', // Too strict for tests
       'unicorn/no-invalid-fetch-options': 'error',
       'unicorn/no-magic-array-flat-depth': 'error'
     }
