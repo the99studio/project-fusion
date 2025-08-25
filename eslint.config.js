@@ -256,17 +256,30 @@ export default [
   {
     files: ['tests/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
     rules: {
+      // Allow unsafe operations for mocks and test data
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      
+      // Tests don't need explicit return types for readability
       '@typescript-eslint/explicit-function-return-type': 'off',
+      
+      // Allow unbound methods for mocking frameworks (vi.fn(), etc.)
       '@typescript-eslint/unbound-method': 'off',
+      
+      // Tests often use assertions that require non-null and forced conditions
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
+      
+      // Test variable names can be more flexible (mockFs, testData, etc.)
       '@typescript-eslint/naming-convention': 'off',
+      
+      // Tests use magic numbers for test data and iterations
       'no-magic-numbers': 'off',
+      
+      // Test files can be long due to multiple test cases
       'max-lines': 'off',
       'max-lines-per-function': 'off',
       'complexity': 'off'
