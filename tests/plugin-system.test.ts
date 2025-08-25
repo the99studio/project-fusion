@@ -444,16 +444,18 @@ describe('Plugin System', () => {
 
                 async initialize() {
                     this.initCalled = true;
+                    return Promise.resolve();
                 }
 
                 async cleanup() {
                     this.cleanupCalled = true;
+                    return Promise.resolve();
                 }
             }
 
             const plugin = new TestPlugin();
             
-            if (plugin.initialize) await plugin.initialize(config);
+            if (plugin.initialize) await plugin.initialize();
             if (plugin.cleanup) await plugin.cleanup();
 
             expect(plugin.initCalled).toBe(true);
