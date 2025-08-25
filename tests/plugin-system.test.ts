@@ -87,8 +87,8 @@ describe('Plugin System', () => {
 
                 const metadata = pluginManager.listPlugins();
                 expect(metadata).toHaveLength(2);
-                expect(metadata[0].name).toBe('plugin1');
-                expect(metadata[1].name).toBe('plugin2');
+                expect(metadata[0]?.name).toBe('plugin1');
+                expect(metadata[1]?.name).toBe('plugin2');
             });
         });
 
@@ -126,9 +126,8 @@ describe('Plugin System', () => {
                     name: 'test-plugin',
                     version: '1.0.0',
                     description: 'Test plugin'
-                }, {
-                    initialize: initSpy
-                });
+                }, {});
+                plugin.initialize = initSpy;
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.initializePlugins(config);
@@ -142,9 +141,8 @@ describe('Plugin System', () => {
                     name: 'test-plugin',
                     version: '1.0.0',
                     description: 'Test plugin'
-                }, {
-                    cleanup: cleanupSpy
-                });
+                }, {});
+                plugin.cleanup = cleanupSpy;
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.cleanupPlugins();
@@ -158,9 +156,8 @@ describe('Plugin System', () => {
                     name: 'failing-plugin',
                     version: '1.0.0',
                     description: 'Failing plugin'
-                }, {
-                    initialize: () => { throw new Error('Init failed'); }
-                });
+                }, {});
+                plugin.initialize = () => { throw new Error('Init failed'); };
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.initializePlugins(config);
@@ -175,9 +172,8 @@ describe('Plugin System', () => {
                     name: 'failing-plugin',
                     version: '1.0.0',
                     description: 'Failing plugin'
-                }, {
-                    cleanup: () => { throw new Error('Cleanup failed'); }
-                });
+                }, {});
+                plugin.cleanup = () => { throw new Error('Cleanup failed'); };
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.cleanupPlugins();
@@ -225,7 +221,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Filter plugin'
                 }, {
-                    beforeFileProcessing: () => null
+                    beforeFileProcessing: () => Promise.resolve(null)
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -305,7 +301,7 @@ describe('Plugin System', () => {
                 const result = await pluginManager.executeAfterFusion({ original: true }, config);
 
                 expect(hookSpy).toHaveBeenCalledWith({ original: true }, config);
-                expect(result.modified).toBe(true);
+                expect((result as any).modified).toBe(true);
             });
 
             it('should handle hook errors gracefully', async () => {
@@ -342,7 +338,8 @@ describe('Plugin System', () => {
                     name: 'custom',
                     extension: '.custom',
                     generateHeader: () => 'header',
-                    processFile: () => 'processed'
+                    processFile: () => 'processed',
+                    createStream: () => ({} as any)
                 };
 
                 const plugin = createPlugin({
@@ -434,7 +431,7 @@ describe('Plugin System', () => {
             expect(plugin.metadata.name).toBe('test-plugin');
         });
 
-        it('should support optional lifecycle methods', () => {
+        it('should support optional lifecycle methods', async () => {
             class TestPlugin extends BasePlugin {
                 metadata = {
                     name: 'test-plugin',
@@ -445,19 +442,19 @@ describe('Plugin System', () => {
                 initCalled = false;
                 cleanupCalled = false;
 
-                initialize() {
+                async initialize() {
                     this.initCalled = true;
                 }
 
-                cleanup() {
+                async cleanup() {
                     this.cleanupCalled = true;
                 }
             }
 
             const plugin = new TestPlugin();
             
-            if (plugin.initialize) plugin.initialize(config);
-            if (plugin.cleanup) plugin.cleanup();
+            if (plugin.initialize) await plugin.initialize(config);
+            if (plugin.cleanup) await plugin.cleanup();
 
             expect(plugin.initCalled).toBe(true);
             expect(plugin.cleanupCalled).toBe(true);

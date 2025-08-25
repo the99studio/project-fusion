@@ -95,7 +95,7 @@ describe('Security Fuzzing Tests', () => {
             ];
 
             for (let i = 0; i < specialContents.length; i++) {
-                await writeFile(`special${i}.js`, specialContents[i]);
+                await writeFile(`special${i}.js`, specialContents[i]!);
             }
 
             const config = {
@@ -293,7 +293,7 @@ describe('Security Fuzzing Tests', () => {
 
                         // Create files with arbitrary content
                         for (let i = 0; i < contents.length; i++) {
-                            await writeFile(join(propTestDir, `file${i}.js`), contents[i]);
+                            await writeFile(join(propTestDir, `file${i}.js`), contents[i]!);
                         }
 
                         const config = {
@@ -367,7 +367,7 @@ describe('Security Fuzzing Tests', () => {
                             const validationResult = ConfigSchemaV1.safeParse(config);
                             
                             if (validationResult.success) {
-                                const result = await processFusion(config);
+                                const result = await processFusion(validationResult.data);
                                 expect(result).toHaveProperty('success');
                             } else {
                                 // Validation correctly rejected invalid config
@@ -617,7 +617,7 @@ describe('Security Fuzzing Tests', () => {
             ];
 
             for (let i = 0; i < lineLengths.length; i++) {
-                const longLine = 'A'.repeat(lineLengths[i]);
+                const longLine = 'A'.repeat(lineLengths[i]!);
                 await writeFile(`longline${i}.js`, `// Long line test\nconst data = "${longLine}";`);
             }
 

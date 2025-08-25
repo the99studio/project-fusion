@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DefaultFileSystemAdapter } from '../src/adapters/file-system.js';
 import { PluginManager } from '../src/plugins/plugin-system.js';
 import { FusionError, type Config } from '../src/types.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('Plugin Security Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'test-plugin-security');
@@ -50,22 +51,11 @@ export default {
     describe('Plugin Path Validation', () => {
         it('should allow loading plugins from within root directory', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Should not throw
@@ -76,22 +66,11 @@ export default {
 
         it('should reject loading plugins from outside root directory by default', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Should throw FusionError with PATH_TRAVERSAL code
@@ -113,23 +92,12 @@ export default {
 
         it('should allow external plugins when in allowedExternalPluginPaths', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                
                 allowedExternalPluginPaths: [join(externalDir, 'external.js')],
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Should not throw when external plugins are in allowlist
@@ -140,23 +108,12 @@ export default {
 
         it('should reject external plugins not in allowedExternalPluginPaths', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                
                 allowedExternalPluginPaths: ['/some/other/path'], // Different path
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             await expect(
@@ -167,22 +124,11 @@ export default {
 
         it('should validate plugins when loading from directory', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Should load plugins from internal directory without error
@@ -198,22 +144,11 @@ export default {
 
         it('should handle relative paths correctly', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: '.',
-                
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Create a plugin in current directory

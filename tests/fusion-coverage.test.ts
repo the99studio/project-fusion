@@ -163,7 +163,6 @@ describe('Fusion Coverage Tests', () => {
                 ...defaultConfig,
                 parsedFileExtensions: {
                     ...defaultConfig.parsedFileExtensions,
-                    // @ts-expect-error - Testing undefined case
                     undefined_group: undefined
                 }
             };

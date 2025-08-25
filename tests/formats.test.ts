@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import pkg from '../package.json' with { type: 'json' };
 import { processFusion } from '../src/fusion.js';
-import { Config } from '../src/types.js';
+import type { Config } from '../src/types.js';
 
 // Test configuration for multiple output formats
 const testConfig: Config = {
@@ -28,7 +28,9 @@ const testConfig: Config = {
   
   maxBase64BlockKB: 100,
   maxLineLength: 5000,
-  maxTokenLength: 2000
+  maxTokenLength: 2000,
+  excludeSecrets: true,
+  maxSymlinkAuditEntries: 100
 };
 
 const testDir = path.resolve('./temp/test-formats');

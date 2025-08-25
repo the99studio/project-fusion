@@ -319,9 +319,9 @@ describe('File Security Tests', () => {
                 'traverse3.js'
             ];
             
-            await symlink(join(testDir, '..', '..', '..', 'etc', 'passwd'), join(testDir, traversalAttempts[0]));
-            await symlink(evilFile1, join(testDir, traversalAttempts[1]));
-            await symlink(evilFile2, join(testDir, traversalAttempts[2]));
+            await symlink(join(testDir, '..', '..', '..', 'etc', 'passwd'), join(testDir, traversalAttempts[0]!));
+            await symlink(evilFile1, join(testDir, traversalAttempts[1]!));
+            await symlink(evilFile2, join(testDir, traversalAttempts[2]!));
             
             // Add a legitimate file
             await writeFile('safe.js', 'console.log("safe content");');

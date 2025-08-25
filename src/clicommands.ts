@@ -516,7 +516,7 @@ function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLi
         return;
     }
     
-    const defaultPatterns = new Set(defaultConfig.ignorePatterns);
+    const defaultPatterns = new Set<string>(defaultConfig.ignorePatterns);
     const maxDisplay = 15;
     
     for (const pattern of config.ignorePatterns.slice(0, maxDisplay)) {

@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
-import { Config } from '../src/types.js';
+import type { Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 
 describe('integration', () => {
