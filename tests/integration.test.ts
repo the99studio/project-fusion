@@ -274,7 +274,7 @@ describe('integration', () => {
         expect(htmlContent).toContain('<!DOCTYPE html>');
         expect(htmlContent).toContain('<html lang="en">');
         expect(htmlContent).toContain('test.js');
-        expect(htmlContent).toContain('console.log(&quot;Hello HTML&quot;);');
+        expect(htmlContent).toContain('console.log&#40;&quot;Hello HTML&quot;&#41;;');
       }
     });
   });

@@ -113,10 +113,10 @@ This is a **test** project with _markdown_ content.
     
     expect(htmlContent).toContain('<!DOCTYPE html>');
     expect(htmlContent).toContain('<html lang="en">');
-    expect(htmlContent).toContain('<title>Project Fusion - test-formats</title>');
-    expect(htmlContent).toContain('📁 Table of Contents');
-    expect(htmlContent).toContain('📄 test.js');
-    expect(htmlContent).toContain('📄 README.md');
+    expect(htmlContent).toContain('<title>test-formats - Project Fusion</title>');
+    expect(htmlContent).toContain('<h2>Table of Contents</h2>');
+    expect(htmlContent).toContain('<h2 id="testjs">test.js</h2>');
+    expect(htmlContent).toContain('<h2 id="readmemd">README.md</h2>');
     expect(htmlContent).toContain('</body>');
     expect(htmlContent).toContain('</html>');
   });
@@ -133,7 +133,7 @@ console.log(html);
     expect(result.success).toBe(true);
     const htmlContent = await fs.readFile('test-output.html', 'utf8');
     
-    expect(htmlContent).toContain('&lt;div&gt;Hello &amp; &lt;span&gt;World&lt;/span&gt;&lt;/div&gt;');
+    expect(htmlContent).toContain('&lt;div&gt;Hello &amp; &lt;span&gt;World&lt;&#47;span&gt;&lt;&#47;div&gt;');
   });
 
 

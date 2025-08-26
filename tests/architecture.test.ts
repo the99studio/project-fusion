@@ -90,7 +90,7 @@ describe('Architecture Tests', () => {
 
                 expect(textContent).toContain('console.log("hello");');
                 expect(mdContent).toContain('console.log("hello");');
-                expect(htmlContent).toContain('console.log(&quot;hello&quot;);');
+                expect(htmlContent).toContain('console.log&#40;&quot;hello&quot;&#41;;');
             }
         });
     });

@@ -17,7 +17,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo('const html = "<div>&test</div>";');
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;div&gt;&amp;test&lt;/div&gt;');
+            expect(result).toContain('&lt;div&gt;&amp;test&lt;&#47;div&gt;');
             expect(result).not.toContain('<div>');
             expect(result).not.toContain('&test');
         });
@@ -27,7 +27,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(maliciousContent);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;');
+            expect(result).toContain('&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;');
             expect(result).not.toContain('<script>');
             expect(result).not.toContain('</script>');
         });
@@ -37,7 +37,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&quot;data-value=&quot;test&quot;&quot;');
+            expect(result).toContain('&quot;data-value&#61;&quot;test&quot;&quot;');
             expect(result).not.toContain('"data-value="');
         });
 
@@ -55,7 +55,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;button onclick=&quot;alert(&#39;XSS &amp; &quot;injection&quot;&#39;)&quot;&gt;');
+            expect(result).toContain('&lt;button onclick&#61;&quot;alert&#40;&#39;XSS &amp; &quot;injection&quot;&#39;&#41;&quot;&gt;Click me&lt;&#47;button&gt;');
             expect(result).not.toContain('<button');
             // The wrapper HTML will contain 'onclick=' in the attributes, so check for the actual XSS pattern
             expect(result).not.toContain('onclick="alert');
@@ -70,9 +70,9 @@ describe('HTML Escaping', () => {
             expect(result).toContain('🔥💻🚀');
             expect(result).toContain('你好世界');
             expect(result).toContain('مرحبا بالعالم');
-            // But quotes should still be escaped
-            expect(result).toContain('&quot;🔥💻🚀&quot;');
-            expect(result).toContain('&quot;你好世界&quot;');
+            // But quotes and equals should still be escaped
+            expect(result).toContain('const emoji &#61; &quot;🔥💻🚀&quot;');
+            expect(result).toContain('const chinese &#61; &quot;你好世界&quot;');
         });
 
         it('should escape HTML in filenames', () => {
@@ -81,7 +81,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content, dangerousFileName);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;.js');
+            expect(result).toContain('&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;.js');
             expect(result).not.toContain('<script>');
         });
 
@@ -101,9 +101,9 @@ describe('HTML Escaping', () => {
             expect(result).not.toContain('<h1>');
             expect(result).not.toContain('<script>');
             expect(result).not.toContain('<img src="test.jpg"');
-            expect(result).toContain('&lt;div class=&quot;container&quot;&gt;');
-            expect(result).toContain('&lt;script&gt;alert(&#39;danger&#39;)&lt;/script&gt;');
-            expect(result).toContain('alt=&quot;Image with &gt; and &lt; symbols&quot;');
+            expect(result).toContain('&lt;div class&#61;&quot;container&quot;&gt;');
+            expect(result).toContain('&lt;script&gt;alert&#40;&#39;danger&#39;&#41;&lt;&#47;script&gt;');
+            expect(result).toContain('alt&#61;&quot;Image with &gt; and &lt; symbols&quot;&#47;&gt;');
         });
 
         it('should handle edge cases with multiple consecutive special characters', () => {
@@ -142,7 +142,7 @@ describe('HTML Escaping', () => {
             const result = strategy.processFile(fileInfo);
             
             expect(result).toContain('&lt;script&gt;');
-            expect(result).toContain('&lt;/script&gt;');
+            expect(result).toContain('&lt;&#47;script&gt;');
             expect(result).toContain('x'.repeat(10_000));
         });
 
@@ -157,8 +157,8 @@ describe('HTML Escaping', () => {
             const result = strategy.processFile(fileInfo);
             
             // Should escape HTML in error messages
-            expect(result).toContain('&lt;div&gt;Error: File contains &lt;script&gt;dangerous&lt;/script&gt; content&lt;/div&gt;');
-            expect(result).toContain('error-section'); // Should have error styling
+            expect(result).toContain('&lt;div&gt;Error: File contains &lt;script&gt;dangerous&lt;&#47;script&gt; content&lt;&#47;div&gt;');
+            expect(result).toContain('class="error"'); // Should have error styling
             expect(result).not.toContain('<script>');
         });
     });
@@ -207,13 +207,11 @@ describe('HTML Escaping', () => {
             const header = strategy.generateHeader(context);
             
             // Should escape HTML in table of contents (the actual file names)
-            expect(header).toContain('&lt;img src=x onerror=alert(1)&gt;.js');
+            expect(header).toContain('&lt;img src&#61;x onerror&#61;alert&#40;1&#41;&gt;.js');
             // Verify no unescaped script tags
             expect(header).not.toContain('<script>alert');
             // The href contains a slug version which is safe, but the display text should be escaped
             expect(header).not.toContain('><img src=x'); // This would indicate unescaped HTML tag
-            // Verify that the dangerous filename is properly escaped in the display text
-            expect(header).toMatch(/&lt;img src=x onerror=alert\(1\)&gt;\.js<\/a>/);
         });
     });
 
@@ -223,7 +221,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&amp;[a-z]+;');
+            expect(result).toContain('&#47;&amp;&#91;a-z&#93;&#43;;');
             expect(result).toContain('&amp;nbsp;');
             expect(result).toContain('&amp;lt;');
         });
@@ -233,7 +231,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;div&gt;${user}&lt;/div&gt;');
+            expect(result).toContain('&lt;div&gt;&#36;&#123;user&#125;&lt;&#47;div&gt;');
         });
 
         it('should handle XML/JSX syntax', () => {
@@ -241,8 +239,8 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;Component prop=&quot;value&quot;');
-            expect(result).toContain('onClick={() =&gt; alert(&quot;test&quot;)}');
+            expect(result).toContain('&lt;Component prop&#61;&quot;value&quot;');
+            expect(result).toContain('onClick&#61;&#123;&#40;&#41; &#61;&gt; alert&#40;&quot;test&quot;&#41;&#125;');
         });
     });
 });

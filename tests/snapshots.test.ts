@@ -301,7 +301,7 @@ module.exports = {
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
             expect(normalizedHtml).toMatchSnapshot('javascript-files.html');
         });
@@ -424,7 +424,7 @@ body {
             
             // Normalize timestamps
             const normalizedHtml = htmlContent
-                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
             expect(normalizedHtml).toMatchSnapshot('html-with-escaping.html');
         });
@@ -457,15 +457,15 @@ body {
 
             const htmlContent = await readFile('toc-test.html', 'utf8');
             
-            // Check TOC structure with new github-slugger format
-            expect(htmlContent).toContain('<nav class="toc"');
-            expect(htmlContent).toContain('<h2 id="toc-heading">📁 Table of Contents</h2>');
+            // Check TOC structure with simplified HTML format
+            expect(htmlContent).toContain('<h2>Table of Contents</h2>');
+            expect(htmlContent).toContain('<ul>');
             expect(htmlContent).toContain('href="#apiusersjs"');
             expect(htmlContent).toContain('href="#componentsheaderjs"');
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>')
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>')
             
             expect(normalizedHtml).toMatchSnapshot('html-with-toc.html');
         });
@@ -523,7 +523,7 @@ export class ApiClient {
             
             // Both should have proper structure
             expect(mdContent).toContain('## 📄 example.ts');
-            expect(htmlContent).toContain('📄 example.ts');
+            expect(htmlContent).toContain('<h2 id="examplets">example.ts</h2>');
         });
     });
 });

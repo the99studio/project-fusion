@@ -4,230 +4,43 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate HTML wi
 "<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Fusion - snapshot-test</title>
-    <meta name="description" content="Generated fusion of 5 files from snapshot-test using project-fusion v1.1.0">
-    <style>
-        /* Reset and base styles */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Skip link for keyboard navigation */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
-            border-radius: 0 0 4px 0;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* Header styles */
-        .header { 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-        }
-        .header dl { 
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
-            margin: 1em 0;
-        }
-        .header dt { 
-            font-weight: bold;
-        }
-        .header dd { 
-            margin: 0;
-        }
-        
-        /* File sections */
-        .file-section { 
-            margin-bottom: 40px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 20px; 
-        }
-        .file-title { 
-            background: #f5f5f5; 
-            margin: -20px -20px 20px -20px; 
-            padding: 15px 20px; 
-            border-radius: 8px 8px 0 0; 
-        }
-        
-        /* Code blocks */
-        pre { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 6px; 
-            overflow-x: auto; 
-            border: 1px solid #e1e4e8;
-            tab-size: 4;
-        }
-        code { 
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace; 
-            font-size: 0.95em;
-        }
-        
-        /* Table of contents */
-        .toc { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-            border: 1px solid #e1e4e8;
-        }
-        .toc ul { 
-            margin: 0; 
-            padding-left: 20px; 
-            list-style-type: disc;
-        }
-        .toc a { 
-            text-decoration: none; 
-            color: #0366d6; 
-        }
-        .toc a:hover, .toc a:focus { 
-            text-decoration: underline; 
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* Links */
-        a:focus {
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* High contrast support */
-        @media (prefers-contrast: high) {
-            .file-section { border-width: 2px; }
-            pre { border-width: 2px; }
-            .toc { border-width: 2px; }
-        }
-        
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body { 
-                background: #0d1117; 
-                color: #c9d1d9; 
-            }
-            .header { border-bottom-color: #30363d; }
-            .file-section { 
-                border-color: #30363d; 
-                background: #161b22;
-            }
-            .file-title { background: #0d1117; }
-            pre { 
-                background: #161b22; 
-                border-color: #30363d;
-                color: #c9d1d9;
-            }
-            .toc { 
-                background: #161b22; 
-                border-color: #30363d;
-            }
-            .toc a { color: #58a6ff; }
-            a { color: #58a6ff; }
-        }
-        
-        /* Print styles */
-        @media print {
-            .skip-link { display: none; }
-            .file-section { page-break-inside: avoid; }
-            pre { overflow-x: visible; white-space: pre-wrap; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>snapshot-test - Project Fusion</title>
+<style>
+body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
+pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
+h1,h2{margin-top:20px}
+ul{padding-left:20px}
+a{color:#00e;text-decoration:underline}
+.error{background:#fee;border:1px solid #c00;padding:10px}
+</style>
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <header class="header" role="banner">
-        <h1>Generated Project Fusion File</h1>
-        <dl>
-            <dt>Project:</dt>
-            <dd>snapshot-test</dd>
-            <dt>Generated:</dt>
-            <dd><time datetime="TIMESTAMP">TIMESTAMP</time></dd>
-            <dt>UTC:</dt>
-            <dd><time datetime="TIMESTAMP">TIMESTAMP</time></dd>
-            <dt>Files:</dt>
-            <dd>5</dd>
-            <dt>Generated by:</dt>
-            <dd><a href="https://github.com/the99studio/project-fusion" rel="external">project-fusion</a></dd>
-        </dl>
-    </header>
-    
-    <nav class="toc" role="navigation" aria-labelledby="toc-heading">
-        <h2 id="toc-heading">📁 Table of Contents</h2>
-        <ul role="list">
-            <li><a href="#apipostsjs">api/posts.js</a></li>
-            <li><a href="#apiusersjs">api/users.js</a></li>
-            <li><a href="#componentsfooterjs">components/Footer.js</a></li>
-            <li><a href="#componentsheaderjs">components/Header.js</a></li>
-            <li><a href="#utilsdatabasejs">utils/database.js</a></li>
-        </ul>
-    </nav>
-    
-    <main id="main-content" role="main">
-        <article class="file-section" id="apipostsjs" aria-labelledby="heading-apipostsjs">
-            <div class="file-title">
-                <h2 id="heading-apipostsjs">📄 api/posts.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for api/posts.js"><code class="language-javascript" lang="javascript">const posts = [];</code></pre>
-        </article>
-
-        <article class="file-section" id="apiusersjs" aria-labelledby="heading-apiusersjs">
-            <div class="file-title">
-                <h2 id="heading-apiusersjs">📄 api/users.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for api/users.js"><code class="language-javascript" lang="javascript">const users = [];</code></pre>
-        </article>
-
-        <article class="file-section" id="componentsfooterjs" aria-labelledby="heading-componentsfooterjs">
-            <div class="file-title">
-                <h2 id="heading-componentsfooterjs">📄 components/Footer.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for components/Footer.js"><code class="language-javascript" lang="javascript">export default function Footer() {}</code></pre>
-        </article>
-
-        <article class="file-section" id="componentsheaderjs" aria-labelledby="heading-componentsheaderjs">
-            <div class="file-title">
-                <h2 id="heading-componentsheaderjs">📄 components/Header.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for components/Header.js"><code class="language-javascript" lang="javascript">export default function Header() {}</code></pre>
-        </article>
-
-        <article class="file-section" id="utilsdatabasejs" aria-labelledby="heading-utilsdatabasejs">
-            <div class="file-title">
-                <h2 id="heading-utilsdatabasejs">📄 utils/database.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for utils/database.js"><code class="language-javascript" lang="javascript">class Database {}</code></pre>
-        </article>
-
-    </main>
+<h1>Project Fusion Output</h1>
+<p><strong>Project:</strong> snapshot-test</p>
+<p><strong>Generated:</strong> TIMESTAMP</p>
+<p><strong>Files:</strong> 5</p>
+<hr>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#apipostsjs">api&#47;posts.js</a></li>
+<li><a href="#apiusersjs">api&#47;users.js</a></li>
+<li><a href="#componentsfooterjs">components&#47;Footer.js</a></li>
+<li><a href="#componentsheaderjs">components&#47;Header.js</a></li>
+<li><a href="#utilsdatabasejs">utils&#47;database.js</a></li>
+</ul>
+<hr>
+<h2 id="apipostsjs">api&#47;posts.js</h2>
+<pre>const posts &#61; &#91;&#93;;</pre>
+<h2 id="apiusersjs">api&#47;users.js</h2>
+<pre>const users &#61; &#91;&#93;;</pre>
+<h2 id="componentsfooterjs">components&#47;Footer.js</h2>
+<pre>export default function Footer&#40;&#41; &#123;&#125;</pre>
+<h2 id="componentsheaderjs">components&#47;Header.js</h2>
+<pre>export default function Header&#40;&#41; &#123;&#125;</pre>
+<h2 id="utilsdatabasejs">utils&#47;database.js</h2>
+<pre>class Database &#123;&#125;</pre>
 </body>
 </html>"
 `;
@@ -236,254 +49,82 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate consist
 "<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Fusion - snapshot-test</title>
-    <meta name="description" content="Generated fusion of 2 files from snapshot-test using project-fusion v1.1.0">
-    <style>
-        /* Reset and base styles */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Skip link for keyboard navigation */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
-            border-radius: 0 0 4px 0;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* Header styles */
-        .header { 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-        }
-        .header dl { 
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
-            margin: 1em 0;
-        }
-        .header dt { 
-            font-weight: bold;
-        }
-        .header dd { 
-            margin: 0;
-        }
-        
-        /* File sections */
-        .file-section { 
-            margin-bottom: 40px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 20px; 
-        }
-        .file-title { 
-            background: #f5f5f5; 
-            margin: -20px -20px 20px -20px; 
-            padding: 15px 20px; 
-            border-radius: 8px 8px 0 0; 
-        }
-        
-        /* Code blocks */
-        pre { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 6px; 
-            overflow-x: auto; 
-            border: 1px solid #e1e4e8;
-            tab-size: 4;
-        }
-        code { 
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace; 
-            font-size: 0.95em;
-        }
-        
-        /* Table of contents */
-        .toc { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-            border: 1px solid #e1e4e8;
-        }
-        .toc ul { 
-            margin: 0; 
-            padding-left: 20px; 
-            list-style-type: disc;
-        }
-        .toc a { 
-            text-decoration: none; 
-            color: #0366d6; 
-        }
-        .toc a:hover, .toc a:focus { 
-            text-decoration: underline; 
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* Links */
-        a:focus {
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* High contrast support */
-        @media (prefers-contrast: high) {
-            .file-section { border-width: 2px; }
-            pre { border-width: 2px; }
-            .toc { border-width: 2px; }
-        }
-        
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body { 
-                background: #0d1117; 
-                color: #c9d1d9; 
-            }
-            .header { border-bottom-color: #30363d; }
-            .file-section { 
-                border-color: #30363d; 
-                background: #161b22;
-            }
-            .file-title { background: #0d1117; }
-            pre { 
-                background: #161b22; 
-                border-color: #30363d;
-                color: #c9d1d9;
-            }
-            .toc { 
-                background: #161b22; 
-                border-color: #30363d;
-            }
-            .toc a { color: #58a6ff; }
-            a { color: #58a6ff; }
-        }
-        
-        /* Print styles */
-        @media print {
-            .skip-link { display: none; }
-            .file-section { page-break-inside: avoid; }
-            pre { overflow-x: visible; white-space: pre-wrap; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>snapshot-test - Project Fusion</title>
+<style>
+body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
+pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
+h1,h2{margin-top:20px}
+ul{padding-left:20px}
+a{color:#00e;text-decoration:underline}
+.error{background:#fee;border:1px solid #c00;padding:10px}
+</style>
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <header class="header" role="banner">
-        <h1>Generated Project Fusion File</h1>
-        <dl>
-            <dt>Project:</dt>
-            <dd>snapshot-test</dd>
-            <dt>Generated:</dt>
-            <dd><time datetime="TIMESTAMP">TIMESTAMP</time></dd>
-            <dt>UTC:</dt>
-            <dd><time datetime="TIMESTAMP">TIMESTAMP</time></dd>
-            <dt>Files:</dt>
-            <dd>2</dd>
-            <dt>Generated by:</dt>
-            <dd><a href="https://github.com/the99studio/project-fusion" rel="external">project-fusion</a></dd>
-        </dl>
-    </header>
-    
-    <nav class="toc" role="navigation" aria-labelledby="toc-heading">
-        <h2 id="toc-heading">📁 Table of Contents</h2>
-        <ul role="list">
-            <li><a href="#appjs">app.js</a></li>
-            <li><a href="#helpersjs">helpers.js</a></li>
-        </ul>
-    </nav>
-    
-    <main id="main-content" role="main">
-        <article class="file-section" id="appjs" aria-labelledby="heading-appjs">
-            <div class="file-title">
-                <h2 id="heading-appjs">📄 app.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for app.js"><code class="language-javascript" lang="javascript">// Simple Express application
-const express = require(&#39;express&#39;);
-const path = require(&#39;path&#39;);
+<h1>Project Fusion Output</h1>
+<p><strong>Project:</strong> snapshot-test</p>
+<p><strong>Generated:</strong> TIMESTAMP</p>
+<p><strong>Files:</strong> 2</p>
+<hr>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#appjs">app.js</a></li>
+<li><a href="#helpersjs">helpers.js</a></li>
+</ul>
+<hr>
+<h2 id="appjs">app.js</h2>
+<pre>&#47;&#47; Simple Express application
+const express &#61; require&#40;&#39;express&#39;&#41;;
+const path &#61; require&#40;&#39;path&#39;&#41;;
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app &#61; express&#40;&#41;;
+const PORT &#61; process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
-app.use(express.static(&#39;public&#39;));
+&#47;&#47; Middleware
+app.use&#40;express.json&#40;&#41;&#41;;
+app.use&#40;express.static&#40;&#39;public&#39;&#41;&#41;;
 
-// Routes
-app.get(&#39;/&#39;, (req, res) =&gt; {
-    res.sendFile(path.join(__dirname, &#39;index.html&#39;));
-});
+&#47;&#47; Routes
+app.get&#40;&#39;&#47;&#39;, &#40;req, res&#41; &#61;&gt; &#123;
+    res.sendFile&#40;path.join&#40;__dirname, &#39;index.html&#39;&#41;&#41;;
+&#125;&#41;;
 
-app.get(&#39;/api/health&#39;, (req, res) =&gt; {
-    res.json({ status: &#39;ok&#39;, timestamp: new Date().toISOString() });
-});
+app.get&#40;&#39;&#47;api&#47;health&#39;, &#40;req, res&#41; &#61;&gt; &#123;
+    res.json&#40;&#123; status: &#39;ok&#39;, timestamp: new Date&#40;&#41;.toISOString&#40;&#41; &#125;&#41;;
+&#125;&#41;;
 
-// Start server
-app.listen(PORT, () =&gt; {
-    console.log(\`Server running on http://localhost:\${PORT}\`);
-});</code></pre>
-        </article>
+&#47;&#47; Start server
+app.listen&#40;PORT, &#40;&#41; &#61;&gt; &#123;
+    console.log&#40;&#96;Server running on http:&#47;&#47;localhost:&#36;&#123;PORT&#125;&#96;&#41;;
+&#125;&#41;;</pre>
+<h2 id="helpersjs">helpers.js</h2>
+<pre>&#47;&#47; Helper functions
+const crypto &#61; require&#40;&#39;crypto&#39;&#41;;
 
-        <article class="file-section" id="helpersjs" aria-labelledby="heading-helpersjs">
-            <div class="file-title">
-                <h2 id="heading-helpersjs">📄 helpers.js</h2>
-            </div>
-            <pre role="region" aria-label="Source code for helpers.js"><code class="language-javascript" lang="javascript">// Helper functions
-const crypto = require(&#39;crypto&#39;);
-
-/**
+&#47;**
  * Generate a random ID
- * @param {number} length - Length of the ID
- * @returns {string} Random ID
- */
-function generateId(length = 8) {
-    return crypto.randomBytes(length).toString(&#39;hex&#39;);
-}
+ * &#64;param &#123;number&#125; length - Length of the ID
+ * &#64;returns &#123;string&#125; Random ID
+ *&#47;
+function generateId&#40;length &#61; 8&#41; &#123;
+    return crypto.randomBytes&#40;length&#41;.toString&#40;&#39;hex&#39;&#41;;
+&#125;
 
-/**
+&#47;**
  * Validate email format
- * @param {string} email - Email to validate
- * @returns {boolean} True if valid
- */
-function isValidEmail(email) {
-    const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-    return regex.test(email);
-}
+ * &#64;param &#123;string&#125; email - Email to validate
+ * &#64;returns &#123;boolean&#125; True if valid
+ *&#47;
+function isValidEmail&#40;email&#41; &#123;
+    const regex &#61; &#47;^&#91;^\\s&#64;&#93;&#43;&#64;&#91;^\\s&#64;&#93;&#43;\\.&#91;^\\s&#64;&#93;&#43;&#36;&#47;;
+    return regex.test&#40;email&#41;;
+&#125;
 
-module.exports = {
+module.exports &#61; &#123;
     generateId,
     isValidEmail
-};</code></pre>
-        </article>
-
-    </main>
+&#125;;</pre>
 </body>
 </html>"
 `;
@@ -492,216 +133,52 @@ exports[`Format Snapshot Tests > HTML Format Snapshots > should generate consist
 "<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Fusion - snapshot-test</title>
-    <meta name="description" content="Generated fusion of 2 files from snapshot-test using project-fusion v1.1.0">
-    <style>
-        /* Reset and base styles */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Skip link for keyboard navigation */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
-            border-radius: 0 0 4px 0;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* Header styles */
-        .header { 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-        }
-        .header dl { 
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
-            margin: 1em 0;
-        }
-        .header dt { 
-            font-weight: bold;
-        }
-        .header dd { 
-            margin: 0;
-        }
-        
-        /* File sections */
-        .file-section { 
-            margin-bottom: 40px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 20px; 
-        }
-        .file-title { 
-            background: #f5f5f5; 
-            margin: -20px -20px 20px -20px; 
-            padding: 15px 20px; 
-            border-radius: 8px 8px 0 0; 
-        }
-        
-        /* Code blocks */
-        pre { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 6px; 
-            overflow-x: auto; 
-            border: 1px solid #e1e4e8;
-            tab-size: 4;
-        }
-        code { 
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace; 
-            font-size: 0.95em;
-        }
-        
-        /* Table of contents */
-        .toc { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-            border: 1px solid #e1e4e8;
-        }
-        .toc ul { 
-            margin: 0; 
-            padding-left: 20px; 
-            list-style-type: disc;
-        }
-        .toc a { 
-            text-decoration: none; 
-            color: #0366d6; 
-        }
-        .toc a:hover, .toc a:focus { 
-            text-decoration: underline; 
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* Links */
-        a:focus {
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* High contrast support */
-        @media (prefers-contrast: high) {
-            .file-section { border-width: 2px; }
-            pre { border-width: 2px; }
-            .toc { border-width: 2px; }
-        }
-        
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body { 
-                background: #0d1117; 
-                color: #c9d1d9; 
-            }
-            .header { border-bottom-color: #30363d; }
-            .file-section { 
-                border-color: #30363d; 
-                background: #161b22;
-            }
-            .file-title { background: #0d1117; }
-            pre { 
-                background: #161b22; 
-                border-color: #30363d;
-                color: #c9d1d9;
-            }
-            .toc { 
-                background: #161b22; 
-                border-color: #30363d;
-            }
-            .toc a { color: #58a6ff; }
-            a { color: #58a6ff; }
-        }
-        
-        /* Print styles */
-        @media print {
-            .skip-link { display: none; }
-            .file-section { page-break-inside: avoid; }
-            pre { overflow-x: visible; white-space: pre-wrap; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>snapshot-test - Project Fusion</title>
+<style>
+body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
+pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
+h1,h2{margin-top:20px}
+ul{padding-left:20px}
+a{color:#00e;text-decoration:underline}
+.error{background:#fee;border:1px solid #c00;padding:10px}
+</style>
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <header class="header" role="banner">
-        <h1>Generated Project Fusion File</h1>
-        <dl>
-            <dt>Project:</dt>
-            <dd>snapshot-test</dd>
-            <dt>Generated:</dt>
-            <dd><time datetime="TIMESTAMP">TIMESTAMP</time></dd>
-            <dt>UTC:</dt>
-            <dd><time datetime="TIMESTAMP">TIMESTAMP</time></dd>
-            <dt>Files:</dt>
-            <dd>2</dd>
-            <dt>Generated by:</dt>
-            <dd><a href="https://github.com/the99studio/project-fusion" rel="external">project-fusion</a></dd>
-        </dl>
-    </header>
-    
-    <nav class="toc" role="navigation" aria-labelledby="toc-heading">
-        <h2 id="toc-heading">📁 Table of Contents</h2>
-        <ul role="list">
-            <li><a href="#stylescss">styles.css</a></li>
-            <li><a href="#templatehtml">template.html</a></li>
-        </ul>
-    </nav>
-    
-    <main id="main-content" role="main">
-        <article class="file-section" id="stylescss" aria-labelledby="heading-stylescss">
-            <div class="file-title">
-                <h2 id="heading-stylescss">📄 styles.css</h2>
-            </div>
-            <pre role="region" aria-label="Source code for styles.css"><code class="language-css" lang="css">/* Global styles */
-* {
+<h1>Project Fusion Output</h1>
+<p><strong>Project:</strong> snapshot-test</p>
+<p><strong>Generated:</strong> TIMESTAMP</p>
+<p><strong>Files:</strong> 2</p>
+<hr>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#stylescss">styles.css</a></li>
+<li><a href="#templatehtml">template.html</a></li>
+</ul>
+<hr>
+<h2 id="stylescss">styles.css</h2>
+<pre>&#47;* Global styles *&#47;
+* &#123;
     box-sizing: border-box;
-}
+&#125;
 
-body {
+body &#123;
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, sans-serif;
     line-height: 1.6;
     color: #333;
-}
+&#125;
 
-.container {
+.container &#123;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-}
+&#125;
 
-/* Button styles */
-.btn {
+&#47;* Button styles *&#47;
+.btn &#123;
     display: inline-block;
     padding: 12px 24px;
     background: #007bff;
@@ -709,83 +186,75 @@ body {
     text-decoration: none;
     border-radius: 4px;
     transition: background 0.3s ease;
-}
+&#125;
 
-.btn:hover {
+.btn:hover &#123;
     background: #0056b3;
-}
+&#125;
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .container {
+&#47;* Responsive design *&#47;
+&#64;media &#40;max-width: 768px&#41; &#123;
+    .container &#123;
         padding: 0 10px;
-    }
+    &#125;
     
-    .btn {
+    .btn &#123;
         display: block;
         text-align: center;
         margin: 10px 0;
-    }
-}</code></pre>
-        </article>
-
-        <article class="file-section" id="templatehtml" aria-labelledby="heading-templatehtml">
-            <div class="file-title">
-                <h2 id="heading-templatehtml">📄 template.html</h2>
-            </div>
-            <pre role="region" aria-label="Source code for template.html"><code class="language-html" lang="html">&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
+    &#125;
+&#125;</pre>
+<h2 id="templatehtml">template.html</h2>
+<pre>&lt;&#33;DOCTYPE html&gt;
+&lt;html lang&#61;&quot;en&quot;&gt;
 &lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
-    &lt;title&gt;Test Template&lt;/title&gt;
+    &lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+    &lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+    &lt;title&gt;Test Template&lt;&#47;title&gt;
     &lt;style&gt;
-        body {
+        body &#123;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-        }
-        .container {
+        &#125;
+        .container &#123;
             max-width: 800px;
             margin: 0 auto;
-        }
-        .header {
+        &#125;
+        .header &#123;
             background: #f5f5f5;
             padding: 20px;
             border-radius: 8px;
-        }
-    &lt;/style&gt;
-&lt;/head&gt;
+        &#125;
+    &lt;&#47;style&gt;
+&lt;&#47;head&gt;
 &lt;body&gt;
-    &lt;div class=&quot;container&quot;&gt;
-        &lt;div class=&quot;header&quot;&gt;
-            &lt;h1&gt;Welcome to Test App&lt;/h1&gt;
-            &lt;p&gt;This is a &lt;strong&gt;test&lt;/strong&gt; application with &lt;em&gt;HTML&lt;/em&gt; content.&lt;/p&gt;
-        &lt;/div&gt;
+    &lt;div class&#61;&quot;container&quot;&gt;
+        &lt;div class&#61;&quot;header&quot;&gt;
+            &lt;h1&gt;Welcome to Test App&lt;&#47;h1&gt;
+            &lt;p&gt;This is a &lt;strong&gt;test&lt;&#47;strong&gt; application with &lt;em&gt;HTML&lt;&#47;em&gt; content.&lt;&#47;p&gt;
+        &lt;&#47;div&gt;
         
         &lt;main&gt;
-            &lt;h2&gt;Features &amp; Benefits&lt;/h2&gt;
+            &lt;h2&gt;Features &amp; Benefits&lt;&#47;h2&gt;
             &lt;ul&gt;
-                &lt;li&gt;Fast &amp; reliable&lt;/li&gt;
-                &lt;li&gt;Secure by design&lt;/li&gt;
-                &lt;li&gt;Easy to use&lt;/li&gt;
-            &lt;/ul&gt;
+                &lt;li&gt;Fast &amp; reliable&lt;&#47;li&gt;
+                &lt;li&gt;Secure by design&lt;&#47;li&gt;
+                &lt;li&gt;Easy to use&lt;&#47;li&gt;
+            &lt;&#47;ul&gt;
             
-            &lt;p&gt;Contact us at: &lt;a href=&quot;mailto:test@example.com&quot;&gt;test@example.com&lt;/a&gt;&lt;/p&gt;
-        &lt;/main&gt;
-    &lt;/div&gt;
+            &lt;p&gt;Contact us at: &lt;a href&#61;&quot;mailto:test&#64;example.com&quot;&gt;test&#64;example.com&lt;&#47;a&gt;&lt;&#47;p&gt;
+        &lt;&#47;main&gt;
+    &lt;&#47;div&gt;
     
     &lt;script&gt;
-        console.log(&#39;Page loaded successfully!&#39;);
-        document.addEventListener(&#39;DOMContentLoaded&#39;, () =&gt; {
-            console.log(&#39;DOM ready&#39;);
-        });
-    &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
-        </article>
-
-    </main>
+        console.log&#40;&#39;Page loaded successfully&#33;&#39;&#41;;
+        document.addEventListener&#40;&#39;DOMContentLoaded&#39;, &#40;&#41; &#61;&gt; &#123;
+            console.log&#40;&#39;DOM ready&#39;&#41;;
+        &#125;&#41;;
+    &lt;&#47;script&gt;
+&lt;&#47;body&gt;
+&lt;&#47;html&gt;</pre>
 </body>
 </html>"
 `;

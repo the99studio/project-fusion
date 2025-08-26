@@ -71,10 +71,10 @@ describe('CLI E2E Tests', () => {
             // Check content of HTML file
             const htmlContent = await readFile('project-fusioned.html', 'utf8');
             expect(htmlContent).toContain('<!DOCTYPE html>');
-            expect(htmlContent).toContain('📄 test.js');
-            expect(htmlContent).toContain('📄 test.ts');
-            expect(htmlContent).toContain('<code class="language-javascript" lang="javascript">');
-            expect(htmlContent).toContain('<code class="language-typescript" lang="typescript">');
+            expect(htmlContent).toContain('<h2 id="testjs">test.js</h2>');
+            expect(htmlContent).toContain('<h2 id="testts">test.ts</h2>');
+            expect(htmlContent).toContain('console.log&#40;&quot;Hello, World&#33;&quot;&#41;;');
+            expect(htmlContent).toContain('const message: string &#61; &quot;TypeScript&quot;;');
         });
 
         it('should handle empty directory gracefully', () => {

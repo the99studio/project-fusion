@@ -61,9 +61,9 @@ console.log("test");
             );
 
             // Verify all dangerous HTML is escaped
-            expect(htmlContent).toContain('&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;');
-            expect(htmlContent).toContain('&lt;img src=&quot;x&quot; onerror=&quot;alert(&#39;XSS&#39;)&quot;&gt;');
-            expect(htmlContent).toContain('&amp;lt;div&amp;gt;Already escaped&amp;lt;/div&amp;gt;');
+            expect(htmlContent).toContain('&lt;script&gt;alert&#40;&#39;XSS&#39;&#41;&lt;&#47;script&gt;');
+            expect(htmlContent).toContain('&lt;img src&#61;&quot;x&quot; onerror&#61;&quot;alert&#40;&#39;XSS&#39;&#41;&quot;&gt;');
+            expect(htmlContent).toContain('&amp;lt;div&amp;gt;Already escaped&amp;lt;&#47;div&amp;gt;');
             expect(htmlContent).toContain('&quot;quotes&quot; &amp; &#39;apostrophes&#39;');
 
             // Verify no unescaped dangerous content
@@ -104,8 +104,8 @@ console.log("test");
             expect(htmlContent).toContain('safe-file.js');
             
             // Verify no unescaped angle brackets that could be dangerous
-            const tocSection = htmlContent.split('<nav class="toc"')[1]?.split('</nav>')[0];
-            const titleSections = htmlContent.split('>📄 ');
+            const tocSection = htmlContent.split('<h2>Table of Contents</h2>')[1]?.split('<hr>')[0];
+            const titleSections = htmlContent.split('<h2 id="');
             
             expect(tocSection).toBeDefined();
             expect(titleSections.length).toBeGreaterThan(1);
@@ -149,17 +149,17 @@ console.log("test");
             );
 
             // Project title should be escaped
-            expect(htmlContent).toContain('&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt;');
-            expect(htmlContent).toContain('1.0.0&lt;img src=x onerror=alert(&quot;version&quot;)&gt;');
+            expect(htmlContent).toContain('&lt;script&gt;alert&#40;&quot;name&quot;&#41;&lt;&#47;script&gt;');
+            expect(htmlContent).toContain('1.0.0&lt;img src&#61;x onerror&#61;alert&#40;&quot;version&quot;&#41;&gt;');
             
-            // Verify no unescaped dangerous content in header
-            const headerSection = htmlContent.split('<header class="header"')[1]?.split('</header>')[0];
-            expect(headerSection).toBeDefined();
-            expect(headerSection).not.toContain('<script>alert(');
-            expect(headerSection).not.toContain('<img src=x');
+            // Verify no unescaped dangerous content in body
+            const bodySection = htmlContent.split('<body>')[1]?.split('</body>')[0];
+            expect(bodySection).toBeDefined();
+            expect(bodySection).not.toContain('<script>alert(');
+            expect(bodySection).not.toContain('<img src=x');
             // The dangerous tags are escaped, making them safe
-            expect(headerSection).not.toContain('<script>');
-            expect(headerSection).not.toContain('<img ');
+            expect(bodySection).not.toContain('<script>');
+            expect(bodySection).not.toContain('<img ');
         });
     });
 

@@ -37,12 +37,28 @@ export interface OutputStrategy {
 }
 
 function escapeHtml(text: string): string {
+    // Enhanced HTML escaping for maximum security
+    // Escape all potentially dangerous characters
     return text
-        .replaceAll('&', '&amp;')
+        .replaceAll('&', '&amp;')   // Must be first to avoid double-escaping
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
-        .replaceAll('\'', '&#39;');
+        .replaceAll("'", '&#39;')
+        .replaceAll('/', '&#47;')    // Prevent closing tags in attributes
+        .replaceAll('`', '&#96;')    // Prevent JS template literals
+        .replaceAll('=', '&#61;')    // Prevent attribute injection
+        .replaceAll('!', '&#33;')    // Prevent comment injection
+        .replaceAll('@', '&#64;')    // Prevent CSS injection
+        .replaceAll('$', '&#36;')    // Prevent template variable injection
+        .replaceAll('%', '&#37;')    // Prevent URL encoding issues
+        .replaceAll('(', '&#40;')    // Prevent JS execution
+        .replaceAll(')', '&#41;')    // Prevent JS execution
+        .replaceAll('+', '&#43;')    // Prevent URL encoding issues
+        .replaceAll('{', '&#123;')   // Prevent template injection
+        .replaceAll('}', '&#125;')   // Prevent template injection
+        .replaceAll('[', '&#91;')    // Prevent array notation
+        .replaceAll(']', '&#93;');   // Prevent array notation
 }
 
 export class TextOutputStrategy implements OutputStrategy {
@@ -153,238 +169,61 @@ export class HtmlOutputStrategy implements OutputStrategy {
         // Reset slugger for each new document to ensure consistent anchors
         this.slugger.reset();
         const tocEntries = context.filesToProcess
-            .map(fileInfo => `            <li><a href="#${this.slugger.slug(fileInfo.relativePath)}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
+            .map(fileInfo => `<li><a href="#${this.slugger.slug(fileInfo.relativePath)}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
             .join('\n');
         // Reset again so processFile generates same anchors
         this.slugger.reset();
 
+        // Simplified, portable HTML5 with minimal CSS
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Fusion - ${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</title>
-    <meta name="description" content="Generated fusion of ${context.filesToProcess.length} files from ${context.projectTitle}${context.toolVersion ? ` using project-fusion v${context.toolVersion}` : ''}">
-    <style>
-        /* Reset and base styles */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Skip link for keyboard navigation */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
-            border-radius: 0 0 4px 0;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* Header styles */
-        .header { 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-        }
-        .header dl { 
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
-            margin: 1em 0;
-        }
-        .header dt { 
-            font-weight: bold;
-        }
-        .header dd { 
-            margin: 0;
-        }
-        
-        /* File sections */
-        .file-section { 
-            margin-bottom: 40px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 20px; 
-        }
-        .file-title { 
-            background: #f5f5f5; 
-            margin: -20px -20px 20px -20px; 
-            padding: 15px 20px; 
-            border-radius: 8px 8px 0 0; 
-        }
-        
-        /* Code blocks */
-        pre { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 6px; 
-            overflow-x: auto; 
-            border: 1px solid #e1e4e8;
-            tab-size: 4;
-        }
-        code { 
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace; 
-            font-size: 0.95em;
-        }
-        
-        /* Table of contents */
-        .toc { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-            border: 1px solid #e1e4e8;
-        }
-        .toc ul { 
-            margin: 0; 
-            padding-left: 20px; 
-            list-style-type: disc;
-        }
-        .toc a { 
-            text-decoration: none; 
-            color: #0366d6; 
-        }
-        .toc a:hover, .toc a:focus { 
-            text-decoration: underline; 
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* Links */
-        a:focus {
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* High contrast support */
-        @media (prefers-contrast: high) {
-            .file-section { border-width: 2px; }
-            pre { border-width: 2px; }
-            .toc { border-width: 2px; }
-        }
-        
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body { 
-                background: #0d1117; 
-                color: #c9d1d9; 
-            }
-            .header { border-bottom-color: #30363d; }
-            .file-section { 
-                border-color: #30363d; 
-                background: #161b22;
-            }
-            .file-title { background: #0d1117; }
-            pre { 
-                background: #161b22; 
-                border-color: #30363d;
-                color: #c9d1d9;
-            }
-            .toc { 
-                background: #161b22; 
-                border-color: #30363d;
-            }
-            .toc a { color: #58a6ff; }
-            a { color: #58a6ff; }
-        }
-        
-        /* Print styles */
-        @media print {
-            .skip-link { display: none; }
-            .file-section { page-break-inside: avoid; }
-            pre { overflow-x: visible; white-space: pre-wrap; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)} - Project Fusion</title>
+<style>
+body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
+pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
+h1,h2{margin-top:20px}
+ul{padding-left:20px}
+a{color:#00e;text-decoration:underline}
+.error{background:#fee;border:1px solid #c00;padding:10px}
+</style>
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <header class="header" role="banner">
-        <h1>Generated Project Fusion File</h1>
-        <dl>
-            <dt>Project:</dt>
-            <dd>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</dd>
-            <dt>Generated:</dt>
-            <dd><time datetime="${new Date().toISOString()}">${formatLocalTimestamp()}</time></dd>
-            <dt>UTC:</dt>
-            <dd><time datetime="${new Date().toISOString()}">${formatTimestamp()}</time></dd>
-            <dt>Files:</dt>
-            <dd>${context.filesToProcess.length}</dd>
-            <dt>Generated by:</dt>
-            <dd><a href="https://github.com/the99studio/project-fusion" rel="external">project-fusion</a></dd>
-        </dl>
-    </header>
-    
-    <nav class="toc" role="navigation" aria-labelledby="toc-heading">
-        <h2 id="toc-heading">📁 Table of Contents</h2>
-        <ul role="list">
+<h1>Project Fusion Output</h1>
+<p><strong>Project:</strong> ${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</p>
+<p><strong>Generated:</strong> ${escapeHtml(formatLocalTimestamp())}</p>
+<p><strong>Files:</strong> ${context.filesToProcess.length}</p>
+<hr>
+<h2>Table of Contents</h2>
+<ul>
 ${tocEntries}
-        </ul>
-    </nav>
-    
-    <main id="main-content" role="main">
+</ul>
+<hr>
 `;
     }
 
     processFile(fileInfo: FileInfo): string {
         const fileAnchor = this.slugger.slug(fileInfo.relativePath);
         const escapedPath = escapeHtml(fileInfo.relativePath);
+        const escapedContent = escapeHtml(fileInfo.content);
         
         if (fileInfo.isErrorPlaceholder) {
-            // For error placeholders, display as error message with distinct styling
-            const escapedContent = escapeHtml(fileInfo.content);
-            return `        <article class="file-section error-section" id="${fileAnchor}" aria-labelledby="heading-${fileAnchor}">
-            <div class="file-title error-title">
-                <h2 id="heading-${fileAnchor}">⚠️ ${escapedPath}</h2>
-            </div>
-            <div class="error-content" role="alert">
-                <pre style="background: #fee; border: 2px solid #c00; padding: 1rem; white-space: pre-wrap;">${escapedContent}</pre>
-            </div>
-        </article>
-
+            // Simple error display
+            return `<h2 id="${fileAnchor}">ERROR: ${escapedPath}</h2>
+<pre class="error">${escapedContent}</pre>
 `;
         }
         
-        const fileExt = path.extname(fileInfo.path).toLowerCase();
-        const basename = path.basename(fileInfo.path);
-        const language = getMarkdownLanguage(fileExt || basename);
-        const escapedContent = escapeHtml(fileInfo.content);
-
-        return `        <article class="file-section" id="${fileAnchor}" aria-labelledby="heading-${fileAnchor}">
-            <div class="file-title">
-                <h2 id="heading-${fileAnchor}">📄 ${escapedPath}</h2>
-            </div>
-            <pre role="region" aria-label="Source code for ${escapedPath}"><code class="language-${language}" lang="${language}">${escapedContent}</code></pre>
-        </article>
-
+        // Simple file display
+        return `<h2 id="${fileAnchor}">${escapedPath}</h2>
+<pre>${escapedContent}</pre>
 `;
     }
 
     generateFooter(): string {
-        return `    </main>
-</body>
+        return `</body>
 </html>`;
     }
 

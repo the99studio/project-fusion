@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 25/08/2025 22:47:24 UTC−4
+**Generated:** 26/08/2025 07:20:40 UTC−4
 
-**UTC:** 2025-08-26T02:47:24.977Z
+**UTC:** 2025-08-26T11:20:40.305Z
 
 **Files:** 65
 
@@ -3989,12 +3989,28 @@ export interface OutputStrategy {
 }
 
 function escapeHtml(text: string): string {
+    // Enhanced HTML escaping for maximum security
+    // Escape all potentially dangerous characters
     return text
-        .replaceAll('&', '&amp;')
+        .replaceAll('&', '&amp;')   // Must be first to avoid double-escaping
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
-        .replaceAll('\'', '&#39;');
+        .replaceAll("'", '&#39;')
+        .replaceAll('/', '&#47;')    // Prevent closing tags in attributes
+        .replaceAll('`', '&#96;')    // Prevent JS template literals
+        .replaceAll('=', '&#61;')    // Prevent attribute injection
+        .replaceAll('!', '&#33;')    // Prevent comment injection
+        .replaceAll('@', '&#64;')    // Prevent CSS injection
+        .replaceAll('$', '&#36;')    // Prevent template variable injection
+        .replaceAll('%', '&#37;')    // Prevent URL encoding issues
+        .replaceAll('(', '&#40;')    // Prevent JS execution
+        .replaceAll(')', '&#41;')    // Prevent JS execution
+        .replaceAll('+', '&#43;')    // Prevent URL encoding issues
+        .replaceAll('{', '&#123;')   // Prevent template injection
+        .replaceAll('}', '&#125;')   // Prevent template injection
+        .replaceAll('[', '&#91;')    // Prevent array notation
+        .replaceAll(']', '&#93;');   // Prevent array notation
 }
 
 export class TextOutputStrategy implements OutputStrategy {
@@ -4105,238 +4121,61 @@ export class HtmlOutputStrategy implements OutputStrategy {
         // Reset slugger for each new document to ensure consistent anchors
         this.slugger.reset();
         const tocEntries = context.filesToProcess
-            .map(fileInfo => `            <li><a href="#${this.slugger.slug(fileInfo.relativePath)}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
+            .map(fileInfo => `<li><a href="#${this.slugger.slug(fileInfo.relativePath)}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
             .join('\n');
         // Reset again so processFile generates same anchors
         this.slugger.reset();
 
+        // Simplified, portable HTML5 with minimal CSS
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Fusion - ${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</title>
-    <meta name="description" content="Generated fusion of ${context.filesToProcess.length} files from ${context.projectTitle}${context.toolVersion ? ` using project-fusion v${context.toolVersion}` : ''}">
-    <style>
-        /* Reset and base styles */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Skip link for keyboard navigation */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
-            border-radius: 0 0 4px 0;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* Header styles */
-        .header { 
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-        }
-        .header dl { 
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
-            margin: 1em 0;
-        }
-        .header dt { 
-            font-weight: bold;
-        }
-        .header dd { 
-            margin: 0;
-        }
-        
-        /* File sections */
-        .file-section { 
-            margin-bottom: 40px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            padding: 20px; 
-        }
-        .file-title { 
-            background: #f5f5f5; 
-            margin: -20px -20px 20px -20px; 
-            padding: 15px 20px; 
-            border-radius: 8px 8px 0 0; 
-        }
-        
-        /* Code blocks */
-        pre { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 6px; 
-            overflow-x: auto; 
-            border: 1px solid #e1e4e8;
-            tab-size: 4;
-        }
-        code { 
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace; 
-            font-size: 0.95em;
-        }
-        
-        /* Table of contents */
-        .toc { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 30px; 
-            border: 1px solid #e1e4e8;
-        }
-        .toc ul { 
-            margin: 0; 
-            padding-left: 20px; 
-            list-style-type: disc;
-        }
-        .toc a { 
-            text-decoration: none; 
-            color: #0366d6; 
-        }
-        .toc a:hover, .toc a:focus { 
-            text-decoration: underline; 
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* Links */
-        a:focus {
-            outline: 2px solid #0366d6;
-            outline-offset: 2px;
-        }
-        
-        /* High contrast support */
-        @media (prefers-contrast: high) {
-            .file-section { border-width: 2px; }
-            pre { border-width: 2px; }
-            .toc { border-width: 2px; }
-        }
-        
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body { 
-                background: #0d1117; 
-                color: #c9d1d9; 
-            }
-            .header { border-bottom-color: #30363d; }
-            .file-section { 
-                border-color: #30363d; 
-                background: #161b22;
-            }
-            .file-title { background: #0d1117; }
-            pre { 
-                background: #161b22; 
-                border-color: #30363d;
-                color: #c9d1d9;
-            }
-            .toc { 
-                background: #161b22; 
-                border-color: #30363d;
-            }
-            .toc a { color: #58a6ff; }
-            a { color: #58a6ff; }
-        }
-        
-        /* Print styles */
-        @media print {
-            .skip-link { display: none; }
-            .file-section { page-break-inside: avoid; }
-            pre { overflow-x: visible; white-space: pre-wrap; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)} - Project Fusion</title>
+<style>
+body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
+pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
+h1,h2{margin-top:20px}
+ul{padding-left:20px}
+a{color:#00e;text-decoration:underline}
+.error{background:#fee;border:1px solid #c00;padding:10px}
+</style>
 </head>
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <header class="header" role="banner">
-        <h1>Generated Project Fusion File</h1>
-        <dl>
-            <dt>Project:</dt>
-            <dd>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</dd>
-            <dt>Generated:</dt>
-            <dd><time datetime="${new Date().toISOString()}">${formatLocalTimestamp()}</time></dd>
-            <dt>UTC:</dt>
-            <dd><time datetime="${new Date().toISOString()}">${formatTimestamp()}</time></dd>
-            <dt>Files:</dt>
-            <dd>${context.filesToProcess.length}</dd>
-            <dt>Generated by:</dt>
-            <dd><a href="https://github.com/the99studio/project-fusion" rel="external">project-fusion</a></dd>
-        </dl>
-    </header>
-    
-    <nav class="toc" role="navigation" aria-labelledby="toc-heading">
-        <h2 id="toc-heading">📁 Table of Contents</h2>
-        <ul role="list">
+<h1>Project Fusion Output</h1>
+<p><strong>Project:</strong> ${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)}</p>
+<p><strong>Generated:</strong> ${escapeHtml(formatLocalTimestamp())}</p>
+<p><strong>Files:</strong> ${context.filesToProcess.length}</p>
+<hr>
+<h2>Table of Contents</h2>
+<ul>
 ${tocEntries}
-        </ul>
-    </nav>
-    
-    <main id="main-content" role="main">
+</ul>
+<hr>
 `;
     }
 
     processFile(fileInfo: FileInfo): string {
         const fileAnchor = this.slugger.slug(fileInfo.relativePath);
         const escapedPath = escapeHtml(fileInfo.relativePath);
+        const escapedContent = escapeHtml(fileInfo.content);
         
         if (fileInfo.isErrorPlaceholder) {
-            // For error placeholders, display as error message with distinct styling
-            const escapedContent = escapeHtml(fileInfo.content);
-            return `        <article class="file-section error-section" id="${fileAnchor}" aria-labelledby="heading-${fileAnchor}">
-            <div class="file-title error-title">
-                <h2 id="heading-${fileAnchor}">⚠️ ${escapedPath}</h2>
-            </div>
-            <div class="error-content" role="alert">
-                <pre style="background: #fee; border: 2px solid #c00; padding: 1rem; white-space: pre-wrap;">${escapedContent}</pre>
-            </div>
-        </article>
-
+            // Simple error display
+            return `<h2 id="${fileAnchor}">ERROR: ${escapedPath}</h2>
+<pre class="error">${escapedContent}</pre>
 `;
         }
         
-        const fileExt = path.extname(fileInfo.path).toLowerCase();
-        const basename = path.basename(fileInfo.path);
-        const language = getMarkdownLanguage(fileExt || basename);
-        const escapedContent = escapeHtml(fileInfo.content);
-
-        return `        <article class="file-section" id="${fileAnchor}" aria-labelledby="heading-${fileAnchor}">
-            <div class="file-title">
-                <h2 id="heading-${fileAnchor}">📄 ${escapedPath}</h2>
-            </div>
-            <pre role="region" aria-label="Source code for ${escapedPath}"><code class="language-${language}" lang="${language}">${escapedContent}</code></pre>
-        </article>
-
+        // Simple file display
+        return `<h2 id="${fileAnchor}">${escapedPath}</h2>
+<pre>${escapedContent}</pre>
 `;
     }
 
     generateFooter(): string {
-        return `    </main>
-</body>
+        return `</body>
 </html>`;
     }
 
@@ -7101,7 +6940,7 @@ describe('Architecture Tests', () => {
 
                 expect(textContent).toContain('console.log("hello");');
                 expect(mdContent).toContain('console.log("hello");');
-                expect(htmlContent).toContain('console.log(&quot;hello&quot;);');
+                expect(htmlContent).toContain('console.log&#40;&quot;hello&quot;&#41;;');
             }
         });
     });
@@ -7958,10 +7797,10 @@ describe('CLI E2E Tests', () => {
             // Check content of HTML file
             const htmlContent = await readFile('project-fusioned.html', 'utf8');
             expect(htmlContent).toContain('<!DOCTYPE html>');
-            expect(htmlContent).toContain('📄 test.js');
-            expect(htmlContent).toContain('📄 test.ts');
-            expect(htmlContent).toContain('<code class="language-javascript" lang="javascript">');
-            expect(htmlContent).toContain('<code class="language-typescript" lang="typescript">');
+            expect(htmlContent).toContain('<h2 id="testjs">test.js</h2>');
+            expect(htmlContent).toContain('<h2 id="testts">test.ts</h2>');
+            expect(htmlContent).toContain('console.log&#40;&quot;Hello, World&#33;&quot;&#41;;');
+            expect(htmlContent).toContain('const message: string &#61; &quot;TypeScript&quot;;');
         });
 
         it('should handle empty directory gracefully', () => {
@@ -9107,10 +8946,10 @@ describe('Strict Content Validation (In-Memory)', () => {
             
             const output = await memFS.readFile(createFilePath('project-fusioned.html'));
             
-            expect(output).toContain('⚠️ minified.js');
-            expect(output).toContain('error-section');
-            expect(output).toContain('role="alert"');
-            expect(output).toContain('background: #fee');
+            expect(output).toContain('ERROR: minified.js');
+            expect(output).toContain('class="error"');
+            expect(output).toContain('Content validation failed');
+            expect(output).toContain('.error{background:#fee');
         });
     });
 
@@ -10212,10 +10051,10 @@ This is a **test** project with _markdown_ content.
     
     expect(htmlContent).toContain('<!DOCTYPE html>');
     expect(htmlContent).toContain('<html lang="en">');
-    expect(htmlContent).toContain('<title>Project Fusion - test-formats</title>');
-    expect(htmlContent).toContain('📁 Table of Contents');
-    expect(htmlContent).toContain('📄 test.js');
-    expect(htmlContent).toContain('📄 README.md');
+    expect(htmlContent).toContain('<title>test-formats - Project Fusion</title>');
+    expect(htmlContent).toContain('<h2>Table of Contents</h2>');
+    expect(htmlContent).toContain('<h2 id="testjs">test.js</h2>');
+    expect(htmlContent).toContain('<h2 id="readmemd">README.md</h2>');
     expect(htmlContent).toContain('</body>');
     expect(htmlContent).toContain('</html>');
   });
@@ -10232,7 +10071,7 @@ console.log(html);
     expect(result.success).toBe(true);
     const htmlContent = await fs.readFile('test-output.html', 'utf8');
     
-    expect(htmlContent).toContain('&lt;div&gt;Hello &amp; &lt;span&gt;World&lt;/span&gt;&lt;/div&gt;');
+    expect(htmlContent).toContain('&lt;div&gt;Hello &amp; &lt;span&gt;World&lt;&#47;span&gt;&lt;&#47;div&gt;');
   });
 
 
@@ -10586,7 +10425,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo('const html = "<div>&test</div>";');
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;div&gt;&amp;test&lt;/div&gt;');
+            expect(result).toContain('&lt;div&gt;&amp;test&lt;&#47;div&gt;');
             expect(result).not.toContain('<div>');
             expect(result).not.toContain('&test');
         });
@@ -10596,7 +10435,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(maliciousContent);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;');
+            expect(result).toContain('&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;');
             expect(result).not.toContain('<script>');
             expect(result).not.toContain('</script>');
         });
@@ -10606,7 +10445,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&quot;data-value=&quot;test&quot;&quot;');
+            expect(result).toContain('&quot;data-value&#61;&quot;test&quot;&quot;');
             expect(result).not.toContain('"data-value="');
         });
 
@@ -10624,7 +10463,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;button onclick=&quot;alert(&#39;XSS &amp; &quot;injection&quot;&#39;)&quot;&gt;');
+            expect(result).toContain('&lt;button onclick&#61;&quot;alert&#40;&#39;XSS &amp; &quot;injection&quot;&#39;&#41;&quot;&gt;Click me&lt;&#47;button&gt;');
             expect(result).not.toContain('<button');
             // The wrapper HTML will contain 'onclick=' in the attributes, so check for the actual XSS pattern
             expect(result).not.toContain('onclick="alert');
@@ -10639,9 +10478,9 @@ describe('HTML Escaping', () => {
             expect(result).toContain('🔥💻🚀');
             expect(result).toContain('你好世界');
             expect(result).toContain('مرحبا بالعالم');
-            // But quotes should still be escaped
-            expect(result).toContain('&quot;🔥💻🚀&quot;');
-            expect(result).toContain('&quot;你好世界&quot;');
+            // But quotes and equals should still be escaped
+            expect(result).toContain('const emoji &#61; &quot;🔥💻🚀&quot;');
+            expect(result).toContain('const chinese &#61; &quot;你好世界&quot;');
         });
 
         it('should escape HTML in filenames', () => {
@@ -10650,7 +10489,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content, dangerousFileName);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;.js');
+            expect(result).toContain('&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;.js');
             expect(result).not.toContain('<script>');
         });
 
@@ -10670,9 +10509,9 @@ describe('HTML Escaping', () => {
             expect(result).not.toContain('<h1>');
             expect(result).not.toContain('<script>');
             expect(result).not.toContain('<img src="test.jpg"');
-            expect(result).toContain('&lt;div class=&quot;container&quot;&gt;');
-            expect(result).toContain('&lt;script&gt;alert(&#39;danger&#39;)&lt;/script&gt;');
-            expect(result).toContain('alt=&quot;Image with &gt; and &lt; symbols&quot;');
+            expect(result).toContain('&lt;div class&#61;&quot;container&quot;&gt;');
+            expect(result).toContain('&lt;script&gt;alert&#40;&#39;danger&#39;&#41;&lt;&#47;script&gt;');
+            expect(result).toContain('alt&#61;&quot;Image with &gt; and &lt; symbols&quot;&#47;&gt;');
         });
 
         it('should handle edge cases with multiple consecutive special characters', () => {
@@ -10711,7 +10550,7 @@ describe('HTML Escaping', () => {
             const result = strategy.processFile(fileInfo);
             
             expect(result).toContain('&lt;script&gt;');
-            expect(result).toContain('&lt;/script&gt;');
+            expect(result).toContain('&lt;&#47;script&gt;');
             expect(result).toContain('x'.repeat(10_000));
         });
 
@@ -10726,8 +10565,8 @@ describe('HTML Escaping', () => {
             const result = strategy.processFile(fileInfo);
             
             // Should escape HTML in error messages
-            expect(result).toContain('&lt;div&gt;Error: File contains &lt;script&gt;dangerous&lt;/script&gt; content&lt;/div&gt;');
-            expect(result).toContain('error-section'); // Should have error styling
+            expect(result).toContain('&lt;div&gt;Error: File contains &lt;script&gt;dangerous&lt;&#47;script&gt; content&lt;&#47;div&gt;');
+            expect(result).toContain('class="error"'); // Should have error styling
             expect(result).not.toContain('<script>');
         });
     });
@@ -10776,13 +10615,11 @@ describe('HTML Escaping', () => {
             const header = strategy.generateHeader(context);
             
             // Should escape HTML in table of contents (the actual file names)
-            expect(header).toContain('&lt;img src=x onerror=alert(1)&gt;.js');
+            expect(header).toContain('&lt;img src&#61;x onerror&#61;alert&#40;1&#41;&gt;.js');
             // Verify no unescaped script tags
             expect(header).not.toContain('<script>alert');
             // The href contains a slug version which is safe, but the display text should be escaped
             expect(header).not.toContain('><img src=x'); // This would indicate unescaped HTML tag
-            // Verify that the dangerous filename is properly escaped in the display text
-            expect(header).toMatch(/&lt;img src=x onerror=alert\(1\)&gt;\.js<\/a>/);
         });
     });
 
@@ -10792,7 +10629,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&amp;[a-z]+;');
+            expect(result).toContain('&#47;&amp;&#91;a-z&#93;&#43;;');
             expect(result).toContain('&amp;nbsp;');
             expect(result).toContain('&amp;lt;');
         });
@@ -10802,7 +10639,7 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;div&gt;${user}&lt;/div&gt;');
+            expect(result).toContain('&lt;div&gt;&#36;&#123;user&#125;&lt;&#47;div&gt;');
         });
 
         it('should handle XML/JSX syntax', () => {
@@ -10810,8 +10647,8 @@ describe('HTML Escaping', () => {
             const fileInfo = createFileInfo(content);
             const result = strategy.processFile(fileInfo);
             
-            expect(result).toContain('&lt;Component prop=&quot;value&quot;');
-            expect(result).toContain('onClick={() =&gt; alert(&quot;test&quot;)}');
+            expect(result).toContain('&lt;Component prop&#61;&quot;value&quot;');
+            expect(result).toContain('onClick&#61;&#123;&#40;&#41; &#61;&gt; alert&#40;&quot;test&quot;&#41;&#125;');
         });
     });
 });
@@ -11186,7 +11023,7 @@ describe('integration', () => {
         expect(htmlContent).toContain('<!DOCTYPE html>');
         expect(htmlContent).toContain('<html lang="en">');
         expect(htmlContent).toContain('test.js');
-        expect(htmlContent).toContain('console.log(&quot;Hello HTML&quot;);');
+        expect(htmlContent).toContain('console.log&#40;&quot;Hello HTML&quot;&#41;;');
       }
     });
   });
@@ -14809,9 +14646,9 @@ console.log("test");
             );
 
             // Verify all dangerous HTML is escaped
-            expect(htmlContent).toContain('&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;');
-            expect(htmlContent).toContain('&lt;img src=&quot;x&quot; onerror=&quot;alert(&#39;XSS&#39;)&quot;&gt;');
-            expect(htmlContent).toContain('&amp;lt;div&amp;gt;Already escaped&amp;lt;/div&amp;gt;');
+            expect(htmlContent).toContain('&lt;script&gt;alert&#40;&#39;XSS&#39;&#41;&lt;&#47;script&gt;');
+            expect(htmlContent).toContain('&lt;img src&#61;&quot;x&quot; onerror&#61;&quot;alert&#40;&#39;XSS&#39;&#41;&quot;&gt;');
+            expect(htmlContent).toContain('&amp;lt;div&amp;gt;Already escaped&amp;lt;&#47;div&amp;gt;');
             expect(htmlContent).toContain('&quot;quotes&quot; &amp; &#39;apostrophes&#39;');
 
             // Verify no unescaped dangerous content
@@ -14852,8 +14689,8 @@ console.log("test");
             expect(htmlContent).toContain('safe-file.js');
             
             // Verify no unescaped angle brackets that could be dangerous
-            const tocSection = htmlContent.split('<nav class="toc"')[1]?.split('</nav>')[0];
-            const titleSections = htmlContent.split('>📄 ');
+            const tocSection = htmlContent.split('<h2>Table of Contents</h2>')[1]?.split('<hr>')[0];
+            const titleSections = htmlContent.split('<h2 id="');
             
             expect(tocSection).toBeDefined();
             expect(titleSections.length).toBeGreaterThan(1);
@@ -14897,17 +14734,17 @@ console.log("test");
             );
 
             // Project title should be escaped
-            expect(htmlContent).toContain('&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt;');
-            expect(htmlContent).toContain('1.0.0&lt;img src=x onerror=alert(&quot;version&quot;)&gt;');
+            expect(htmlContent).toContain('&lt;script&gt;alert&#40;&quot;name&quot;&#41;&lt;&#47;script&gt;');
+            expect(htmlContent).toContain('1.0.0&lt;img src&#61;x onerror&#61;alert&#40;&quot;version&quot;&#41;&gt;');
             
-            // Verify no unescaped dangerous content in header
-            const headerSection = htmlContent.split('<header class="header"')[1]?.split('</header>')[0];
-            expect(headerSection).toBeDefined();
-            expect(headerSection).not.toContain('<script>alert(');
-            expect(headerSection).not.toContain('<img src=x');
+            // Verify no unescaped dangerous content in body
+            const bodySection = htmlContent.split('<body>')[1]?.split('</body>')[0];
+            expect(bodySection).toBeDefined();
+            expect(bodySection).not.toContain('<script>alert(');
+            expect(bodySection).not.toContain('<img src=x');
             // The dangerous tags are escaped, making them safe
-            expect(headerSection).not.toContain('<script>');
-            expect(headerSection).not.toContain('<img ');
+            expect(bodySection).not.toContain('<script>');
+            expect(bodySection).not.toContain('<img ');
         });
     });
 
@@ -15248,7 +15085,7 @@ module.exports = {
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
             expect(normalizedHtml).toMatchSnapshot('javascript-files.html');
         });
@@ -15371,7 +15208,7 @@ body {
             
             // Normalize timestamps
             const normalizedHtml = htmlContent
-                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
             expect(normalizedHtml).toMatchSnapshot('html-with-escaping.html');
         });
@@ -15404,15 +15241,15 @@ body {
 
             const htmlContent = await readFile('toc-test.html', 'utf8');
             
-            // Check TOC structure with new github-slugger format
-            expect(htmlContent).toContain('<nav class="toc"');
-            expect(htmlContent).toContain('<h2 id="toc-heading">📁 Table of Contents</h2>');
+            // Check TOC structure with simplified HTML format
+            expect(htmlContent).toContain('<h2>Table of Contents</h2>');
+            expect(htmlContent).toContain('<ul>');
             expect(htmlContent).toContain('href="#apiusersjs"');
             expect(htmlContent).toContain('href="#componentsheaderjs"');
             
             // Normalize timestamps for consistent snapshots
             const normalizedHtml = htmlContent
-                .replaceAll(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>')
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>')
             
             expect(normalizedHtml).toMatchSnapshot('html-with-toc.html');
         });
@@ -15470,7 +15307,7 @@ export class ApiClient {
             
             // Both should have proper structure
             expect(mdContent).toContain('## 📄 example.ts');
-            expect(htmlContent).toContain('📄 example.ts');
+            expect(htmlContent).toContain('<h2 id="examplets">example.ts</h2>');
         });
     });
 });

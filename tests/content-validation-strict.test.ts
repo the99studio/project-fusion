@@ -202,10 +202,10 @@ describe('Strict Content Validation (In-Memory)', () => {
             
             const output = await memFS.readFile(createFilePath('project-fusioned.html'));
             
-            expect(output).toContain('⚠️ minified.js');
-            expect(output).toContain('error-section');
-            expect(output).toContain('role="alert"');
-            expect(output).toContain('background: #fee');
+            expect(output).toContain('ERROR: minified.js');
+            expect(output).toContain('class="error"');
+            expect(output).toContain('Content validation failed');
+            expect(output).toContain('.error{background:#fee');
         });
     });
 
