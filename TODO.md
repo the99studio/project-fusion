@@ -1,14 +1,8 @@
-## 4) Output Quality
-- [ ] **HTML escaping tests**: Add tests for `escapeHtml()` with `<script>`, quotes, and high Unicode (implementation exists in output-strategy.ts:38-45).
-
 ## 5) Tests
 - [ ] **E2E huge project test**: Generate >3,000 files in a temp dir, verify memory stays below a threshold and that streaming works (post‑refactor).
 - [ ] **Security fuzz**: Add tests for pathological lines/token lengths near limits and ensure placeholders are emitted deterministically.
 - [ ] **Plugin API contract**: Add contract tests for all hooks (`initialize`, `beforeFileProcessing`, `afterFileProcessing`, etc.).
 - [ ] **CLI smoke tests**: Add `config-check` and `init --force` smoke tests in CI matrix (Linux, macOS, Windows).
-
-## 6) Packaging
-- [ ] **Add `funding` field** in `package.json` repository metadata.
 
 ## 7) Documentation
 - [ ] **README: Security knobs** section showing why `--allow-symlinks` and `--allow-external-plugins` are dangerous, with a small code sample (link to tests).
