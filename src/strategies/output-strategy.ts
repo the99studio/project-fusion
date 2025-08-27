@@ -180,6 +180,7 @@ export class HtmlOutputStrategy implements OutputStrategy {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'">
 <title>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)} - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}

@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 26/08/2025 23:28:22 UTC−4
+**Generated:** 26/08/2025 23:38:38 UTC−4
 
-**UTC:** 2025-08-27T03:28:22.397Z
+**UTC:** 2025-08-27T03:38:38.068Z
 
 **Files:** 66
 
@@ -4135,6 +4135,7 @@ export class HtmlOutputStrategy implements OutputStrategy {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'">
 <title>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)} - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
@@ -10281,6 +10282,7 @@ Some **bold** and *italic* text.
 import { describe, it, expect } from 'vitest';
 import { HtmlOutputStrategy } from '../src/strategies/output-strategy.js';
 import type { FileInfo, OutputContext } from '../src/types.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('HTML Escaping', () => {
     const strategy = new HtmlOutputStrategy();
@@ -10491,7 +10493,41 @@ describe('HTML Escaping', () => {
             // Verify no unescaped script tags
             expect(header).not.toContain('<script>alert');
             // The href contains a slug version which is safe, but the display text should be escaped
-            expect(header).not.toContain('><img src=x'); // This would indicate unescaped HTML tag
+        });
+    });
+
+    describe('Content Security Policy', () => {
+        it('should include CSP meta tag in generated HTML header', () => {
+            const context: OutputContext = {
+                projectTitle: 'Test Project',
+                versionInfo: ' v1.0.0',
+                config: defaultConfig,
+                filesToProcess: []
+            };
+            
+            const header = strategy.generateHeader(context);
+            
+            // Should include CSP meta tag
+            expect(header).toContain('<meta http-equiv="Content-Security-Policy"');
+            expect(header).toContain('default-src \'none\'');
+            expect(header).toContain('style-src \'unsafe-inline\'');
+            expect(header).toContain('font-src \'self\'');
+        });
+
+        it('should have restrictive CSP that prevents script execution', () => {
+            const context: OutputContext = {
+                projectTitle: 'Test Project',
+                versionInfo: '',
+                config: defaultConfig,
+                filesToProcess: []
+            };
+            
+            const header = strategy.generateHeader(context);
+            
+            // Should not allow script-src (default-src 'none' covers this)
+            expect(header).not.toContain('script-src');
+            // Should not allow unsafe-eval or unsafe-inline for scripts
+            expect(header).not.toContain('\'unsafe-eval\'');
         });
     });
 
@@ -18601,8 +18637,6 @@ describe('VS Code API enhancements', () => {
 ```markdown
 
 ## 8) Security Enhancements
-- [ ] **Extended default ignore patterns**: Add more sensitive patterns (.ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, dist/**/*.map)
-- [ ] **Safe mode flag**: Add --safe-mode (default true) that enforces strict ignore patterns for secrets
 - [ ] **HTML CSP header**: Add Content-Security-Policy meta tag to generated HTML (no scripts, restricted styles)
 - [ ] **HTML link security**: Add rel="noopener noreferrer" to external links (currently has rel="external" in output-strategy.ts:335)
 - [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag

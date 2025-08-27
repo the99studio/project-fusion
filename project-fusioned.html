@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'">
 <title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0 - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
@@ -16,7 +17,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:28:22 UTC−4</p>
+<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:38:38 UTC−4</p>
 <p><strong>Files:</strong> 66</p>
 <hr>
 <h2>Table of Contents</h2>
@@ -4075,6 +4076,7 @@ export class HtmlOutputStrategy implements OutputStrategy &#123;
 &lt;head&gt;
 &lt;meta charset&#61;&quot;UTF-8&quot;&gt;
 &lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot; content&#61;&quot;default-src &#39;none&#39;; style-src &#39;unsafe-inline&#39;; font-src &#39;self&#39;&quot;&gt;
 &lt;title&gt;&#36;&#123;escapeHtml&#40;context.projectTitle&#41;&#125;&#36;&#123;escapeHtml&#40;context.versionInfo&#41;&#125; - Project Fusion&lt;&#47;title&gt;
 &lt;style&gt;
 body&#123;font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff&#125;
@@ -10141,6 +10143,7 @@ Some **bold** and *italic* text.
 <pre>import &#123; describe, it, expect &#125; from &#39;vitest&#39;;
 import &#123; HtmlOutputStrategy &#125; from &#39;..&#47;src&#47;strategies&#47;output-strategy.js&#39;;
 import type &#123; FileInfo, OutputContext &#125; from &#39;..&#47;src&#47;types.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
 
 describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
     const strategy &#61; new HtmlOutputStrategy&#40;&#41;;
@@ -10351,7 +10354,41 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             &#47;&#47; Verify no unescaped script tags
             expect&#40;header&#41;.not.toContain&#40;&#39;&lt;script&gt;alert&#39;&#41;;
             &#47;&#47; The href contains a slug version which is safe, but the display text should be escaped
-            expect&#40;header&#41;.not.toContain&#40;&#39;&gt;&lt;img src&#61;x&#39;&#41;; &#47;&#47; This would indicate unescaped HTML tag
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Content Security Policy&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should include CSP meta tag in generated HTML header&#39;, &#40;&#41; &#61;&gt; &#123;
+            const context: OutputContext &#61; &#123;
+                projectTitle: &#39;Test Project&#39;,
+                versionInfo: &#39; v1.0.0&#39;,
+                config: defaultConfig,
+                filesToProcess: &#91;&#93;
+            &#125;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; Should include CSP meta tag
+            expect&#40;header&#41;.toContain&#40;&#39;&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot;&#39;&#41;;
+            expect&#40;header&#41;.toContain&#40;&#39;default-src \&#39;none\&#39;&#39;&#41;;
+            expect&#40;header&#41;.toContain&#40;&#39;style-src \&#39;unsafe-inline\&#39;&#39;&#41;;
+            expect&#40;header&#41;.toContain&#40;&#39;font-src \&#39;self\&#39;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should have restrictive CSP that prevents script execution&#39;, &#40;&#41; &#61;&gt; &#123;
+            const context: OutputContext &#61; &#123;
+                projectTitle: &#39;Test Project&#39;,
+                versionInfo: &#39;&#39;,
+                config: defaultConfig,
+                filesToProcess: &#91;&#93;
+            &#125;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; Should not allow script-src &#40;default-src &#39;none&#39; covers this&#41;
+            expect&#40;header&#41;.not.toContain&#40;&#39;script-src&#39;&#41;;
+            &#47;&#47; Should not allow unsafe-eval or unsafe-inline for scripts
+            expect&#40;header&#41;.not.toContain&#40;&#39;\&#39;unsafe-eval\&#39;&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 
@@ -18357,8 +18394,6 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 <h2 id="todomd">TODO.md</h2>
 <pre>
 ## 8&#41; Security Enhancements
-- &#91; &#93; **Extended default ignore patterns**: Add more sensitive patterns &#40;.ssh&#47;, .aws&#47;, .azure&#47;, .gcloud&#47;, *.p12, *.keystore, .*history, .npmrc, dist&#47;**&#47;*.map&#41;
-- &#91; &#93; **Safe mode flag**: Add --safe-mode &#40;default true&#41; that enforces strict ignore patterns for secrets
 - &#91; &#93; **HTML CSP header**: Add Content-Security-Policy meta tag to generated HTML &#40;no scripts, restricted styles&#41;
 - &#91; &#93; **HTML link security**: Add rel&#61;&quot;noopener noreferrer&quot; to external links &#40;currently has rel&#61;&quot;external&quot; in output-strategy.ts:335&#41;
 - &#91; &#93; **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder &#40;.&#47;project-fusion&#47;&#41;, add --overwrite flag</pre>

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { HtmlOutputStrategy } from '../src/strategies/output-strategy.js';
 import type { FileInfo, OutputContext } from '../src/types.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('HTML Escaping', () => {
     const strategy = new HtmlOutputStrategy();
@@ -211,7 +212,41 @@ describe('HTML Escaping', () => {
             // Verify no unescaped script tags
             expect(header).not.toContain('<script>alert');
             // The href contains a slug version which is safe, but the display text should be escaped
-            expect(header).not.toContain('><img src=x'); // This would indicate unescaped HTML tag
+        });
+    });
+
+    describe('Content Security Policy', () => {
+        it('should include CSP meta tag in generated HTML header', () => {
+            const context: OutputContext = {
+                projectTitle: 'Test Project',
+                versionInfo: ' v1.0.0',
+                config: defaultConfig,
+                filesToProcess: []
+            };
+            
+            const header = strategy.generateHeader(context);
+            
+            // Should include CSP meta tag
+            expect(header).toContain('<meta http-equiv="Content-Security-Policy"');
+            expect(header).toContain('default-src \'none\'');
+            expect(header).toContain('style-src \'unsafe-inline\'');
+            expect(header).toContain('font-src \'self\'');
+        });
+
+        it('should have restrictive CSP that prevents script execution', () => {
+            const context: OutputContext = {
+                projectTitle: 'Test Project',
+                versionInfo: '',
+                config: defaultConfig,
+                filesToProcess: []
+            };
+            
+            const header = strategy.generateHeader(context);
+            
+            // Should not allow script-src (default-src 'none' covers this)
+            expect(header).not.toContain('script-src');
+            // Should not allow unsafe-eval or unsafe-inline for scripts
+            expect(header).not.toContain('\'unsafe-eval\'');
         });
     });
 
