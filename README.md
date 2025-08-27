@@ -147,6 +147,8 @@ project-fusion [options]
   
 # Security Options (use with caution)
   --allow-symlinks              Allow processing symbolic links (SECURITY WARNING)
+                                Note: Symlinks can escape the project directory,
+                                potentially exposing files outside the intended scope
   
 # Plugin System
   --plugins <names>             Comma-separated list of plugin names to enable
