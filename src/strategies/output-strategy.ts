@@ -92,6 +92,17 @@ ${fileInfo.content}
     }
 }
 
+function escapeMarkdown(text: string): string {
+    // Escape special Markdown characters that could create malicious links
+    // Focus on filename context - these characters could be used for link injection
+    return text
+        .replaceAll('[', '\\[')      // Prevent link start
+        .replaceAll(']', '\\]')      // Prevent link end
+        .replaceAll('(', '\\(')      // Prevent URL start
+        .replaceAll(')', '\\)')      // Prevent URL end
+        .replaceAll('`', '\\`');     // Prevent code injection
+}
+
 export class MarkdownOutputStrategy implements OutputStrategy {
     readonly name = 'markdown';
     readonly extension = '.md';
@@ -101,7 +112,7 @@ export class MarkdownOutputStrategy implements OutputStrategy {
         // Reset slugger for each new document to ensure consistent anchors
         this.slugger.reset();
         const tocEntries = context.filesToProcess
-            .map(fileInfo => `- [${fileInfo.relativePath}](#${this.slugger.slug(fileInfo.relativePath)})`)
+            .map(fileInfo => `- [${escapeMarkdown(fileInfo.relativePath)}](#${this.slugger.slug(fileInfo.relativePath)})`)
             .join('\n');
         // Reset again so processFile generates same anchors
         this.slugger.reset();
@@ -133,7 +144,7 @@ ${tocEntries}
         const anchor = this.slugger.slug(fileInfo.relativePath);
         if (fileInfo.isErrorPlaceholder) {
             // For error placeholders, display without code block
-            return `## ⚠️ ${fileInfo.relativePath} {#${anchor}}
+            return `## ⚠️ ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 > **Content Validation Error**
 
@@ -146,7 +157,7 @@ ${fileInfo.content}
         const basename = path.basename(fileInfo.path);
         const language = getMarkdownLanguage(fileExt || basename);
 
-        return `## 📄 ${fileInfo.relativePath} {#${anchor}}
+        return `## 📄 ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 \`\`\`${language}
 ${fileInfo.content}

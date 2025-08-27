@@ -17,8 +17,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:38:38 UTC−4</p>
-<p><strong>Files:</strong> 66</p>
+<p><strong>Generated:</strong> 27&#47;08&#47;2025 06:43:57 UTC−4</p>
+<p><strong>Files:</strong> 67</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -62,6 +62,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testsindextestts">tests&#47;index.test.ts</a></li>
 <li><a href="#testsintegrationtestts">tests&#47;integration.test.ts</a></li>
 <li><a href="#testsloggertestts">tests&#47;logger.test.ts</a></li>
+<li><a href="#testsmarkdown-escapingtestts">tests&#47;markdown-escaping.test.ts</a></li>
 <li><a href="#testsmemory-fstestts">tests&#47;memory-fs.test.ts</a></li>
 <li><a href="#testspath-traversal-edge-casestestts">tests&#47;path-traversal-edge-cases.test.ts</a></li>
 <li><a href="#testsperformancetestts">tests&#47;performance.test.ts</a></li>
@@ -3988,6 +3989,17 @@ export class TextOutputStrategy implements OutputStrategy &#123;
     &#125;
 &#125;
 
+function escapeMarkdown&#40;text: string&#41;: string &#123;
+    &#47;&#47; Escape special Markdown characters that could create malicious links
+    &#47;&#47; Focus on filename context - these characters could be used for link injection
+    return text
+        .replaceAll&#40;&#39;&#91;&#39;, &#39;\\&#91;&#39;&#41;      &#47;&#47; Prevent link start
+        .replaceAll&#40;&#39;&#93;&#39;, &#39;\\&#93;&#39;&#41;      &#47;&#47; Prevent link end
+        .replaceAll&#40;&#39;&#40;&#39;, &#39;\\&#40;&#39;&#41;      &#47;&#47; Prevent URL start
+        .replaceAll&#40;&#39;&#41;&#39;, &#39;\\&#41;&#39;&#41;      &#47;&#47; Prevent URL end
+        .replaceAll&#40;&#39;&#96;&#39;, &#39;\\&#96;&#39;&#41;;     &#47;&#47; Prevent code injection
+&#125;
+
 export class MarkdownOutputStrategy implements OutputStrategy &#123;
     readonly name &#61; &#39;markdown&#39;;
     readonly extension &#61; &#39;.md&#39;;
@@ -3997,7 +4009,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         &#47;&#47; Reset slugger for each new document to ensure consistent anchors
         this.slugger.reset&#40;&#41;;
         const tocEntries &#61; context.filesToProcess
-            .map&#40;fileInfo &#61;&gt; &#96;- &#91;&#36;&#123;fileInfo.relativePath&#125;&#93;&#40;#&#36;&#123;this.slugger.slug&#40;fileInfo.relativePath&#41;&#125;&#41;&#96;&#41;
+            .map&#40;fileInfo &#61;&gt; &#96;- &#91;&#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125;&#93;&#40;#&#36;&#123;this.slugger.slug&#40;fileInfo.relativePath&#41;&#125;&#41;&#96;&#41;
             .join&#40;&#39;\n&#39;&#41;;
         &#47;&#47; Reset again so processFile generates same anchors
         this.slugger.reset&#40;&#41;;
@@ -4029,7 +4041,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         const anchor &#61; this.slugger.slug&#40;fileInfo.relativePath&#41;;
         if &#40;fileInfo.isErrorPlaceholder&#41; &#123;
             &#47;&#47; For error placeholders, display without code block
-            return &#96;## ⚠️ &#36;&#123;fileInfo.relativePath&#125; &#123;#&#36;&#123;anchor&#125;&#125;
+            return &#96;## ⚠️ &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 &gt; **Content Validation Error**
 
@@ -4042,7 +4054,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         const basename &#61; path.basename&#40;fileInfo.path&#41;;
         const language &#61; getMarkdownLanguage&#40;fileExt || basename&#41;;
 
-        return &#96;## 📄 &#36;&#123;fileInfo.relativePath&#125; &#123;#&#36;&#123;anchor&#125;&#125;
+        return &#96;## 📄 &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 \&#96;\&#96;\&#96;&#36;&#123;language&#125;
 &#36;&#123;fileInfo.content&#125;
@@ -10873,6 +10885,195 @@ describe&#40;&#39;Logger&#39;, &#40;&#41; &#61;&gt; &#123;
             expect&#40;console.info&#41;.toHaveBeenCalled&#40;&#41;;
             expect&#40;console.warn&#41;.toHaveBeenCalled&#40;&#41;;
             expect&#40;console.error&#41;.toHaveBeenCalled&#40;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
+<h2 id="testsmarkdown-escapingtestts">tests&#47;markdown-escaping.test.ts</h2>
+<pre>import &#123; describe, it, expect &#125; from &#39;vitest&#39;;
+import &#123; MarkdownOutputStrategy &#125; from &#39;..&#47;src&#47;strategies&#47;output-strategy.js&#39;;
+import type &#123; FileInfo, OutputContext &#125; from &#39;..&#47;src&#47;types.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
+    const strategy &#61; new MarkdownOutputStrategy&#40;&#41;;
+    
+    const createFileInfo &#61; &#40;relativePath: string, content &#61; &#39;test content&#39;&#41;: FileInfo &#61;&gt; &#40;&#123;
+        path: &#96;&#47;project&#47;&#36;&#123;relativePath&#125;&#96;,
+        relativePath,
+        content,
+        isErrorPlaceholder: false
+    &#125;&#41;;
+
+    const createContext &#61; &#40;filesToProcess: FileInfo&#91;&#93;&#41;: OutputContext &#61;&gt; &#40;&#123;
+        projectTitle: &#39;Test Project&#39;,
+        versionInfo: &#39; v1.0.0&#39;,
+        config: defaultConfig,
+        filesToProcess
+    &#125;&#41;;
+
+    describe&#40;&#39;Table of Contents escaping&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should escape square brackets in filenames to prevent link injection&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;malicious&#91;injection&#93;.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; Should escape the brackets in the TOC link text
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;malicious\\&#91;injection\\&#93;.js&#93;&#40;#maliciousinjectionjs&#41;&#39;&#41;;
+            &#47;&#47; Should not contain unescaped brackets
+            expect&#40;header&#41;.not.toContain&#40;&#39;- &#91;malicious&#91;injection&#93;.js&#93;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should escape parentheses in filenames to prevent URL injection&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;file&#40;with&#41;parens.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; Should escape the parentheses in the TOC link text
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;file\\&#40;with\\&#41;parens.js&#93;&#40;#filewithparensjs&#41;&#39;&#41;;
+            &#47;&#47; Should not contain unescaped parentheses
+            expect&#40;header&#41;.not.toContain&#40;&#39;- &#91;file&#40;with&#41;parens.js&#93;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should escape backticks to prevent code injection&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;file&#96;with&#96;backticks.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; Should escape the backticks in the TOC link text
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;file\\&#96;with\\&#96;backticks.js&#93;&#40;#filewithbackticksjs&#41;&#39;&#41;;
+            &#47;&#47; Should not contain unescaped backticks
+            expect&#40;header&#41;.not.toContain&#40;&#39;- &#91;file&#96;with&#96;backticks.js&#93;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle complex malicious filename patterns&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;&#91;click here&#93;&#40;javascript:alert&#40;&quot;XSS&quot;&#41;&#41;.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; All special characters should be escaped
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;\\&#91;click here\\&#93;\\&#40;javascript:alert\\&#40;&quot;XSS&quot;\\&#41;\\&#41;.js&#93;&#39;&#41;;
+            &#47;&#47; Should not create a clickable malicious link
+            expect&#40;header&#41;.not.toContain&#40;&#39;&#91;click here&#93;&#40;javascript:alert&#40;&quot;XSS&quot;&#41;&#41;&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;File header escaping&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should escape square brackets in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;test&#91;malicious&#93;.js&#39;&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should escape brackets in the header
+            expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
+            &#47;&#47; Should not contain unescaped brackets
+            expect&#40;result&#41;.not.toContain&#40;&#39;## 📄 test&#91;malicious&#93;.js &#123;#&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should escape parentheses in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;test&#40;malicious&#41;.js&#39;&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should escape parentheses in the header
+            expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#40;malicious\\&#41;.js &#123;#&#39;&#41;;
+            &#47;&#47; Should not contain unescaped parentheses
+            expect&#40;result&#41;.not.toContain&#40;&#39;## 📄 test&#40;malicious&#41;.js &#123;#&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should escape backticks in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;test&#96;malicious&#96;.js&#39;&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should escape backticks in the header
+            expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#96;malicious\\&#96;.js &#123;#&#39;&#41;;
+            &#47;&#47; Should not contain unescaped backticks
+            expect&#40;result&#41;.not.toContain&#40;&#39;## 📄 test&#96;malicious&#96;.js &#123;#&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Error placeholder escaping&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should escape special characters in error placeholder headers&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo: FileInfo &#61; &#123;
+                path: &#39;&#47;project&#47;test&#91;malicious&#93;.js&#39;,
+                relativePath: &#39;test&#91;malicious&#93;.js&#39;,
+                content: &#39;Error: File too large&#39;,
+                isErrorPlaceholder: true
+            &#125;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should escape brackets in error placeholder header
+            expect&#40;result&#41;.toContain&#40;&#39;## ⚠️ test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
+            &#47;&#47; Should not contain unescaped brackets
+            expect&#40;result&#41;.not.toContain&#40;&#39;## ⚠️ test&#91;malicious&#93;.js &#123;#&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Multiple files with special characters&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should handle multiple files with different special characters&#39;, &#40;&#41; &#61;&gt; &#123;
+            const files &#61; &#91;
+                createFileInfo&#40;&#39;file&#91;1&#93;.js&#39;&#41;,
+                createFileInfo&#40;&#39;file&#40;2&#41;.js&#39;&#41;, 
+                createFileInfo&#40;&#39;file&#96;3&#96;.js&#39;&#41;,
+                createFileInfo&#40;&#39;normal.js&#39;&#41;
+            &#93;;
+            const context &#61; createContext&#40;files&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            
+            &#47;&#47; All special characters should be escaped
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;file\\&#91;1\\&#93;.js&#93;&#40;#file1js&#41;&#39;&#41;;
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;file\\&#40;2\\&#41;.js&#93;&#40;#file2js&#41;&#39;&#41;;
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;file\\&#96;3\\&#96;.js&#93;&#40;#file3js&#41;&#39;&#41;;
+            expect&#40;header&#41;.toContain&#40;&#39;- &#91;normal.js&#93;&#40;#normaljs&#41;&#39;&#41;;
+            
+            &#47;&#47; Should not contain any unescaped special characters
+            expect&#40;header&#41;.not.toContain&#40;&#39;- &#91;file&#91;1&#93;.js&#93;&#39;&#41;;
+            expect&#40;header&#41;.not.toContain&#40;&#39;- &#91;file&#40;2&#41;.js&#93;&#39;&#41;;
+            expect&#40;header&#41;.not.toContain&#40;&#39;- &#91;file&#96;3&#96;.js&#93;&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Edge cases&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should handle empty filenames gracefully&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            expect&#40;&#40;&#41; &#61;&gt; strategy.generateHeader&#40;context&#41;&#41;.not.toThrow&#40;&#41;;
+            expect&#40;&#40;&#41; &#61;&gt; strategy.processFile&#40;fileInfo&#41;&#41;.not.toThrow&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle filenames with only special characters&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;&#91;&#93;&#40;&#41;&#96;&#96;&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            const fileResult &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should escape all characters
+            expect&#40;header&#41;.toContain&#40;&#39;\\&#91;\\&#93;\\&#40;\\&#41;\\&#96;\\&#96;&#39;&#41;;
+            expect&#40;fileResult&#41;.toContain&#40;&#39;\\&#91;\\&#93;\\&#40;\\&#41;\\&#96;\\&#96;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should preserve anchor generation despite escaping&#39;, &#40;&#41; &#61;&gt; &#123;
+            const fileInfo &#61; createFileInfo&#40;&#39;test&#91;file&#93;.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            
+            const header &#61; strategy.generateHeader&#40;context&#41;;
+            const fileResult &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Anchor should be generated from original filename &#40;slugified&#41;
+            const anchorMatch &#61; header.match&#40;&#47;#&#40;&#91;\da-z-&#93;&#43;&#41;&#47;&#41;;
+            const fileAnchorMatch &#61; fileResult.match&#40;&#47;&#123;#&#40;&#91;\da-z-&#93;&#43;&#41;&#125;&#47;&#41;;
+            
+            expect&#40;anchorMatch&#41;.toBeTruthy&#40;&#41;;
+            expect&#40;fileAnchorMatch&#41;.toBeTruthy&#40;&#41;;
+            expect&#40;anchorMatch?.&#91;1&#93;&#41;.toBe&#40;fileAnchorMatch?.&#91;1&#93;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
@@ -18392,11 +18593,25 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>
-## 8&#41; Security Enhancements
-- &#91; &#93; **HTML CSP header**: Add Content-Security-Policy meta tag to generated HTML &#40;no scripts, restricted styles&#41;
+<pre>Security Enhancements
 - &#91; &#93; **HTML link security**: Add rel&#61;&quot;noopener noreferrer&quot; to external links &#40;currently has rel&#61;&quot;external&quot; in output-strategy.ts:335&#41;
-- &#91; &#93; **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder &#40;.&#47;project-fusion&#47;&#41;, add --overwrite flag</pre>
+- &#91; &#93; **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder &#40;.&#47;project-fusion&#47;&#41;, add --overwrite flag
+
+## Additional Security Enhancements
+
+### HTML Security &#40;High Priority&#41;
+- &#91; &#93; **Additional security headers**: Add X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Referrer-Policy: no-referrer meta tags
+- &#91; &#93; **Enhanced CSP**: Add base-uri &#39;none&#39; to Content-Security-Policy for base URI attack prevention
+- &#91; &#93; **Link validation**: Validate internal href&#61;&quot;#slug&quot; links to prevent injection in table of contents
+
+### Markdown Security &#40;Medium Priority&#41;  
+- &#91; &#93; **Markdown escaping**: Escape special Markdown characters &#40;&#91;, &#93;, &#40;, &#41;&#41; in filenames to prevent malicious link injection
+- &#91; &#93; **Protocol detection**: Detect and handle javascript:, data:, vbscript: protocols in markdown content
+
+### Cross-Format Security &#40;Low Priority&#41;
+- &#91; &#93; **Malicious pattern detection**: Detect and log suspicious patterns &#40;javascript:, data: URLs, script tags&#41; in file content
+- &#91; &#93; **Output size limits**: Add configurable limits on generated file sizes to prevent DoS attacks on browsers&#47;viewers
+- &#91; &#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;
     &quot;compilerOptions&quot;: &#123;

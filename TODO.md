@@ -1,6 +1,4 @@
 Security Enhancements
-- [x] **Extended default ignore patterns**: Add more sensitive patterns (.ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, dist/**/*.map)
-- [x] **HTML CSP header**: Add Content-Security-Policy meta tag to generated HTML (no scripts, restricted styles)
 - [ ] **HTML link security**: Add rel="noopener noreferrer" to external links (currently has rel="external" in output-strategy.ts:335)
 - [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag
 
@@ -12,7 +10,6 @@ Security Enhancements
 - [ ] **Link validation**: Validate internal href="#slug" links to prevent injection in table of contents
 
 ### Markdown Security (Medium Priority)  
-- [ ] **Markdown escaping**: Escape special Markdown characters ([, ], (, )) in filenames to prevent malicious link injection
 - [ ] **Protocol detection**: Detect and handle javascript:, data:, vbscript: protocols in markdown content
 
 ### Cross-Format Security (Low Priority)
