@@ -17,7 +17,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 27&#47;08&#47;2025 06:43:57 UTC−4</p>
+<p><strong>Generated:</strong> 27&#47;08&#47;2025 06:50:40 UTC−4</p>
 <p><strong>Files:</strong> 67</p>
 <hr>
 <h2>Table of Contents</h2>
@@ -4000,6 +4000,21 @@ function escapeMarkdown&#40;text: string&#41;: string &#123;
         .replaceAll&#40;&#39;&#96;&#39;, &#39;\\&#96;&#39;&#41;;     &#47;&#47; Prevent code injection
 &#125;
 
+function sanitizeMarkdownContent&#40;content: string&#41;: string &#123;
+    &#47;&#47; Detect and neutralize dangerous protocols in markdown content
+    const dangerousProtocols &#61; &#47;\b&#40;javascript|data|vbscript&#41;:&#47;gi;
+    
+    if &#40;dangerousProtocols.test&#40;content&#41;&#41; &#123;
+        &#47;&#47; Replace dangerous protocols with safe alternative
+        return content.replaceAll&#40;dangerousProtocols, &#40;match&#41; &#61;&gt; &#123;
+            const protocol &#61; match.toLowerCase&#40;&#41;.slice&#40;0, -1&#41;; &#47;&#47; Remove the &#39;:&#39;
+            return &#96;&#91;BLOCKED-&#36;&#123;protocol.toUpperCase&#40;&#41;&#125;&#93;:&#96;;
+        &#125;&#41;;
+    &#125;
+    
+    return content;
+&#125;
+
 export class MarkdownOutputStrategy implements OutputStrategy &#123;
     readonly name &#61; &#39;markdown&#39;;
     readonly extension &#61; &#39;.md&#39;;
@@ -4045,7 +4060,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
 
 &gt; **Content Validation Error**
 
-&#36;&#123;fileInfo.content&#125;
+&#36;&#123;sanitizeMarkdownContent&#40;fileInfo.content&#41;&#125;
 
 &#96;;
         &#125;
@@ -4057,7 +4072,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         return &#96;## 📄 &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 \&#96;\&#96;\&#96;&#36;&#123;language&#125;
-&#36;&#123;fileInfo.content&#125;
+&#36;&#123;sanitizeMarkdownContent&#40;fileInfo.content&#41;&#125;
 \&#96;\&#96;\&#96;
 
 &#96;;
@@ -11074,6 +11089,127 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             expect&#40;anchorMatch&#41;.toBeTruthy&#40;&#41;;
             expect&#40;fileAnchorMatch&#41;.toBeTruthy&#40;&#41;;
             expect&#40;anchorMatch?.&#91;1&#93;&#41;.toBe&#40;fileAnchorMatch?.&#91;1&#93;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Protocol detection and sanitization&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should detect and block javascript: protocol in file content&#39;, &#40;&#41; &#61;&gt; &#123;
+            const maliciousContent &#61; &#39;Click &#91;here&#93;&#40;javascript:alert&#40;&quot;XSS&quot;&#41;&#41; for more info&#39;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should replace javascript: with &#91;BLOCKED-JAVASCRIPT&#93;:
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;&quot;XSS&quot;&#41;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;javascript:alert&#40;&quot;XSS&quot;&#41;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should detect and block data: protocol in file content&#39;, &#40;&#41; &#61;&gt; &#123;
+            const maliciousContent &#61; &#39;Image: &#33;&#91;image&#93;&#40;data:text&#47;html,&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;&#41;&#39;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should replace data: with &#91;BLOCKED-DATA&#93;:
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-DATA&#93;:text&#47;html,&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;data:text&#47;html,&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should detect and block vbscript: protocol in file content&#39;, &#40;&#41; &#61;&gt; &#123;
+            const maliciousContent &#61; &#39;Link: &#91;click&#93;&#40;vbscript:msgbox&#40;&quot;XSS&quot;&#41;&#41;&#39;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should replace vbscript: with &#91;BLOCKED-VBSCRIPT&#93;:
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-VBSCRIPT&#93;:msgbox&#40;&quot;XSS&quot;&#41;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;vbscript:msgbox&#40;&quot;XSS&quot;&#41;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle multiple dangerous protocols in same content&#39;, &#40;&#41; &#61;&gt; &#123;
+            const maliciousContent &#61; &#96;
+                javascript:alert&#40;1&#41;
+                data:text&#47;html,&lt;script&gt;
+                vbscript:execute&#40;&quot;evil&quot;&#41;
+            &#96;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should replace all dangerous protocols
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;1&#41;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-DATA&#93;:text&#47;html,&lt;script&gt;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-VBSCRIPT&#93;:execute&#40;&quot;evil&quot;&#41;&#39;&#41;;
+            
+            &#47;&#47; Should not contain any original dangerous protocols
+            expect&#40;result&#41;.not.toContain&#40;&#39;javascript:&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;data:&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;vbscript:&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should be case insensitive when detecting protocols&#39;, &#40;&#41; &#61;&gt; &#123;
+            const maliciousContent &#61; &#39;JAVASCRIPT:alert&#40;1&#41; JavaScript:alert&#40;2&#41; jAvAsCrIpT:alert&#40;3&#41;&#39;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should detect and block all case variations
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;1&#41;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;2&#41;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;3&#41;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;javascript:&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;JAVASCRIPT:&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;JavaScript:&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should not affect legitimate protocols&#39;, &#40;&#41; &#61;&gt; &#123;
+            const legitimateContent &#61; &#96;
+                https:&#47;&#47;example.com
+                http:&#47;&#47;test.com
+                ftp:&#47;&#47;files.example.com
+                mailto:user&#64;example.com
+            &#96;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, legitimateContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should preserve legitimate protocols
+            expect&#40;result&#41;.toContain&#40;&#39;https:&#47;&#47;example.com&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;http:&#47;&#47;test.com&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;ftp:&#47;&#47;files.example.com&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;mailto:user&#64;example.com&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should sanitize error placeholder content&#39;, &#40;&#41; &#61;&gt; &#123;
+            const errorFileInfo: FileInfo &#61; &#123;
+                path: &#39;&#47;project&#47;test.js&#39;,
+                relativePath: &#39;test.js&#39;,
+                content: &#39;Error: File contains javascript:alert&#40;&quot;XSS&quot;&#41; in content&#39;,
+                isErrorPlaceholder: true
+            &#125;;
+            
+            const result &#61; strategy.processFile&#40;errorFileInfo&#41;;
+            
+            &#47;&#47; Should sanitize error content too
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;&quot;XSS&quot;&#41;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;javascript:alert&#40;&quot;XSS&quot;&#41;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle edge cases with protocol detection&#39;, &#40;&#41; &#61;&gt; &#123;
+            const edgeContent &#61; &#96;
+                &#47;&#47; This is not a protocol: javascript
+                const url &#61; &quot;javascript&quot; &#43; &quot;:alert&#40;1&#41;&quot;;
+                javascript:void&#40;0&#41;
+            &#96;;
+            const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, edgeContent&#41;;
+            
+            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            
+            &#47;&#47; Should only block the actual protocol usage
+            expect&#40;result&#41;.toContain&#40;&#39;&#47;&#47; This is not a protocol: javascript&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;const url &#61; &quot;javascript&quot; &#43; &quot;:alert&#40;1&#41;&quot;;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:void&#40;0&#41;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;javascript:void&#40;0&#41;&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
@@ -18604,14 +18740,14 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 - &#91; &#93; **Enhanced CSP**: Add base-uri &#39;none&#39; to Content-Security-Policy for base URI attack prevention
 - &#91; &#93; **Link validation**: Validate internal href&#61;&quot;#slug&quot; links to prevent injection in table of contents
 
-### Markdown Security &#40;Medium Priority&#41;  
-- &#91; &#93; **Markdown escaping**: Escape special Markdown characters &#40;&#91;, &#93;, &#40;, &#41;&#41; in filenames to prevent malicious link injection
-- &#91; &#93; **Protocol detection**: Detect and handle javascript:, data:, vbscript: protocols in markdown content
-
 ### Cross-Format Security &#40;Low Priority&#41;
 - &#91; &#93; **Malicious pattern detection**: Detect and log suspicious patterns &#40;javascript:, data: URLs, script tags&#41; in file content
 - &#91; &#93; **Output size limits**: Add configurable limits on generated file sizes to prevent DoS attacks on browsers&#47;viewers
-- &#91; &#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments</pre>
+- &#91; &#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
+
+### Bonus
+ &#91; &#93; S&#39;assurer que tous les problèmes de sécurité rencontrés lors du parsing des fichiers soient loggués en warning dans le project-fusion.log
+ &#91; &#93; Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité &#40;peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?&#41;</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;
     &quot;compilerOptions&quot;: &#123;

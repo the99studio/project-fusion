@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 27/08/2025 06:43:57 UTC−4
+**Generated:** 27/08/2025 06:50:40 UTC−4
 
-**UTC:** 2025-08-27T10:43:57.641Z
+**UTC:** 2025-08-27T10:50:40.158Z
 
 **Files:** 67
 
@@ -4059,6 +4059,21 @@ function escapeMarkdown(text: string): string {
         .replaceAll('`', '\\`');     // Prevent code injection
 }
 
+function sanitizeMarkdownContent(content: string): string {
+    // Detect and neutralize dangerous protocols in markdown content
+    const dangerousProtocols = /\b(javascript|data|vbscript):/gi;
+    
+    if (dangerousProtocols.test(content)) {
+        // Replace dangerous protocols with safe alternative
+        return content.replaceAll(dangerousProtocols, (match) => {
+            const protocol = match.toLowerCase().slice(0, -1); // Remove the ':'
+            return `[BLOCKED-${protocol.toUpperCase()}]:`;
+        });
+    }
+    
+    return content;
+}
+
 export class MarkdownOutputStrategy implements OutputStrategy {
     readonly name = 'markdown';
     readonly extension = '.md';
@@ -4104,7 +4119,7 @@ ${tocEntries}
 
 > **Content Validation Error**
 
-${fileInfo.content}
+${sanitizeMarkdownContent(fileInfo.content)}
 
 `;
         }
@@ -4116,7 +4131,7 @@ ${fileInfo.content}
         return `## 📄 ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 \`\`\`${language}
-${fileInfo.content}
+${sanitizeMarkdownContent(fileInfo.content)}
 \`\`\`
 
 `;
@@ -7304,11 +7319,11 @@ describe('CLI Binary E2E Tests', () => {
             let stdout = '';
             let stderr = '';
 
-            child.stdout?.on('data', (data: Buffer) => {
+            child.stdout?.on('data', ([BLOCKED-DATA]: Buffer) => {
                 stdout += data.toString();
             });
 
-            child.stderr?.on('data', (data: Buffer) => {
+            child.stderr?.on('data', ([BLOCKED-DATA]: Buffer) => {
                 stderr += data.toString();
             });
 
@@ -11104,15 +11119,15 @@ describe('Markdown Escaping', () => {
         });
 
         it('should handle complex malicious filename patterns', () => {
-            const fileInfo = createFileInfo('[click here](javascript:alert("XSS")).js');
+            const fileInfo = createFileInfo('[click here]([BLOCKED-JAVASCRIPT]:alert("XSS")).js');
             const context = createContext([fileInfo]);
             
             const header = strategy.generateHeader(context);
             
             // All special characters should be escaped
-            expect(header).toContain('- [\\[click here\\]\\(javascript:alert\\("XSS"\\)\\).js]');
+            expect(header).toContain('- [\\[click here\\]\\([BLOCKED-JAVASCRIPT]:alert\\("XSS"\\)\\).js]');
             // Should not create a clickable malicious link
-            expect(header).not.toContain('[click here](javascript:alert("XSS"))');
+            expect(header).not.toContain('[click here]([BLOCKED-JAVASCRIPT]:alert("XSS"))');
         });
     });
 
@@ -11229,6 +11244,127 @@ describe('Markdown Escaping', () => {
             expect(anchorMatch).toBeTruthy();
             expect(fileAnchorMatch).toBeTruthy();
             expect(anchorMatch?.[1]).toBe(fileAnchorMatch?.[1]);
+        });
+    });
+
+    describe('Protocol detection and sanitization', () => {
+        it('should detect and block [BLOCKED-JAVASCRIPT]: protocol in file content', () => {
+            const maliciousContent = 'Click [here]([BLOCKED-JAVASCRIPT]:alert("XSS")) for more info';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace [BLOCKED-JAVASCRIPT]: with [BLOCKED-JAVASCRIPT]:
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
+        });
+
+        it('should detect and block [BLOCKED-DATA]: protocol in file content', () => {
+            const maliciousContent = 'Image: ![image]([BLOCKED-DATA]:text/html,<script>alert("XSS")</script>)';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace [BLOCKED-DATA]: with [BLOCKED-DATA]:
+            expect(result).toContain('[BLOCKED-DATA]:text/html,<script>alert("XSS")</script>');
+            expect(result).not.toContain('[BLOCKED-DATA]:text/html,<script>alert("XSS")</script>');
+        });
+
+        it('should detect and block [BLOCKED-VBSCRIPT]: protocol in file content', () => {
+            const maliciousContent = 'Link: [click]([BLOCKED-VBSCRIPT]:msgbox("XSS"))';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace [BLOCKED-VBSCRIPT]: with [BLOCKED-VBSCRIPT]:
+            expect(result).toContain('[BLOCKED-VBSCRIPT]:msgbox("XSS")');
+            expect(result).not.toContain('[BLOCKED-VBSCRIPT]:msgbox("XSS")');
+        });
+
+        it('should handle multiple dangerous protocols in same content', () => {
+            const maliciousContent = `
+                [BLOCKED-JAVASCRIPT]:alert(1)
+                [BLOCKED-DATA]:text/html,<script>
+                [BLOCKED-VBSCRIPT]:execute("evil")
+            `;
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace all dangerous protocols
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(1)');
+            expect(result).toContain('[BLOCKED-DATA]:text/html,<script>');
+            expect(result).toContain('[BLOCKED-VBSCRIPT]:execute("evil")');
+            
+            // Should not contain any original dangerous protocols
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:');
+            expect(result).not.toContain('[BLOCKED-DATA]:');
+            expect(result).not.toContain('[BLOCKED-VBSCRIPT]:');
+        });
+
+        it('should be case insensitive when detecting protocols', () => {
+            const maliciousContent = '[BLOCKED-JAVASCRIPT]:alert(1) [BLOCKED-JAVASCRIPT]:alert(2) [BLOCKED-JAVASCRIPT]:alert(3)';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should detect and block all case variations
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(1)');
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(2)');
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(3)');
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:');
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:');
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:');
+        });
+
+        it('should not affect legitimate protocols', () => {
+            const legitimateContent = `
+                https://example.com
+                http://test.com
+                ftp://files.example.com
+                mailto:user@example.com
+            `;
+            const fileInfo = createFileInfo('test.js', legitimateContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should preserve legitimate protocols
+            expect(result).toContain('https://example.com');
+            expect(result).toContain('http://test.com');
+            expect(result).toContain('ftp://files.example.com');
+            expect(result).toContain('mailto:user@example.com');
+        });
+
+        it('should sanitize error placeholder content', () => {
+            const errorFileInfo: FileInfo = {
+                path: '/project/test.js',
+                relativePath: 'test.js',
+                content: 'Error: File contains [BLOCKED-JAVASCRIPT]:alert("XSS") in content',
+                isErrorPlaceholder: true
+            };
+            
+            const result = strategy.processFile(errorFileInfo);
+            
+            // Should sanitize error content too
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
+        });
+
+        it('should handle edge cases with protocol detection', () => {
+            const edgeContent = `
+                // This is not a protocol: javascript
+                const url = "javascript" + ":alert(1)";
+                [BLOCKED-JAVASCRIPT]:void(0)
+            `;
+            const fileInfo = createFileInfo('test.js', edgeContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should only block the actual protocol usage
+            expect(result).toContain('// This is not a protocol: javascript');
+            expect(result).toContain('const url = "javascript" + ":alert(1)";');
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:void(0)');
+            expect(result).not.toContain('[BLOCKED-JAVASCRIPT]:void(0)');
         });
     });
 });
@@ -15345,11 +15481,11 @@ describe('Security Fuzzing Tests', () => {
                 '<script>alert("XSS")</script>',
                 '<img src=x onerror="alert(\'XSS\')">',
                 '<svg onload="alert(\'XSS\')">',
-                'javascript:alert("XSS")',
-                '<iframe src="javascript:alert(\'XSS\')">',
+                '[BLOCKED-JAVASCRIPT]:alert("XSS")',
+                '<iframe src="[BLOCKED-JAVASCRIPT]:alert(\'XSS\')">',
                 '<body onload="alert(\'XSS\')">',
                 '"><script>alert("XSS")</script>',
-                '<a href="javascript:alert(\'XSS\')">Click</a>',
+                '<a href="[BLOCKED-JAVASCRIPT]:alert(\'XSS\')">Click</a>',
                 '<input onfocus="alert(\'XSS\')" autofocus>',
                 '<select onfocus="alert(\'XSS\')" autofocus>',
                 '<textarea onfocus="alert(\'XSS\')" autofocus>',
@@ -15384,11 +15520,11 @@ describe('Security Fuzzing Tests', () => {
             );
 
             // Ensure scripts are escaped or removed
-            // Note: HTML strategy may keep javascript: in href attributes but sanitized
+            // Note: HTML strategy may keep [BLOCKED-JAVASCRIPT]: in href attributes but sanitized
             expect(htmlContent).not.toContain('<script>alert');
             expect(htmlContent).not.toContain('onerror="alert');
             expect(htmlContent).not.toContain('onload="alert');
-            // javascript: might appear in content but should be escaped/safe
+            // [BLOCKED-JAVASCRIPT]: might appear in content but should be escaped/safe
             
             // Check that content is properly escaped
             expect(htmlContent).toContain('&lt;script');
@@ -15920,9 +16056,9 @@ describe('Security Limits Fuzzing', () => {
                 `const data = "${largeBase64}";`,
                 `const obj = { image: "${largeBase64}" };`,
                 `// Comment with ${largeBase64}`,
-                `fetch('data:image/png;base64,${largeBase64}')`,
-                `<img src="data:image/jpeg;base64,${largeBase64}">`,
-                `url('data:image/svg+xml;base64,${largeBase64}')`,
+                `fetch('[BLOCKED-DATA]:image/png;base64,${largeBase64}')`,
+                `<img src="[BLOCKED-DATA]:image/jpeg;base64,${largeBase64}">`,
+                `url('[BLOCKED-DATA]:image/svg+xml;base64,${largeBase64}')`,
                 `atob("${largeBase64}")`,
                 `Buffer.from("${largeBase64}", "base64")`
             ];
@@ -17945,7 +18081,7 @@ describe('FusionError', () => {
                 'Serializable error',
                 'INVALID_PATH',
                 'warning',
-                { data: 'test' }
+                { [BLOCKED-DATA]: 'test' }
             );
             
             const serialized = JSON.stringify({
@@ -17955,12 +18091,12 @@ describe('FusionError', () => {
                 context: error.context
             });
             
-            const deserialized = JSON.parse(serialized) as { message: string; code: string; severity: string; context: { data: string } };
+            const deserialized = JSON.parse(serialized) as { message: string; code: string; severity: string; context: { [BLOCKED-DATA]: string } };
             
             expect(deserialized.message).toBe('Serializable error');
             expect(deserialized.code).toBe('INVALID_PATH');
             expect(deserialized.severity).toBe('warning');
-            expect(deserialized.context).toEqual({ data: 'test' });
+            expect(deserialized.context).toEqual({ [BLOCKED-DATA]: 'test' });
         });
     });
     
@@ -18851,14 +18987,14 @@ Security Enhancements
 - [ ] **Enhanced CSP**: Add base-uri 'none' to Content-Security-Policy for base URI attack prevention
 - [ ] **Link validation**: Validate internal href="#slug" links to prevent injection in table of contents
 
-### Markdown Security (Medium Priority)  
-- [ ] **Markdown escaping**: Escape special Markdown characters ([, ], (, )) in filenames to prevent malicious link injection
-- [ ] **Protocol detection**: Detect and handle javascript:, data:, vbscript: protocols in markdown content
-
 ### Cross-Format Security (Low Priority)
-- [ ] **Malicious pattern detection**: Detect and log suspicious patterns (javascript:, data: URLs, script tags) in file content
+- [ ] **Malicious pattern detection**: Detect and log suspicious patterns ([BLOCKED-JAVASCRIPT]:, [BLOCKED-DATA]: URLs, script tags) in file content
 - [ ] **Output size limits**: Add configurable limits on generated file sizes to prevent DoS attacks on browsers/viewers
 - [ ] **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
+
+### Bonus
+ [ ] S'assurer que tous les problèmes de sécurité rencontrés lors du parsing des fichiers soient loggués en warning dans le project-fusion.log
+ [ ] Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité (peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?)
 ```
 
 ## 📄 tsconfig.json {#tsconfigjson}

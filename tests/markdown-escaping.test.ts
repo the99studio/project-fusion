@@ -185,4 +185,125 @@ describe('Markdown Escaping', () => {
             expect(anchorMatch?.[1]).toBe(fileAnchorMatch?.[1]);
         });
     });
+
+    describe('Protocol detection and sanitization', () => {
+        it('should detect and block javascript: protocol in file content', () => {
+            const maliciousContent = 'Click [here](javascript:alert("XSS")) for more info';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace javascript: with [BLOCKED-JAVASCRIPT]:
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
+            expect(result).not.toContain('javascript:alert("XSS")');
+        });
+
+        it('should detect and block data: protocol in file content', () => {
+            const maliciousContent = 'Image: ![image](data:text/html,<script>alert("XSS")</script>)';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace data: with [BLOCKED-DATA]:
+            expect(result).toContain('[BLOCKED-DATA]:text/html,<script>alert("XSS")</script>');
+            expect(result).not.toContain('data:text/html,<script>alert("XSS")</script>');
+        });
+
+        it('should detect and block vbscript: protocol in file content', () => {
+            const maliciousContent = 'Link: [click](vbscript:msgbox("XSS"))';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace vbscript: with [BLOCKED-VBSCRIPT]:
+            expect(result).toContain('[BLOCKED-VBSCRIPT]:msgbox("XSS")');
+            expect(result).not.toContain('vbscript:msgbox("XSS")');
+        });
+
+        it('should handle multiple dangerous protocols in same content', () => {
+            const maliciousContent = `
+                javascript:alert(1)
+                data:text/html,<script>
+                vbscript:execute("evil")
+            `;
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should replace all dangerous protocols
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(1)');
+            expect(result).toContain('[BLOCKED-DATA]:text/html,<script>');
+            expect(result).toContain('[BLOCKED-VBSCRIPT]:execute("evil")');
+            
+            // Should not contain any original dangerous protocols
+            expect(result).not.toContain('javascript:');
+            expect(result).not.toContain('data:');
+            expect(result).not.toContain('vbscript:');
+        });
+
+        it('should be case insensitive when detecting protocols', () => {
+            const maliciousContent = 'JAVASCRIPT:alert(1) JavaScript:alert(2) jAvAsCrIpT:alert(3)';
+            const fileInfo = createFileInfo('test.js', maliciousContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should detect and block all case variations
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(1)');
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(2)');
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(3)');
+            expect(result).not.toContain('javascript:');
+            expect(result).not.toContain('JAVASCRIPT:');
+            expect(result).not.toContain('JavaScript:');
+        });
+
+        it('should not affect legitimate protocols', () => {
+            const legitimateContent = `
+                https://example.com
+                http://test.com
+                ftp://files.example.com
+                mailto:user@example.com
+            `;
+            const fileInfo = createFileInfo('test.js', legitimateContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should preserve legitimate protocols
+            expect(result).toContain('https://example.com');
+            expect(result).toContain('http://test.com');
+            expect(result).toContain('ftp://files.example.com');
+            expect(result).toContain('mailto:user@example.com');
+        });
+
+        it('should sanitize error placeholder content', () => {
+            const errorFileInfo: FileInfo = {
+                path: '/project/test.js',
+                relativePath: 'test.js',
+                content: 'Error: File contains javascript:alert("XSS") in content',
+                isErrorPlaceholder: true
+            };
+            
+            const result = strategy.processFile(errorFileInfo);
+            
+            // Should sanitize error content too
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
+            expect(result).not.toContain('javascript:alert("XSS")');
+        });
+
+        it('should handle edge cases with protocol detection', () => {
+            const edgeContent = `
+                // This is not a protocol: javascript
+                const url = "javascript" + ":alert(1)";
+                javascript:void(0)
+            `;
+            const fileInfo = createFileInfo('test.js', edgeContent);
+            
+            const result = strategy.processFile(fileInfo);
+            
+            // Should only block the actual protocol usage
+            expect(result).toContain('// This is not a protocol: javascript');
+            expect(result).toContain('const url = "javascript" + ":alert(1)";');
+            expect(result).toContain('[BLOCKED-JAVASCRIPT]:void(0)');
+            expect(result).not.toContain('javascript:void(0)');
+        });
+    });
 });

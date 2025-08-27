@@ -103,6 +103,21 @@ function escapeMarkdown(text: string): string {
         .replaceAll('`', '\\`');     // Prevent code injection
 }
 
+function sanitizeMarkdownContent(content: string): string {
+    // Detect and neutralize dangerous protocols in markdown content
+    const dangerousProtocols = /\b(javascript|data|vbscript):/gi;
+    
+    if (dangerousProtocols.test(content)) {
+        // Replace dangerous protocols with safe alternative
+        return content.replaceAll(dangerousProtocols, (match) => {
+            const protocol = match.toLowerCase().slice(0, -1); // Remove the ':'
+            return `[BLOCKED-${protocol.toUpperCase()}]:`;
+        });
+    }
+    
+    return content;
+}
+
 export class MarkdownOutputStrategy implements OutputStrategy {
     readonly name = 'markdown';
     readonly extension = '.md';
@@ -148,7 +163,7 @@ ${tocEntries}
 
 > **Content Validation Error**
 
-${fileInfo.content}
+${sanitizeMarkdownContent(fileInfo.content)}
 
 `;
         }
@@ -160,7 +175,7 @@ ${fileInfo.content}
         return `## 📄 ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 \`\`\`${language}
-${fileInfo.content}
+${sanitizeMarkdownContent(fileInfo.content)}
 \`\`\`
 
 `;
