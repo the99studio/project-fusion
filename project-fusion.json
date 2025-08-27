@@ -1,5 +1,5 @@
 {
-    "allowExternalPlugins": false,
+    "allowedExternalPluginPaths": [],
     "allowSymlinks": false,
     "copyToClipboard": false,
     "excludeSecrets": true,
@@ -92,6 +92,7 @@
     "maxFileSizeKB": 1024,
     "maxFiles": 10000,
     "maxLineLength": 5000,
+    "maxSymlinkAuditEntries": 10,
     "maxTokenLength": 2000,
     "maxTotalSizeMB": 100,
     "parsedFileExtensions": {
