@@ -169,6 +169,7 @@ describe('Architecture Tests', () => {
                 },
                 ignorePatterns: [],
                 rootDirectory: testDir,
+                outputDirectory: testDir,
                 useGitIgnoreForExcludes: false,
                 allowSymlinks: false,
                 

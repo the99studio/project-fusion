@@ -16,8 +16,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 22:47:20 UTC−4</p>
-<p><strong>Files:</strong> 64</p>
+<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:04:09 UTC−4</p>
+<p><strong>Files:</strong> 65</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -64,6 +64,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testspath-traversal-edge-casestestts">tests&#47;path-traversal-edge-cases.test.ts</a></li>
 <li><a href="#testsperformancetestts">tests&#47;performance.test.ts</a></li>
 <li><a href="#testsplugin-contracttestts">tests&#47;plugin-contract.test.ts</a></li>
+<li><a href="#testsplugin-coveragetestts">tests&#47;plugin-coverage.test.ts</a></li>
 <li><a href="#testsplugin-securitytestts">tests&#47;plugin-security.test.ts</a></li>
 <li><a href="#testsplugin-systemtestts">tests&#47;plugin-system.test.ts</a></li>
 <li><a href="#testsproperty-basedtestts">tests&#47;property-based.test.ts</a></li>
@@ -6926,6 +6927,7 @@ describe&#40;&#39;Architecture Tests&#39;, &#40;&#41; &#61;&gt; &#123;
                 &#125;,
                 ignorePatterns: &#91;&#93;,
                 rootDirectory: testDir,
+                outputDirectory: testDir,
                 useGitIgnoreForExcludes: false,
                 allowSymlinks: false,
                 
@@ -12268,6 +12270,313 @@ describe&#40;&#39;Plugin API Contract Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             if &#40;plugin.metadata.homepage&#41; &#123;
                 expect&#40;typeof plugin.metadata.homepage&#41;.toBe&#40;&#39;string&#39;&#41;;
             &#125;
+        &#125;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
+<h2 id="testsplugin-coveragetestts">tests&#47;plugin-coverage.test.ts</h2>
+<pre>&#47;**
+ * Additional tests to increase coverage for plugin system
+ *&#47;
+import &#123; describe, it, expect, beforeEach, vi &#125; from &#39;vitest&#39;;
+import &#123; MemoryFileSystemAdapter &#125; from &#39;..&#47;src&#47;adapters&#47;file-system.js&#39;;
+import &#123; 
+    PluginManager, 
+    BasePlugin,
+    createPlugin
+&#125; from &#39;..&#47;src&#47;plugins&#47;plugin-system.js&#39;;
+import type &#123; Config &#125; from &#39;..&#47;src&#47;types.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+describe&#40;&#39;Plugin System Coverage Tests&#39;, &#40;&#41; &#61;&gt; &#123;
+    let pluginManager: PluginManager;
+    let fsAdapter: MemoryFileSystemAdapter;
+    let config: Config;
+
+    beforeEach&#40;&#40;&#41; &#61;&gt; &#123;
+        fsAdapter &#61; new MemoryFileSystemAdapter&#40;&#41;;
+        pluginManager &#61; new PluginManager&#40;fsAdapter&#41;;
+        config &#61; &#123; ...defaultConfig &#125;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Plugin Loading Edge Cases&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should throw error for plugin missing metadata&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Test uncovered lines 105-106: missing metadata check
+            const mockImport &#61; vi.fn&#40;&#41;.mockResolvedValue&#40;&#123;
+                default: &#123; someProperty: &quot;value&quot; &#125; &#47;&#47; Missing metadata property
+            &#125;&#41;;
+            
+            &#47;&#47; Mock the import function for this test
+            vi.doMock&#40;&#39;&#47;mock&#47;plugin.js&#39;, &#40;&#41; &#61;&gt; mockImport&#40;&#41;, &#123; virtual: true &#125;&#41;;
+
+            await expect&#40;pluginManager.loadPlugin&#40;&#39;&#47;mock&#47;plugin.js&#39;&#41;&#41;.rejects.toThrow&#40;&#39;missing metadata&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle loadPluginsFromDirectory errors&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Test uncovered lines 132-133: error handling in loadPluginsFromDirectory
+            const mockExists &#61; vi.spyOn&#40;fsAdapter, &#39;exists&#39;&#41;.mockResolvedValue&#40;true&#41;;
+            const mockGlob &#61; vi.spyOn&#40;fsAdapter, &#39;glob&#39;&#41;.mockRejectedValue&#40;new Error&#40;&#39;Glob failed&#39;&#41;&#41;;
+            
+            &#47;&#47; Should not throw, just log error
+            await pluginManager.loadPluginsFromDirectory&#40;&#39;&#47;some&#47;dir&#39;&#41;;
+            
+            expect&#40;mockExists&#41;.toHaveBeenCalled&#40;&#41;;
+            expect&#40;mockGlob&#41;.toHaveBeenCalled&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should load plugins from directory successfully&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Test successful path through loadPluginsFromDirectory
+            const pluginsDir &#61; &#39;&#47;test&#47;plugins&#39;;
+            const pluginFile &#61; &#39;&#47;test&#47;plugins&#47;test-plugin.js&#39;;
+            
+            vi.spyOn&#40;fsAdapter, &#39;exists&#39;&#41;.mockResolvedValue&#40;true&#41;;
+            vi.spyOn&#40;fsAdapter, &#39;glob&#39;&#41;.mockResolvedValue&#40;&#91;pluginFile&#93;&#41;;
+            
+            &#47;&#47; Mock the specific plugin file
+            vi.doMock&#40;pluginFile, &#40;&#41; &#61;&gt; &#40;&#123;
+                default: &#123;
+                    metadata: &#123;
+                        name: &#39;loaded-plugin&#39;,
+                        version: &#39;1.0.0&#39;,
+                        description: &#39;Successfully loaded plugin&#39;
+                    &#125;
+                &#125;
+            &#125;&#41;, &#123; virtual: true &#125;&#41;;
+
+            await pluginManager.loadPluginsFromDirectory&#40;pluginsDir&#41;;
+            expect&#40;pluginManager.getPlugin&#40;&#39;loaded-plugin&#39;&#41;&#41;.toBeDefined&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle plugin loading failure in directory&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Test the catch block in loadPluginsFromDirectory when individual plugin fails
+            const pluginsDir &#61; &#39;&#47;test&#47;plugins&#39;;
+            const pluginFile &#61; &#39;&#47;test&#47;plugins&#47;failing-plugin.js&#39;;
+            
+            vi.spyOn&#40;fsAdapter, &#39;exists&#39;&#41;.mockResolvedValue&#40;true&#41;;
+            vi.spyOn&#40;fsAdapter, &#39;glob&#39;&#41;.mockResolvedValue&#40;&#91;pluginFile&#93;&#41;;
+            
+            &#47;&#47; Mock a failing plugin import
+            vi.doMock&#40;pluginFile, &#40;&#41; &#61;&gt; &#123;
+                throw new Error&#40;&#39;Plugin import failed&#39;&#41;;
+            &#125;, &#123; virtual: true &#125;&#41;;
+
+            &#47;&#47; Should not throw, just log warning and continue
+            await pluginManager.loadPluginsFromDirectory&#40;pluginsDir&#41;;
+            
+            &#47;&#47; Plugin should not be registered due to failure
+            expect&#40;pluginManager.getPlugin&#40;&#39;failing-plugin&#39;&#41;&#41;.toBeUndefined&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should validate plugin paths with security checks&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const secureConfig &#61; &#123;
+                ...config,
+                rootDirectory: &#39;&#47;secure&#47;root&#39;,
+                allowedExternalPluginPaths: &#91;&#39;&#47;allowed&#47;path&#39;&#93;
+            &#125;;
+
+            const pluginPath &#61; &#39;&#47;allowed&#47;path&#47;plugin.js&#39;;
+            
+            &#47;&#47; Mock the external plugin
+            vi.doMock&#40;pluginPath, &#40;&#41; &#61;&gt; &#40;&#123;
+                default: &#123;
+                    metadata: &#123;
+                        name: &#39;external-plugin&#39;,
+                        version: &#39;1.0.0&#39;,
+                        description: &#39;External plugin&#39;
+                    &#125;
+                &#125;
+            &#125;&#41;, &#123; virtual: true &#125;&#41;;
+
+            await pluginManager.loadPlugin&#40;pluginPath, secureConfig&#41;;
+            expect&#40;pluginManager.getPlugin&#40;&#39;external-plugin&#39;&#41;&#41;.toBeDefined&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should load plugins with different export formats&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const pluginPath &#61; &#39;&#47;test&#47;named-plugin.js&#39;;
+            
+            &#47;&#47; Mock plugin with named export &#40;also providing default to avoid error&#41;
+            vi.doMock&#40;pluginPath, &#40;&#41; &#61;&gt; &#40;&#123;
+                default: undefined, &#47;&#47; No default export
+                plugin: &#123;
+                    metadata: &#123;
+                        name: &#39;named-export-plugin&#39;,
+                        version: &#39;1.0.0&#39;,
+                        description: &#39;Plugin with named export&#39;
+                    &#125;
+                &#125;
+            &#125;&#41;, &#123; virtual: true &#125;&#41;;
+
+            await pluginManager.loadPlugin&#40;pluginPath&#41;;
+            expect&#40;pluginManager.getPlugin&#40;&#39;named-export-plugin&#39;&#41;&#41;.toBeDefined&#40;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;BasePlugin Coverage&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should test BasePlugin default implementations&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Test uncovered lines 324-325, 328-329: default implementations
+            class TestBasePlugin extends BasePlugin &#123;
+                metadata &#61; &#123;
+                    name: &#39;base-test-plugin&#39;,
+                    version: &#39;1.0.0&#39;,
+                    description: &#39;Test BasePlugin&#39;
+                &#125;;
+            &#125;
+
+            const plugin &#61; new TestBasePlugin&#40;&#41;;
+            
+            &#47;&#47; Test default initialize implementation
+            if &#40;plugin.initialize&#41; &#123;
+                await plugin.initialize&#40;config&#41;;
+                &#47;&#47; Should not throw, just run the default implementation
+                expect&#40;true&#41;.toBe&#40;true&#41;;
+            &#125;
+
+            &#47;&#47; Test default cleanup implementation  
+            if &#40;plugin.cleanup&#41; &#123;
+                await plugin.cleanup&#40;&#41;;
+                &#47;&#47; Should not throw, just run the default implementation
+                expect&#40;true&#41;.toBe&#40;true&#41;;
+            &#125;
+        &#125;&#41;;
+
+        it&#40;&#39;should test BasePlugin with custom implementations&#39;, &#40;&#41; &#61;&gt; &#123;
+            class CustomBasePlugin extends BasePlugin &#123;
+                metadata &#61; &#123;
+                    name: &#39;custom-base-plugin&#39;,
+                    version: &#39;1.0.0&#39;,
+                    description: &#39;Custom BasePlugin&#39;
+                &#125;;
+
+                initCalled &#61; false;
+                cleanupCalled &#61; false;
+
+                initialize&#40;&#41;: void &#123;
+                    this.initCalled &#61; true;
+                &#125;
+
+                cleanup&#40;&#41;: void &#123;
+                    this.cleanupCalled &#61; true;
+                &#125;
+            &#125;
+
+            const plugin &#61; new CustomBasePlugin&#40;&#41;;
+            
+            if &#40;plugin.initialize&#41; &#123;
+                plugin.initialize&#40;config&#41;;
+                expect&#40;plugin.initCalled&#41;.toBe&#40;true&#41;;
+            &#125;
+
+            if &#40;plugin.cleanup&#41; &#123;
+                plugin.cleanup&#40;&#41;;
+                expect&#40;plugin.cleanupCalled&#41;.toBe&#40;true&#41;;
+            &#125;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Plugin Configuration Edge Cases&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should handle plugin with enabled false configuration&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createPlugin&#40;&#123;
+                name: &#39;disabled-plugin&#39;,
+                version: &#39;1.0.0&#39;,
+                description: &#39;Disabled plugin&#39;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            pluginManager.configurePlugin&#40;&#39;disabled-plugin&#39;, &#123;
+                name: &#39;disabled-plugin&#39;,
+                enabled: false,
+                options: &#123; setting: &#39;value&#39; &#125;
+            &#125;&#41;;
+
+            const enabledPlugins &#61; pluginManager.getEnabledPlugins&#40;&#41;;
+            expect&#40;enabledPlugins&#41;.not.toContain&#40;plugin&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle plugin with enabled true configuration&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createPlugin&#40;&#123;
+                name: &#39;enabled-plugin&#39;,
+                version: &#39;1.0.0&#39;,
+                description: &#39;Enabled plugin&#39;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            pluginManager.configurePlugin&#40;&#39;enabled-plugin&#39;, &#123;
+                name: &#39;enabled-plugin&#39;,
+                enabled: true,
+                options: &#123; setting: &#39;value&#39; &#125;
+            &#125;&#41;;
+
+            const enabledPlugins &#61; pluginManager.getEnabledPlugins&#40;&#41;;
+            expect&#40;enabledPlugins&#41;.toContain&#40;plugin&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle plugin with undefined configuration &#40;default enabled&#41;&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createPlugin&#40;&#123;
+                name: &#39;default-plugin&#39;,
+                version: &#39;1.0.0&#39;,
+                description: &#39;Default plugin&#39;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            &#47;&#47; Don&#39;t configure the plugin
+
+            const enabledPlugins &#61; pluginManager.getEnabledPlugins&#40;&#41;;
+            expect&#40;enabledPlugins&#41;.toContain&#40;plugin&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should unregister plugin and its configuration&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createPlugin&#40;&#123;
+                name: &#39;to-unregister&#39;,
+                version: &#39;1.0.0&#39;,
+                description: &#39;Plugin to unregister&#39;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            pluginManager.configurePlugin&#40;&#39;to-unregister&#39;, &#123;
+                name: &#39;to-unregister&#39;,
+                enabled: true
+            &#125;&#41;;
+
+            expect&#40;pluginManager.getPlugin&#40;&#39;to-unregister&#39;&#41;&#41;.toBe&#40;plugin&#41;;
+            
+            pluginManager.unregisterPlugin&#40;&#39;to-unregister&#39;&#41;;
+            
+            expect&#40;pluginManager.getPlugin&#40;&#39;to-unregister&#39;&#41;&#41;.toBeUndefined&#40;&#41;;
+            const enabledPlugins &#61; pluginManager.getEnabledPlugins&#40;&#41;;
+            expect&#40;enabledPlugins&#41;.not.toContain&#40;plugin&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Plugin Metadata Validation&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should list all registered plugin metadata&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin1 &#61; createPlugin&#40;&#123;
+                name: &#39;plugin1&#39;,
+                version: &#39;1.0.0&#39;,
+                description: &#39;First plugin&#39;,
+                author: &#39;Test Author&#39;,
+                homepage: &#39;https:&#47;&#47;example.com&#39;
+            &#125;&#41;;
+
+            const plugin2 &#61; createPlugin&#40;&#123;
+                name: &#39;plugin2&#39;,
+                version: &#39;2.0.0&#39;,
+                description: &#39;Second plugin&#39;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin1&#41;;
+            pluginManager.registerPlugin&#40;plugin2&#41;;
+
+            const metadata &#61; pluginManager.listPlugins&#40;&#41;;
+            expect&#40;metadata&#41;.toHaveLength&#40;2&#41;;
+            
+            const plugin1Meta &#61; metadata.find&#40;m &#61;&gt; m.name &#61;&#61;&#61; &#39;plugin1&#39;&#41;;
+            expect&#40;plugin1Meta&#41;.toBeDefined&#40;&#41;;
+            expect&#40;plugin1Meta?.author&#41;.toBe&#40;&#39;Test Author&#39;&#41;;
+            expect&#40;plugin1Meta?.homepage&#41;.toBe&#40;&#39;https:&#47;&#47;example.com&#39;&#41;;
+
+            const plugin2Meta &#61; metadata.find&#40;m &#61;&gt; m.name &#61;&#61;&#61; &#39;plugin2&#39;&#41;;
+            expect&#40;plugin2Meta&#41;.toBeDefined&#40;&#41;;
+            expect&#40;plugin2Meta?.author&#41;.toBeUndefined&#40;&#41;;
+            expect&#40;plugin2Meta?.homepage&#41;.toBeUndefined&#40;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
