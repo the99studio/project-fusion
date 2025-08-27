@@ -16,7 +16,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:20:18 UTC−4</p>
+<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:28:22 UTC−4</p>
 <p><strong>Files:</strong> 66</p>
 <hr>
 <h2>Table of Contents</h2>
@@ -8653,28 +8653,8 @@ describe&#40;&#39;Config Consistency&#39;, &#40;&#41; &#61;&gt; &#123;
       const projectConfigRaw &#61; await fs.readFile&#40;projectConfigPath, &#39;utf-8&#39;&#41;;
       const projectConfig: FusionConfig &#61; JSON.parse&#40;projectConfigRaw&#41;;
       
-      &#47;&#47; Compare all properties
-      expect&#40;projectConfig.allowedExternalPluginPaths&#41;.toEqual&#40;defaultConfig.allowedExternalPluginPaths&#41;;
-      expect&#40;projectConfig.allowSymlinks&#41;.toBe&#40;defaultConfig.allowSymlinks&#41;;
-      expect&#40;projectConfig.copyToClipboard&#41;.toBe&#40;defaultConfig.copyToClipboard&#41;;
-      expect&#40;projectConfig.excludeSecrets&#41;.toBe&#40;defaultConfig.excludeSecrets&#41;;
-      expect&#40;projectConfig.generatedFileName&#41;.toBe&#40;defaultConfig.generatedFileName&#41;;
-      expect&#40;projectConfig.generateHtml&#41;.toBe&#40;defaultConfig.generateHtml&#41;;
-      expect&#40;projectConfig.generateMarkdown&#41;.toBe&#40;defaultConfig.generateMarkdown&#41;;
-      expect&#40;projectConfig.generateText&#41;.toBe&#40;defaultConfig.generateText&#41;;
-      expect&#40;projectConfig.ignorePatterns&#41;.toEqual&#40;defaultConfig.ignorePatterns&#41;;
-      expect&#40;projectConfig.maxBase64BlockKB&#41;.toBe&#40;defaultConfig.maxBase64BlockKB&#41;;
-      expect&#40;projectConfig.maxFileSizeKB&#41;.toBe&#40;defaultConfig.maxFileSizeKB&#41;;
-      expect&#40;projectConfig.maxFiles&#41;.toBe&#40;defaultConfig.maxFiles&#41;;
-      expect&#40;projectConfig.maxLineLength&#41;.toBe&#40;defaultConfig.maxLineLength&#41;;
-      expect&#40;projectConfig.maxSymlinkAuditEntries&#41;.toBe&#40;defaultConfig.maxSymlinkAuditEntries&#41;;
-      expect&#40;projectConfig.maxTokenLength&#41;.toBe&#40;defaultConfig.maxTokenLength&#41;;
-      expect&#40;projectConfig.maxTotalSizeMB&#41;.toBe&#40;defaultConfig.maxTotalSizeMB&#41;;
-      expect&#40;projectConfig.parsedFileExtensions&#41;.toEqual&#40;defaultConfig.parsedFileExtensions&#41;;
-      expect&#40;projectConfig.parseSubDirectories&#41;.toBe&#40;defaultConfig.parseSubDirectories&#41;;
-      expect&#40;projectConfig.rootDirectory&#41;.toBe&#40;defaultConfig.rootDirectory&#41;;
-      expect&#40;projectConfig.schemaVersion&#41;.toBe&#40;defaultConfig.schemaVersion&#41;;
-      expect&#40;projectConfig.useGitIgnoreForExcludes&#41;.toBe&#40;defaultConfig.useGitIgnoreForExcludes&#41;;
+      &#47;&#47; Compare entire config objects
+      expect&#40;projectConfig&#41;.toEqual&#40;defaultConfig&#41;;
     &#125;&#41;;
 
     it&#40;&#39;should have all required properties&#39;, async &#40;&#41; &#61;&gt; &#123;
