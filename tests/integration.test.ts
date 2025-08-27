@@ -5,7 +5,15 @@ import { processFusion } from '../src/fusion.js';
 import type { Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 
-describe('integration', () => {
+describe('Integration Tests - Optimized', () => {
+  // Pre-define test content to avoid runtime generation
+  const TEST_CONTENT = {
+    js: 'console.log("Hello World");',
+    ts: 'const message: string = "TypeScript";',
+    dockerfile: 'FROM node:18\\nCOPY . .\\nRUN npm install',
+    json: JSON.stringify({ name: 'test', version: '1.0.0' }, null, 2)
+  };
+  
   const testDir = path.join(process.cwd(), 'temp', 'test-integration');
   const originalCwd = process.cwd();
 
@@ -78,10 +86,12 @@ describe('integration', () => {
       expect(result.message).toContain('No files found to process');
     });
 
-    it('should respect ignore patterns', async () => {
-      // Create test files
-      await fs.writeFile('test.js', 'console.log("Hello World");');
-      await fs.writeFile('ignored.js', 'console.log("Should be ignored");');
+    it('should respect ignore patterns with batch file creation', async () => {
+      // Create test files in parallel
+      await Promise.all([
+        fs.writeFile('test.js', TEST_CONTENT.js),
+        fs.writeFile('ignored.js', 'console.log("Should be ignored");')
+      ]);
       
       const testConfig: Config = {
         ...defaultConfig,
@@ -105,12 +115,14 @@ describe('integration', () => {
       }
     });
 
-    it('should filter files by extensions correctly', async () => {
-      // Create test files with different extensions
-      await fs.writeFile('app.js', 'console.log("JavaScript");');
-      await fs.writeFile('app.ts', 'const app: string = "TypeScript";');
-      await fs.writeFile('app.py', 'print("Python")');
-      await fs.writeFile('config.json', '{"test": true}');
+    it('should filter files by extensions correctly using parallel creation', async () => {
+      // Create test files with different extensions in parallel
+      await Promise.all([
+        fs.writeFile('app.js', 'console.log("JavaScript");'),
+        fs.writeFile('app.ts', 'const app: string = "TypeScript";'),
+        fs.writeFile('app.py', 'print("Python")'),
+        fs.writeFile('config.json', TEST_CONTENT.json)
+      ]);
       
       // Test web extensions only
       const webConfig: Config = {

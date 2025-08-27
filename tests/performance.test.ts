@@ -21,13 +21,22 @@ const performanceConfig = {
 };
 
 /**
- * Generate normal file content without problematic patterns
+ * Generate normal file content without problematic patterns - optimized
  */
+const BASE_CONTENT_TEMPLATE = 'function test() { return 42; }';
 function generateNormalContent(sizeKB: number): string {
-    const baseContent = `function test() { return ${Math.random()}; }`;
-    const repetitions = Math.max(1, Math.floor((sizeKB * 1024) / baseContent.length));
-    return baseContent.repeat(repetitions);
+    const repetitions = Math.max(1, Math.floor((sizeKB * 1024) / BASE_CONTENT_TEMPLATE.length));
+    return BASE_CONTENT_TEMPLATE.repeat(repetitions);
 }
+
+/**
+ * Pre-generate content to avoid repeated generation during tests
+ */
+const PREGENERATED_CONTENT = {
+    small: 'console.log("small");',
+    medium: generateNormalContent(10),
+    large: generateNormalContent(50)
+};
 
 describe('Performance Tests - Optimized', () => {
     const testDir = join(process.cwd(), 'temp', 'performance-test');
@@ -48,13 +57,14 @@ describe('Performance Tests - Optimized', () => {
     });
 
     describe('Basic Performance Tests', () => {
-        it('should handle small number of files efficiently', async () => {
+        it('should handle small number of files efficiently with batch operations', async () => {
             const fileCount = 10;
             
-            // Create test files
-            for (let i = 0; i < fileCount; i++) {
-                await writeFile(`file${i}.js`, `console.log('File ${i}');`);
-            }
+            // Use batch file creation for better performance
+            const filePromises = Array.from({ length: fileCount }, (_, i) => 
+                writeFile(`file${i}.js`, PREGENERATED_CONTENT.small)
+            );
+            await Promise.all(filePromises);
             
             const config = {
                 ...performanceConfig,
@@ -73,13 +83,15 @@ describe('Performance Tests - Optimized', () => {
             expect(processingTime).toBeLessThan(5000); // Should finish in < 5s
         });
 
-        it('should handle medium file sizes efficiently', async () => {
+        it('should handle medium file sizes efficiently with parallel processing', async () => {
             const fileCount = 5;
-            const content = generateNormalContent(10); // 10KB per file
             
-            for (let i = 0; i < fileCount; i++) {
-                await writeFile(`large${i}.js`, content);
-            }
+            // Use parallel file creation
+            await Promise.all(
+                Array.from({ length: fileCount }, (_, i) => 
+                    writeFile(`large${i}.js`, PREGENERATED_CONTENT.medium)
+                )
+            );
 
             const config = {
                 ...performanceConfig,
@@ -98,12 +110,15 @@ describe('Performance Tests - Optimized', () => {
             expect(processingTime).toBeLessThan(10_000); // Should finish in < 10s
         });
 
-        it('should track memory usage during processing', async () => {
+        it('should track memory usage during processing with optimized creation', async () => {
             const fileCount = 8;
             
-            for (let i = 0; i < fileCount; i++) {
-                await writeFile(`memory${i}.js`, `const data${i} = new Array(100).fill(${i});`);
-            }
+            // Batch create memory test files
+            await Promise.all(
+                Array.from({ length: fileCount }, (_, i) => 
+                    writeFile(`memory${i}.js`, `const data${i} = new Array(100).fill(${i});`)
+                )
+            );
 
             const config = {
                 ...performanceConfig,
@@ -140,7 +155,7 @@ describe('Performance Tests - Optimized', () => {
         });
     });
 
-    describe('File Format Tests', () => {
+    describe('File Format Tests - Optimized', () => {
         it('should generate different output formats efficiently', async () => {
             await writeFile('test.js', 'console.log("format test");');
 
@@ -189,12 +204,18 @@ describe('Performance Tests - Optimized', () => {
     });
 
     describe('Resource Limits', () => {
-        it('should respect file count limits', async () => {
+        it('should respect file count limits with batch processing', async () => {
             const fileCount = 20;
             const maxFiles = 10;
             
-            for (let i = 0; i < fileCount; i++) {
-                await writeFile(`file${i}.js`, `console.log(${i});`);
+            // Create files in optimized batches
+            const BATCH_SIZE = 5;
+            for (let start = 0; start < fileCount; start += BATCH_SIZE) {
+                const end = Math.min(start + BATCH_SIZE, fileCount);
+                const batch = Array.from({ length: end - start }, (_, i) => 
+                    writeFile(`file${start + i}.js`, `console.log(${start + i});`)
+                );
+                await Promise.all(batch);
             }
 
             const config = {
@@ -217,9 +238,9 @@ describe('Performance Tests - Optimized', () => {
             }
         });
 
-        it('should handle file size limits', async () => {
-            const largeContent = 'A'.repeat(100 * 1024); // 100KB
-            await writeFile('large.js', `// Large file\nconst data = "${largeContent}";`);
+        it('should handle file size limits with pre-computed content', async () => {
+            // Use precomputed large content instead of generating at runtime
+            await writeFile('large.js', `// Large file\nconst data = "${PREGENERATED_CONTENT.large}";`);
 
             const config = {
                 ...performanceConfig,

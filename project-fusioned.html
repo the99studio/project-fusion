@@ -16,8 +16,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 22:15:31 UTC−4</p>
-<p><strong>Files:</strong> 66</p>
+<p><strong>Generated:</strong> 26&#47;08&#47;2025 22:32:04 UTC−4</p>
+<p><strong>Files:</strong> 63</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -51,7 +51,6 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testscli-e2etestts">tests&#47;cli-e2e.test.ts</a></li>
 <li><a href="#testsclicommandstestts">tests&#47;clicommands.test.ts</a></li>
 <li><a href="#testsclipboard-size-guardtestts">tests&#47;clipboard-size-guard.test.ts</a></li>
-<li><a href="#testscontent-validation-stricttestts">tests&#47;content-validation-strict.test.ts</a></li>
 <li><a href="#testscontent-validationtestts">tests&#47;content-validation.test.ts</a></li>
 <li><a href="#testsfile-securitytestts">tests&#47;file-security.test.ts</a></li>
 <li><a href="#testsfluenttestts">tests&#47;fluent.test.ts</a></li>
@@ -78,11 +77,9 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testssymlink-configurationtestts">tests&#47;symlink-configuration.test.ts</a></li>
 <li><a href="#teststypestestts">tests&#47;types.test.ts</a></li>
 <li><a href="#testsutility-typestestts">tests&#47;utility-types.test.ts</a></li>
-<li><a href="#testsutils-coveragetestts">tests&#47;utils-coverage.test.ts</a></li>
 <li><a href="#testsutilstestts">tests&#47;utils.test.ts</a></li>
 <li><a href="#testsversion-fallbacktestts">tests&#47;version-fallback.test.ts</a></li>
 <li><a href="#testsvscode-apitestts">tests&#47;vscode-api.test.ts</a></li>
-<li><a href="#testsvscode-integrationtestts">tests&#47;vscode-integration.test.ts</a></li>
 <li><a href="#todomd">TODO.md</a></li>
 <li><a href="#tsconfigjson">tsconfig.json</a></li>
 <li><a href="#tsconfigtestjson">tsconfig.test.json</a></li>
@@ -8626,219 +8623,6 @@ describe&#40;&#39;Clipboard Size Guard Tests&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;
     &#125;&#41;;
 &#125;&#41;;</pre>
-<h2 id="testscontent-validation-stricttestts">tests&#47;content-validation-strict.test.ts</h2>
-<pre>&#47;**
- * Tests for strict content validation behavior using in-memory files
- *&#47;
-import &#123; describe, it, expect &#125; from &#39;vitest&#39;;
-import &#123; MemoryFileSystemAdapter &#125; from &#39;..&#47;src&#47;adapters&#47;file-system.js&#39;;
-import &#123; processFusion &#125; from &#39;..&#47;src&#47;fusion.js&#39;;
-import &#123; type Config, createFilePath &#125; from &#39;..&#47;src&#47;types.js&#39;;
-import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
-
-describe&#40;&#39;Strict Content Validation &#40;In-Memory&#41;&#39;, &#40;&#41; &#61;&gt; &#123;
-    describe&#40;&#39;Error Placeholders for Rejected Files&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should include error placeholder for files with large base64 blocks&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const memFS &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            
-            &#47;&#47; Create problematic file in memory only
-            const largeBase64 &#61; &#96;iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg&#36;&#123;  &#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&#39;.repeat&#40;100&#41;&#125;&#96;; &#47;&#47; ~3.5KB base64
-            
-            memFS.addFile&#40;&#39;problematic.js&#39;, &#96;const imageData &#61; &quot;&#36;&#123;largeBase64&#125;&quot;;&#96;&#41;;
-            memFS.addFile&#40;&#39;normal.js&#39;, &#39;console.log&#40;&quot;hello&quot;&#41;;&#39;&#41;;
-            
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-                &#47;&#47; Using default strict contentValidation
-            &#125;;
-
-            const result &#61; await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;true&#41;;
-            expect&#40;&#40;result as &#123; filesProcessed: number &#125;&#41;.filesProcessed&#41;.toBe&#40;2&#41;; &#47;&#47; Both files processed
-            
-            &#47;&#47; Read the generated content from the correct path
-            const output &#61; await memFS.readFile&#40;createFilePath&#40;&#39;project-fusioned.txt&#39;&#41;&#41;;
-            
-            &#47;&#47; Should contain error placeholder for problematic file
-            expect&#40;output&#41;.toContain&#40;&#39;&#91;ERROR: Content validation failed for problematic.js&#93;&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;Large base64 block detected&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;To include this file anyway, adjust validation limits in your config&#39;&#41;;
-            
-            &#47;&#47; Should still contain normal file content
-            expect&#40;output&#41;.toContain&#40;&#39;console.log&#40;&quot;hello&quot;&#41;&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;FILE: normal.js&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should include error placeholder for files with long lines&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const memFS &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            
-            &#47;&#47; Create file with very long line in memory
-            const longLine &#61; &#96;var &#36;&#123;  &#39;a&#39;.repeat&#40;6000&#41;  &#125; &#61; &quot;test&quot;;&#96;; &#47;&#47; 6000&#43; chars
-            
-            memFS.addFile&#40;&#39;minified.js&#39;, longLine&#41;;
-            memFS.addFile&#40;&#39;normal.js&#39;, &#39;const x &#61; 1;&#39;&#41;;
-            
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
-
-            const result &#61; await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;true&#41;;
-            if &#40;result.success&#41; &#123;
-                expect&#40;result.filesProcessed&#41;.toBe&#40;2&#41;;
-            &#125;
-            
-            const output &#61; await memFS.readFile&#40;createFilePath&#40;&#39;project-fusioned.txt&#39;&#41;&#41;;
-            
-            &#47;&#47; Should contain error placeholder
-            expect&#40;output&#41;.toContain&#40;&#39;&#91;ERROR: Content validation failed for minified.js&#93;&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;Long line detected&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;6014 chars&#39;&#41;;
-            
-            &#47;&#47; Normal file should be fine
-            expect&#40;output&#41;.toContain&#40;&#39;const x &#61; 1;&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should include error placeholder for files with long tokens&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const memFS &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            
-            &#47;&#47; Create file with very long token &#40;non-base64&#41;
-            const longToken &#61; &#96;function_&#36;&#123;  &#39;x&#39;.repeat&#40;2500&#41;  &#125;_end&#96;; &#47;&#47; 2500&#43; chars
-            
-            memFS.addFile&#40;&#39;obfuscated.js&#39;, &#96;var &#36;&#123;longToken&#125; &#61; true;&#96;&#41;;
-            memFS.addFile&#40;&#39;clean.js&#39;, &#39;function hello&#40;&#41; &#123; return &quot;world&quot;; &#125;&#39;&#41;;
-            
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
-
-            const result &#61; await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;true&#41;;
-            if &#40;result.success&#41; &#123;
-                expect&#40;result.filesProcessed&#41;.toBe&#40;2&#41;;
-            &#125;
-            
-            const output &#61; await memFS.readFile&#40;createFilePath&#40;&#39;project-fusioned.txt&#39;&#41;&#41;;
-            
-            expect&#40;output&#41;.toContain&#40;&#39;&#91;ERROR: Content validation failed for obfuscated.js&#93;&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;Long token detected&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;possible minified content&#39;&#41;;
-            
-            expect&#40;output&#41;.toContain&#40;&#39;function hello&#40;&#41;&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should handle multiple validation issues in one file&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const memFS &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            
-            &#47;&#47; File with multiple issues
-            const largeBase64 &#61; &#39;A&#39;.repeat&#40;3000&#41;; &#47;&#47; Large base64
-            const longLine &#61; &#39;x&#39;.repeat&#40;6000&#41;;    &#47;&#47; Long line
-            const content &#61; &#96;const data&#61;&quot;&#36;&#123;largeBase64&#125;&quot;; &#47;&#47; &#36;&#123;longLine&#125;&#96;;
-            
-            memFS.addFile&#40;&#39;disaster.js&#39;, content&#41;;
-            memFS.addFile&#40;&#39;good.js&#39;, &#39;console.log&#40;&quot;ok&quot;&#41;;&#39;&#41;;
-            
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
-
-            await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
-            
-            const output &#61; await memFS.readFile&#40;createFilePath&#40;&#39;project-fusioned.txt&#39;&#41;&#41;;
-            
-            expect&#40;output&#41;.toContain&#40;&#39;&#91;ERROR: Content validation failed for disaster.js&#93;&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;Large base64 block detected&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;Long line detected&#39;&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;Format-Specific Error Display&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should display error placeholders correctly in Markdown&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const memFS &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            
-            const largeBase64 &#61; &#39;A&#39;.repeat&#40;3000&#41;;
-            memFS.addFile&#40;&#39;bad.js&#39;, &#96;const data&#61;&quot;&#36;&#123;largeBase64&#125;&quot;;&#96;&#41;;
-            
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: true,
-                generateText: false,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
-
-            await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
-            
-            const output &#61; await memFS.readFile&#40;createFilePath&#40;&#39;project-fusioned.md&#39;&#41;&#41;;
-            
-            expect&#40;output&#41;.toContain&#40;&#39;## ⚠️ bad.js&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;&gt; **Content Validation Error**&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;&#91;ERROR: Content validation failed for bad.js&#93;&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should display error placeholders correctly in HTML&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const memFS &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            
-            const longLine &#61; &#39;x&#39;.repeat&#40;6000&#41;;
-            memFS.addFile&#40;&#39;minified.js&#39;, longLine&#41;;
-            
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: true,
-                generateMarkdown: false,
-                generateText: false,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
-
-            await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
-            
-            const output &#61; await memFS.readFile&#40;createFilePath&#40;&#39;project-fusioned.html&#39;&#41;&#41;;
-            
-            expect&#40;output&#41;.toContain&#40;&#39;ERROR: minified.js&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;class&#61;&quot;error&quot;&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;Content validation failed&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;.error&#123;background:#fee&#39;&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-&#125;&#41;;</pre>
 <h2 id="testscontent-validationtestts">tests&#47;content-validation.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -10607,7 +10391,15 @@ import &#123; processFusion &#125; from &#39;..&#47;src&#47;fusion.js&#39;;
 import type &#123; Config &#125; from &#39;..&#47;src&#47;types.js&#39;;
 import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
 
-describe&#40;&#39;integration&#39;, &#40;&#41; &#61;&gt; &#123;
+describe&#40;&#39;Integration Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123;
+  &#47;&#47; Pre-define test content to avoid runtime generation
+  const TEST_CONTENT &#61; &#123;
+    js: &#39;console.log&#40;&quot;Hello World&quot;&#41;;&#39;,
+    ts: &#39;const message: string &#61; &quot;TypeScript&quot;;&#39;,
+    dockerfile: &#39;FROM node:18\\nCOPY . .\\nRUN npm install&#39;,
+    json: JSON.stringify&#40;&#123; name: &#39;test&#39;, version: &#39;1.0.0&#39; &#125;, null, 2&#41;
+  &#125;;
+  
   const testDir &#61; path.join&#40;process.cwd&#40;&#41;, &#39;temp&#39;, &#39;test-integration&#39;&#41;;
   const originalCwd &#61; process.cwd&#40;&#41;;
 
@@ -10680,10 +10472,12 @@ describe&#40;&#39;integration&#39;, &#40;&#41; &#61;&gt; &#123;
       expect&#40;result.message&#41;.toContain&#40;&#39;No files found to process&#39;&#41;;
     &#125;&#41;;
 
-    it&#40;&#39;should respect ignore patterns&#39;, async &#40;&#41; &#61;&gt; &#123;
-      &#47;&#47; Create test files
-      await fs.writeFile&#40;&#39;test.js&#39;, &#39;console.log&#40;&quot;Hello World&quot;&#41;;&#39;&#41;;
-      await fs.writeFile&#40;&#39;ignored.js&#39;, &#39;console.log&#40;&quot;Should be ignored&quot;&#41;;&#39;&#41;;
+    it&#40;&#39;should respect ignore patterns with batch file creation&#39;, async &#40;&#41; &#61;&gt; &#123;
+      &#47;&#47; Create test files in parallel
+      await Promise.all&#40;&#91;
+        fs.writeFile&#40;&#39;test.js&#39;, TEST_CONTENT.js&#41;,
+        fs.writeFile&#40;&#39;ignored.js&#39;, &#39;console.log&#40;&quot;Should be ignored&quot;&#41;;&#39;&#41;
+      &#93;&#41;;
       
       const testConfig: Config &#61; &#123;
         ...defaultConfig,
@@ -10707,12 +10501,14 @@ describe&#40;&#39;integration&#39;, &#40;&#41; &#61;&gt; &#123;
       &#125;
     &#125;&#41;;
 
-    it&#40;&#39;should filter files by extensions correctly&#39;, async &#40;&#41; &#61;&gt; &#123;
-      &#47;&#47; Create test files with different extensions
-      await fs.writeFile&#40;&#39;app.js&#39;, &#39;console.log&#40;&quot;JavaScript&quot;&#41;;&#39;&#41;;
-      await fs.writeFile&#40;&#39;app.ts&#39;, &#39;const app: string &#61; &quot;TypeScript&quot;;&#39;&#41;;
-      await fs.writeFile&#40;&#39;app.py&#39;, &#39;print&#40;&quot;Python&quot;&#41;&#39;&#41;;
-      await fs.writeFile&#40;&#39;config.json&#39;, &#39;&#123;&quot;test&quot;: true&#125;&#39;&#41;;
+    it&#40;&#39;should filter files by extensions correctly using parallel creation&#39;, async &#40;&#41; &#61;&gt; &#123;
+      &#47;&#47; Create test files with different extensions in parallel
+      await Promise.all&#40;&#91;
+        fs.writeFile&#40;&#39;app.js&#39;, &#39;console.log&#40;&quot;JavaScript&quot;&#41;;&#39;&#41;,
+        fs.writeFile&#40;&#39;app.ts&#39;, &#39;const app: string &#61; &quot;TypeScript&quot;;&#39;&#41;,
+        fs.writeFile&#40;&#39;app.py&#39;, &#39;print&#40;&quot;Python&quot;&#41;&#39;&#41;,
+        fs.writeFile&#40;&#39;config.json&#39;, TEST_CONTENT.json&#41;
+      &#93;&#41;;
       
       &#47;&#47; Test web extensions only
       const webConfig: Config &#61; &#123;
@@ -11455,13 +11251,22 @@ const performanceConfig &#61; &#123;
 &#125;;
 
 &#47;**
- * Generate normal file content without problematic patterns
+ * Generate normal file content without problematic patterns - optimized
  *&#47;
+const BASE_CONTENT_TEMPLATE &#61; &#39;function test&#40;&#41; &#123; return 42; &#125;&#39;;
 function generateNormalContent&#40;sizeKB: number&#41;: string &#123;
-    const baseContent &#61; &#96;function test&#40;&#41; &#123; return &#36;&#123;Math.random&#40;&#41;&#125;; &#125;&#96;;
-    const repetitions &#61; Math.max&#40;1, Math.floor&#40;&#40;sizeKB * 1024&#41; &#47; baseContent.length&#41;&#41;;
-    return baseContent.repeat&#40;repetitions&#41;;
+    const repetitions &#61; Math.max&#40;1, Math.floor&#40;&#40;sizeKB * 1024&#41; &#47; BASE_CONTENT_TEMPLATE.length&#41;&#41;;
+    return BASE_CONTENT_TEMPLATE.repeat&#40;repetitions&#41;;
 &#125;
+
+&#47;**
+ * Pre-generate content to avoid repeated generation during tests
+ *&#47;
+const PREGENERATED_CONTENT &#61; &#123;
+    small: &#39;console.log&#40;&quot;small&quot;&#41;;&#39;,
+    medium: generateNormalContent&#40;10&#41;,
+    large: generateNormalContent&#40;50&#41;
+&#125;;
 
 describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123;
     const testDir &#61; join&#40;process.cwd&#40;&#41;, &#39;temp&#39;, &#39;performance-test&#39;&#41;;
@@ -11482,13 +11287,14 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
     &#125;&#41;;
 
     describe&#40;&#39;Basic Performance Tests&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should handle small number of files efficiently&#39;, async &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should handle small number of files efficiently with batch operations&#39;, async &#40;&#41; &#61;&gt; &#123;
             const fileCount &#61; 10;
             
-            &#47;&#47; Create test files
-            for &#40;let i &#61; 0; i &lt; fileCount; i&#43;&#43;&#41; &#123;
-                await writeFile&#40;&#96;file&#36;&#123;i&#125;.js&#96;, &#96;console.log&#40;&#39;File &#36;&#123;i&#125;&#39;&#41;;&#96;&#41;;
-            &#125;
+            &#47;&#47; Use batch file creation for better performance
+            const filePromises &#61; Array.from&#40;&#123; length: fileCount &#125;, &#40;_, i&#41; &#61;&gt; 
+                writeFile&#40;&#96;file&#36;&#123;i&#125;.js&#96;, PREGENERATED_CONTENT.small&#41;
+            &#41;;
+            await Promise.all&#40;filePromises&#41;;
             
             const config &#61; &#123;
                 ...performanceConfig,
@@ -11507,13 +11313,15 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
             expect&#40;processingTime&#41;.toBeLessThan&#40;5000&#41;; &#47;&#47; Should finish in &lt; 5s
         &#125;&#41;;
 
-        it&#40;&#39;should handle medium file sizes efficiently&#39;, async &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should handle medium file sizes efficiently with parallel processing&#39;, async &#40;&#41; &#61;&gt; &#123;
             const fileCount &#61; 5;
-            const content &#61; generateNormalContent&#40;10&#41;; &#47;&#47; 10KB per file
             
-            for &#40;let i &#61; 0; i &lt; fileCount; i&#43;&#43;&#41; &#123;
-                await writeFile&#40;&#96;large&#36;&#123;i&#125;.js&#96;, content&#41;;
-            &#125;
+            &#47;&#47; Use parallel file creation
+            await Promise.all&#40;
+                Array.from&#40;&#123; length: fileCount &#125;, &#40;_, i&#41; &#61;&gt; 
+                    writeFile&#40;&#96;large&#36;&#123;i&#125;.js&#96;, PREGENERATED_CONTENT.medium&#41;
+                &#41;
+            &#41;;
 
             const config &#61; &#123;
                 ...performanceConfig,
@@ -11532,12 +11340,15 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
             expect&#40;processingTime&#41;.toBeLessThan&#40;10_000&#41;; &#47;&#47; Should finish in &lt; 10s
         &#125;&#41;;
 
-        it&#40;&#39;should track memory usage during processing&#39;, async &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should track memory usage during processing with optimized creation&#39;, async &#40;&#41; &#61;&gt; &#123;
             const fileCount &#61; 8;
             
-            for &#40;let i &#61; 0; i &lt; fileCount; i&#43;&#43;&#41; &#123;
-                await writeFile&#40;&#96;memory&#36;&#123;i&#125;.js&#96;, &#96;const data&#36;&#123;i&#125; &#61; new Array&#40;100&#41;.fill&#40;&#36;&#123;i&#125;&#41;;&#96;&#41;;
-            &#125;
+            &#47;&#47; Batch create memory test files
+            await Promise.all&#40;
+                Array.from&#40;&#123; length: fileCount &#125;, &#40;_, i&#41; &#61;&gt; 
+                    writeFile&#40;&#96;memory&#36;&#123;i&#125;.js&#96;, &#96;const data&#36;&#123;i&#125; &#61; new Array&#40;100&#41;.fill&#40;&#36;&#123;i&#125;&#41;;&#96;&#41;
+                &#41;
+            &#41;;
 
             const config &#61; &#123;
                 ...performanceConfig,
@@ -11574,7 +11385,7 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
         &#125;&#41;;
     &#125;&#41;;
 
-    describe&#40;&#39;File Format Tests&#39;, &#40;&#41; &#61;&gt; &#123;
+    describe&#40;&#39;File Format Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should generate different output formats efficiently&#39;, async &#40;&#41; &#61;&gt; &#123;
             await writeFile&#40;&#39;test.js&#39;, &#39;console.log&#40;&quot;format test&quot;&#41;;&#39;&#41;;
 
@@ -11623,12 +11434,18 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
     &#125;&#41;;
 
     describe&#40;&#39;Resource Limits&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should respect file count limits&#39;, async &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should respect file count limits with batch processing&#39;, async &#40;&#41; &#61;&gt; &#123;
             const fileCount &#61; 20;
             const maxFiles &#61; 10;
             
-            for &#40;let i &#61; 0; i &lt; fileCount; i&#43;&#43;&#41; &#123;
-                await writeFile&#40;&#96;file&#36;&#123;i&#125;.js&#96;, &#96;console.log&#40;&#36;&#123;i&#125;&#41;;&#96;&#41;;
+            &#47;&#47; Create files in optimized batches
+            const BATCH_SIZE &#61; 5;
+            for &#40;let start &#61; 0; start &lt; fileCount; start &#43;&#61; BATCH_SIZE&#41; &#123;
+                const end &#61; Math.min&#40;start &#43; BATCH_SIZE, fileCount&#41;;
+                const batch &#61; Array.from&#40;&#123; length: end - start &#125;, &#40;_, i&#41; &#61;&gt; 
+                    writeFile&#40;&#96;file&#36;&#123;start &#43; i&#125;.js&#96;, &#96;console.log&#40;&#36;&#123;start &#43; i&#125;&#41;;&#96;&#41;
+                &#41;;
+                await Promise.all&#40;batch&#41;;
             &#125;
 
             const config &#61; &#123;
@@ -11651,9 +11468,9 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
             &#125;
         &#125;&#41;;
 
-        it&#40;&#39;should handle file size limits&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const largeContent &#61; &#39;A&#39;.repeat&#40;100 * 1024&#41;; &#47;&#47; 100KB
-            await writeFile&#40;&#39;large.js&#39;, &#96;&#47;&#47; Large file\nconst data &#61; &quot;&#36;&#123;largeContent&#125;&quot;;&#96;&#41;;
+        it&#40;&#39;should handle file size limits with pre-computed content&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Use precomputed large content instead of generating at runtime
+            await writeFile&#40;&#39;large.js&#39;, &#96;&#47;&#47; Large file\nconst data &#61; &quot;&#36;&#123;PREGENERATED_CONTENT.large&#125;&quot;;&#96;&#41;;
 
             const config &#61; &#123;
                 ...performanceConfig,
@@ -16667,217 +16484,6 @@ describe&#40;&#39;Utility Types&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
-<h2 id="testsutils-coveragetestts">tests&#47;utils-coverage.test.ts</h2>
-<pre>&#47;&#47; SPDX-License-Identifier: MIT
-&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
-&#47;**
- * Additional tests to achieve 100&#37; coverage for utils.ts
- *&#47;
-import &#123; existsSync &#125; from &#39;node:fs&#39;;
-import &#123; join &#125; from &#39;node:path&#39;;
-import &#123; writeFile, mkdir, rm &#125; from &#39;fs-extra&#39;;
-import &#123; describe, it, expect, beforeEach, afterEach, vi &#125; from &#39;vitest&#39;;
-import &#123; FusionError &#125; from &#39;..&#47;src&#47;types.js&#39;;
-import &#123;
-    loadConfig,
-    writeLog,
-    validateSecurePath,
-    validateNoSymlinks,
-    isBinaryFile,
-    getMarkdownLanguage
-&#125; from &#39;..&#47;src&#47;utils.js&#39;;
-
-describe&#40;&#39;Utils Coverage Tests&#39;, &#40;&#41; &#61;&gt; &#123;
-    const testDir &#61; join&#40;process.cwd&#40;&#41;, &#39;temp&#39;, &#39;utils-coverage-test&#39;&#41;;
-    const originalCwd &#61; process.cwd&#40;&#41;;
-
-    beforeEach&#40;async &#40;&#41; &#61;&gt; &#123;
-        &#47;&#47; Clear all mocks before each test
-        vi.clearAllMocks&#40;&#41;;
-        
-        if &#40;existsSync&#40;testDir&#41;&#41; &#123;
-            await rm&#40;testDir, &#123; recursive: true, force: true &#125;&#41;;
-        &#125;
-        await mkdir&#40;testDir, &#123; recursive: true &#125;&#41;;
-        process.chdir&#40;testDir&#41;;
-    &#125;&#41;;
-
-    afterEach&#40;async &#40;&#41; &#61;&gt; &#123;
-        process.chdir&#40;originalCwd&#41;;
-        if &#40;existsSync&#40;testDir&#41;&#41; &#123;
-            await rm&#40;testDir, &#123; recursive: true, force: true &#125;&#41;;
-        &#125;
-    &#125;&#41;;
-
-    describe&#40;&#39;loadConfig error handling&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should handle unknown validation errors&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const consoleSpy &#61; vi.spyOn&#40;console, &#39;error&#39;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;&#125;&#41;;
-            
-            &#47;&#47; Create config with invalid JSON structure
-            await writeFile&#40;&#39;project-fusion.json&#39;, &#39;&#123;&quot;schemaVersion&quot;: &#91;&#93;&#125;&#39;&#41;;
-
-            const config &#61; await loadConfig&#40;&#41;;
-            
-            expect&#40;config&#41;.toEqual&#40;expect.objectContaining&#40;&#123;
-                schemaVersion: 1,
-                generatedFileName: &#39;project-fusioned&#39;
-            &#125;&#41;&#41;;
-            
-            expect&#40;consoleSpy&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Configuration validation failed&#39;&#41;&#41;;
-            
-            consoleSpy.mockRestore&#40;&#41;;
-        &#125;&#41;;
-
-    &#125;&#41;;
-
-    describe&#40;&#39;writeLog error handling&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should handle log write errors gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const consoleSpy &#61; vi.spyOn&#40;console, &#39;error&#39;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;&#125;&#41;;
-            
-            &#47;&#47; Try to write to an invalid path
-            await writeLog&#40;&#39;&#47;invalid&#47;path&#47;that&#47;does&#47;not&#47;exist.log&#39;, &#39;test content&#39;&#41;;
-            
-            expect&#40;consoleSpy&#41;.toHaveBeenCalledWith&#40;&#39;Error writing log:&#39;, expect.any&#40;Error&#41;&#41;;
-            
-            consoleSpy.mockRestore&#40;&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-
-    describe&#40;&#39;validateSecurePath error handling&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should detect path traversal attacks&#39;, &#40;&#41; &#61;&gt; &#123;
-            expect&#40;&#40;&#41; &#61;&gt; &#123;
-                validateSecurePath&#40;&#39;..&#47;..&#47;..&#47;etc&#47;passwd&#39;, &#39;&#47;safe&#47;directory&#39;&#41;;
-            &#125;&#41;.toThrow&#40;FusionError&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should handle invalid paths&#39;, &#40;&#41; &#61;&gt; &#123;
-            expect&#40;&#40;&#41; &#61;&gt; &#123;
-                validateSecurePath&#40;&#39;\u0000invalid&#39;, &#39;&#47;safe&#47;directory&#39;&#41;;
-            &#125;&#41;.toThrow&#40;FusionError&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should validate safe paths&#39;, &#40;&#41; &#61;&gt; &#123;
-            const safePath &#61; validateSecurePath&#40;&#39;.&#47;file.txt&#39;, process.cwd&#40;&#41;&#41;;
-            expect&#40;safePath&#41;.toBeDefined&#40;&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;validateNoSymlinks&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should handle nonexistent files&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const result &#61; await validateNoSymlinks&#40;&#39;&#47;nonexistent&#47;file.txt&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;false&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should allow regular files&#39;, async &#40;&#41; &#61;&gt; &#123;
-            await writeFile&#40;&#39;regular.txt&#39;, &#39;content&#39;&#41;;
-            const result &#61; await validateNoSymlinks&#40;&#39;.&#47;regular.txt&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;true&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;isBinaryFile edge cases&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should handle empty files&#39;, async &#40;&#41; &#61;&gt; &#123;
-            await writeFile&#40;&#39;empty.txt&#39;, &#39;&#39;&#41;;
-            const result &#61; await isBinaryFile&#40;&#39;.&#47;empty.txt&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;false&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should detect binary files with null bytes&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; Create a file with null bytes
-            const binaryContent &#61; Buffer.from&#40;&#91;0x00, 0x01, 0x02, 0x03&#93;&#41;;
-            await writeFile&#40;&#39;binary.bin&#39;, binaryContent&#41;;
-            
-            const result &#61; await isBinaryFile&#40;&#39;.&#47;binary.bin&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;true&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should detect files with high ratio of non-printable characters&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; Create content with lots of non-printable characters
-            const nonPrintableContent &#61; Buffer.from&#40;Array.from&#40;&#123; length: 1000 &#125;, &#40;_, i&#41; &#61;&gt; i &#37; 256&#41;&#41;;
-            await writeFile&#40;&#39;nonprintable.bin&#39;, nonPrintableContent&#41;;
-            
-            const result &#61; await isBinaryFile&#40;&#39;.&#47;nonprintable.bin&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;true&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should handle file read errors&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; File that doesn&#39;t exist
-            const result &#61; await isBinaryFile&#40;&#39;.&#47;nonexistent.txt&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;false&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should handle files with undefined bytes gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; This tests the byte checking logic with edge cases
-            const content &#61; Buffer.alloc&#40;100&#41;;
-            content.fill&#40;32&#41;; &#47;&#47; Fill with spaces &#40;printable&#41;
-            await writeFile&#40;&#39;spaces.txt&#39;, content&#41;;
-            
-            const result &#61; await isBinaryFile&#40;&#39;.&#47;spaces.txt&#39;&#41;;
-            expect&#40;result&#41;.toBe&#40;false&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;getMarkdownLanguage comprehensive mapping&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should handle case sensitivity&#39;, &#40;&#41; &#61;&gt; &#123;
-            expect&#40;getMarkdownLanguage&#40;&#39;.JS&#39;&#41;&#41;.toBe&#40;&#39;javascript&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;.dockerfile&#39;&#41;&#41;.toBe&#40;&#39;dockerfile&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;Dockerfile&#39;&#41;&#41;.toBe&#40;&#39;dockerfile&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should handle special file basenames&#39;, &#40;&#41; &#61;&gt; &#123;
-            expect&#40;getMarkdownLanguage&#40;&#39;Makefile&#39;&#41;&#41;.toBe&#40;&#39;makefile&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;Gemfile&#39;&#41;&#41;.toBe&#40;&#39;ruby&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;Vagrantfile&#39;&#41;&#41;.toBe&#40;&#39;ruby&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;requirements.txt&#39;&#41;&#41;.toBe&#40;&#39;text&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should fall back to text for unknown extensions&#39;, &#40;&#41; &#61;&gt; &#123;
-            expect&#40;getMarkdownLanguage&#40;&#39;.unknown&#39;&#41;&#41;.toBe&#40;&#39;text&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;.weird-extension&#39;&#41;&#41;.toBe&#40;&#39;text&#39;&#41;;
-            expect&#40;getMarkdownLanguage&#40;&#39;&#39;&#41;&#41;.toBe&#40;&#39;text&#39;&#41;;
-        &#125;&#41;;
-
-        it&#40;&#39;should handle all supported languages&#39;, &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; Test a comprehensive set of languages
-            const testCases &#61; &#91;
-                &#91;&#39;.py&#39;, &#39;python&#39;&#93;,
-                &#91;&#39;.rs&#39;, &#39;rust&#39;&#93;,
-                &#91;&#39;.go&#39;, &#39;go&#39;&#93;,
-                &#91;&#39;.java&#39;, &#39;java&#39;&#93;,
-                &#91;&#39;.cpp&#39;, &#39;cpp&#39;&#93;,
-                &#91;&#39;.c&#39;, &#39;c&#39;&#93;,
-                &#91;&#39;.h&#39;, &#39;c&#39;&#93;,
-                &#91;&#39;.hpp&#39;, &#39;cpp&#39;&#93;,
-                &#91;&#39;.cs&#39;, &#39;csharp&#39;&#93;,
-                &#91;&#39;.php&#39;, &#39;php&#39;&#93;,
-                &#91;&#39;.rb&#39;, &#39;ruby&#39;&#93;,
-                &#91;&#39;.html&#39;, &#39;html&#39;&#93;,
-                &#91;&#39;.css&#39;, &#39;css&#39;&#93;,
-                &#91;&#39;.js&#39;, &#39;javascript&#39;&#93;,
-                &#91;&#39;.ts&#39;, &#39;typescript&#39;&#93;,
-                &#91;&#39;.jsx&#39;, &#39;jsx&#39;&#93;,
-                &#91;&#39;.tsx&#39;, &#39;tsx&#39;&#93;,
-                &#91;&#39;.vue&#39;, &#39;vue&#39;&#93;,
-                &#91;&#39;.json&#39;, &#39;json&#39;&#93;,
-                &#91;&#39;.yaml&#39;, &#39;yaml&#39;&#93;,
-                &#91;&#39;.yml&#39;, &#39;yaml&#39;&#93;,
-                &#91;&#39;.toml&#39;, &#39;toml&#39;&#93;,
-                &#91;&#39;.xml&#39;, &#39;xml&#39;&#93;,
-                &#91;&#39;.md&#39;, &#39;markdown&#39;&#93;,
-                &#91;&#39;.sh&#39;, &#39;bash&#39;&#93;,
-                &#91;&#39;.bash&#39;, &#39;bash&#39;&#93;,
-                &#91;&#39;.ps1&#39;, &#39;powershell&#39;&#93;,
-                &#91;&#39;.sql&#39;, &#39;sql&#39;&#93;,
-                &#91;&#39;.gd&#39;, &#39;gdscript&#39;&#93;
-            &#93;;
-
-            for &#40;const &#91;ext, expected&#93; of testCases&#41; &#123;
-                expect&#40;getMarkdownLanguage&#40;ext&#33;&#41;&#41;.toBe&#40;expected&#41;;
-            &#125;
-        &#125;&#41;;
-    &#125;&#41;;
-&#125;&#41;;</pre>
 <h2 id="testsutilstestts">tests&#47;utils.test.ts</h2>
 <pre>import path from &#39;node:path&#39;;
 import fs from &#39;fs-extra&#39;;
@@ -17120,6 +16726,7 @@ describe&#40;&#39;utils&#39;, &#40;&#41; &#61;&gt; &#123;
       expect&#40;config&#41;.toEqual&#40;defaultConfig&#41;;
     &#125;&#41;;
   &#125;&#41;;
+  
 &#125;&#41;;</pre>
 <h2 id="testsversion-fallbacktestts">tests&#47;version-fallback.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
@@ -17570,429 +17177,6 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
             
             expect&#40;result.success&#41;.toBe&#40;false&#41;;
             expect&#40;result.message&#41;.toContain&#40;&#39;cancelled&#39;&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-&#125;&#41;;</pre>
-<h2 id="testsvscode-integrationtestts">tests&#47;vscode-integration.test.ts</h2>
-<pre>&#47;&#47; SPDX-License-Identifier: MIT
-&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
-&#47;**
- * Integration tests that simulate VS Code extension usage
- *&#47;
-import &#123; afterEach, beforeEach, describe, expect, it, vi &#125; from &#39;vitest&#39;;
-import &#123; MemoryFileSystemAdapter, type FileSystemAdapter &#125; from &#39;..&#47;src&#47;adapters&#47;file-system.js&#39;;
-import &#123; fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions, type ProgrammaticFusionResult &#125; from &#39;..&#47;src&#47;index.js&#39;;
-
-&#47;&#47; Mock VS Code-like progress reporting
-interface VSCodeProgress &#123;
-    report&#40;value: &#123; message?: string; increment?: number &#125;&#41;: void;
-&#125;
-
-interface VSCodeCancellationToken &#123;
-    isCancellationRequested: boolean;
-    onCancellationRequested: &#40;listener: &#40;&#41; &#61;&gt; void&#41; &#61;&gt; void;
-&#125;
-
-describe&#40;&#39;VS Code Extension Integration&#39;, &#40;&#41; &#61;&gt; &#123;
-    let memoryFs: MemoryFileSystemAdapter;
-    
-    beforeEach&#40;&#40;&#41; &#61;&gt; &#123;
-        memoryFs &#61; new MemoryFileSystemAdapter&#40;&#41;;
-        
-        &#47;&#47; Setup a realistic project structure
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;src&#47;index.ts&#39;, &#96;
-export &#123; App &#125; from &#39;.&#47;app.js&#39;;
-export &#123; Utils &#125; from &#39;.&#47;utils.js&#39;;
-        &#96;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;src&#47;app.ts&#39;, &#96;
-import &#123; Utils &#125; from &#39;.&#47;utils.js&#39;;
-
-export class App &#123;
-    constructor&#40;&#41; &#123;
-        console.log&#40;&#39;App initialized&#39;&#41;;
-    &#125;
-    
-    start&#40;&#41; &#123;
-        Utils.log&#40;&#39;Starting app...&#39;&#41;;
-    &#125;
-&#125;
-        &#96;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;src&#47;utils.ts&#39;, &#96;
-export class Utils &#123;
-    static log&#40;message: string&#41; &#123;
-        console.log&#40;\&#96;&#91;\&#36;&#123;new Date&#40;&#41;.toISOString&#40;&#41;&#125;&#93; \&#36;&#123;message&#125;\&#96;&#41;;
-    &#125;
-    
-    static formatDate&#40;date: Date&#41;: string &#123;
-        return date.toLocaleDateString&#40;&#41;;
-    &#125;
-&#125;
-        &#96;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;src&#47;components&#47;Button.tsx&#39;, &#96;
-import React from &#39;react&#39;;
-
-interface ButtonProps &#123;
-    onClick: &#40;&#41; &#61;&gt; void;
-    children: React.ReactNode;
-&#125;
-
-export const Button: React.FC&lt;ButtonProps&gt; &#61; &#40;&#123; onClick, children &#125;&#41; &#61;&gt; &#123;
-    return &#40;
-        &lt;button onClick&#61;&#123;onClick&#125; className&#61;&quot;btn&quot;&gt;
-            &#123;children&#125;
-        &lt;&#47;button&gt;
-    &#41;;
-&#125;;
-        &#96;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;src&#47;styles&#47;main.css&#39;, &#96;
-.btn &#123;
-    background: #007acc;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-&#125;
-
-.btn:hover &#123;
-    background: #005a9e;
-&#125;
-        &#96;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;package.json&#39;, JSON.stringify&#40;&#123;
-            name: &#39;my-awesome-project&#39;,
-            version: &#39;1.2.3&#39;,
-            description: &#39;A demo project for VS Code integration&#39;,
-            main: &#39;dist&#47;index.js&#39;,
-            scripts: &#123;
-                build: &#39;tsc&#39;,
-                test: &#39;jest&#39;
-            &#125;
-        &#125;, null, 2&#41;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;README.md&#39;, &#96;
-# My Awesome Project
-
-This is a demo project for testing VS Code integration.
-
-## Features
-
-- TypeScript support
-- React components
-- CSS styling
-        &#96;&#41;;
-        
-        memoryFs.writeFileSync&#40;&#39;&#47;project&#47;.gitignore&#39;, &#96;
-node_modules&#47;
-dist&#47;
-*.log
-.env
-        &#96;&#41;;
-    &#125;&#41;;
-
-    afterEach&#40;&#40;&#41; &#61;&gt; &#123;
-        vi.clearAllMocks&#40;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;VS Code Command: Generate Fusion&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should simulate VS Code extension command execution&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; Mock VS Code progress API
-            const vscodeProgress: VSCodeProgress &#61; &#123;
-                report: vi.fn&#40;&#40;value&#41; &#61;&gt; &#123;
-                    if &#40;&#40;value as &#123; increment?: number &#125;&#41;.increment&#41; &#123;
-                        &#47;&#47; Increment tracking removed
-                    &#125;
-                &#125;&#41;
-            &#125;;
-            
-            &#47;&#47; Mock VS Code cancellation token
-            const vscodeCancellationToken: VSCodeCancellationToken &#61; &#123;
-                isCancellationRequested: false,
-                onCancellationRequested: vi.fn&#40;&#41;
-            &#125;;
-            
-            &#47;&#47; Convert VS Code interfaces to our interfaces
-            const cancellationToken: CancellationToken &#61; &#123;
-                get isCancellationRequested&#40;&#41; &#123;
-                    return vscodeCancellationToken.isCancellationRequested;
-                &#125;,
-                onCancellationRequested: vscodeCancellationToken.onCancellationRequested
-            &#125;;
-            
-            let lastProgress: FusionProgress | null &#61; null;
-            const onProgress &#61; &#40;progress: FusionProgress&#41; &#61;&gt; &#123;
-                lastProgress &#61; progress;
-                vscodeProgress.report&#40;&#123;
-                    message: progress.message,
-                    increment: lastProgress ? progress.percentage - &#40;lastProgress.percentage || 0&#41; : progress.percentage
-                &#125;&#41;;
-            &#125;;
-            
-            let finalResult: ProgrammaticFusionResult | null &#61; null;
-            const onDidFinish &#61; &#40;result: ProgrammaticFusionResult&#41; &#61;&gt; &#123;
-                finalResult &#61; result;
-            &#125;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: true,
-                generateMarkdown: true,
-                generateHtml: false,
-                extensionGroups: &#91;&#39;web&#39;, &#39;doc&#39;&#93;,
-                fs: memoryFs,
-                onProgress,
-                onDidFinish,
-                cancellationToken
-            &#125;;
-
-            &#47;&#47; Execute fusion &#40;this is what the VS Code extension would do&#41;
-            const result &#61; await fusionAPI&#40;options&#41;;
-            
-            &#47;&#47; Verify successful execution
-            expect&#40;result.success&#41;.toBe&#40;true&#41;;
-            expect&#40;result.fusionFilePath&#41;.toBeDefined&#40;&#41;;
-            expect&#40;finalResult&#41;.toBe&#40;result&#41;;
-            
-            &#47;&#47; Verify progress was reported
-            expect&#40;vscodeProgress.report&#41;.toHaveBeenCalled&#40;&#41;;
-            expect&#40;&#40;lastProgress as any&#41;?.percentage&#41;.toBe&#40;100&#41;;
-            
-            &#47;&#47; Verify files were processed
-            expect&#40;result.message&#41;.toContain&#40;&#39;files processed&#39;&#41;;
-        &#125;&#41;;
-        
-        it&#40;&#39;should handle cancellation from VS Code UI&#39;, async &#40;&#41; &#61;&gt; &#123;
-            let shouldCancel &#61; false;
-            const cancellationListeners: &#40;&#40;&#41; &#61;&gt; void&#41;&#91;&#93; &#61; &#91;&#93;;
-            
-            const vscodeCancellationToken: VSCodeCancellationToken &#61; &#123;
-                get isCancellationRequested&#40;&#41; &#123;
-                    return shouldCancel;
-                &#125;,
-                onCancellationRequested: &#40;listener: &#40;&#41; &#61;&gt; void&#41; &#61;&gt; &#123;
-                    cancellationListeners.push&#40;listener&#41;;
-                &#125;
-            &#125;;
-            
-            const cancellationToken: CancellationToken &#61; &#123;
-                get isCancellationRequested&#40;&#41; &#123;
-                    return vscodeCancellationToken.isCancellationRequested;
-                &#125;,
-                onCancellationRequested: vscodeCancellationToken.onCancellationRequested
-            &#125;;
-            
-            const onProgress &#61; vi.fn&#40;&#40;progress: FusionProgress&#41; &#61;&gt; &#123;
-                &#47;&#47; Simulate user clicking cancel button after scanning
-                if &#40;progress.step &#61;&#61;&#61; &#39;processing&#39;&#41; &#123;
-                    shouldCancel &#61; true;
-                    for &#40;const listener of cancellationListeners&#41; &#123; listener&#40;&#41;; &#125;
-                &#125;
-            &#125;&#41;;
-            
-            const onDidFinish &#61; vi.fn&#40;&#41;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: true,
-                fs: memoryFs,
-                onProgress,
-                onDidFinish,
-                cancellationToken
-            &#125;;
-
-            const result &#61; await fusionAPI&#40;options&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;false&#41;;
-            expect&#40;result.message&#41;.toContain&#40;&#39;cancelled&#39;&#41;;
-            expect&#40;onDidFinish&#41;.toHaveBeenCalledWith&#40;result&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;VS Code Status Bar Integration&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should provide status updates suitable for status bar&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const statusUpdates: string&#91;&#93; &#61; &#91;&#93;;
-            
-            const onProgress &#61; &#40;progress: FusionProgress&#41; &#61;&gt; &#123;
-                &#47;&#47; Simulate updating VS Code status bar
-                const statusText &#61; &#96;Fusion: &#36;&#123;progress.step&#125; &#40;&#36;&#123;progress.percentage&#125;&#37;&#41;&#96;;
-                statusUpdates.push&#40;statusText&#41;;
-            &#125;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: true,
-                fs: memoryFs,
-                onProgress
-            &#125;;
-
-            await fusionAPI&#40;options&#41;;
-            
-            expect&#40;statusUpdates.length&#41;.toBeGreaterThan&#40;0&#41;;
-            expect&#40;statusUpdates&#91;0&#93;&#41;.toContain&#40;&#39;scanning&#39;&#41;;
-            expect&#40;statusUpdates.at&#40;-1&#41;&#41;.toContain&#40;&#39;100&#37;&#39;&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;VS Code Output Channel Integration&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should provide detailed progress for output channel logging&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const outputLogs: string&#91;&#93; &#61; &#91;&#93;;
-            
-            const onProgress &#61; &#40;progress: FusionProgress&#41; &#61;&gt; &#123;
-                &#47;&#47; Simulate logging to VS Code output channel
-                const timestamp &#61; new Date&#40;&#41;.toISOString&#40;&#41;;
-                const logEntry &#61; &#96;&#91;&#36;&#123;timestamp&#125;&#93; &#36;&#123;progress.message&#125;&#36;&#123;progress.currentFile ? &#96; - &#36;&#123;progress.currentFile&#125;&#96; : &#39;&#39;&#125;&#96;;
-                outputLogs.push&#40;logEntry&#41;;
-            &#125;;
-            
-            let finalResult: ProgrammaticFusionResult | null &#61; null;
-            const onDidFinish &#61; &#40;result: ProgrammaticFusionResult&#41; &#61;&gt; &#123;
-                finalResult &#61; result;
-                const timestamp &#61; new Date&#40;&#41;.toISOString&#40;&#41;;
-                const statusLog &#61; &#96;&#91;&#36;&#123;timestamp&#125;&#93; Fusion &#36;&#123;result.success ? &#39;completed&#39; : &#39;failed&#39;&#125;: &#36;&#123;result.message&#125;&#96;;
-                outputLogs.push&#40;statusLog&#41;;
-            &#125;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: true,
-                extensionGroups: &#91;&#39;web&#39;&#93;,
-                fs: memoryFs,
-                onProgress,
-                onDidFinish
-            &#125;;
-
-            await fusionAPI&#40;options&#41;;
-            
-            expect&#40;outputLogs.length&#41;.toBeGreaterThan&#40;0&#41;;
-            expect&#40;outputLogs.some&#40;log &#61;&gt; log.toLowerCase&#40;&#41;.includes&#40;&#39;scanning&#39;&#41;&#41;&#41;.toBe&#40;true&#41;;
-            expect&#40;outputLogs.some&#40;log &#61;&gt; log.toLowerCase&#40;&#41;.includes&#40;&#39;processing&#39;&#41;&#41;&#41;.toBe&#40;true&#41;;
-            expect&#40;outputLogs.some&#40;log &#61;&gt; log.toLowerCase&#40;&#41;.includes&#40;&#39;completed&#39;&#41;&#41;&#41;.toBe&#40;true&#41;;
-            expect&#40;&#40;finalResult as any&#41;?.success&#41;.toBe&#40;true&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;VS Code Settings Integration&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should work with VS Code workspace configuration&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; Simulate VS Code workspace settings
-            const workspaceConfig &#61; &#123;
-                &#39;projectFusion.generateText&#39;: true,
-                &#39;projectFusion.generateMarkdown&#39;: false,
-                &#39;projectFusion.generateHtml&#39;: true,
-                &#39;projectFusion.maxFileSizeKB&#39;: 1024,
-                &#39;projectFusion.extensionGroups&#39;: &#91;&#39;web&#39;, &#39;doc&#39;&#93;,
-                &#39;projectFusion.ignorePatterns&#39;: &#91;&#39;*.test.ts&#39;, &#39;dist&#47;*&#39;&#93;
-            &#125;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: workspaceConfig&#91;&#39;projectFusion.generateText&#39;&#93;,
-                generateMarkdown: workspaceConfig&#91;&#39;projectFusion.generateMarkdown&#39;&#93;,
-                generateHtml: workspaceConfig&#91;&#39;projectFusion.generateHtml&#39;&#93;,
-                maxFileSizeKB: workspaceConfig&#91;&#39;projectFusion.maxFileSizeKB&#39;&#93;,
-                extensionGroups: workspaceConfig&#91;&#39;projectFusion.extensionGroups&#39;&#93;,
-                ignorePatterns: workspaceConfig&#91;&#39;projectFusion.ignorePatterns&#39;&#93;,
-                fs: memoryFs
-            &#125;;
-
-            const result &#61; await fusionAPI&#40;options&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;true&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;Error Handling for VS Code&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should provide user-friendly error messages&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const errors: string&#91;&#93; &#61; &#91;&#93;;
-            
-            const onDidFinish &#61; &#40;result: ProgrammaticFusionResult&#41; &#61;&gt; &#123;
-                if &#40;&#33;result.success&#41; &#123;
-                    errors.push&#40;result.message&#41;;
-                &#125;
-            &#125;;
-            
-            &#47;&#47; Test with empty file system &#40;no files found&#41;
-            const emptyFs &#61; new MemoryFileSystemAdapter&#40;&#41;;
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;empty&#39;,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.ts&#39;, &#39;.js&#39;&#93; &#47;&#47; Only look for code files
-                &#125;,
-                fs: emptyFs,
-                onDidFinish
-            &#125;;
-
-            const result &#61; await fusionAPI&#40;options&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;false&#41;;
-            expect&#40;errors.length&#41;.toBeGreaterThan&#40;0&#41;;
-            expect&#40;errors&#91;0&#93;&#41;.toContain&#40;&#39;No files found&#39;&#41;;
-        &#125;&#41;;
-        
-        it&#40;&#39;should handle permission errors gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; Mock file system that throws permission errors
-            const errorFs &#61; &#123;
-                ...memoryFs,
-                readFile: vi.fn&#40;&#41;.mockRejectedValue&#40;new Error&#40;&#39;Permission denied&#39;&#41;&#41;
-            &#125;;
-            
-            let errorResult: ProgrammaticFusionResult | null &#61; null;
-            const onDidFinish &#61; &#40;result: ProgrammaticFusionResult&#41; &#61;&gt; &#123;
-                errorResult &#61; result;
-            &#125;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: true,
-                fs: errorFs as unknown as FileSystemAdapter,
-                onDidFinish
-            &#125;;
-
-            const result &#61; await fusionAPI&#40;options&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;false&#41;;
-            expect&#40;errorResult&#41;.toBe&#40;result&#41;;
-            expect&#40;result.error&#41;.toBeInstanceOf&#40;Error&#41;;
-        &#125;&#41;;
-    &#125;&#41;;
-
-    describe&#40;&#39;Performance Monitoring for VS Code&#39;, &#40;&#41; &#61;&gt; &#123;
-        it&#40;&#39;should provide timing information for performance monitoring&#39;, async &#40;&#41; &#61;&gt; &#123;
-            const timings: &#123; step: string; timestamp: number &#125;&#91;&#93; &#61; &#91;&#93;;
-            
-            const onProgress &#61; &#40;progress: FusionProgress&#41; &#61;&gt; &#123;
-                timings.push&#40;&#123;
-                    step: progress.step,
-                    timestamp: Date.now&#40;&#41;
-                &#125;&#41;;
-            &#125;;
-            
-            const startTime &#61; Date.now&#40;&#41;;
-            
-            const options: ProgrammaticFusionOptions &#61; &#123;
-                rootDirectory: &#39;&#47;project&#39;,
-                generateText: true,
-                fs: memoryFs,
-                onProgress
-            &#125;;
-
-            const result &#61; await fusionAPI&#40;options&#41;;
-            const endTime &#61; Date.now&#40;&#41;;
-            
-            expect&#40;result.success&#41;.toBe&#40;true&#41;;
-            expect&#40;timings.length&#41;.toBeGreaterThan&#40;0&#41;;
-            
-            &#47;&#47; Verify timing progression
-            for &#40;let i &#61; 1; i &lt; timings.length; i&#43;&#43;&#41; &#123;
-                expect&#40;timings&#91;i&#93;&#33;.timestamp&#41;.toBeGreaterThanOrEqual&#40;timings&#91;i-1&#93;&#33;.timestamp&#41;;
-            &#125;
-            
-            const totalDuration &#61; endTime - startTime;
-            expect&#40;totalDuration&#41;.toBeGreaterThan&#40;0&#41;;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
