@@ -16,8 +16,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:04:09 UTC−4</p>
-<p><strong>Files:</strong> 65</p>
+<p><strong>Generated:</strong> 26&#47;08&#47;2025 23:20:18 UTC−4</p>
+<p><strong>Files:</strong> 66</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -51,6 +51,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testscli-e2etestts">tests&#47;cli-e2e.test.ts</a></li>
 <li><a href="#testsclicommandstestts">tests&#47;clicommands.test.ts</a></li>
 <li><a href="#testsclipboard-size-guardtestts">tests&#47;clipboard-size-guard.test.ts</a></li>
+<li><a href="#testsconfig-consistencytestts">tests&#47;config-consistency.test.ts</a></li>
 <li><a href="#testscontent-validationtestts">tests&#47;content-validation.test.ts</a></li>
 <li><a href="#testsfile-securitytestts">tests&#47;file-security.test.ts</a></li>
 <li><a href="#testsfluenttestts">tests&#47;fluent.test.ts</a></li>
@@ -1043,6 +1044,8 @@ project-fusion &#91;options&#93;
   
 # Security Options &#40;use with caution&#41;
   --allow-symlinks              Allow processing symbolic links &#40;SECURITY WARNING&#41;
+                                Note: Symlinks can escape the project directory,
+                                potentially exposing files outside the intended scope
   
 # Plugin System
   --plugins &lt;names&gt;             Comma-separated list of plugin names to enable
@@ -4582,8 +4585,17 @@ export const defaultConfig &#61; &#123;
         &quot;.env.*&quot;,
         &quot;.idea&#47;&quot;,
         &quot;.vscode&#47;&quot;,
+        &quot;.ssh&#47;&quot;,
+        &quot;.aws&#47;&quot;,
+        &quot;.azure&#47;&quot;,
+        &quot;.gcloud&#47;&quot;,
+        &quot;*.p12&quot;,
+        &quot;*.keystore&quot;,
+        &quot;.*history&quot;,
+        &quot;.npmrc&quot;,
         &quot;build&#47;&quot;,
         &quot;dist&#47;&quot;,
+        &quot;dist&#47;**&#47;*.map&quot;,
         &quot;logs&#47;&quot;,
         &quot;node_modules&#47;&quot;,
         &quot;package-lock.json&quot;,
@@ -8625,6 +8637,98 @@ describe&#40;&#39;Clipboard Size Guard Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             expect&#40;calculatedMB.toFixed&#40;1&#41;&#41;.toBe&#40;expectedFormatted&#41;;
         &#125;
     &#125;&#41;;
+&#125;&#41;;</pre>
+<h2 id="testsconfig-consistencytestts">tests&#47;config-consistency.test.ts</h2>
+<pre>import fs from &#39;fs-extra&#39;;
+import &#123; describe, it, expect &#125; from &#39;vitest&#39;;
+import type &#123; FusionConfig &#125; from &#39;..&#47;src&#47;types.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+describe&#40;&#39;Config Consistency&#39;, &#40;&#41; &#61;&gt; &#123;
+  describe&#40;&#39;project-fusion.json vs defaultConfig&#39;, &#40;&#41; &#61;&gt; &#123;
+    it&#40;&#39;should match the default configuration from utils.ts&#39;, async &#40;&#41; &#61;&gt; &#123;
+      const projectConfigPath &#61; &#39;.&#47;project-fusion.json&#39;;
+      
+      &#47;&#47; Read the project-fusion.json file
+      const projectConfigRaw &#61; await fs.readFile&#40;projectConfigPath, &#39;utf-8&#39;&#41;;
+      const projectConfig: FusionConfig &#61; JSON.parse&#40;projectConfigRaw&#41;;
+      
+      &#47;&#47; Compare all properties
+      expect&#40;projectConfig.allowedExternalPluginPaths&#41;.toEqual&#40;defaultConfig.allowedExternalPluginPaths&#41;;
+      expect&#40;projectConfig.allowSymlinks&#41;.toBe&#40;defaultConfig.allowSymlinks&#41;;
+      expect&#40;projectConfig.copyToClipboard&#41;.toBe&#40;defaultConfig.copyToClipboard&#41;;
+      expect&#40;projectConfig.excludeSecrets&#41;.toBe&#40;defaultConfig.excludeSecrets&#41;;
+      expect&#40;projectConfig.generatedFileName&#41;.toBe&#40;defaultConfig.generatedFileName&#41;;
+      expect&#40;projectConfig.generateHtml&#41;.toBe&#40;defaultConfig.generateHtml&#41;;
+      expect&#40;projectConfig.generateMarkdown&#41;.toBe&#40;defaultConfig.generateMarkdown&#41;;
+      expect&#40;projectConfig.generateText&#41;.toBe&#40;defaultConfig.generateText&#41;;
+      expect&#40;projectConfig.ignorePatterns&#41;.toEqual&#40;defaultConfig.ignorePatterns&#41;;
+      expect&#40;projectConfig.maxBase64BlockKB&#41;.toBe&#40;defaultConfig.maxBase64BlockKB&#41;;
+      expect&#40;projectConfig.maxFileSizeKB&#41;.toBe&#40;defaultConfig.maxFileSizeKB&#41;;
+      expect&#40;projectConfig.maxFiles&#41;.toBe&#40;defaultConfig.maxFiles&#41;;
+      expect&#40;projectConfig.maxLineLength&#41;.toBe&#40;defaultConfig.maxLineLength&#41;;
+      expect&#40;projectConfig.maxSymlinkAuditEntries&#41;.toBe&#40;defaultConfig.maxSymlinkAuditEntries&#41;;
+      expect&#40;projectConfig.maxTokenLength&#41;.toBe&#40;defaultConfig.maxTokenLength&#41;;
+      expect&#40;projectConfig.maxTotalSizeMB&#41;.toBe&#40;defaultConfig.maxTotalSizeMB&#41;;
+      expect&#40;projectConfig.parsedFileExtensions&#41;.toEqual&#40;defaultConfig.parsedFileExtensions&#41;;
+      expect&#40;projectConfig.parseSubDirectories&#41;.toBe&#40;defaultConfig.parseSubDirectories&#41;;
+      expect&#40;projectConfig.rootDirectory&#41;.toBe&#40;defaultConfig.rootDirectory&#41;;
+      expect&#40;projectConfig.schemaVersion&#41;.toBe&#40;defaultConfig.schemaVersion&#41;;
+      expect&#40;projectConfig.useGitIgnoreForExcludes&#41;.toBe&#40;defaultConfig.useGitIgnoreForExcludes&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should have all required properties&#39;, async &#40;&#41; &#61;&gt; &#123;
+      const projectConfigPath &#61; &#39;.&#47;project-fusion.json&#39;;
+      
+      &#47;&#47; Read the project-fusion.json file
+      const projectConfigRaw &#61; await fs.readFile&#40;projectConfigPath, &#39;utf-8&#39;&#41;;
+      const projectConfig: FusionConfig &#61; JSON.parse&#40;projectConfigRaw&#41;;
+      
+      &#47;&#47; Check all required properties exist
+      const requiredProperties &#61; &#91;
+        &#39;allowedExternalPluginPaths&#39;,
+        &#39;allowSymlinks&#39;, 
+        &#39;copyToClipboard&#39;,
+        &#39;excludeSecrets&#39;,
+        &#39;generatedFileName&#39;,
+        &#39;generateHtml&#39;,
+        &#39;generateMarkdown&#39;, 
+        &#39;generateText&#39;,
+        &#39;ignorePatterns&#39;,
+        &#39;maxBase64BlockKB&#39;,
+        &#39;maxFileSizeKB&#39;,
+        &#39;maxFiles&#39;,
+        &#39;maxLineLength&#39;,
+        &#39;maxSymlinkAuditEntries&#39;,
+        &#39;maxTokenLength&#39;,
+        &#39;maxTotalSizeMB&#39;,
+        &#39;parsedFileExtensions&#39;,
+        &#39;parseSubDirectories&#39;,
+        &#39;rootDirectory&#39;,
+        &#39;schemaVersion&#39;,
+        &#39;useGitIgnoreForExcludes&#39;
+      &#93;;
+
+      for &#40;const prop of requiredProperties&#41; &#123;
+        expect&#40;projectConfig&#41;.toHaveProperty&#40;prop&#41;;
+      &#125;
+    &#125;&#41;;
+
+    it&#40;&#39;should not have extra unknown properties&#39;, async &#40;&#41; &#61;&gt; &#123;
+      const projectConfigPath &#61; &#39;.&#47;project-fusion.json&#39;;
+      
+      &#47;&#47; Read the project-fusion.json file
+      const projectConfigRaw &#61; await fs.readFile&#40;projectConfigPath, &#39;utf-8&#39;&#41;;
+      const projectConfig: FusionConfig &#61; JSON.parse&#40;projectConfigRaw&#41;;
+      
+      &#47;&#47; Get all properties from both configs
+      const projectConfigKeys &#61; Object.keys&#40;projectConfig&#41;.sort&#40;&#41;;
+      const defaultConfigKeys &#61; Object.keys&#40;defaultConfig&#41;.sort&#40;&#41;;
+      
+      &#47;&#47; They should be identical
+      expect&#40;projectConfigKeys&#41;.toEqual&#40;defaultConfigKeys&#41;;
+    &#125;&#41;;
+  &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="testscontent-validationtestts">tests&#47;content-validation.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
@@ -18271,13 +18375,7 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>## 5&#41; Tests
-- &#91; &#93; **Plugin API contract**: Add contract tests for all hooks &#40;&#96;initialize&#96;, &#96;beforeFileProcessing&#96;, &#96;afterFileProcessing&#96;, etc.&#41;.
-- &#91; &#93; **CLI smoke tests**: Add &#96;config-check&#96; and &#96;init --force&#96; smoke tests in CI matrix &#40;Linux, macOS, Windows&#41;.
-
-## 7&#41; Documentation
-- &#91; &#93; **README: Security knobs** section showing why &#96;--allow-symlinks&#96; and &#96;--allow-external-plugins&#96; are dangerous, with a small code sample &#40;link to tests&#41;.
-
+<pre>
 ## 8&#41; Security Enhancements
 - &#91; &#93; **Extended default ignore patterns**: Add more sensitive patterns &#40;.ssh&#47;, .aws&#47;, .azure&#47;, .gcloud&#47;, *.p12, *.keystore, .*history, .npmrc, dist&#47;**&#47;*.map&#41;
 - &#91; &#93; **Safe mode flag**: Add --safe-mode &#40;default true&#41; that enforces strict ignore patterns for secrets
