@@ -16,8 +16,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 26&#47;08&#47;2025 22:32:04 UTC−4</p>
-<p><strong>Files:</strong> 63</p>
+<p><strong>Generated:</strong> 26&#47;08&#47;2025 22:47:20 UTC−4</p>
+<p><strong>Files:</strong> 64</p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -63,6 +63,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testsmemory-fstestts">tests&#47;memory-fs.test.ts</a></li>
 <li><a href="#testspath-traversal-edge-casestestts">tests&#47;path-traversal-edge-cases.test.ts</a></li>
 <li><a href="#testsperformancetestts">tests&#47;performance.test.ts</a></li>
+<li><a href="#testsplugin-contracttestts">tests&#47;plugin-contract.test.ts</a></li>
 <li><a href="#testsplugin-securitytestts">tests&#47;plugin-security.test.ts</a></li>
 <li><a href="#testsplugin-systemtestts">tests&#47;plugin-system.test.ts</a></li>
 <li><a href="#testsproperty-basedtestts">tests&#47;property-based.test.ts</a></li>
@@ -11489,6 +11490,787 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
+<h2 id="testsplugin-contracttestts">tests&#47;plugin-contract.test.ts</h2>
+<pre>&#47;**
+ * Contract tests for Plugin API hooks
+ * Ensures all plugin hooks conform to their expected interfaces and behavior
+ *&#47;
+import &#123; describe, it, expect, beforeEach, vi &#125; from &#39;vitest&#39;;
+import &#123; MemoryFileSystemAdapter &#125; from &#39;..&#47;src&#47;adapters&#47;file-system.js&#39;;
+import &#123; 
+    PluginManager, 
+    createPlugin,
+    type Plugin,
+    type PluginHooks,
+    type PluginMetadata
+&#125; from &#39;..&#47;src&#47;plugins&#47;plugin-system.js&#39;;
+import type &#123; FileInfo, OutputStrategy &#125; from &#39;..&#47;src&#47;strategies&#47;output-strategy.js&#39;;
+import &#123; createFilePath, type Config &#125; from &#39;..&#47;src&#47;types.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+&#47;**
+ * Contract test helper to create a minimal valid plugin
+ *&#47;
+function createTestPlugin&#40;hooks: Partial&lt;PluginHooks&gt; &#61; &#123;&#125;&#41;: Plugin &#123;
+    return createPlugin&#40;&#123;
+        name: &#39;contract-test-plugin&#39;,
+        version: &#39;1.0.0&#39;,
+        description: &#39;Plugin for contract testing&#39;
+    &#125;, hooks&#41;;
+&#125;
+
+&#47;**
+ * Helper to create valid FileInfo for testing
+ *&#47;
+function createTestFileInfo&#40;overrides: Partial&lt;FileInfo&gt; &#61; &#123;&#125;&#41;: FileInfo &#123;
+    return &#123;
+        content: &#39;test content&#39;,
+        relativePath: &#39;test.js&#39;,
+        path: createFilePath&#40;&#39;&#47;test&#47;test.js&#39;&#41;,
+        size: 12,
+        ...overrides
+    &#125;;
+&#125;
+
+describe&#40;&#39;Plugin API Contract Tests&#39;, &#40;&#41; &#61;&gt; &#123;
+    let pluginManager: PluginManager;
+    let fs: MemoryFileSystemAdapter;
+    let config: Config;
+
+    beforeEach&#40;&#40;&#41; &#61;&gt; &#123;
+        fs &#61; new MemoryFileSystemAdapter&#40;&#41;;
+        pluginManager &#61; new PluginManager&#40;fs&#41;;
+        config &#61; &#123; ...defaultConfig &#125;;
+    &#125;&#41;;
+
+    describe&#40;&#39;initialize hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should be called with valid Config object&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const initializeSpy &#61; vi.fn&#40;&#41;;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            plugin.initialize &#61; initializeSpy;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            await pluginManager.initializePlugins&#40;config&#41;;
+
+            expect&#40;initializeSpy&#41;.toHaveBeenCalledTimes&#40;1&#41;;
+            expect&#40;initializeSpy&#41;.toHaveBeenCalledWith&#40;config&#41;;
+            
+            &#47;&#47; Verify config parameter has required properties
+            const calledWith &#61; initializeSpy.mock.calls&#91;0&#93;&#91;0&#93;;
+            expect&#40;calledWith&#41;.toHaveProperty&#40;&#39;rootDirectory&#39;&#41;;
+            expect&#40;calledWith&#41;.toHaveProperty&#40;&#39;parsedFileExtensions&#39;&#41;;
+            &#47;&#47; outputDirectory is optional in Config interface
+            expect&#40;typeof calledWith&#41;.toBe&#40;&#39;object&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle async initialization&#39;, async &#40;&#41; &#61;&gt; &#123;
+            let initCompleted &#61; false;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            plugin.initialize &#61; async &#40;&#41; &#61;&gt; &#123;
+                await new Promise&#40;resolve &#61;&gt; setTimeout&#40;resolve, 10&#41;&#41;;
+                initCompleted &#61; true;
+            &#125;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            await pluginManager.initializePlugins&#40;config&#41;;
+
+            expect&#40;initCompleted&#41;.toBe&#40;true&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle initialization errors without affecting other plugins&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const workingPlugin &#61; createTestPlugin&#40;&#41;;
+            const workingInitSpy &#61; vi.fn&#40;&#41;;
+            workingPlugin.metadata.name &#61; &#39;working-plugin&#39;;
+            workingPlugin.initialize &#61; workingInitSpy;
+
+            const failingPlugin &#61; createTestPlugin&#40;&#41;;
+            failingPlugin.metadata.name &#61; &#39;failing-plugin&#39;;
+            failingPlugin.initialize &#61; &#40;&#41; &#61;&gt; &#123;
+                throw new Error&#40;&#39;Initialization failed&#39;&#41;;
+            &#125;;
+
+            pluginManager.registerPlugin&#40;workingPlugin&#41;;
+            pluginManager.registerPlugin&#40;failingPlugin&#41;;
+
+            &#47;&#47; Should not throw
+            await pluginManager.initializePlugins&#40;config&#41;;
+
+            &#47;&#47; Working plugin should still be initialized
+            expect&#40;workingInitSpy&#41;.toHaveBeenCalled&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should be optional - plugin without initialize should work&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            &#47;&#47; Don&#39;t set initialize method
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            &#47;&#47; Should not throw
+            await expect&#40;pluginManager.initializePlugins&#40;config&#41;&#41;.resolves.not.toThrow&#40;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;cleanup hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should be called without parameters&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const cleanupSpy &#61; vi.fn&#40;&#41;;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            plugin.cleanup &#61; cleanupSpy;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            await pluginManager.cleanupPlugins&#40;&#41;;
+
+            expect&#40;cleanupSpy&#41;.toHaveBeenCalledTimes&#40;1&#41;;
+            expect&#40;cleanupSpy&#41;.toHaveBeenCalledWith&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle async cleanup&#39;, async &#40;&#41; &#61;&gt; &#123;
+            let cleanupCompleted &#61; false;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            plugin.cleanup &#61; async &#40;&#41; &#61;&gt; &#123;
+                await new Promise&#40;resolve &#61;&gt; setTimeout&#40;resolve, 10&#41;&#41;;
+                cleanupCompleted &#61; true;
+            &#125;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            await pluginManager.cleanupPlugins&#40;&#41;;
+
+            expect&#40;cleanupCompleted&#41;.toBe&#40;true&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle cleanup errors without affecting other plugins&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const workingPlugin &#61; createTestPlugin&#40;&#41;;
+            const workingCleanupSpy &#61; vi.fn&#40;&#41;;
+            workingPlugin.metadata.name &#61; &#39;working-plugin&#39;;
+            workingPlugin.cleanup &#61; workingCleanupSpy;
+
+            const failingPlugin &#61; createTestPlugin&#40;&#41;;
+            failingPlugin.metadata.name &#61; &#39;failing-plugin&#39;;
+            failingPlugin.cleanup &#61; &#40;&#41; &#61;&gt; &#123;
+                throw new Error&#40;&#39;Cleanup failed&#39;&#41;;
+            &#125;;
+
+            pluginManager.registerPlugin&#40;workingPlugin&#41;;
+            pluginManager.registerPlugin&#40;failingPlugin&#41;;
+
+            &#47;&#47; Should not throw
+            await pluginManager.cleanupPlugins&#40;&#41;;
+
+            &#47;&#47; Working plugin should still be cleaned up
+            expect&#40;workingCleanupSpy&#41;.toHaveBeenCalled&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should be optional - plugin without cleanup should work&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            &#47;&#47; Don&#39;t set cleanup method
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            &#47;&#47; Should not throw
+            await expect&#40;pluginManager.cleanupPlugins&#40;&#41;&#41;.resolves.not.toThrow&#40;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;beforeFileProcessing hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should be called with FileInfo and Config parameters&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const hookSpy &#61; vi.fn&#40;&#41;.mockResolvedValue&#40;null&#41;;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: hookSpy
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const fileInfo &#61; createTestFileInfo&#40;&#41;;
+            await pluginManager.executeBeforeFileProcessing&#40;fileInfo, config&#41;;
+
+            expect&#40;hookSpy&#41;.toHaveBeenCalledTimes&#40;1&#41;;
+            expect&#40;hookSpy&#41;.toHaveBeenCalledWith&#40;fileInfo, config&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should return FileInfo or null&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const modifiedFileInfo &#61; createTestFileInfo&#40;&#123; content: &#39;modified&#39; &#125;&#41;;
+            
+            &#47;&#47; Test returning modified FileInfo
+            const modifyingPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;modifiedFileInfo&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;modifyingPlugin&#41;;
+            
+            const result &#61; await pluginManager.executeBeforeFileProcessing&#40;
+                createTestFileInfo&#40;&#41;, 
+                config
+            &#41;;
+
+            expect&#40;result&#41;.toEqual&#40;modifiedFileInfo&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should support filtering by returning null&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const filteringPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;null&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;filteringPlugin&#41;;
+            
+            const result &#61; await pluginManager.executeBeforeFileProcessing&#40;
+                createTestFileInfo&#40;&#41;, 
+                config
+            &#41;;
+
+            expect&#40;result&#41;.toBeNull&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should chain multiple plugins correctly&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin1 &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;
+                    createTestFileInfo&#40;&#123; content: &#39;step1&#39; &#125;&#41;
+                &#41;
+            &#125;&#41;;
+            plugin1.metadata.name &#61; &#39;plugin1&#39;;
+
+            const plugin2 &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;
+                    createTestFileInfo&#40;&#123; content: &#39;step2&#39; &#125;&#41;
+                &#41;
+            &#125;&#41;;
+            plugin2.metadata.name &#61; &#39;plugin2&#39;;
+
+            pluginManager.registerPlugin&#40;plugin1&#41;;
+            pluginManager.registerPlugin&#40;plugin2&#41;;
+            
+            const result &#61; await pluginManager.executeBeforeFileProcessing&#40;
+                createTestFileInfo&#40;&#123; content: &#39;original&#39; &#125;&#41;, 
+                config
+            &#41;;
+
+            expect&#40;result?.content&#41;.toBe&#40;&#39;step2&#39;&#41;;
+            expect&#40;plugin1.beforeFileProcessing&#41;.toHaveBeenCalledWith&#40;
+                expect.objectContaining&#40;&#123; content: &#39;original&#39; &#125;&#41;,
+                config
+            &#41;;
+            expect&#40;plugin2.beforeFileProcessing&#41;.toHaveBeenCalledWith&#40;
+                expect.objectContaining&#40;&#123; content: &#39;step1&#39; &#125;&#41;,
+                config
+            &#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle errors gracefully and continue processing&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const failingPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockRejectedValue&#40;new Error&#40;&#39;Hook failed&#39;&#41;&#41;
+            &#125;&#41;;
+            failingPlugin.metadata.name &#61; &#39;failing-plugin&#39;;
+
+            const workingPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;
+                    createTestFileInfo&#40;&#123; content: &#39;processed&#39; &#125;&#41;
+                &#41;
+            &#125;&#41;;
+            workingPlugin.metadata.name &#61; &#39;working-plugin&#39;;
+
+            pluginManager.registerPlugin&#40;failingPlugin&#41;;
+            pluginManager.registerPlugin&#40;workingPlugin&#41;;
+            
+            const fileInfo &#61; createTestFileInfo&#40;&#41;;
+            const result &#61; await pluginManager.executeBeforeFileProcessing&#40;fileInfo, config&#41;;
+
+            &#47;&#47; Should still process with working plugin
+            expect&#40;result?.content&#41;.toBe&#40;&#39;processed&#39;&#41;;
+            expect&#40;workingPlugin.beforeFileProcessing&#41;.toHaveBeenCalled&#40;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should respect cancellation token&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const slowPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFileProcessing: vi.fn&#40;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; 
+                    new Promise&#40;resolve &#61;&gt; setTimeout&#40;&#40;&#41; &#61;&gt; resolve&#40;null&#41;, 100&#41;&#41;
+                &#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;slowPlugin&#41;;
+
+            const cancellationToken &#61; &#123;
+                isCancellationRequested: true
+            &#125;;
+
+            await expect&#40;
+                pluginManager.executeBeforeFileProcessing&#40;
+                    createTestFileInfo&#40;&#41;, 
+                    config, 
+                    cancellationToken
+                &#41;
+            &#41;.rejects.toThrow&#40;&#39;Operation was cancelled&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;afterFileProcessing hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should be called with FileInfo, processed content, and Config&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const hookSpy &#61; vi.fn&#40;&#41;.mockResolvedValue&#40;&#39;final content&#39;&#41;;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                afterFileProcessing: hookSpy
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const fileInfo &#61; createTestFileInfo&#40;&#41;;
+            const processedContent &#61; &#39;processed content&#39;;
+            
+            await pluginManager.executeAfterFileProcessing&#40;fileInfo, processedContent, config&#41;;
+
+            expect&#40;hookSpy&#41;.toHaveBeenCalledTimes&#40;1&#41;;
+            expect&#40;hookSpy&#41;.toHaveBeenCalledWith&#40;fileInfo, processedContent, config&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should return processed content string&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                afterFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;&#39;final processed content&#39;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; await pluginManager.executeAfterFileProcessing&#40;
+                createTestFileInfo&#40;&#41;, 
+                &#39;input content&#39;, 
+                config
+            &#41;;
+
+            expect&#40;result&#41;.toBe&#40;&#39;final processed content&#39;&#41;;
+            expect&#40;typeof result&#41;.toBe&#40;&#39;string&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should chain multiple plugins correctly&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin1 &#61; createTestPlugin&#40;&#123;
+                afterFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;&#39;step1&#39;&#41;
+            &#125;&#41;;
+            plugin1.metadata.name &#61; &#39;plugin1&#39;;
+
+            const plugin2 &#61; createTestPlugin&#40;&#123;
+                afterFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;&#39;step2&#39;&#41;
+            &#125;&#41;;
+            plugin2.metadata.name &#61; &#39;plugin2&#39;;
+
+            pluginManager.registerPlugin&#40;plugin1&#41;;
+            pluginManager.registerPlugin&#40;plugin2&#41;;
+            
+            const result &#61; await pluginManager.executeAfterFileProcessing&#40;
+                createTestFileInfo&#40;&#41;, 
+                &#39;original&#39;, 
+                config
+            &#41;;
+
+            expect&#40;result&#41;.toBe&#40;&#39;step2&#39;&#41;;
+            expect&#40;plugin1.afterFileProcessing&#41;.toHaveBeenCalledWith&#40;
+                expect.any&#40;Object&#41;,
+                &#39;original&#39;,
+                config
+            &#41;;
+            expect&#40;plugin2.afterFileProcessing&#41;.toHaveBeenCalledWith&#40;
+                expect.any&#40;Object&#41;,
+                &#39;step1&#39;,
+                config
+            &#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle errors gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const failingPlugin &#61; createTestPlugin&#40;&#123;
+                afterFileProcessing: vi.fn&#40;&#41;.mockRejectedValue&#40;new Error&#40;&#39;Hook failed&#39;&#41;&#41;
+            &#125;&#41;;
+            failingPlugin.metadata.name &#61; &#39;failing-plugin&#39;;
+
+            const workingPlugin &#61; createTestPlugin&#40;&#123;
+                afterFileProcessing: vi.fn&#40;&#41;.mockResolvedValue&#40;&#39;processed by working plugin&#39;&#41;
+            &#125;&#41;;
+            workingPlugin.metadata.name &#61; &#39;working-plugin&#39;;
+
+            pluginManager.registerPlugin&#40;failingPlugin&#41;;
+            pluginManager.registerPlugin&#40;workingPlugin&#41;;
+            
+            const result &#61; await pluginManager.executeAfterFileProcessing&#40;
+                createTestFileInfo&#40;&#41;, 
+                &#39;original content&#39;, 
+                config
+            &#41;;
+
+            expect&#40;result&#41;.toBe&#40;&#39;processed by working plugin&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;beforeFusion hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should be called with Config and FileInfo array&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const hookSpy &#61; vi.fn&#40;&#41;.mockResolvedValue&#40;&#123;
+                config,
+                filesToProcess: &#91;&#93;
+            &#125;&#41;;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                beforeFusion: hookSpy
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const files &#61; &#91;createTestFileInfo&#40;&#41;&#93;;
+            await pluginManager.executeBeforeFusion&#40;config, files&#41;;
+
+            expect&#40;hookSpy&#41;.toHaveBeenCalledTimes&#40;1&#41;;
+            expect&#40;hookSpy&#41;.toHaveBeenCalledWith&#40;config, files&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should return object with config and filesToProcess properties&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const modifiedConfig &#61; &#123; ...config, maxFileSizeKB: 999 &#125;;
+            const modifiedFiles &#61; &#91;createTestFileInfo&#40;&#123; content: &#39;modified&#39; &#125;&#41;&#93;;
+            
+            const plugin &#61; createTestPlugin&#40;&#123;
+                beforeFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123;
+                    config: modifiedConfig,
+                    filesToProcess: modifiedFiles
+                &#125;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; await pluginManager.executeBeforeFusion&#40;config, &#91;createTestFileInfo&#40;&#41;&#93;&#41;;
+
+            expect&#40;result&#41;.toHaveProperty&#40;&#39;config&#39;&#41;;
+            expect&#40;result&#41;.toHaveProperty&#40;&#39;filesToProcess&#39;&#41;;
+            expect&#40;result.config.maxFileSizeKB&#41;.toBe&#40;999&#41;;
+            expect&#40;result.filesToProcess&#41;.toEqual&#40;modifiedFiles&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should chain multiple plugins correctly&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin1 &#61; createTestPlugin&#40;&#123;
+                beforeFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123;
+                    config: &#123; ...config, maxFileSizeKB: 100 &#125;,
+                    filesToProcess: &#91;createTestFileInfo&#40;&#123; content: &#39;step1&#39; &#125;&#41;&#93;
+                &#125;&#41;
+            &#125;&#41;;
+            plugin1.metadata.name &#61; &#39;plugin1&#39;;
+
+            const plugin2 &#61; createTestPlugin&#40;&#123;
+                beforeFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123;
+                    config: &#123; ...config, maxFileSizeKB: 200 &#125;,
+                    filesToProcess: &#91;createTestFileInfo&#40;&#123; content: &#39;step2&#39; &#125;&#41;&#93;
+                &#125;&#41;
+            &#125;&#41;;
+            plugin2.metadata.name &#61; &#39;plugin2&#39;;
+
+            pluginManager.registerPlugin&#40;plugin1&#41;;
+            pluginManager.registerPlugin&#40;plugin2&#41;;
+            
+            const result &#61; await pluginManager.executeBeforeFusion&#40;config, &#91;createTestFileInfo&#40;&#41;&#93;&#41;;
+
+            expect&#40;result.config.maxFileSizeKB&#41;.toBe&#40;200&#41;;
+            expect&#40;result.filesToProcess&#91;0&#93;?.content&#41;.toBe&#40;&#39;step2&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle errors gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const failingPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFusion: vi.fn&#40;&#41;.mockRejectedValue&#40;new Error&#40;&#39;Hook failed&#39;&#41;&#41;
+            &#125;&#41;;
+            failingPlugin.metadata.name &#61; &#39;failing-plugin&#39;;
+
+            pluginManager.registerPlugin&#40;failingPlugin&#41;;
+            
+            const files &#61; &#91;createTestFileInfo&#40;&#41;&#93;;
+            const result &#61; await pluginManager.executeBeforeFusion&#40;config, files&#41;;
+
+            &#47;&#47; Should return original values when hook fails
+            expect&#40;result.config&#41;.toEqual&#40;config&#41;;
+            expect&#40;result.filesToProcess&#41;.toEqual&#40;files&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should respect cancellation token&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const slowPlugin &#61; createTestPlugin&#40;&#123;
+                beforeFusion: vi.fn&#40;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; 
+                    new Promise&#40;resolve &#61;&gt; setTimeout&#40;&#40;&#41; &#61;&gt; resolve&#40;&#123; config, filesToProcess: &#91;&#93; &#125;&#41;, 100&#41;&#41;
+                &#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;slowPlugin&#41;;
+
+            const cancellationToken &#61; &#123;
+                isCancellationRequested: true
+            &#125;;
+
+            await expect&#40;
+                pluginManager.executeBeforeFusion&#40;config, &#91;&#93;, cancellationToken&#41;
+            &#41;.rejects.toThrow&#40;&#39;Operation was cancelled&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;afterFusion hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should be called with result and Config&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const hookSpy &#61; vi.fn&#40;&#41;.mockResolvedValue&#40;&#123; modified: true &#125;&#41;;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                afterFusion: hookSpy
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const originalResult &#61; &#123; original: true &#125;;
+            await pluginManager.executeAfterFusion&#40;originalResult, config&#41;;
+
+            expect&#40;hookSpy&#41;.toHaveBeenCalledTimes&#40;1&#41;;
+            expect&#40;hookSpy&#41;.toHaveBeenCalledWith&#40;originalResult, config&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should return modified result&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                afterFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123; processed: true &#125;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; await pluginManager.executeAfterFusion&#40;&#123; original: true &#125;, config&#41;;
+
+            expect&#40;result&#41;.toEqual&#40;&#123; processed: true &#125;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should preserve result type through generic&#39;, async &#40;&#41; &#61;&gt; &#123;
+            interface CustomResult &#123;
+                value: string;
+                count: number;
+            &#125;
+
+            const plugin &#61; createTestPlugin&#40;&#123;
+                afterFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123; value: &#39;processed&#39;, count: 42 &#125;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; await pluginManager.executeAfterFusion&lt;CustomResult&gt;&#40;
+                &#123; value: &#39;original&#39;, count: 1 &#125;, 
+                config
+            &#41;;
+
+            expect&#40;result.value&#41;.toBe&#40;&#39;processed&#39;&#41;;
+            expect&#40;result.count&#41;.toBe&#40;42&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should chain multiple plugins correctly&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const plugin1 &#61; createTestPlugin&#40;&#123;
+                afterFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123; step: 1 &#125;&#41;
+            &#125;&#41;;
+            plugin1.metadata.name &#61; &#39;plugin1&#39;;
+
+            const plugin2 &#61; createTestPlugin&#40;&#123;
+                afterFusion: vi.fn&#40;&#41;.mockResolvedValue&#40;&#123; step: 2 &#125;&#41;
+            &#125;&#41;;
+            plugin2.metadata.name &#61; &#39;plugin2&#39;;
+
+            pluginManager.registerPlugin&#40;plugin1&#41;;
+            pluginManager.registerPlugin&#40;plugin2&#41;;
+            
+            const result &#61; await pluginManager.executeAfterFusion&#40;&#123; step: 0 &#125;, config&#41;;
+
+            expect&#40;result&#41;.toEqual&#40;&#123; step: 2 &#125;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle errors gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
+            const failingPlugin &#61; createTestPlugin&#40;&#123;
+                afterFusion: vi.fn&#40;&#41;.mockRejectedValue&#40;new Error&#40;&#39;Hook failed&#39;&#41;&#41;
+            &#125;&#41;;
+            failingPlugin.metadata.name &#61; &#39;failing-plugin&#39;;
+
+            pluginManager.registerPlugin&#40;failingPlugin&#41;;
+            
+            const originalResult &#61; &#123; original: true &#125;;
+            const result &#61; await pluginManager.executeAfterFusion&#40;originalResult, config&#41;;
+
+            &#47;&#47; Should return original result when hook fails
+            expect&#40;result&#41;.toEqual&#40;originalResult&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;registerOutputStrategies hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should return array of OutputStrategy objects&#39;, &#40;&#41; &#61;&gt; &#123;
+            const customStrategy: OutputStrategy &#61; &#123;
+                name: &#39;custom&#39;,
+                extension: &#39;.custom&#39;,
+                generateHeader: vi.fn&#40;&#41;.mockReturnValue&#40;&#39;Custom Header&#39;&#41;,
+                processFile: vi.fn&#40;&#41;.mockReturnValue&#40;&#39;processed file&#39;&#41;,
+                createStream: vi.fn&#40;&#41;.mockReturnValue&#40;&#123;&#125; as any&#41;
+            &#125;;
+
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerOutputStrategies: vi.fn&#40;&#41;.mockReturnValue&#40;&#91;customStrategy&#93;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const strategies &#61; pluginManager.getAdditionalOutputStrategies&#40;&#41;;
+
+            expect&#40;Array.isArray&#40;strategies&#41;&#41;.toBe&#40;true&#41;;
+            expect&#40;strategies&#41;.toHaveLength&#40;1&#41;;
+            expect&#40;strategies&#91;0&#93;&#41;.toEqual&#40;customStrategy&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should validate OutputStrategy structure&#39;, &#40;&#41; &#61;&gt; &#123;
+            const validStrategy: OutputStrategy &#61; &#123;
+                name: &#39;test-strategy&#39;,
+                extension: &#39;.test&#39;,
+                generateHeader: vi.fn&#40;&#41;,
+                processFile: vi.fn&#40;&#41;,
+                createStream: vi.fn&#40;&#41;
+            &#125;;
+
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerOutputStrategies: &#40;&#41; &#61;&gt; &#91;validStrategy&#93;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            const strategies &#61; pluginManager.getAdditionalOutputStrategies&#40;&#41;;
+
+            const strategy &#61; strategies&#91;0&#93;;
+            expect&#40;strategy&#41;.toBeDefined&#40;&#41;;
+            expect&#40;strategy?.name&#41;.toBe&#40;&#39;test-strategy&#39;&#41;;
+            expect&#40;strategy?.extension&#41;.toBe&#40;&#39;.test&#39;&#41;;
+            expect&#40;typeof strategy?.generateHeader&#41;.toBe&#40;&#39;function&#39;&#41;;
+            expect&#40;typeof strategy?.processFile&#41;.toBe&#40;&#39;function&#39;&#41;;
+            expect&#40;typeof strategy?.createStream&#41;.toBe&#40;&#39;function&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle multiple strategies from single plugin&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategies &#61; &#91;
+                &#123; name: &#39;strategy1&#39;, extension: &#39;.s1&#39;, generateHeader: vi.fn&#40;&#41;, processFile: vi.fn&#40;&#41;, createStream: vi.fn&#40;&#41; &#125;,
+                &#123; name: &#39;strategy2&#39;, extension: &#39;.s2&#39;, generateHeader: vi.fn&#40;&#41;, processFile: vi.fn&#40;&#41;, createStream: vi.fn&#40;&#41; &#125;
+            &#93;;
+
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerOutputStrategies: &#40;&#41; &#61;&gt; strategies
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; pluginManager.getAdditionalOutputStrategies&#40;&#41;;
+            expect&#40;result&#41;.toHaveLength&#40;2&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle errors gracefully&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerOutputStrategies: vi.fn&#40;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;
+                    throw new Error&#40;&#39;Strategy registration failed&#39;&#41;;
+                &#125;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const strategies &#61; pluginManager.getAdditionalOutputStrategies&#40;&#41;;
+            expect&#40;strategies&#41;.toEqual&#40;&#91;&#93;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;registerFileExtensions hook contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should return Record&lt;string, string&#91;&#93;&gt;&#39;, &#40;&#41; &#61;&gt; &#123;
+            const extensions &#61; &#123;
+                custom: &#91;&#39;.custom1&#39;, &#39;.custom2&#39;&#93;,
+                special: &#91;&#39;.spec&#39;&#93;
+            &#125;;
+
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerFileExtensions: vi.fn&#40;&#41;.mockReturnValue&#40;extensions&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; pluginManager.getAdditionalFileExtensions&#40;&#41;;
+
+            expect&#40;result&#41;.toEqual&#40;extensions&#41;;
+            expect&#40;typeof result&#41;.toBe&#40;&#39;object&#39;&#41;;
+            expect&#40;Array.isArray&#40;result.custom&#41;&#41;.toBe&#40;true&#41;;
+            expect&#40;result.custom&#41;.toEqual&#40;&#91;&#39;.custom1&#39;, &#39;.custom2&#39;&#93;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should validate extension format&#39;, &#40;&#41; &#61;&gt; &#123;
+            const validExtensions &#61; &#123;
+                group1: &#91;&#39;.ext1&#39;, &#39;.ext2&#39;&#93;,
+                group2: &#91;&#39;.ext3&#39;&#93;
+            &#125;;
+
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerFileExtensions: &#40;&#41; &#61;&gt; validExtensions
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            const result &#61; pluginManager.getAdditionalFileExtensions&#40;&#41;;
+
+            &#47;&#47; Verify structure
+            for &#40;const &#91;groupName, extensions&#93; of Object.entries&#40;result&#41;&#41; &#123;
+                expect&#40;typeof groupName&#41;.toBe&#40;&#39;string&#39;&#41;;
+                expect&#40;Array.isArray&#40;extensions&#41;&#41;.toBe&#40;true&#41;;
+                for &#40;const ext of extensions&#41; &#123;
+                    expect&#40;typeof ext&#41;.toBe&#40;&#39;string&#39;&#41;;
+                    expect&#40;ext.startsWith&#40;&#39;.&#39;&#41;&#41;.toBe&#40;true&#41;;
+                &#125;
+            &#125;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle empty extensions object&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerFileExtensions: &#40;&#41; &#61;&gt; &#40;&#123;&#125;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; pluginManager.getAdditionalFileExtensions&#40;&#41;;
+            expect&#40;result&#41;.toEqual&#40;&#123;&#125;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should handle errors gracefully&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#123;
+                registerFileExtensions: vi.fn&#40;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;
+                    throw new Error&#40;&#39;Extension registration failed&#39;&#41;;
+                &#125;&#41;
+            &#125;&#41;;
+
+            pluginManager.registerPlugin&#40;plugin&#41;;
+            
+            const result &#61; pluginManager.getAdditionalFileExtensions&#40;&#41;;
+            expect&#40;result&#41;.toEqual&#40;&#123;&#125;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Plugin metadata contract&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should require name, version, and description&#39;, &#40;&#41; &#61;&gt; &#123;
+            const validMetadata: PluginMetadata &#61; &#123;
+                name: &#39;test-plugin&#39;,
+                version: &#39;1.0.0&#39;,
+                description: &#39;Test plugin for validation&#39;
+            &#125;;
+
+            const plugin &#61; createPlugin&#40;validMetadata&#41;;
+
+            expect&#40;plugin.metadata.name&#41;.toBe&#40;&#39;test-plugin&#39;&#41;;
+            expect&#40;plugin.metadata.version&#41;.toBe&#40;&#39;1.0.0&#39;&#41;;
+            expect&#40;plugin.metadata.description&#41;.toBe&#40;&#39;Test plugin for validation&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should support optional author and homepage fields&#39;, &#40;&#41; &#61;&gt; &#123;
+            const metadataWithOptionals: PluginMetadata &#61; &#123;
+                name: &#39;full-plugin&#39;,
+                version: &#39;2.0.0&#39;,
+                description: &#39;Full plugin metadata&#39;,
+                author: &#39;Test Author&#39;,
+                homepage: &#39;https:&#47;&#47;example.com&#47;plugin&#39;
+            &#125;;
+
+            const plugin &#61; createPlugin&#40;metadataWithOptionals&#41;;
+
+            expect&#40;plugin.metadata.author&#41;.toBe&#40;&#39;Test Author&#39;&#41;;
+            expect&#40;plugin.metadata.homepage&#41;.toBe&#40;&#39;https:&#47;&#47;example.com&#47;plugin&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should validate metadata fields are strings&#39;, &#40;&#41; &#61;&gt; &#123;
+            const plugin &#61; createTestPlugin&#40;&#41;;
+            
+            expect&#40;typeof plugin.metadata.name&#41;.toBe&#40;&#39;string&#39;&#41;;
+            expect&#40;typeof plugin.metadata.version&#41;.toBe&#40;&#39;string&#39;&#41;;
+            expect&#40;typeof plugin.metadata.description&#41;.toBe&#40;&#39;string&#39;&#41;;
+            
+            if &#40;plugin.metadata.author&#41; &#123;
+                expect&#40;typeof plugin.metadata.author&#41;.toBe&#40;&#39;string&#39;&#41;;
+            &#125;
+            if &#40;plugin.metadata.homepage&#41; &#123;
+                expect&#40;typeof plugin.metadata.homepage&#41;.toBe&#40;&#39;string&#39;&#41;;
+            &#125;
+        &#125;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
 <h2 id="testsplugin-securitytestts">tests&#47;plugin-security.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -16726,7 +17508,6 @@ describe&#40;&#39;utils&#39;, &#40;&#41; &#61;&gt; &#123;
       expect&#40;config&#41;.toEqual&#40;defaultConfig&#41;;
     &#125;&#41;;
   &#125;&#41;;
-  
 &#125;&#41;;</pre>
 <h2 id="testsversion-fallbacktestts">tests&#47;version-fallback.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
