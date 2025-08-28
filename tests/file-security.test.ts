@@ -10,6 +10,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { FusionError } from '../src/types.js';
 import { validateSecurePath, validateNoSymlinks, isBinaryFile , defaultConfig } from '../src/utils.js';
+import { canCreateSymlinks, skipIfCondition } from './test-helpers.js';
 
 describe('File Security Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'file-security-test');
@@ -87,6 +88,10 @@ describe('File Security Tests', () => {
 
     describe('Symbolic Link Detection', () => {
         it('should detect and reject symbolic links by default', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
             
@@ -104,6 +109,10 @@ describe('File Security Tests', () => {
         });
 
         it('should allow symbolic links when explicitly enabled', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
             
@@ -237,6 +246,10 @@ describe('File Security Tests', () => {
         });
 
         it('should reject symbolic links in fusion process', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             await writeFile('target.js', 'console.log("target");');
             await symlink(join(testDir, 'target.js'), join(testDir, 'symlink.js'));
             
@@ -265,6 +278,10 @@ describe('File Security Tests', () => {
         });
 
         it('should fail fast with allowSymlinks=false and path traversal attempts', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a malicious symlink that tries to escape the root directory
             const outsideFile = join(outsideDir, 'evil-payload.js');
             await writeFile(outsideFile, 'console.log("HACKED! This should not be accessible");');
@@ -306,6 +323,10 @@ describe('File Security Tests', () => {
         });
 
         it('should fail fast on directory traversal attempts with complex paths', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create files outside the root that could be targets of traversal
             const evilFile1 = join(outsideDir, 'secrets.conf');
             const evilFile2 = join(outsideDir, 'passwords.txt');

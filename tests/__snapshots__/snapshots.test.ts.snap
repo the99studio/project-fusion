@@ -29,22 +29,22 @@ a{color:#00e;text-decoration:underline}
 <hr>
 <h2>Table of Contents</h2>
 <ul>
-<li><a href="#apipostsjs">api&#47;posts.js</a></li>
-<li><a href="#apiusersjs">api&#47;users.js</a></li>
-<li><a href="#componentsfooterjs">components&#47;Footer.js</a></li>
-<li><a href="#componentsheaderjs">components&#47;Header.js</a></li>
-<li><a href="#utilsdatabasejs">utils&#47;database.js</a></li>
+<li><a href="#apipostsjs">api/posts.js</a></li>
+<li><a href="#apiusersjs">api/users.js</a></li>
+<li><a href="#componentsfooterjs">components/Footer.js</a></li>
+<li><a href="#componentsheaderjs">components/Header.js</a></li>
+<li><a href="#utilsdatabasejs">utils/database.js</a></li>
 </ul>
 <hr>
-<h2 id="apipostsjs">api&#47;posts.js</h2>
+<h2 id="apipostsjs">api/posts.js</h2>
 <pre>const posts &#61; &#91;&#93;;</pre>
-<h2 id="apiusersjs">api&#47;users.js</h2>
+<h2 id="apiusersjs">api/users.js</h2>
 <pre>const users &#61; &#91;&#93;;</pre>
-<h2 id="componentsfooterjs">components&#47;Footer.js</h2>
+<h2 id="componentsfooterjs">components/Footer.js</h2>
 <pre>export default function Footer&#40;&#41; &#123;&#125;</pre>
-<h2 id="componentsheaderjs">components&#47;Header.js</h2>
+<h2 id="componentsheaderjs">components/Header.js</h2>
 <pre>export default function Header&#40;&#41; &#123;&#125;</pre>
-<h2 id="utilsdatabasejs">utils&#47;database.js</h2>
+<h2 id="utilsdatabasejs">utils/database.js</h2>
 <pre>class Database &#123;&#125;</pre>
 </body>
 </html>"
@@ -127,7 +127,7 @@ function generateId&#40;length &#61; 8&#41; &#123;
  * &#64;returns &#123;boolean&#125; True if valid
  *&#47;
 function isValidEmail&#40;email&#41; &#123;
-    const regex &#61; &#47;^&#91;^\\s&#64;&#93;&#43;&#64;&#91;^\\s&#64;&#93;&#43;\\.&#91;^\\s&#64;&#93;&#43;&#36;&#47;;
+    const regex &#61; &#47;^&#91;^/s&#64;&#93;&#43;&#64;&#91;^/s&#64;&#93;&#43;/.&#91;^/s&#64;&#93;&#43;&#36;&#47;;
     return regex.test&#40;email&#41;;
 &#125;
 

@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig, getSymlinkAuditSummary, clearSymlinkAudit } from '../src/utils.js';
+import { canCreateSymlinks, skipIfCondition } from './test-helpers.js';
 
 describe('Symlink Configuration Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'symlink-config-test');
@@ -40,6 +41,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Default Behavior (allowSymlinks: false)', () => {
         it('should reject symbolic links by default', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a target file and a symlink
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
@@ -81,6 +86,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Enabled Symlinks (allowSymlinks: true)', () => {
         it('should process symbolic links when explicitly allowed', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a target file and a symlink
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
@@ -115,6 +124,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should handle symlinks pointing outside the root directory', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a file outside the root and symlink to it
             const outsideFile = join(outsideDir, 'outside.js');
             const symlinkFile = join(testDir, 'outside-link.js');
@@ -148,6 +161,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should handle broken symlinks gracefully', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a symlink to a non-existent file
             const brokenSymlink = join(testDir, 'broken.js');
             const normalFile = join(testDir, 'normal.js');
@@ -184,6 +201,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Configuration Integration', () => {
         it('should respect allowSymlinks from config file', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a config file with allowSymlinks: true
             const configContent = {
                 allowSymlinks: true,
@@ -248,12 +269,15 @@ describe('Symlink Configuration Tests', () => {
                 }
             };
 
-            // Create test files
+            // Create at least one regular file for the test to process
             const targetFile = join(testDir, 'target.js');
-            const symlinkFile = join(testDir, 'symlink.js');
-            
             await writeFile(targetFile, 'console.log("validation test");');
-            await symlink(targetFile, symlinkFile);
+            
+            // Only create symlinks if we can
+            if (await canCreateSymlinks()) {
+                const symlinkFile = join(testDir, 'symlink.js');
+                await symlink(targetFile, symlinkFile);
+            }
 
             const result = await processFusion(config);
             
@@ -263,6 +287,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Security Implications', () => {
         it('should warn about security risks when symlinks are enabled', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // This test documents the security implications
             // When allowSymlinks is true, files outside the project can be accessed
             
@@ -310,6 +338,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should audit symlinks with resolved targets', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create target file and symlink
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
@@ -340,6 +372,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should limit audit entries based on maxSymlinkAuditEntries', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             const maxEntries = 3;
             
             // Create multiple symlinks
@@ -371,6 +407,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should audit symlinks pointing outside root directory', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create external target
             const externalFile = join(outsideDir, 'external.js');
             await writeFile(externalFile, 'console.log("external file");');
@@ -400,6 +440,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should handle broken symlinks gracefully in audit', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create broken symlink
             const brokenSymlink = join(testDir, 'broken.js');
             const nonExistentTarget = join(testDir, 'does-not-exist.js');

@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
+import { normalizeFilePaths } from './test-helpers.js';
 
 describe('Format Snapshot Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'snapshot-test');
@@ -73,12 +74,14 @@ module.exports = { formatDate, capitalize };`);
 
             const mdContent = await readFile('test-fusion.md', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
                 .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
             
+            const pathNormalizedMd = normalizeFilePaths(normalizedMd);
+            
             // Test structure and content
-            expect(normalizedMd).toMatchSnapshot('javascript-files.md');
+            expect(pathNormalizedMd).toMatchSnapshot('javascript-files.md');
         });
 
         it('should generate consistent markdown format for TypeScript files', async () => {
@@ -139,11 +142,12 @@ export class UserService {
 
             const mdContent = await readFile('typescript-fusion.md', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
                 .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
                 
-            expect(normalizedMd).toMatchSnapshot('typescript-files.md');
+            const pathNormalizedMd = normalizeFilePaths(normalizedMd);
+            expect(pathNormalizedMd).toMatchSnapshot('typescript-files.md');
         });
 
         it('should generate consistent markdown format for mixed file types', async () => {
@@ -217,11 +221,12 @@ echo "Deployment complete!"`);
 
             const mdContent = await readFile('mixed-fusion.md', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
                 .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
                 
-            expect(normalizedMd).toMatchSnapshot('mixed-files.md');
+            const pathNormalizedMd = normalizeFilePaths(normalizedMd);
+            expect(pathNormalizedMd).toMatchSnapshot('mixed-files.md');
         });
     });
 
@@ -296,11 +301,12 @@ module.exports = {
 
             const htmlContent = await readFile('html-test.html', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedHtml = htmlContent
                 .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
-            expect(normalizedHtml).toMatchSnapshot('javascript-files.html');
+            const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
+            expect(pathNormalizedHtml).toMatchSnapshot('javascript-files.html');
         });
 
         it('should generate consistent HTML format with proper escaping', async () => {
@@ -419,11 +425,12 @@ body {
 
             const htmlContent = await readFile('html-escape-test.html', 'utf8');
             
-            // Normalize timestamps
+            // Normalize timestamps and paths
             const normalizedHtml = htmlContent
                 .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
-            expect(normalizedHtml).toMatchSnapshot('html-with-escaping.html');
+            const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
+            expect(pathNormalizedHtml).toMatchSnapshot('html-with-escaping.html');
         });
 
         it('should generate HTML with proper table of contents structure', async () => {
@@ -460,11 +467,12 @@ body {
             expect(htmlContent).toContain('href="#apiusersjs"');
             expect(htmlContent).toContain('href="#componentsheaderjs"');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedHtml = htmlContent
                 .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>')
             
-            expect(normalizedHtml).toMatchSnapshot('html-with-toc.html');
+            const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
+            expect(pathNormalizedHtml).toMatchSnapshot('html-with-toc.html');
         });
     });
 
