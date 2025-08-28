@@ -176,11 +176,7 @@ describe('MemoryFileSystemAdapter', () => {
             await expect(fs.readFile(createFilePath('/test/file.txt'))).resolves.toBe('content');
         });
 
-        it.skip('should get all files with getFiles', async () => {
-            // SKIPPED on Windows due to test isolation issues
-            // The functionality works correctly, but the test has 
-            // cross-test contamination on Windows
-            
+        it('should get all files with getFiles', async () => {
             // Create a completely new instance for isolation
             const testFs = new MemoryFileSystemAdapter();
             
@@ -190,7 +186,7 @@ describe('MemoryFileSystemAdapter', () => {
             
             const files = testFs.getFiles();
             
-            // The test should pass with exactly 2 files
+            // The test should pass with exactly 2 files (no duplicates from path resolution)
             expect(files.size).toBe(2);
             
             // Check if the files exist with the expected content

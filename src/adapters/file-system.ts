@@ -280,7 +280,30 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
     }
 
     getFiles(): Map<string, string> {
-        return new Map(this.files);
+        // Return only unique files, avoiding duplicates from resolved paths
+        const uniqueFiles = new Map<string, string>();
+        const seenContent = new Map<string, string>(); // content -> first path seen
+        
+        for (const [filePath, content] of this.files) {
+            const contentKey = `${content}:::SIZE:::${content.length}`;
+            
+            if (!seenContent.has(contentKey)) {
+                // First time we see this content, keep it
+                seenContent.set(contentKey, filePath);
+                uniqueFiles.set(filePath, content);
+            } else {
+                // We've seen this content before, prefer shorter/original path
+                const existingPath = seenContent.get(contentKey);
+                if (existingPath && (filePath.length < existingPath.length || filePath.startsWith('/'))) {
+                    // Replace with shorter or relative path
+                    uniqueFiles.delete(existingPath);
+                    uniqueFiles.set(filePath, content);
+                    seenContent.set(contentKey, filePath);
+                }
+            }
+        }
+        
+        return uniqueFiles;
     }
 
     clear(): void {

@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 28&#47;08&#47;2025 08:41:45 UTC−4</p>
+<p><strong>Generated:</strong> 28&#47;08&#47;2025 08:53:24 UTC−4</p>
 <p><strong>Files:</strong> 73</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -1381,7 +1381,30 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter &#123;
     &#125;
 
     getFiles&#40;&#41;: Map&lt;string, string&gt; &#123;
-        return new Map&#40;this.files&#41;;
+        &#47;&#47; Return only unique files, avoiding duplicates from resolved paths
+        const uniqueFiles &#61; new Map&lt;string, string&gt;&#40;&#41;;
+        const seenContent &#61; new Map&lt;string, string&gt;&#40;&#41;; &#47;&#47; content -&gt; first path seen
+        
+        for &#40;const &#91;filePath, content&#93; of this.files&#41; &#123;
+            const contentKey &#61; &#96;&#36;&#123;content&#125;:::SIZE:::&#36;&#123;content.length&#125;&#96;;
+            
+            if &#40;&#33;seenContent.has&#40;contentKey&#41;&#41; &#123;
+                &#47;&#47; First time we see this content, keep it
+                seenContent.set&#40;contentKey, filePath&#41;;
+                uniqueFiles.set&#40;filePath, content&#41;;
+            &#125; else &#123;
+                &#47;&#47; We&#39;ve seen this content before, prefer shorter&#47;original path
+                const existingPath &#61; seenContent.get&#40;contentKey&#41;;
+                if &#40;existingPath &amp;&amp; &#40;filePath.length &lt; existingPath.length || filePath.startsWith&#40;&#39;&#47;&#39;&#41;&#41;&#41; &#123;
+                    &#47;&#47; Replace with shorter or relative path
+                    uniqueFiles.delete&#40;existingPath&#41;;
+                    uniqueFiles.set&#40;filePath, content&#41;;
+                    seenContent.set&#40;contentKey, filePath&#41;;
+                &#125;
+            &#125;
+        &#125;
+        
+        return uniqueFiles;
     &#125;
 
     clear&#40;&#41;: void &#123;
@@ -12389,11 +12412,7 @@ describe&#40;&#39;MemoryFileSystemAdapter&#39;, &#40;&#41; &#61;&gt; &#123;
             await expect&#40;fs.readFile&#40;createFilePath&#40;&#39;&#47;test&#47;file.txt&#39;&#41;&#41;&#41;.resolves.toBe&#40;&#39;content&#39;&#41;;
         &#125;&#41;;
 
-        it.skip&#40;&#39;should get all files with getFiles&#39;, async &#40;&#41; &#61;&gt; &#123;
-            &#47;&#47; SKIPPED on Windows due to test isolation issues
-            &#47;&#47; The functionality works correctly, but the test has 
-            &#47;&#47; cross-test contamination on Windows
-            
+        it&#40;&#39;should get all files with getFiles&#39;, async &#40;&#41; &#61;&gt; &#123;
             &#47;&#47; Create a completely new instance for isolation
             const testFs &#61; new MemoryFileSystemAdapter&#40;&#41;;
             
@@ -12403,7 +12422,7 @@ describe&#40;&#39;MemoryFileSystemAdapter&#39;, &#40;&#41; &#61;&gt; &#123;
             
             const files &#61; testFs.getFiles&#40;&#41;;
             
-            &#47;&#47; The test should pass with exactly 2 files
+            &#47;&#47; The test should pass with exactly 2 files &#40;no duplicates from path resolution&#41;
             expect&#40;files.size&#41;.toBe&#40;2&#41;;
             
             &#47;&#47; Check if the files exist with the expected content
