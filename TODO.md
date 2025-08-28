@@ -7,7 +7,6 @@
 • **Activer Push Protection** dans Settings → Code security (empêche commit de secrets)
 
 ### NPM Publishing
-• Ajouter `publishConfig.provenance: true` dans package.json
 • Ajouter script `prerelease` avec dry-run: `"prerelease": "npm pack && tar -tzf *.tgz"`
 
 ### Logging Sécurité (from ancien TODO)
@@ -56,15 +55,11 @@
 
 ## 📝 Snippets Prêts à Copier
 
-### package.json - publishConfig + prerelease
+### package.json - prerelease
 ```json
 {
   "scripts": {
     "prerelease": "npm pack && tar -tzf *.tgz && rm -f *.tgz"
-  },
-  "publishConfig": { 
-    "access": "public", 
-    "provenance": true 
   }
 }
 ```
@@ -108,7 +103,3 @@ jobs:
 npm install --save-dev @changesets/cli @changesets/changelog-github
 npx changeset init
 ```
-
----
-
-*Temps estimé total: ~4-5 heures de travail pour tout implémenter*
