@@ -35,7 +35,7 @@
             "Bash(npm run test)",
             "Bash(npm run typecheck)",
             "Bash(npm run typecheck:*)",
-            "Bash(npm run:*)"
+            "Bash(npm run:*)",
             "Bash(npm test)",
             "Bash(npm test:*)",
             "Bash(npm uninstall:*)",
@@ -54,7 +54,7 @@
             "Bash(tree *)",
             "Bash(tsc *)",
             "Bash(vitest *)",
-            "Bash(wc -l *)",
+            "Bash(wc -l *)"
         ],
         "deny": [
             "Bash(chmod 777 *)",
