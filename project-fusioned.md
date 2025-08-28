@@ -2,9 +2,9 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 27/08/2025 21:57:35 UTC−4
+**Generated:** 27/08/2025 22:05:35 UTC−4
 
-**UTC:** 2025-08-28T01:57:35.053Z
+**UTC:** 2025-08-28T02:05:35.411Z
 
 **Files:** 71
 
@@ -991,6 +991,7 @@ Run `project-fusion init` to create `project-fusion.json` if you want to fine-tu
   "maxFileSizeKB": 1024,                       // Max size per file (KB)
   "maxFiles": 10000,                           // Max number of files to process
   "maxTotalSizeMB": 100,                       // Max total output size (MB)
+  "maxOutputSizeMB": 50,                       // Max output file size (MB) - DoS protection
   
   // Content validation limits
   "maxBase64BlockKB": 2,                       // Max base64 block size before rejection (KB)
@@ -1058,6 +1059,7 @@ project-fusion [options]
   --max-file-size <kb>          Maximum file size in KB (default: 1024)
   --max-files <count>           Maximum number of files (default: 10000)
   --max-total-size <mb>         Maximum total size in MB (default: 100)
+  --max-output-size <mb>        Maximum output file size in MB - DoS protection (default: 50)
   
 # Content Validation Limits
   --max-base64-kb <size>        Maximum base64 block size in KB (default: 2)
