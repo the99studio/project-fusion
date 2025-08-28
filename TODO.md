@@ -19,9 +19,8 @@
 
 ### Build Moderne avec tsup
 • Migrer de `tsc` vers `tsup` pour build 10x plus rapide
-• Ajouter scripts: `"build": "tsup"` et `"build:watch": "tsup --watch"`
+• Ajouter scripts: `"build": "tsup"`
 • Mettre à jour CI pour utiliser: `npm ci && npm run build`
-• Ajouter `noImplicitOverride: true` dans tsconfig.json
 
 ### Versioning Automatique avec gate
 • Installer et configurer `@changesets/cli`  

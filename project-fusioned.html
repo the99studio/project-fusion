@@ -20,8 +20,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 28&#47;08&#47;2025 09:13:23 UTC−4</p>
-<p><strong>Files:</strong> 73</p>
+<p><strong>Generated:</strong> 28&#47;08&#47;2025 16:37:57 UTC−4</p>
+<p><strong>Files:</strong> 74</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
 <h2>Table of Contents</h2>
@@ -32,6 +32,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#eslintconfigjs">eslint.config.js</a></li>
 <li><a href="#packagejson">package.json</a></li>
 <li><a href="#readmemd">README.md</a></li>
+<li><a href="#securitymd">SECURITY.md</a></li>
 <li><a href="#srcadaptersfile-systemts">src&#47;adapters&#47;file-system.ts</a></li>
 <li><a href="#srcapits">src&#47;api.ts</a></li>
 <li><a href="#srcbenchmarkts">src&#47;benchmark.ts</a></li>
@@ -875,7 +876,8 @@ export default &#91;
         &quot;url&quot;: &quot;https:&#47;&#47;github.com&#47;sponsors&#47;the99studio&quot;
     &#125;,
     &quot;publishConfig&quot;: &#123;
-        &quot;access&quot;: &quot;public&quot;
+        &quot;access&quot;: &quot;public&quot;,
+        &quot;provenance&quot;: true
     &#125;,
     &quot;dependencies&quot;: &#123;
         &quot;chalk&quot;: &quot;^5.6.0&quot;,
@@ -1093,11 +1095,21 @@ project-fusion &#91;options&#93;
 
 MIT - See &#91;LICENSE&#93;&#40;.&#47;LICENSE&#41;
 
+## Security
+
+For reporting security vulnerabilities, see our &#91;Security Policy&#93;&#40;.&#47;SECURITY.md&#41;.
+
 ## Links
 
 - &#91;GitHub Repository&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#41;
 - &#91;Issue Tracker&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;issues&#41;
 - &#91;NPM Package&#93;&#40;https:&#47;&#47;npmjs.com&#47;package&#47;&#64;the99studio&#47;project-fusion&#41;</pre>
+<h2 id="securitymd">SECURITY.md</h2>
+<pre># Security Policy
+
+## Reporting a Vulnerability
+Please report security vulnerabilities by creating a private issue on GitHub.
+We aim to respond within 7 days.</pre>
 <h2 id="srcadaptersfile-systemts">src&#47;adapters&#47;file-system.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -20183,10 +20195,110 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>### Bonus
- &#91; &#93; S&#39;assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning dans le project-fusion.log
+<pre># TODO: Améliorations Essentielles Project Fusion
 
- &#91; &#93; Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité &#40;peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?&#41;</pre>
+## 🔴 Priorité HAUTE &#40;à faire en premier&#41;
+
+### Sécurité &amp; Trust
+• Activer GitHub CodeQL dans &#96;.github&#47;workflows&#47;codeql.yml&#96;
+• **Activer Push Protection** dans Settings → Code security &#40;empêche commit de secrets&#41;
+
+### NPM Publishing
+• Ajouter script &#96;prerelease&#96; avec dry-run: &#96;&quot;prerelease&quot;: &quot;npm pack &amp;&amp; tar -tzf *.tgz&quot;&#96;
+
+### Logging Sécurité &#40;from ancien TODO&#41;
+• S&#39;assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning
+• Avoir une fonction permettant de récupérer la liste des fichiers ayant un problème de sécurité
+
+---
+
+## 🟡 Priorité MOYENNE &#40;amélioration performance &amp; DX&#41;
+
+### Build Moderne avec tsup
+• Migrer de &#96;tsc&#96; vers &#96;tsup&#96; pour build 10x plus rapide
+• Ajouter scripts: &#96;&quot;build&quot;: &quot;tsup&quot;&#96;
+• Mettre à jour CI pour utiliser: &#96;npm ci &amp;&amp; npm run build&#96;
+
+### Versioning Automatique avec gate
+• Installer et configurer &#96;&#64;changesets&#47;cli&#96;  
+• Créer &#96;.changeset&#47;config.json&#96;
+• Ajouter workflow &#96;.github&#47;workflows&#47;changesets.yml&#96; pour Release PR auto
+• **Configurer gate CI: &quot;no changeset, no release&quot;** &#40;échec si pas de changeset sur PR&#41;
+
+### Tests Critiques &#40;minimum vital&#41;
+• **1 test de types** avec &#96;expectTypeOf&#96; pour la Fluent API
+• **1 smoke test d&#39;import ESM**: &#96;import &#123; projectFusion &#125; from &#39;&#64;the99studio&#47;project-fusion&#39;&#96;
+
+---
+
+## 🟢 Priorité BASSE &#40;nice to have&#41;
+
+### CI&#47;CD
+• Configurer OIDC pour npm publish dans GitHub Actions
+• Ajouter tags &#96;next&#96; et &#96;canary&#96; pour pre-releases NPM
+• Ajouter benchmarks avec tinybench
+
+### Documentation
+• Créer table d&#39;erreurs documentées &#40;code → message → remédiation&#41;
+• Ajouter plus d&#39;exemples d&#39;utilisation programmatique dans README
+• Documenter limitations connues
+
+### Linting
+• Ajouter &#96;eslint-config-prettier&#96; pour éviter conflits format
+• Installer &#96;eslint-plugin-security&#96; pour détection anti-patterns
+
+---
+
+## 📝 Snippets Prêts à Copier
+
+### package.json - prerelease
+&#96;&#96;&#96;json
+&#123;
+  &quot;scripts&quot;: &#123;
+    &quot;prerelease&quot;: &quot;npm pack &amp;&amp; tar -tzf *.tgz &amp;&amp; rm -f *.tgz&quot;
+  &#125;
+&#125;
+&#96;&#96;&#96;
+
+### tsup dans package.json
+&#96;&#96;&#96;json
+&#123;
+  &quot;scripts&quot;: &#123;
+    &quot;build&quot;: &quot;tsup src&#47;index.ts --dts --format esm --sourcemap&quot;,
+    &quot;build:watch&quot;: &quot;tsup src&#47;index.ts --dts --format esm --sourcemap --watch&quot;
+  &#125;,
+  &quot;devDependencies&quot;: &#123; 
+    &quot;tsup&quot;: &quot;^8.0.0&quot; 
+  &#125;
+&#125;
+&#96;&#96;&#96;
+
+### .github&#47;workflows&#47;codeql.yml
+&#96;&#96;&#96;yaml
+name: codeql
+on:
+  push: &#123; branches: &#91;main&#93; &#125;
+  pull_request: &#123; branches: &#91;main&#93; &#125;
+  schedule: &#91;&#123; cron: &#39;0 3 * * 1&#39; &#125;&#93;
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions&#47;checkout&#64;v4
+      - uses: github&#47;codeql-action&#47;init&#64;v3
+        with: &#123; languages: javascript-typescript &#125;
+      - uses: github&#47;codeql-action&#47;analyze&#64;v3
+&#96;&#96;&#96;
+
+### changesets config
+&#96;&#96;&#96;bash
+npm install --save-dev &#64;changesets&#47;cli &#64;changesets&#47;changelog-github
+npx changeset init
+&#96;&#96;&#96;</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;
     &quot;compilerOptions&quot;: &#123;
@@ -20205,6 +20317,7 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
         &quot;useUnknownInCatchVariables&quot;: true,
         &quot;noPropertyAccessFromIndexSignature&quot;: true,
         &quot;noImplicitReturns&quot;: true,
+        &quot;noImplicitOverride&quot;: true,
         &quot;moduleDetection&quot;: &quot;force&quot;,
         &quot;outDir&quot;: &quot;.&#47;dist&quot;,
         &quot;rootDir&quot;: &quot;.&#47;src&quot;
