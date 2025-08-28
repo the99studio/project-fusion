@@ -80,7 +80,12 @@ export function normalizeFilePaths(content: string): string {
         .replaceAll(/\/temp\/[^\s)]+/g, '/temp/test-dir')
         // Normalize HTML entity encoded backslashes (&#47; is /, &#x2F; is /)
         .replaceAll('&#92;', '&#47;')
-        .replaceAll('&#x5C;', '&#x2F;');
+        .replaceAll('&#x5C;', '&#x2F;')
+        // Normalize forward slashes in file paths displayed in HTML links and headings
+        // This handles cross-platform differences where forward slashes in legitimate file paths
+        // may or may not be HTML-encoded as &#47; depending on the platform
+        .replaceAll(/(<a href="#[^"]*">)([^<]*?)&#47;([^<]*?)(<\/a>)/g, '$1$2/$3$4')
+        .replaceAll(/(<h2 id="[^"]*">)([^<]*?)&#47;([^<]*?)(<\/h2>)/g, '$1$2/$3$4');
 }
 
 /**

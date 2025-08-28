@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 28/08/2025 08:53:24 UTC−4
+**Generated:** 28/08/2025 09:13:23 UTC−4
 
 **Files:** 73
 
@@ -18,69 +18,69 @@
 - [eslint.config.js](#eslintconfigjs)
 - [package.json](#packagejson)
 - [README.md](#readmemd)
-- [src\adapters\file-system.ts](#srcadaptersfile-systemts)
-- [src\api.ts](#srcapits)
-- [src\benchmark.ts](#srcbenchmarkts)
-- [src\cli.ts](#srcclits)
-- [src\clicommands.ts](#srcclicommandsts)
-- [src\fluent.ts](#srcfluentts)
-- [src\fusion.ts](#srcfusionts)
-- [src\index.ts](#srcindexts)
-- [src\plugins\plugin-system.ts](#srcpluginsplugin-systemts)
-- [src\schema.ts](#srcschemats)
-- [src\strategies\output-strategy.ts](#srcstrategiesoutput-strategyts)
-- [src\types.ts](#srctypests)
-- [src\utils.ts](#srcutilsts)
-- [src\utils\logger.ts](#srcutilsloggerts)
-- [src\version.ts](#srcversionts)
-- [tests\aggressive-sanitization.test.ts](#testsaggressive-sanitizationtestts)
-- [tests\anchor-generation.test.ts](#testsanchor-generationtestts)
-- [tests\api-integration.test.ts](#testsapi-integrationtestts)
-- [tests\api.test.ts](#testsapitestts)
-- [tests\architecture.test.ts](#testsarchitecturetestts)
-- [tests\benchmark.test.ts](#testsbenchmarktestts)
-- [tests\cli-binary-e2e.test.ts](#testscli-binary-e2etestts)
-- [tests\cli-e2e.test.ts](#testscli-e2etestts)
-- [tests\clicommands.test.ts](#testsclicommandstestts)
-- [tests\clipboard-size-guard.test.ts](#testsclipboard-size-guardtestts)
-- [tests\config-consistency.test.ts](#testsconfig-consistencytestts)
-- [tests\content-validation.test.ts](#testscontent-validationtestts)
-- [tests\file-overwrite-protection.test.ts](#testsfile-overwrite-protectiontestts)
-- [tests\file-security.test.ts](#testsfile-securitytestts)
-- [tests\fluent.test.ts](#testsfluenttestts)
-- [tests\formats.test.ts](#testsformatstestts)
-- [tests\fusion-coverage.test.ts](#testsfusion-coveragetestts)
-- [tests\github-link-security.test.ts](#testsgithub-link-securitytestts)
-- [tests\html-escaping.test.ts](#testshtml-escapingtestts)
-- [tests\index.test.ts](#testsindextestts)
-- [tests\integration.test.ts](#testsintegrationtestts)
-- [tests\logger.test.ts](#testsloggertestts)
-- [tests\markdown-escaping.test.ts](#testsmarkdown-escapingtestts)
-- [tests\memory-fs.test.ts](#testsmemory-fstestts)
-- [tests\output-size-limits.test.ts](#testsoutput-size-limitstestts)
-- [tests\path-traversal-edge-cases.test.ts](#testspath-traversal-edge-casestestts)
-- [tests\performance.test.ts](#testsperformancetestts)
-- [tests\plugin-contract.test.ts](#testsplugin-contracttestts)
-- [tests\plugin-coverage.test.ts](#testsplugin-coveragetestts)
-- [tests\plugin-security.test.ts](#testsplugin-securitytestts)
-- [tests\plugin-system.test.ts](#testsplugin-systemtestts)
-- [tests\property-based.test.ts](#testsproperty-basedtestts)
-- [tests\resource-limits.test.ts](#testsresource-limitstestts)
-- [tests\schema.test.ts](#testsschematestts)
-- [tests\secret-detection.test.ts](#testssecret-detectiontestts)
-- [tests\security-fuzzing.test.ts](#testssecurity-fuzzingtestts)
-- [tests\security-headers.test.ts](#testssecurity-headerstestts)
-- [tests\security-limits-fuzzing.test.ts](#testssecurity-limits-fuzzingtestts)
-- [tests\security-permissions.test.ts](#testssecurity-permissionstestts)
-- [tests\security.test.ts](#testssecuritytestts)
-- [tests\snapshots.test.ts](#testssnapshotstestts)
-- [tests\symlink-configuration.test.ts](#testssymlink-configurationtestts)
-- [tests\test-helpers.ts](#teststest-helpersts)
-- [tests\types.test.ts](#teststypestestts)
-- [tests\utility-types.test.ts](#testsutility-typestestts)
-- [tests\utils.test.ts](#testsutilstestts)
-- [tests\version-fallback.test.ts](#testsversion-fallbacktestts)
-- [tests\vscode-api.test.ts](#testsvscode-apitestts)
+- [src/adapters/file-system.ts](#srcadaptersfile-systemts)
+- [src/api.ts](#srcapits)
+- [src/benchmark.ts](#srcbenchmarkts)
+- [src/cli.ts](#srcclits)
+- [src/clicommands.ts](#srcclicommandsts)
+- [src/fluent.ts](#srcfluentts)
+- [src/fusion.ts](#srcfusionts)
+- [src/index.ts](#srcindexts)
+- [src/plugins/plugin-system.ts](#srcpluginsplugin-systemts)
+- [src/schema.ts](#srcschemats)
+- [src/strategies/output-strategy.ts](#srcstrategiesoutput-strategyts)
+- [src/types.ts](#srctypests)
+- [src/utils.ts](#srcutilsts)
+- [src/utils/logger.ts](#srcutilsloggerts)
+- [src/version.ts](#srcversionts)
+- [tests/aggressive-sanitization.test.ts](#testsaggressive-sanitizationtestts)
+- [tests/anchor-generation.test.ts](#testsanchor-generationtestts)
+- [tests/api-integration.test.ts](#testsapi-integrationtestts)
+- [tests/api.test.ts](#testsapitestts)
+- [tests/architecture.test.ts](#testsarchitecturetestts)
+- [tests/benchmark.test.ts](#testsbenchmarktestts)
+- [tests/cli-binary-e2e.test.ts](#testscli-binary-e2etestts)
+- [tests/cli-e2e.test.ts](#testscli-e2etestts)
+- [tests/clicommands.test.ts](#testsclicommandstestts)
+- [tests/clipboard-size-guard.test.ts](#testsclipboard-size-guardtestts)
+- [tests/config-consistency.test.ts](#testsconfig-consistencytestts)
+- [tests/content-validation.test.ts](#testscontent-validationtestts)
+- [tests/file-overwrite-protection.test.ts](#testsfile-overwrite-protectiontestts)
+- [tests/file-security.test.ts](#testsfile-securitytestts)
+- [tests/fluent.test.ts](#testsfluenttestts)
+- [tests/formats.test.ts](#testsformatstestts)
+- [tests/fusion-coverage.test.ts](#testsfusion-coveragetestts)
+- [tests/github-link-security.test.ts](#testsgithub-link-securitytestts)
+- [tests/html-escaping.test.ts](#testshtml-escapingtestts)
+- [tests/index.test.ts](#testsindextestts)
+- [tests/integration.test.ts](#testsintegrationtestts)
+- [tests/logger.test.ts](#testsloggertestts)
+- [tests/markdown-escaping.test.ts](#testsmarkdown-escapingtestts)
+- [tests/memory-fs.test.ts](#testsmemory-fstestts)
+- [tests/output-size-limits.test.ts](#testsoutput-size-limitstestts)
+- [tests/path-traversal-edge-cases.test.ts](#testspath-traversal-edge-casestestts)
+- [tests/performance.test.ts](#testsperformancetestts)
+- [tests/plugin-contract.test.ts](#testsplugin-contracttestts)
+- [tests/plugin-coverage.test.ts](#testsplugin-coveragetestts)
+- [tests/plugin-security.test.ts](#testsplugin-securitytestts)
+- [tests/plugin-system.test.ts](#testsplugin-systemtestts)
+- [tests/property-based.test.ts](#testsproperty-basedtestts)
+- [tests/resource-limits.test.ts](#testsresource-limitstestts)
+- [tests/schema.test.ts](#testsschematestts)
+- [tests/secret-detection.test.ts](#testssecret-detectiontestts)
+- [tests/security-fuzzing.test.ts](#testssecurity-fuzzingtestts)
+- [tests/security-headers.test.ts](#testssecurity-headerstestts)
+- [tests/security-limits-fuzzing.test.ts](#testssecurity-limits-fuzzingtestts)
+- [tests/security-permissions.test.ts](#testssecurity-permissionstestts)
+- [tests/security.test.ts](#testssecuritytestts)
+- [tests/snapshots.test.ts](#testssnapshotstestts)
+- [tests/symlink-configuration.test.ts](#testssymlink-configurationtestts)
+- [tests/test-helpers.ts](#teststest-helpersts)
+- [tests/types.test.ts](#teststypestestts)
+- [tests/utility-types.test.ts](#testsutility-typestestts)
+- [tests/utils.test.ts](#testsutilstestts)
+- [tests/version-fallback.test.ts](#testsversion-fallbacktestts)
+- [tests/vscode-api.test.ts](#testsvscode-apitestts)
 - [TODO.md](#todomd)
 - [tsconfig.json](#tsconfigjson)
 - [tsconfig.test.json](#tsconfigtestjson)
@@ -1109,7 +1109,7 @@ MIT - See [LICENSE](./LICENSE)
 - [NPM Package](https://npmjs.com/package/@the99studio/project-fusion)
 ```
 
-## 📄 src\adapters\file-system.ts {#srcadaptersfile-systemts}
+## 📄 src/adapters/file-system.ts {#srcadaptersfile-systemts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -1427,7 +1427,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
 }
 ```
 
-## 📄 src\api.ts {#srcapits}
+## 📄 src/api.ts {#srcapits}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -1733,7 +1733,7 @@ export async function runFusion(
 }
 ```
 
-## 📄 src\benchmark.ts {#srcbenchmarkts}
+## 📄 src/benchmark.ts {#srcbenchmarkts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -1809,7 +1809,7 @@ export class BenchmarkTracker {
 }
 ```
 
-## 📄 src\cli.ts {#srcclits}
+## 📄 src/cli.ts {#srcclits}
 
 ```typescript
 #!/usr/bin/env node
@@ -1924,7 +1924,7 @@ program
 program.parse(process.argv);
 ```
 
-## 📄 src\clicommands.ts {#srcclicommandsts}
+## 📄 src/clicommands.ts {#srcclicommandsts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -2571,7 +2571,7 @@ function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLi
 }
 ```
 
-## 📄 src\fluent.ts {#srcfluentts}
+## 📄 src/fluent.ts {#srcfluentts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -2790,7 +2790,7 @@ export function projectFusion(): ProjectFusionBuilder {
 }
 ```
 
-## 📄 src\fusion.ts {#srcfusionts}
+## 📄 src/fusion.ts {#srcfusionts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -3583,7 +3583,7 @@ export async function processFusion(
 }
 ```
 
-## 📄 src\index.ts {#srcindexts}
+## 📄 src/index.ts {#srcindexts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -3629,7 +3629,7 @@ export * from './utils.js';
 
 ```
 
-## 📄 src\plugins\plugin-system.ts {#srcpluginsplugin-systemts}
+## 📄 src/plugins/plugin-system.ts {#srcpluginsplugin-systemts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -3971,7 +3971,7 @@ export function createPlugin(metadata: PluginMetadata, hooks: PluginHooks = {}):
 }
 ```
 
-## 📄 src\schema.ts {#srcschemats}
+## 📄 src/schema.ts {#srcschemats}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4106,7 +4106,7 @@ export const ConfigSchemaV1 = z.object({
 });
 ```
 
-## 📄 src\strategies\output-strategy.ts {#srcstrategiesoutput-strategyts}
+## 📄 src/strategies/output-strategy.ts {#srcstrategiesoutput-strategyts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4756,7 +4756,7 @@ export class OutputStrategyManager {
 }
 ```
 
-## 📄 src\types.ts {#srctypests}
+## 📄 src/types.ts {#srctypests}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4919,7 +4919,7 @@ export type FusionResult =
     };
 ```
 
-## 📄 src\utils.ts {#srcutilsts}
+## 📄 src/utils.ts {#srcutilsts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -5926,7 +5926,7 @@ export function isMinifiedContent(content: string, filePath: string): boolean {
 }
 ```
 
-## 📄 src\utils\logger.ts {#srcutilsloggerts}
+## 📄 src/utils/logger.ts {#srcutilsloggerts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -6160,7 +6160,7 @@ export function createPluginLogger(pluginName: string): {
 }
 ```
 
-## 📄 src\version.ts {#srcversionts}
+## 📄 src/version.ts {#srcversionts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -6243,7 +6243,7 @@ export function getVersionSync(): string {
 initializeVersion();
 ```
 
-## 📄 tests\aggressive-sanitization.test.ts {#testsaggressive-sanitizationtestts}
+## 📄 tests/aggressive-sanitization.test.ts {#testsaggressive-sanitizationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -6406,7 +6406,7 @@ describe('Aggressive Content Sanitization', () => {
 });
 ```
 
-## 📄 tests\anchor-generation.test.ts {#testsanchor-generationtestts}
+## 📄 tests/anchor-generation.test.ts {#testsanchor-generationtestts}
 
 ```typescript
 import GithubSlugger from 'github-slugger';
@@ -6735,7 +6735,7 @@ describe('Anchor Generation with github-slugger', () => {
 });
 ```
 
-## 📄 tests\api-integration.test.ts {#testsapi-integrationtestts}
+## 📄 tests/api-integration.test.ts {#testsapi-integrationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -7031,7 +7031,7 @@ describe('API Integration for VS Code', () => {
 });
 ```
 
-## 📄 tests\api.test.ts {#testsapitestts}
+## 📄 tests/api.test.ts {#testsapitestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -7389,7 +7389,7 @@ describe('API Tests', () => {
 });
 ```
 
-## 📄 tests\architecture.test.ts {#testsarchitecturetestts}
+## 📄 tests/architecture.test.ts {#testsarchitecturetestts}
 
 ```typescript
 import path from 'node:path';
@@ -7604,7 +7604,7 @@ describe('Architecture Tests', () => {
 });
 ```
 
-## 📄 tests\benchmark.test.ts {#testsbenchmarktestts}
+## 📄 tests/benchmark.test.ts {#testsbenchmarktestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -7771,7 +7771,7 @@ describe('BenchmarkTracker', () => {
 });
 ```
 
-## 📄 tests\cli-binary-e2e.test.ts {#testscli-binary-e2etestts}
+## 📄 tests/cli-binary-e2e.test.ts {#testscli-binary-e2etestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -8268,7 +8268,7 @@ describe('CLI Binary E2E Tests', () => {
 });
 ```
 
-## 📄 tests\cli-e2e.test.ts {#testscli-e2etestts}
+## 📄 tests/cli-e2e.test.ts {#testscli-e2etestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -8638,7 +8638,7 @@ describe('CLI E2E Tests', () => {
 });
 ```
 
-## 📄 tests\clicommands.test.ts {#testsclicommandstestts}
+## 📄 tests/clicommands.test.ts {#testsclicommandstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -9249,7 +9249,7 @@ describe('CLI Commands', () => {
 });
 ```
 
-## 📄 tests\clipboard-size-guard.test.ts {#testsclipboard-size-guardtestts}
+## 📄 tests/clipboard-size-guard.test.ts {#testsclipboard-size-guardtestts}
 
 ```typescript
 import { describe, expect, it } from 'vitest';
@@ -9286,7 +9286,7 @@ describe('Clipboard Size Guard Tests', () => {
 });
 ```
 
-## 📄 tests\config-consistency.test.ts {#testsconfig-consistencytestts}
+## 📄 tests/config-consistency.test.ts {#testsconfig-consistencytestts}
 
 ```typescript
 import fs from 'fs-extra';
@@ -9362,7 +9362,7 @@ describe('Config Consistency', () => {
 });
 ```
 
-## 📄 tests\content-validation.test.ts {#testscontent-validationtestts}
+## 📄 tests/content-validation.test.ts {#testscontent-validationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -9620,7 +9620,7 @@ describe('Content Validation Tests', () => {
 });
 ```
 
-## 📄 tests\file-overwrite-protection.test.ts {#testsfile-overwrite-protectiontestts}
+## 📄 tests/file-overwrite-protection.test.ts {#testsfile-overwrite-protectiontestts}
 
 ```typescript
 import path from 'node:path';
@@ -9934,7 +9934,7 @@ describe('File Overwrite Protection', () => {
 });
 ```
 
-## 📄 tests\file-security.test.ts {#testsfile-securitytestts}
+## 📄 tests/file-security.test.ts {#testsfile-securitytestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -10320,7 +10320,7 @@ describe('File Security Tests', () => {
 });
 ```
 
-## 📄 tests\fluent.test.ts {#testsfluenttestts}
+## 📄 tests/fluent.test.ts {#testsfluenttestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -10674,7 +10674,7 @@ describe('Fluent API', () => {
 });
 ```
 
-## 📄 tests\formats.test.ts {#testsformatstestts}
+## 📄 tests/formats.test.ts {#testsformatstestts}
 
 ```typescript
 import path from 'node:path';
@@ -10845,7 +10845,7 @@ console.log(html);
 });
 ```
 
-## 📄 tests\fusion-coverage.test.ts {#testsfusion-coveragetestts}
+## 📄 tests/fusion-coverage.test.ts {#testsfusion-coveragetestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -11144,7 +11144,7 @@ Some **bold** and *italic* text.
 });
 ```
 
-## 📄 tests\github-link-security.test.ts {#testsgithub-link-securitytestts}
+## 📄 tests/github-link-security.test.ts {#testsgithub-link-securitytestts}
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -11293,7 +11293,7 @@ describe('GitHub Link Security', () => {
 });
 ```
 
-## 📄 tests\html-escaping.test.ts {#testshtml-escapingtestts}
+## 📄 tests/html-escaping.test.ts {#testshtml-escapingtestts}
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -11602,7 +11602,7 @@ describe('HTML Escaping', () => {
 });
 ```
 
-## 📄 tests\index.test.ts {#testsindextestts}
+## 📄 tests/index.test.ts {#testsindextestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -11692,7 +11692,7 @@ describe('Index Exports', () => {
 });
 ```
 
-## 📄 tests\integration.test.ts {#testsintegrationtestts}
+## 📄 tests/integration.test.ts {#testsintegrationtestts}
 
 ```typescript
 import path from 'node:path';
@@ -11990,7 +11990,7 @@ describe('Integration Tests - Optimized', () => {
 });
 ```
 
-## 📄 tests\logger.test.ts {#testsloggertestts}
+## 📄 tests/logger.test.ts {#testsloggertestts}
 
 ```typescript
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -12069,7 +12069,7 @@ describe('Logger', () => {
 });
 ```
 
-## 📄 tests\markdown-escaping.test.ts {#testsmarkdown-escapingtestts}
+## 📄 tests/markdown-escaping.test.ts {#testsmarkdown-escapingtestts}
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -12396,7 +12396,7 @@ describe('Markdown Escaping', () => {
 });
 ```
 
-## 📄 tests\memory-fs.test.ts {#testsmemory-fstestts}
+## 📄 tests/memory-fs.test.ts {#testsmemory-fstestts}
 
 ```typescript
 /**
@@ -12622,7 +12622,7 @@ describe('MemoryFileSystemAdapter', () => {
 });
 ```
 
-## 📄 tests\output-size-limits.test.ts {#testsoutput-size-limitstestts}
+## 📄 tests/output-size-limits.test.ts {#testsoutput-size-limitstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -12790,7 +12790,7 @@ describe('Output Size Limits', () => {
 });
 ```
 
-## 📄 tests\path-traversal-edge-cases.test.ts {#testspath-traversal-edge-casestestts}
+## 📄 tests/path-traversal-edge-cases.test.ts {#testspath-traversal-edge-casestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -13072,7 +13072,7 @@ describe('Path Traversal Edge Cases', () => {
 });
 ```
 
-## 📄 tests\performance.test.ts {#testsperformancetestts}
+## 📄 tests/performance.test.ts {#testsperformancetestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -13338,7 +13338,7 @@ describe('Performance Tests - Optimized', () => {
 });
 ```
 
-## 📄 tests\plugin-contract.test.ts {#testsplugin-contracttestts}
+## 📄 tests/plugin-contract.test.ts {#testsplugin-contracttestts}
 
 ```typescript
 /**
@@ -14123,7 +14123,7 @@ describe('Plugin API Contract Tests', () => {
 });
 ```
 
-## 📄 tests\plugin-coverage.test.ts {#testsplugin-coveragetestts}
+## 📄 tests/plugin-coverage.test.ts {#testsplugin-coveragetestts}
 
 ```typescript
 /**
@@ -14434,7 +14434,7 @@ describe('Plugin System Coverage Tests', () => {
 });
 ```
 
-## 📄 tests\plugin-security.test.ts {#testsplugin-securitytestts}
+## 📄 tests/plugin-security.test.ts {#testsplugin-securitytestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -14617,7 +14617,7 @@ export default {
 });
 ```
 
-## 📄 tests\plugin-system.test.ts {#testsplugin-systemtestts}
+## 📄 tests/plugin-system.test.ts {#testsplugin-systemtestts}
 
 ```typescript
 /**
@@ -15128,7 +15128,7 @@ describe('Plugin System', () => {
 });
 ```
 
-## 📄 tests\property-based.test.ts {#testsproperty-basedtestts}
+## 📄 tests/property-based.test.ts {#testsproperty-basedtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -15421,7 +15421,7 @@ describe('Property-Based Tests', () => {
 });
 ```
 
-## 📄 tests\resource-limits.test.ts {#testsresource-limitstestts}
+## 📄 tests/resource-limits.test.ts {#testsresource-limitstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -15748,7 +15748,7 @@ describe('Memory Monitoring', () => {
 });
 ```
 
-## 📄 tests\schema.test.ts {#testsschematestts}
+## 📄 tests/schema.test.ts {#testsschematestts}
 
 ```typescript
 import { describe, expect, it } from 'vitest';
@@ -15933,7 +15933,7 @@ describe('schema', () => {
 });
 ```
 
-## 📄 tests\secret-detection.test.ts {#testssecret-detectiontestts}
+## 📄 tests/secret-detection.test.ts {#testssecret-detectiontestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -16267,7 +16267,7 @@ describe('Secret Detection Tests', () => {
 });
 ```
 
-## 📄 tests\security-fuzzing.test.ts {#testssecurity-fuzzingtestts}
+## 📄 tests/security-fuzzing.test.ts {#testssecurity-fuzzingtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -16921,7 +16921,7 @@ describe('Security Fuzzing Tests', () => {
 });
 ```
 
-## 📄 tests\security-headers.test.ts {#testssecurity-headerstestts}
+## 📄 tests/security-headers.test.ts {#testssecurity-headerstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -16993,7 +16993,7 @@ describe('Security Headers', () => {
 });
 ```
 
-## 📄 tests\security-limits-fuzzing.test.ts {#testssecurity-limits-fuzzingtestts}
+## 📄 tests/security-limits-fuzzing.test.ts {#testssecurity-limits-fuzzingtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -17726,7 +17726,7 @@ const image = "${largeBase64}";
 });
 ```
 
-## 📄 tests\security-permissions.test.ts {#testssecurity-permissionstestts}
+## 📄 tests/security-permissions.test.ts {#testssecurity-permissionstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -17982,7 +17982,7 @@ describe('Security Permission Tests', () => {
 });
 ```
 
-## 📄 tests\security.test.ts {#testssecuritytestts}
+## 📄 tests/security.test.ts {#testssecuritytestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -18181,7 +18181,7 @@ console.log("test");
 });
 ```
 
-## 📄 tests\snapshots.test.ts {#testssnapshotstestts}
+## 📄 tests/snapshots.test.ts {#testssnapshotstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -18720,7 +18720,7 @@ export class ApiClient {
 });
 ```
 
-## 📄 tests\symlink-configuration.test.ts {#testssymlink-configurationtestts}
+## 📄 tests/symlink-configuration.test.ts {#testssymlink-configurationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19210,7 +19210,7 @@ describe('Symlink Configuration Tests', () => {
 });
 ```
 
-## 📄 tests\test-helpers.ts {#teststest-helpersts}
+## 📄 tests/test-helpers.ts {#teststest-helpersts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19295,7 +19295,12 @@ export function normalizeFilePaths(content: string): string {
         .replaceAll(/\/temp\/[^\s)]+/g, '/temp/test-dir')
         // Normalize HTML entity encoded backslashes (&#47; is /, &#x2F; is /)
         .replaceAll('&#92;', '&#47;')
-        .replaceAll('&#x5C;', '&#x2F;');
+        .replaceAll('&#x5C;', '&#x2F;')
+        // Normalize forward slashes in file paths displayed in HTML links and headings
+        // This handles cross-platform differences where forward slashes in legitimate file paths
+        // may or may not be HTML-encoded as &#47; depending on the platform
+        .replaceAll(/(<a href="#[^"]*">)([^<]*?)&#47;([^<]*?)(<\/a>)/g, '$1$2/$3$4')
+        .replaceAll(/(<h2 id="[^"]*">)([^<]*?)&#47;([^<]*?)(<\/h2>)/g, '$1$2/$3$4');
 }
 
 /**
@@ -19337,7 +19342,7 @@ export function normalizeErrorMessage(message: string): string {
 }
 ```
 
-## 📄 tests\types.test.ts {#teststypestestts}
+## 📄 tests/types.test.ts {#teststypestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19584,7 +19589,7 @@ describe('FusionError', () => {
 });
 ```
 
-## 📄 tests\utility-types.test.ts {#testsutility-typestestts}
+## 📄 tests/utility-types.test.ts {#testsutility-typestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19733,7 +19738,7 @@ describe('Utility Types', () => {
 });
 ```
 
-## 📄 tests\utils.test.ts {#testsutilstestts}
+## 📄 tests/utils.test.ts {#testsutilstestts}
 
 ```typescript
 import path from 'node:path';
@@ -19980,7 +19985,7 @@ describe('utils', () => {
 });
 ```
 
-## 📄 tests\version-fallback.test.ts {#testsversion-fallbacktestts}
+## 📄 tests/version-fallback.test.ts {#testsversion-fallbacktestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -20069,7 +20074,7 @@ describe('version fallback mechanism', () => {
 });
 ```
 
-## 📄 tests\vscode-api.test.ts {#testsvscode-apitestts}
+## 📄 tests/vscode-api.test.ts {#testsvscode-apitestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -20447,8 +20452,6 @@ describe('VS Code API enhancements', () => {
  [ ] S'assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning dans le project-fusion.log
 
  [ ] Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité (peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?)
- 
- [x] Remove repetition of Generated: 27/08/2025 07:12:31 UTC−4 and UTC: 2025-08-27T11:12:31.544Z
 ```
 
 ## 📄 tsconfig.json {#tsconfigjson}
