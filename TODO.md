@@ -1,17 +1,5 @@
-# TODO: Améliorations Essentielles Project Fusion
-
-## 🔴 Priorité HAUTE (à faire en premier)
-
-### Sécurité & Trust
-• Activer GitHub CodeQL dans `.github/workflows/codeql.yml`
-• **Activer Push Protection** dans Settings → Code security (empêche commit de secrets)
-
-### NPM Publishing
-• Ajouter script `prerelease` avec dry-run: `"prerelease": "npm pack && tar -tzf *.tgz"`
-
 ### Logging Sécurité (from ancien TODO)
 • S'assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning
-• Avoir une fonction permettant de récupérer la liste des fichiers ayant un problème de sécurité
 
 ---
 
