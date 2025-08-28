@@ -94,6 +94,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
     const rootDirectory = partialConfig.rootDirectory ?? cwd;
     
     return {
+        aggressiveContentSanitization: partialConfig.aggressiveContentSanitization ?? defaultConfig.aggressiveContentSanitization,
         allowedExternalPluginPaths: partialConfig.allowedExternalPluginPaths ?? defaultConfig.allowedExternalPluginPaths,
         allowSymlinks: partialConfig.allowSymlinks ?? defaultConfig.allowSymlinks,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,

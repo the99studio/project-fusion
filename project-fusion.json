@@ -1,4 +1,5 @@
 {
+    "aggressiveContentSanitization": false,
     "allowedExternalPluginPaths": [],
     "allowSymlinks": false,
     "copyToClipboard": false,

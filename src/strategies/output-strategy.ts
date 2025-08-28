@@ -78,12 +78,20 @@ export class TextOutputStrategy implements OutputStrategy {
 `;
     }
 
-    processFile(fileInfo: FileInfo): string {
+    processFile(fileInfo: FileInfo, context: OutputContext): string {
         const headerPrefix = fileInfo.isErrorPlaceholder ? 'ERROR' : 'FILE';
+        
+        let processedContent = fileInfo.content;
+        
+        // Apply aggressive sanitization if enabled
+        if (context.config.aggressiveContentSanitization) {
+            processedContent = aggressiveContentSanitization(processedContent);
+        }
+        
         return `<!-- ============================================================ -->
 <!-- ${headerPrefix}: ${fileInfo.relativePath.padEnd(54 - headerPrefix.length + 4)} -->
 <!-- ============================================================ -->
-${fileInfo.content}
+${processedContent}
 
 `;
     }
@@ -117,6 +125,79 @@ function sanitizeMarkdownContent(content: string): string {
     }
     
     return content;
+}
+
+function validateHtmlHref(href: string): string {
+    // Validate internal anchor links to prevent injection
+    if (href.startsWith('#')) {
+        // Remove the # prefix for validation
+        const slug = href.slice(1);
+        
+        // Allow only alphanumeric, dash, underscore characters in slugs
+        // This matches GitHub slug format used by github-slugger
+        const validSlugPattern = /^[\w-]+$/i;
+        
+        if (!validSlugPattern.test(slug)) {
+            // Replace invalid characters with safe alternatives
+            const sanitizedSlug = slug
+                .replaceAll(/[^\w-]/gi, '-')     // Replace invalid chars with dashes
+                .replaceAll(/-{2,}/g, '-')       // Collapse multiple dashes
+                .replaceAll(/^-+|-+$/g, '');     // Remove leading/trailing dashes
+            
+            return `#${sanitizedSlug}`;
+        }
+    }
+    
+    // For non-anchor links, apply basic validation
+    if (href.includes('javascript:') || href.includes('data:') || href.includes('vbscript:')) {
+        return '#blocked-dangerous-protocol';
+    }
+    
+    return href;
+}
+
+function aggressiveContentSanitization(content: string): string {
+    // For highly sensitive environments, perform aggressive sanitization
+    // This removes or neutralizes potentially dangerous content patterns
+    
+    let sanitized = content;
+    
+    // 1. Remove or neutralize script-like patterns
+    sanitized = sanitized.replaceAll(/<script[\S\s]*?<\/script>/gi, '[REMOVED: SCRIPT BLOCK]');
+    sanitized = sanitized.replaceAll(/on\w+\s*=\s*["'][^"']*["']/gi, '[REMOVED: EVENT HANDLER]');
+    
+    // 2. Neutralize dangerous HTML elements and attributes
+    sanitized = sanitized.replaceAll(/<iframe[\S\s]*?(?:<\/iframe>|\/?>)/gi, '[REMOVED: IFRAME]');
+    sanitized = sanitized.replaceAll(/<object[\S\s]*?(?:<\/object>|\/?>)/gi, '[REMOVED: OBJECT]');
+    sanitized = sanitized.replaceAll(/<embed[\S\s]*?(?:<\/embed>|\/?>)/gi, '[REMOVED: EMBED]');
+    sanitized = sanitized.replaceAll(/<form[\S\s]*?(?:<\/form>|\/?>)/gi, '[REMOVED: FORM]');
+    
+    // 3. Remove dangerous CSS patterns
+    sanitized = sanitized.replaceAll(/expression\s*\(/gi, '[REMOVED: CSS EXPRESSION]');
+    sanitized = sanitized.replaceAll(/@import\s+/gi, '[REMOVED: CSS IMPORT]');
+    sanitized = sanitized.replaceAll(/behavior\s*:/gi, '[REMOVED: CSS BEHAVIOR]');
+    
+    // 4. Neutralize potential data URLs and javascript: protocols more aggressively
+    sanitized = sanitized.replaceAll(/data:\s*[^;]*;[^,]*,/gi, '[REMOVED: DATA URL]');
+    sanitized = sanitized.replaceAll(/javascript:\s*/gi, '[REMOVED: JAVASCRIPT PROTOCOL]');
+    sanitized = sanitized.replaceAll(/vbscript:\s*/gi, '[REMOVED: VBSCRIPT PROTOCOL]');
+    
+    // 5. Remove potential JSONP callbacks and eval patterns
+    sanitized = sanitized.replaceAll(/\b(eval|function|settimeout|setinterval)\s*\(/gi, '[REMOVED: EVAL-LIKE FUNCTION](');
+    
+    // 6. Neutralize template literal patterns that could be dangerous
+    sanitized = sanitized.replaceAll(/`[^`]*\${[^}]*}[^`]*`/g, '[REMOVED: TEMPLATE LITERAL]');
+    
+    // 7. Remove potential SQL injection patterns (basic)
+    sanitized = sanitized.replaceAll(/\b(drop|delete|update|insert|create|alter)\s+\w+/gi, '[REMOVED: SQL-LIKE COMMAND]');
+    
+    // 8. Neutralize potential path traversal patterns
+    sanitized = sanitized.replaceAll(/\.\.[/\\]/g, '[REMOVED: PATH TRAVERSAL]');
+    
+    // 9. Remove potential file protocol URLs
+    sanitized = sanitized.replaceAll(/file:\s*\/\//gi, '[REMOVED: FILE PROTOCOL]');
+    
+    return sanitized;
 }
 
 export class MarkdownOutputStrategy implements OutputStrategy {
@@ -156,15 +237,25 @@ ${tocEntries}
 `;
     }
 
-    processFile(fileInfo: FileInfo): string {
+    processFile(fileInfo: FileInfo, context: OutputContext): string {
         const anchor = this.slugger.slug(fileInfo.relativePath);
+        let processedContent = fileInfo.content;
+        
+        // Apply aggressive sanitization if enabled
+        if (context.config.aggressiveContentSanitization) {
+            processedContent = aggressiveContentSanitization(processedContent);
+        }
+        
+        // Always apply basic markdown sanitization
+        processedContent = sanitizeMarkdownContent(processedContent);
+        
         if (fileInfo.isErrorPlaceholder) {
             // For error placeholders, display without code block
             return `## ⚠️ ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 > **Content Validation Error**
 
-${sanitizeMarkdownContent(fileInfo.content)}
+${processedContent}
 
 `;
         }
@@ -176,7 +267,7 @@ ${sanitizeMarkdownContent(fileInfo.content)}
         return `## 📄 ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 \`\`\`${language}
-${sanitizeMarkdownContent(fileInfo.content)}
+${processedContent}
 \`\`\`
 
 `;
@@ -196,7 +287,11 @@ export class HtmlOutputStrategy implements OutputStrategy {
         // Reset slugger for each new document to ensure consistent anchors
         this.slugger.reset();
         const tocEntries = context.filesToProcess
-            .map(fileInfo => `<li><a href="#${this.slugger.slug(fileInfo.relativePath)}">${escapeHtml(fileInfo.relativePath)}</a></li>`)
+            .map(fileInfo => {
+                const slug = this.slugger.slug(fileInfo.relativePath);
+                const validatedHref = validateHtmlHref(`#${slug}`);
+                return `<li><a href="${validatedHref}">${escapeHtml(fileInfo.relativePath)}</a></li>`;
+            })
             .join('\n');
         // Reset again so processFile generates same anchors
         this.slugger.reset();
@@ -236,20 +331,30 @@ ${tocEntries}
 `;
     }
 
-    processFile(fileInfo: FileInfo): string {
+    processFile(fileInfo: FileInfo, context: OutputContext): string {
         const fileAnchor = this.slugger.slug(fileInfo.relativePath);
+        const validatedAnchor = validateHtmlHref(`#${fileAnchor}`).slice(1); // Remove # for id attribute
         const escapedPath = escapeHtml(fileInfo.relativePath);
-        const escapedContent = escapeHtml(fileInfo.content);
+        
+        let processedContent = fileInfo.content;
+        
+        // Apply aggressive sanitization if enabled
+        if (context.config.aggressiveContentSanitization) {
+            processedContent = aggressiveContentSanitization(processedContent);
+        }
+        
+        // Always apply HTML escaping
+        const escapedContent = escapeHtml(processedContent);
         
         if (fileInfo.isErrorPlaceholder) {
             // Simple error display
-            return `<h2 id="${fileAnchor}">ERROR: ${escapedPath}</h2>
+            return `<h2 id="${validatedAnchor}">ERROR: ${escapedPath}</h2>
 <pre class="error">${escapedContent}</pre>
 `;
         }
         
         // Simple file display
-        return `<h2 id="${fileAnchor}">${escapedPath}</h2>
+        return `<h2 id="${validatedAnchor}">${escapedPath}</h2>
 <pre>${escapedContent}</pre>
 `;
     }

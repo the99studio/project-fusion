@@ -20,8 +20,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 27&#47;08&#47;2025 22:05:35 UTC−4</p>
-<p><strong>Files:</strong> 71</p>
+<p><strong>Generated:</strong> 27&#47;08&#47;2025 22:56:42 UTC−4</p>
+<p><strong>Files:</strong> 72</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
 <h2>Table of Contents</h2>
@@ -47,6 +47,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#srcutilsts">src&#47;utils.ts</a></li>
 <li><a href="#srcutilsloggerts">src&#47;utils&#47;logger.ts</a></li>
 <li><a href="#srcversionts">src&#47;version.ts</a></li>
+<li><a href="#testsaggressive-sanitizationtestts">tests&#47;aggressive-sanitization.test.ts</a></li>
 <li><a href="#testsanchor-generationtestts">tests&#47;anchor-generation.test.ts</a></li>
 <li><a href="#testsapi-integrationtestts">tests&#47;api-integration.test.ts</a></li>
 <li><a href="#testsapitestts">tests&#47;api.test.ts</a></li>
@@ -1481,6 +1482,7 @@ function mergeWithDefaults&#40;partialConfig: Partial&lt;Config&gt;, cwd: string
     const rootDirectory &#61; partialConfig.rootDirectory ?? cwd;
     
     return &#123;
+        aggressiveContentSanitization: partialConfig.aggressiveContentSanitization ?? defaultConfig.aggressiveContentSanitization,
         allowedExternalPluginPaths: partialConfig.allowedExternalPluginPaths ?? defaultConfig.allowedExternalPluginPaths,
         allowSymlinks: partialConfig.allowSymlinks ?? defaultConfig.allowSymlinks,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
@@ -3907,6 +3909,7 @@ const ParsedFileExtensionsSchema &#61; z.object&#40;&#123;
  * All properties organized alphabetically with contentValidation moved to top level
  *&#47;
 export const ConfigSchemaV1 &#61; z.object&#40;&#123;
+    aggressiveContentSanitization: z.boolean&#40;&#41;.default&#40;false&#41;,
     allowedExternalPluginPaths: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&#93;&#41;,
     allowSymlinks: z.boolean&#40;&#41;.default&#40;false&#41;,
     copyToClipboard: z.boolean&#40;&#41;.default&#40;false&#41;,
@@ -4092,12 +4095,20 @@ export class TextOutputStrategy implements OutputStrategy &#123;
 &#96;;
     &#125;
 
-    processFile&#40;fileInfo: FileInfo&#41;: string &#123;
+    processFile&#40;fileInfo: FileInfo, context: OutputContext&#41;: string &#123;
         const headerPrefix &#61; fileInfo.isErrorPlaceholder ? &#39;ERROR&#39; : &#39;FILE&#39;;
+        
+        let processedContent &#61; fileInfo.content;
+        
+        &#47;&#47; Apply aggressive sanitization if enabled
+        if &#40;context.config.aggressiveContentSanitization&#41; &#123;
+            processedContent &#61; aggressiveContentSanitization&#40;processedContent&#41;;
+        &#125;
+        
         return &#96;&lt;&#33;-- &#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61; --&gt;
 &lt;&#33;-- &#36;&#123;headerPrefix&#125;: &#36;&#123;fileInfo.relativePath.padEnd&#40;54 - headerPrefix.length &#43; 4&#41;&#125; --&gt;
 &lt;&#33;-- &#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61;&#61; --&gt;
-&#36;&#123;fileInfo.content&#125;
+&#36;&#123;processedContent&#125;
 
 &#96;;
     &#125;
@@ -4131,6 +4142,79 @@ function sanitizeMarkdownContent&#40;content: string&#41;: string &#123;
     &#125;
     
     return content;
+&#125;
+
+function validateHtmlHref&#40;href: string&#41;: string &#123;
+    &#47;&#47; Validate internal anchor links to prevent injection
+    if &#40;href.startsWith&#40;&#39;#&#39;&#41;&#41; &#123;
+        &#47;&#47; Remove the # prefix for validation
+        const slug &#61; href.slice&#40;1&#41;;
+        
+        &#47;&#47; Allow only alphanumeric, dash, underscore characters in slugs
+        &#47;&#47; This matches GitHub slug format used by github-slugger
+        const validSlugPattern &#61; &#47;^&#91;\w-&#93;&#43;&#36;&#47;i;
+        
+        if &#40;&#33;validSlugPattern.test&#40;slug&#41;&#41; &#123;
+            &#47;&#47; Replace invalid characters with safe alternatives
+            const sanitizedSlug &#61; slug
+                .replaceAll&#40;&#47;&#91;^\w-&#93;&#47;gi, &#39;-&#39;&#41;     &#47;&#47; Replace invalid chars with dashes
+                .replaceAll&#40;&#47;-&#123;2,&#125;&#47;g, &#39;-&#39;&#41;       &#47;&#47; Collapse multiple dashes
+                .replaceAll&#40;&#47;^-&#43;|-&#43;&#36;&#47;g, &#39;&#39;&#41;;     &#47;&#47; Remove leading&#47;trailing dashes
+            
+            return &#96;#&#36;&#123;sanitizedSlug&#125;&#96;;
+        &#125;
+    &#125;
+    
+    &#47;&#47; For non-anchor links, apply basic validation
+    if &#40;href.includes&#40;&#39;javascript:&#39;&#41; || href.includes&#40;&#39;data:&#39;&#41; || href.includes&#40;&#39;vbscript:&#39;&#41;&#41; &#123;
+        return &#39;#blocked-dangerous-protocol&#39;;
+    &#125;
+    
+    return href;
+&#125;
+
+function aggressiveContentSanitization&#40;content: string&#41;: string &#123;
+    &#47;&#47; For highly sensitive environments, perform aggressive sanitization
+    &#47;&#47; This removes or neutralizes potentially dangerous content patterns
+    
+    let sanitized &#61; content;
+    
+    &#47;&#47; 1. Remove or neutralize script-like patterns
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;script&#91;\S\s&#93;*?&lt;\&#47;script&gt;&#47;gi, &#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;on\w&#43;\s*&#61;\s*&#91;&quot;&#39;&#93;&#91;^&quot;&#39;&#93;*&#91;&quot;&#39;&#93;&#47;gi, &#39;&#91;REMOVED: EVENT HANDLER&#93;&#39;&#41;;
+    
+    &#47;&#47; 2. Neutralize dangerous HTML elements and attributes
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;iframe&#91;\S\s&#93;*?&#40;?:&lt;\&#47;iframe&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;object&#91;\S\s&#93;*?&#40;?:&lt;\&#47;object&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: OBJECT&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;embed&#91;\S\s&#93;*?&#40;?:&lt;\&#47;embed&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: EMBED&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;form&#91;\S\s&#93;*?&#40;?:&lt;\&#47;form&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: FORM&#93;&#39;&#41;;
+    
+    &#47;&#47; 3. Remove dangerous CSS patterns
+    sanitized &#61; sanitized.replaceAll&#40;&#47;expression\s*\&#40;&#47;gi, &#39;&#91;REMOVED: CSS EXPRESSION&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&#64;import\s&#43;&#47;gi, &#39;&#91;REMOVED: CSS IMPORT&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;behavior\s*:&#47;gi, &#39;&#91;REMOVED: CSS BEHAVIOR&#93;&#39;&#41;;
+    
+    &#47;&#47; 4. Neutralize potential data URLs and javascript: protocols more aggressively
+    sanitized &#61; sanitized.replaceAll&#40;&#47;data:\s*&#91;^;&#93;*;&#91;^,&#93;*,&#47;gi, &#39;&#91;REMOVED: DATA URL&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;javascript:\s*&#47;gi, &#39;&#91;REMOVED: JAVASCRIPT PROTOCOL&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;vbscript:\s*&#47;gi, &#39;&#91;REMOVED: VBSCRIPT PROTOCOL&#93;&#39;&#41;;
+    
+    &#47;&#47; 5. Remove potential JSONP callbacks and eval patterns
+    sanitized &#61; sanitized.replaceAll&#40;&#47;\b&#40;eval|function|settimeout|setinterval&#41;\s*\&#40;&#47;gi, &#39;&#91;REMOVED: EVAL-LIKE FUNCTION&#93;&#40;&#39;&#41;;
+    
+    &#47;&#47; 6. Neutralize template literal patterns that could be dangerous
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&#96;&#91;^&#96;&#93;*\&#36;&#123;&#91;^&#125;&#93;*&#125;&#91;^&#96;&#93;*&#96;&#47;g, &#39;&#91;REMOVED: TEMPLATE LITERAL&#93;&#39;&#41;;
+    
+    &#47;&#47; 7. Remove potential SQL injection patterns &#40;basic&#41;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;\b&#40;drop|delete|update|insert|create|alter&#41;\s&#43;\w&#43;&#47;gi, &#39;&#91;REMOVED: SQL-LIKE COMMAND&#93;&#39;&#41;;
+    
+    &#47;&#47; 8. Neutralize potential path traversal patterns
+    sanitized &#61; sanitized.replaceAll&#40;&#47;\.\.&#91;&#47;\\&#93;&#47;g, &#39;&#91;REMOVED: PATH TRAVERSAL&#93;&#39;&#41;;
+    
+    &#47;&#47; 9. Remove potential file protocol URLs
+    sanitized &#61; sanitized.replaceAll&#40;&#47;file:\s*\&#47;\&#47;&#47;gi, &#39;&#91;REMOVED: FILE PROTOCOL&#93;&#39;&#41;;
+    
+    return sanitized;
 &#125;
 
 export class MarkdownOutputStrategy implements OutputStrategy &#123;
@@ -4170,15 +4254,25 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
 &#96;;
     &#125;
 
-    processFile&#40;fileInfo: FileInfo&#41;: string &#123;
+    processFile&#40;fileInfo: FileInfo, context: OutputContext&#41;: string &#123;
         const anchor &#61; this.slugger.slug&#40;fileInfo.relativePath&#41;;
+        let processedContent &#61; fileInfo.content;
+        
+        &#47;&#47; Apply aggressive sanitization if enabled
+        if &#40;context.config.aggressiveContentSanitization&#41; &#123;
+            processedContent &#61; aggressiveContentSanitization&#40;processedContent&#41;;
+        &#125;
+        
+        &#47;&#47; Always apply basic markdown sanitization
+        processedContent &#61; sanitizeMarkdownContent&#40;processedContent&#41;;
+        
         if &#40;fileInfo.isErrorPlaceholder&#41; &#123;
             &#47;&#47; For error placeholders, display without code block
             return &#96;## ⚠️ &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 &gt; **Content Validation Error**
 
-&#36;&#123;sanitizeMarkdownContent&#40;fileInfo.content&#41;&#125;
+&#36;&#123;processedContent&#125;
 
 &#96;;
         &#125;
@@ -4190,7 +4284,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         return &#96;## 📄 &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 \&#96;\&#96;\&#96;&#36;&#123;language&#125;
-&#36;&#123;sanitizeMarkdownContent&#40;fileInfo.content&#41;&#125;
+&#36;&#123;processedContent&#125;
 \&#96;\&#96;\&#96;
 
 &#96;;
@@ -4210,7 +4304,11 @@ export class HtmlOutputStrategy implements OutputStrategy &#123;
         &#47;&#47; Reset slugger for each new document to ensure consistent anchors
         this.slugger.reset&#40;&#41;;
         const tocEntries &#61; context.filesToProcess
-            .map&#40;fileInfo &#61;&gt; &#96;&lt;li&gt;&lt;a href&#61;&quot;#&#36;&#123;this.slugger.slug&#40;fileInfo.relativePath&#41;&#125;&quot;&gt;&#36;&#123;escapeHtml&#40;fileInfo.relativePath&#41;&#125;&lt;&#47;a&gt;&lt;&#47;li&gt;&#96;&#41;
+            .map&#40;fileInfo &#61;&gt; &#123;
+                const slug &#61; this.slugger.slug&#40;fileInfo.relativePath&#41;;
+                const validatedHref &#61; validateHtmlHref&#40;&#96;#&#36;&#123;slug&#125;&#96;&#41;;
+                return &#96;&lt;li&gt;&lt;a href&#61;&quot;&#36;&#123;validatedHref&#125;&quot;&gt;&#36;&#123;escapeHtml&#40;fileInfo.relativePath&#41;&#125;&lt;&#47;a&gt;&lt;&#47;li&gt;&#96;;
+            &#125;&#41;
             .join&#40;&#39;\n&#39;&#41;;
         &#47;&#47; Reset again so processFile generates same anchors
         this.slugger.reset&#40;&#41;;
@@ -4250,20 +4348,30 @@ a&#123;color:#00e;text-decoration:underline&#125;
 &#96;;
     &#125;
 
-    processFile&#40;fileInfo: FileInfo&#41;: string &#123;
+    processFile&#40;fileInfo: FileInfo, context: OutputContext&#41;: string &#123;
         const fileAnchor &#61; this.slugger.slug&#40;fileInfo.relativePath&#41;;
+        const validatedAnchor &#61; validateHtmlHref&#40;&#96;#&#36;&#123;fileAnchor&#125;&#96;&#41;.slice&#40;1&#41;; &#47;&#47; Remove # for id attribute
         const escapedPath &#61; escapeHtml&#40;fileInfo.relativePath&#41;;
-        const escapedContent &#61; escapeHtml&#40;fileInfo.content&#41;;
+        
+        let processedContent &#61; fileInfo.content;
+        
+        &#47;&#47; Apply aggressive sanitization if enabled
+        if &#40;context.config.aggressiveContentSanitization&#41; &#123;
+            processedContent &#61; aggressiveContentSanitization&#40;processedContent&#41;;
+        &#125;
+        
+        &#47;&#47; Always apply HTML escaping
+        const escapedContent &#61; escapeHtml&#40;processedContent&#41;;
         
         if &#40;fileInfo.isErrorPlaceholder&#41; &#123;
             &#47;&#47; Simple error display
-            return &#96;&lt;h2 id&#61;&quot;&#36;&#123;fileAnchor&#125;&quot;&gt;ERROR: &#36;&#123;escapedPath&#125;&lt;&#47;h2&gt;
+            return &#96;&lt;h2 id&#61;&quot;&#36;&#123;validatedAnchor&#125;&quot;&gt;ERROR: &#36;&#123;escapedPath&#125;&lt;&#47;h2&gt;
 &lt;pre class&#61;&quot;error&quot;&gt;&#36;&#123;escapedContent&#125;&lt;&#47;pre&gt;
 &#96;;
         &#125;
         
         &#47;&#47; Simple file display
-        return &#96;&lt;h2 id&#61;&quot;&#36;&#123;fileAnchor&#125;&quot;&gt;&#36;&#123;escapedPath&#125;&lt;&#47;h2&gt;
+        return &#96;&lt;h2 id&#61;&quot;&#36;&#123;validatedAnchor&#125;&quot;&gt;&#36;&#123;escapedPath&#125;&lt;&#47;h2&gt;
 &lt;pre&gt;&#36;&#123;escapedContent&#125;&lt;&#47;pre&gt;
 &#96;;
     &#125;
@@ -4639,6 +4747,8 @@ export class FusionError extends Error &#123;
  * Main configuration interface &#40;properties in alphabetical order&#41;
  *&#47;
 export interface Config &#123;
+    &#47;** Enable aggressive content sanitization for highly sensitive environments *&#47;
+    aggressiveContentSanitization: boolean;
     &#47;** Explicit list of allowed external plugin paths for security *&#47;
     allowedExternalPluginPaths?: string&#91;&#93;;
     allowSymlinks: boolean;
@@ -4734,6 +4844,7 @@ const symlinkAuditTracker &#61; new Map&lt;string, &#123; count: number; entries
  * Default configuration for Project Fusion
  *&#47;
 export const defaultConfig &#61; &#123;
+    aggressiveContentSanitization: false,
     allowedExternalPluginPaths: &#91;&#93;,
     allowSymlinks: false,
     copyToClipboard: false,
@@ -6023,6 +6134,165 @@ export function getVersionSync&#40;&#41;: string &#123;
 
 &#47;&#47; Initialize version at module load time
 initializeVersion&#40;&#41;;</pre>
+<h2 id="testsaggressive-sanitizationtestts">tests&#47;aggressive-sanitization.test.ts</h2>
+<pre>&#47;&#47; SPDX-License-Identifier: MIT
+&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
+
+import &#123; describe, expect, it &#125; from &#39;vitest&#39;;
+import &#123; HtmlOutputStrategy, MarkdownOutputStrategy, TextOutputStrategy, type OutputContext &#125; from &#39;..&#47;src&#47;strategies&#47;output-strategy.js&#39;;
+import &#123; createFilePath &#125; from &#39;..&#47;src&#47;types.js&#39;;
+
+describe&#40;&#39;Aggressive Content Sanitization&#39;, &#40;&#41; &#61;&gt; &#123;
+    
+    const testFileInfo &#61; &#123;
+        content: &#39;&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;\n&lt;iframe src&#61;&quot;evil.html&quot;&gt;&lt;&#47;iframe&gt;\njavascript:evil&#40;&#41;\n&#96;&#36;&#123;eval&#40;&quot;dangerous&quot;&#41;&#125;&#96;\nDROP TABLE users&#39;,
+        relativePath: &#39;test.html&#39;,
+        path: createFilePath&#40;&#39;&#47;test&#47;test.html&#39;&#41;,
+        size: 100,
+        isErrorPlaceholder: false
+    &#125;;
+
+    const createTestContext &#61; &#40;aggressiveSanitization: boolean&#41;: OutputContext &#61;&gt; &#40;&#123;
+        projectTitle: &#39;Test&#39;,
+        versionInfo: &#39;&#39;,
+        filesToProcess: &#91;testFileInfo&#93;,
+        config: &#123;
+            aggressiveContentSanitization: aggressiveSanitization,
+            allowedExternalPluginPaths: &#91;&#93;,
+            allowSymlinks: false,
+            copyToClipboard: false,
+            excludeSecrets: true,
+            generatedFileName: &#39;test&#39;,
+            generateHtml: true,
+            generateMarkdown: true,
+            generateText: true,
+            ignorePatterns: &#91;&#93;,
+            maxBase64BlockKB: 2,
+            maxFileSizeKB: 1024,
+            maxFiles: 1000,
+            maxLineLength: 5000,
+            maxSymlinkAuditEntries: 10,
+            maxTokenLength: 2000,
+            maxTotalSizeMB: 100,
+            maxOutputSizeMB: 50,
+            overwriteFiles: false,
+            parsedFileExtensions: &#123;
+                web: &#91;&#39;.html&#39;, &#39;.js&#39;&#93;
+            &#125;,
+            parseSubDirectories: true,
+            rootDirectory: &#39;.&#39;,
+            schemaVersion: 1,
+            useGitIgnoreForExcludes: true
+        &#125;
+    &#125;&#41;;
+
+    describe&#40;&#39;HTML Output Strategy&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should sanitize dangerous content when aggressive mode is enabled&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new HtmlOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;true&#41;;
+            
+            const result &#61; strategy.processFile&#40;testFileInfo, context&#41;;
+            
+            &#47;&#47; Check for HTML-escaped versions since HTML strategy escapes content
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;#91;REMOVED: SCRIPT BLOCK&amp;#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;#91;REMOVED: IFRAME&amp;#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;#91;REMOVED: JAVASCRIPT PROTOCOL&amp;#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;#91;REMOVED: TEMPLATE LITERAL&amp;#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;#91;REMOVED: SQL-LIKE COMMAND&amp;#93;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;&lt;iframe&gt;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;javascript:&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should not apply aggressive sanitization when disabled&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new HtmlOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;false&#41;;
+            
+            const result &#61; strategy.processFile&#40;testFileInfo, context&#41;;
+            
+            &#47;&#47; Should still escape HTML but not remove dangerous patterns
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;script&amp;gt;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;iframe&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Markdown Output Strategy&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should sanitize dangerous content when aggressive mode is enabled&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new MarkdownOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;true&#41;;
+            
+            const result &#61; strategy.processFile&#40;testFileInfo, context&#41;;
+            
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: JAVASCRIPT PROTOCOL&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: TEMPLATE LITERAL&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: SQL-LIKE COMMAND&#93;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should not apply aggressive sanitization when disabled&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new MarkdownOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;false&#41;;
+            
+            const result &#61; strategy.processFile&#40;testFileInfo, context&#41;;
+            
+            expect&#40;result&#41;.not.toContain&#40;&#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Text Output Strategy&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should sanitize dangerous content when aggressive mode is enabled&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new TextOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;true&#41;;
+            
+            const result &#61; strategy.processFile&#40;testFileInfo, context&#41;;
+            
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: JAVASCRIPT PROTOCOL&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: TEMPLATE LITERAL&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&#91;REMOVED: SQL-LIKE COMMAND&#93;&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should not apply aggressive sanitization when disabled&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new TextOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;false&#41;;
+            
+            const result &#61; strategy.processFile&#40;testFileInfo, context&#41;;
+            
+            expect&#40;result&#41;.not.toContain&#40;&#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Link validation&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should validate HTML href links in table of contents&#39;, &#40;&#41; &#61;&gt; &#123;
+            const strategy &#61; new HtmlOutputStrategy&#40;&#41;;
+            const context &#61; createTestContext&#40;false&#41;;
+            
+            const maliciousFileInfo &#61; &#123;
+                ...testFileInfo,
+                relativePath: &#39;test&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;.js&#39;
+            &#125;;
+            
+            const contextWithMaliciousFile &#61; &#123;
+                ...context,
+                filesToProcess: &#91;maliciousFileInfo&#93;
+            &#125;;
+            
+            const result &#61; strategy.generateHeader&#40;contextWithMaliciousFile&#41;;
+            
+            &#47;&#47; Should sanitize the href attribute
+            expect&#40;result&#41;.not.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;href&#61;&quot;#test&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
 <h2 id="testsanchor-generationtestts">tests&#47;anchor-generation.test.ts</h2>
 <pre>import GithubSlugger from &#39;github-slugger&#39;;
 import &#123; describe, it, expect, beforeEach &#125; from &#39;vitest&#39;;
@@ -6173,8 +6443,8 @@ describe&#40;&#39;Anchor Generation with github-slugger&#39;, &#40;&#41; &#61;&g
             strategy.generateHeader&#40;context&#41;;
             
             &#47;&#47; Process files should generate same anchors
-            const file1 &#61; strategy.processFile&#40;files&#91;0&#93;&#33;&#41;;
-            const file2 &#61; strategy.processFile&#40;files&#91;1&#93;&#33;&#41;;
+            const file1 &#61; strategy.processFile&#40;files&#91;0&#93;&#33;, context&#41;;
+            const file2 &#61; strategy.processFile&#40;files&#91;1&#93;&#33;, context&#41;;
             
             expect&#40;file1&#41;.toContain&#40;&#39;&#123;#testfilejs&#125;&#39;&#41;;
             expect&#40;file2&#41;.toContain&#40;&#39;&#123;#testfilejs-1&#125;&#39;&#41;;
@@ -6249,8 +6519,8 @@ describe&#40;&#39;Anchor Generation with github-slugger&#39;, &#40;&#41; &#61;&g
             strategy.generateHeader&#40;context&#41;;
             
             &#47;&#47; Process files should generate same anchors
-            const file1 &#61; strategy.processFile&#40;files&#91;0&#93;&#33;&#41;;
-            const file2 &#61; strategy.processFile&#40;files&#91;1&#93;&#33;&#41;;
+            const file1 &#61; strategy.processFile&#40;files&#91;0&#93;&#33;, context&#41;;
+            const file2 &#61; strategy.processFile&#40;files&#91;1&#93;&#33;, context&#41;;
             
             expect&#40;file1&#41;.toContain&#40;&#39;id&#61;&quot;componentsbuttontsx&quot;&#39;&#41;;
             expect&#40;file2&#41;.toContain&#40;&#39;id&#61;&quot;componentsbuttontsx-1&quot;&#39;&#41;;
@@ -6277,8 +6547,8 @@ describe&#40;&#39;Anchor Generation with github-slugger&#39;, &#40;&#41; &#61;&g
             context.filesToProcess &#61; files;
             strategy.generateHeader&#40;context&#41;;
             
-            const file1 &#61; strategy.processFile&#40;files&#91;0&#93;&#33;&#41;;
-            const file2 &#61; strategy.processFile&#40;files&#91;1&#93;&#33;&#41;;
+            const file1 &#61; strategy.processFile&#40;files&#91;0&#93;&#33;, context&#41;;
+            const file2 &#61; strategy.processFile&#40;files&#91;1&#93;&#33;, context&#41;;
             
             expect&#40;file1&#41;.toContain&#40;&#39;id&#61;&quot;errorfiletxt&quot;&#39;&#41;;
             expect&#40;file2&#41;.toContain&#40;&#39;id&#61;&quot;errorfiletxt-1&quot;&#39;&#41;;
@@ -7298,17 +7568,19 @@ describe&#40;&#39;BenchmarkTracker&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;&#41;;
         
         it&#40;&#39;should handle zero processing time&#39;, &#40;&#41; &#61;&gt; &#123;
-            const tracker &#61; new BenchmarkTracker&#40;&#41;;
-            
-            &#47;&#47; Mock Date.now to return same value
+            &#47;&#47; Mock Date.now to return same value BEFORE creating the tracker
             const now &#61; Date.now&#40;&#41;;
-            vi.spyOn&#40;Date, &#39;now&#39;&#41;.mockReturnValue&#40;now&#41;;
+            const mockDateNow &#61; vi.spyOn&#40;Date, &#39;now&#39;&#41;.mockReturnValue&#40;now&#41;;
             
+            const tracker &#61; new BenchmarkTracker&#40;&#41;;
             tracker.markFileProcessed&#40;1024&#41;;
             const metrics &#61; tracker.getMetrics&#40;&#41;;
             
             expect&#40;metrics.processingTimeMs&#41;.toBe&#40;0&#41;;
             expect&#40;metrics.throughputBytesPerSec&#41;.toBe&#40;0&#41;;
+            
+            &#47;&#47; Restore the mock
+            mockDateNow.mockRestore&#40;&#41;;
         &#125;&#41;;
         
         it&#40;&#39;should report memory usage&#39;, &#40;&#41; &#61;&gt; &#123;
@@ -10828,10 +11100,18 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         isErrorPlaceholder: false
     &#125;&#41;;
 
+    const createContext &#61; &#40;filesToProcess: FileInfo&#91;&#93; &#61; &#91;&#93;&#41;: OutputContext &#61;&gt; &#40;&#123;
+        projectTitle: &#39;Test Project&#39;,
+        versionInfo: &#39;&#39;,
+        filesToProcess,
+        config: defaultConfig
+    &#125;&#41;;
+
     describe&#40;&#39;escapeHtml&#40;&#41; through processFile&#40;&#41;&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should escape basic HTML entities&#39;, &#40;&#41; &#61;&gt; &#123;
             const fileInfo &#61; createFileInfo&#40;&#39;const html &#61; &quot;&lt;div&gt;&amp;test&lt;&#47;div&gt;&quot;;&#39;&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;div&amp;gt;&amp;amp;test&amp;lt;&amp;#47;div&amp;gt;&#39;&#41;;
             expect&#40;result&#41;.not.toContain&#40;&#39;&lt;div&gt;&#39;&#41;;
@@ -10841,7 +11121,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should escape script tags to prevent XSS&#39;, &#40;&#41; &#61;&gt; &#123;
             const maliciousContent &#61; &#39;&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;&#39;;
             const fileInfo &#61; createFileInfo&#40;maliciousContent&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;script&amp;gt;alert&amp;#40;&amp;quot;XSS&amp;quot;&amp;#41;&amp;lt;&amp;#47;script&amp;gt;&#39;&#41;;
             expect&#40;result&#41;.not.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
@@ -10851,7 +11132,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should escape double quotes&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;const attr &#61; &quot;data-value&#61;&quot;test&quot;&quot;;&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;quot;data-value&amp;#61;&amp;quot;test&amp;quot;&amp;quot;&#39;&#41;;
             expect&#40;result&#41;.not.toContain&#40;&#39;&quot;data-value&#61;&quot;&#39;&#41;;
@@ -10860,7 +11142,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should escape single quotes&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &quot;const text &#61; &#39;It\\&#39;s a test&#39;;&quot;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;#39;It\\&amp;#39;s a test&amp;#39;&#39;&#41;;
             expect&#40;result&#41;.not.toContain&#40;&quot;&#39;It\\&#39;s&quot;&#41;;
@@ -10869,7 +11152,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle mixed quotes and HTML entities&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#96;&lt;button onclick&#61;&quot;alert&#40;&#39;XSS &amp; &quot;injection&quot;&#39;&#41;&quot;&gt;Click me&lt;&#47;button&gt;&#96;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;button onclick&amp;#61;&amp;quot;alert&amp;#40;&amp;#39;XSS &amp;amp; &amp;quot;injection&amp;quot;&amp;#39;&amp;#41;&amp;quot;&amp;gt;Click me&amp;lt;&amp;#47;button&amp;gt;&#39;&#41;;
             expect&#40;result&#41;.not.toContain&#40;&#39;&lt;button&#39;&#41;;
@@ -10880,7 +11164,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle high Unicode characters correctly&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;const emoji &#61; &quot;🔥💻🚀&quot;; const chinese &#61; &quot;你好世界&quot;; const arabic &#61; &quot;مرحبا بالعالم&quot;;&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; High Unicode should pass through unchanged
             expect&#40;result&#41;.toContain&#40;&#39;🔥💻🚀&#39;&#41;;
@@ -10895,7 +11180,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;test content&#39;;
             const dangerousFileName &#61; &#39;&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;.js&#39;;
             const fileInfo &#61; createFileInfo&#40;content, dangerousFileName&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;script&amp;gt;alert&amp;#40;&amp;quot;xss&amp;quot;&amp;#41;&amp;lt;&amp;#47;script&amp;gt;.js&#39;&#41;;
             expect&#40;result&#41;.not.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
@@ -10910,7 +11196,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 &lt;&#47;div&gt;
             &#96;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Check that the actual HTML content is escaped &#40;wrapper HTML will contain div elements&#41;
             expect&#40;result&#41;.not.toContain&#40;&#39;&lt;div class&#61;&quot;container&quot;&gt;&#39;&#41;;
@@ -10925,7 +11212,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle edge cases with multiple consecutive special characters&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;&lt;&lt;&lt;&gt;&gt;&gt;&amp;&amp;&amp;&quot;&quot;&quot;\&#39;\&#39;\&#39;&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;&amp;lt;&amp;lt;&amp;gt;&amp;gt;&amp;gt;&amp;amp;&amp;amp;&amp;amp;&amp;quot;&amp;quot;&amp;quot;&amp;#39;&amp;#39;&amp;#39;&#39;&#41;;
         &#125;&#41;;
@@ -10933,7 +11221,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should preserve escaped characters in the original content&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;const escaped &#61; &quot;Already escaped: &amp;lt; &amp;gt; &amp;amp; &amp;quot; &amp;#39;&quot;;&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; The &amp; in &amp;lt; should be escaped to &amp;amp;lt;
             expect&#40;result&#41;.toContain&#40;&#39;&amp;amp;lt;&#39;&#41;;
@@ -10946,7 +11235,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle null bytes and control characters&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;test\u0000null\u0001control\u001Fescape&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Control characters should pass through but HTML chars should be escaped
             expect&#40;result&#41;.toContain&#40;&#39;test\u0000null\u0001control\u001Fescape&#39;&#41;;
@@ -10955,7 +11245,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle very long strings with special characters efficiently&#39;, &#40;&#41; &#61;&gt; &#123;
             const longString &#61; &#96;&lt;script&gt;&#36;&#123;&#39;x&#39;.repeat&#40;10_000&#41;&#125;&lt;&#47;script&gt;&#96;;
             const fileInfo &#61; createFileInfo&#40;longString&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;script&amp;gt;&#39;&#41;;
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;&amp;#47;script&amp;gt;&#39;&#41;;
@@ -10970,7 +11261,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 content: errorContent,
                 isErrorPlaceholder: true
             &#125;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape HTML in error messages
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;div&amp;gt;Error: File contains &amp;lt;script&amp;gt;dangerous&amp;lt;&amp;#47;script&amp;gt; content&amp;lt;&amp;#47;div&amp;gt;&#39;&#41;;
@@ -11069,7 +11361,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle HTML entity-like strings that are not actual entities&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;const regex &#61; &#47;&amp;&#91;a-z&#93;&#43;;&#47;g; &#47;&#47; Matches &amp;nbsp; &amp;lt; etc&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;#47;&amp;amp;&amp;#91;a-z&amp;#93;&amp;#43;;&#39;&#41;;
             expect&#40;result&#41;.toContain&#40;&#39;&amp;amp;nbsp;&#39;&#41;;
@@ -11079,7 +11372,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle JavaScript template literals with HTML&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;const template &#61; &#96;&lt;div&gt;&#36;&#123;user&#125;&lt;&#47;div&gt;&#96;;&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;div&amp;gt;&amp;#36;&amp;#123;user&amp;#125;&amp;lt;&amp;#47;div&amp;gt;&#39;&#41;;
         &#125;&#41;;
@@ -11087,7 +11381,8 @@ describe&#40;&#39;HTML Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should handle XML&#47;JSX syntax&#39;, &#40;&#41; &#61;&gt; &#123;
             const content &#61; &#39;&lt;Component prop&#61;&quot;value&quot; onClick&#61;&#123;&#40;&#41; &#61;&gt; alert&#40;&quot;test&quot;&#41;&#125; &#47;&gt;&#39;;
             const fileInfo &#61; createFileInfo&#40;content&#41;;
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             expect&#40;result&#41;.toContain&#40;&#39;&amp;lt;Component prop&amp;#61;&amp;quot;value&amp;quot;&#39;&#41;;
             expect&#40;result&#41;.toContain&#40;&#39;onClick&amp;#61;&amp;#123;&amp;#40;&amp;#41; &amp;#61;&amp;gt; alert&amp;#40;&amp;quot;test&amp;quot;&amp;#41;&amp;#125;&#39;&#41;;
@@ -11625,8 +11920,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
     describe&#40;&#39;File header escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should escape square brackets in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
             const fileInfo &#61; createFileInfo&#40;&#39;test&#91;malicious&#93;.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape brackets in the header
             expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
@@ -11636,8 +11932,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
 
         it&#40;&#39;should escape parentheses in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
             const fileInfo &#61; createFileInfo&#40;&#39;test&#40;malicious&#41;.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape parentheses in the header
             expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#40;malicious\\&#41;.js &#123;#&#39;&#41;;
@@ -11647,8 +11944,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
 
         it&#40;&#39;should escape backticks in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
             const fileInfo &#61; createFileInfo&#40;&#39;test&#96;malicious&#96;.js&#39;&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape backticks in the header
             expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#96;malicious\\&#96;.js &#123;#&#39;&#41;;
@@ -11665,8 +11963,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 content: &#39;Error: File too large&#39;,
                 isErrorPlaceholder: true
             &#125;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape brackets in error placeholder header
             expect&#40;result&#41;.toContain&#40;&#39;## ⚠️ test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
@@ -11706,7 +12005,8 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
             expect&#40;&#40;&#41; &#61;&gt; strategy.generateHeader&#40;context&#41;&#41;.not.toThrow&#40;&#41;;
-            expect&#40;&#40;&#41; &#61;&gt; strategy.processFile&#40;fileInfo&#41;&#41;.not.toThrow&#40;&#41;;
+            const fileContext &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
+            expect&#40;&#40;&#41; &#61;&gt; strategy.processFile&#40;fileInfo, fileContext&#41;&#41;.not.toThrow&#40;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should handle filenames with only special characters&#39;, &#40;&#41; &#61;&gt; &#123;
@@ -11714,7 +12014,7 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
             const header &#61; strategy.generateHeader&#40;context&#41;;
-            const fileResult &#61; strategy.processFile&#40;fileInfo&#41;;
+            const fileResult &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape all characters
             expect&#40;header&#41;.toContain&#40;&#39;\\&#91;\\&#93;\\&#40;\\&#41;\\&#96;\\&#96;&#39;&#41;;
@@ -11726,7 +12026,7 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
             const header &#61; strategy.generateHeader&#40;context&#41;;
-            const fileResult &#61; strategy.processFile&#40;fileInfo&#41;;
+            const fileResult &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Anchor should be generated from original filename &#40;slugified&#41;
             const anchorMatch &#61; header.match&#40;&#47;#&#40;&#91;\da-z-&#93;&#43;&#41;&#47;&#41;;
@@ -11742,8 +12042,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should detect and block javascript: protocol in file content&#39;, &#40;&#41; &#61;&gt; &#123;
             const maliciousContent &#61; &#39;Click &#91;here&#93;&#40;javascript:alert&#40;&quot;XSS&quot;&#41;&#41; for more info&#39;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should replace javascript: with &#91;BLOCKED-JAVASCRIPT&#93;:
             expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;&quot;XSS&quot;&#41;&#39;&#41;;
@@ -11753,8 +12054,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should detect and block data: protocol in file content&#39;, &#40;&#41; &#61;&gt; &#123;
             const maliciousContent &#61; &#39;Image: &#33;&#91;image&#93;&#40;data:text&#47;html,&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;&#41;&#39;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should replace data: with &#91;BLOCKED-DATA&#93;:
             expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-DATA&#93;:text&#47;html,&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;&#39;&#41;;
@@ -11764,8 +12066,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should detect and block vbscript: protocol in file content&#39;, &#40;&#41; &#61;&gt; &#123;
             const maliciousContent &#61; &#39;Link: &#91;click&#93;&#40;vbscript:msgbox&#40;&quot;XSS&quot;&#41;&#41;&#39;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should replace vbscript: with &#91;BLOCKED-VBSCRIPT&#93;:
             expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-VBSCRIPT&#93;:msgbox&#40;&quot;XSS&quot;&#41;&#39;&#41;;
@@ -11779,8 +12082,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 vbscript:execute&#40;&quot;evil&quot;&#41;
             &#96;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should replace all dangerous protocols
             expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;1&#41;&#39;&#41;;
@@ -11796,8 +12100,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
         it&#40;&#39;should be case insensitive when detecting protocols&#39;, &#40;&#41; &#61;&gt; &#123;
             const maliciousContent &#61; &#39;JAVASCRIPT:alert&#40;1&#41; JavaScript:alert&#40;2&#41; jAvAsCrIpT:alert&#40;3&#41;&#39;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, maliciousContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should detect and block all case variations
             expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;1&#41;&#39;&#41;;
@@ -11816,8 +12121,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 mailto:user&#64;example.com
             &#96;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, legitimateContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should preserve legitimate protocols
             expect&#40;result&#41;.toContain&#40;&#39;https:&#47;&#47;example.com&#39;&#41;;
@@ -11833,8 +12139,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 content: &#39;Error: File contains javascript:alert&#40;&quot;XSS&quot;&#41; in content&#39;,
                 isErrorPlaceholder: true
             &#125;;
+            const context &#61; createContext&#40;&#91;errorFileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;errorFileInfo&#41;;
+            const result &#61; strategy.processFile&#40;errorFileInfo, context&#41;;
             
             &#47;&#47; Should sanitize error content too
             expect&#40;result&#41;.toContain&#40;&#39;&#91;BLOCKED-JAVASCRIPT&#93;:alert&#40;&quot;XSS&quot;&#41;&#39;&#41;;
@@ -11848,8 +12155,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
                 javascript:void&#40;0&#41;
             &#96;;
             const fileInfo &#61; createFileInfo&#40;&#39;test.js&#39;, edgeContent&#41;;
+            const context &#61; createContext&#40;&#91;fileInfo&#93;&#41;;
             
-            const result &#61; strategy.processFile&#40;fileInfo&#41;;
+            const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should only block the actual protocol usage
             expect&#40;result&#41;.toContain&#40;&#39;&#47;&#47; This is not a protocol: javascript&#39;&#41;;
@@ -19608,13 +19916,14 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
 <pre>### HTML Security &#40;High Priority&#41;
-- &#91; &#93; **Link validation**: Validate internal href&#61;&quot;#slug&quot; links to prevent injection in table of contents
+- &#91;x&#93; **Link validation**: Validate internal href&#61;&quot;#slug&quot; links to prevent injection in table of contents
 
 ### Cross-Format Security &#40;Low Priority&#41;
-- &#91; &#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
+- &#91;x&#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
 
 ### Bonus
- &#91; &#93; S&#39;assurer que tous les problèmes de sécurité rencontrés lors du parsing des fichiers soient loggués en warning dans le project-fusion.log
+ &#91; &#93; S&#39;assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning dans le project-fusion.log
+ 
  &#91; &#93; Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité &#40;peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?&#41;
  &#91; &#93; Remove repetition of Generated: 27&#47;08&#47;2025 07:12:31 UTC−4 and UTC: 2025-08-27T11:12:31.544Z</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>

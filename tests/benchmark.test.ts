@@ -97,17 +97,19 @@ describe('BenchmarkTracker', () => {
         });
         
         it('should handle zero processing time', () => {
-            const tracker = new BenchmarkTracker();
-            
-            // Mock Date.now to return same value
+            // Mock Date.now to return same value BEFORE creating the tracker
             const now = Date.now();
-            vi.spyOn(Date, 'now').mockReturnValue(now);
+            const mockDateNow = vi.spyOn(Date, 'now').mockReturnValue(now);
             
+            const tracker = new BenchmarkTracker();
             tracker.markFileProcessed(1024);
             const metrics = tracker.getMetrics();
             
             expect(metrics.processingTimeMs).toBe(0);
             expect(metrics.throughputBytesPerSec).toBe(0);
+            
+            // Restore the mock
+            mockDateNow.mockRestore();
         });
         
         it('should report memory usage', () => {

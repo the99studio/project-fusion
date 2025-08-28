@@ -147,8 +147,8 @@ describe('Anchor Generation with github-slugger', () => {
             strategy.generateHeader(context);
             
             // Process files should generate same anchors
-            const file1 = strategy.processFile(files[0]!);
-            const file2 = strategy.processFile(files[1]!);
+            const file1 = strategy.processFile(files[0]!, context);
+            const file2 = strategy.processFile(files[1]!, context);
             
             expect(file1).toContain('{#testfilejs}');
             expect(file2).toContain('{#testfilejs-1}');
@@ -223,8 +223,8 @@ describe('Anchor Generation with github-slugger', () => {
             strategy.generateHeader(context);
             
             // Process files should generate same anchors
-            const file1 = strategy.processFile(files[0]!);
-            const file2 = strategy.processFile(files[1]!);
+            const file1 = strategy.processFile(files[0]!, context);
+            const file2 = strategy.processFile(files[1]!, context);
             
             expect(file1).toContain('id="componentsbuttontsx"');
             expect(file2).toContain('id="componentsbuttontsx-1"');
@@ -251,8 +251,8 @@ describe('Anchor Generation with github-slugger', () => {
             context.filesToProcess = files;
             strategy.generateHeader(context);
             
-            const file1 = strategy.processFile(files[0]!);
-            const file2 = strategy.processFile(files[1]!);
+            const file1 = strategy.processFile(files[0]!, context);
+            const file2 = strategy.processFile(files[1]!, context);
             
             expect(file1).toContain('id="errorfiletxt"');
             expect(file2).toContain('id="errorfiletxt-1"');

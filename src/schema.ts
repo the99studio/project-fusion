@@ -23,6 +23,7 @@ const ParsedFileExtensionsSchema = z.object({
  * All properties organized alphabetically with contentValidation moved to top level
  */
 export const ConfigSchemaV1 = z.object({
+    aggressiveContentSanitization: z.boolean().default(false),
     allowedExternalPluginPaths: z.array(z.string()).default([]),
     allowSymlinks: z.boolean().default(false),
     copyToClipboard: z.boolean().default(false),

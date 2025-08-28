@@ -73,8 +73,9 @@ describe('Markdown Escaping', () => {
     describe('File header escaping', () => {
         it('should escape square brackets in file headers', () => {
             const fileInfo = createFileInfo('test[malicious].js');
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should escape brackets in the header
             expect(result).toContain('## 📄 test\\[malicious\\].js {#');
@@ -84,8 +85,9 @@ describe('Markdown Escaping', () => {
 
         it('should escape parentheses in file headers', () => {
             const fileInfo = createFileInfo('test(malicious).js');
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should escape parentheses in the header
             expect(result).toContain('## 📄 test\\(malicious\\).js {#');
@@ -95,8 +97,9 @@ describe('Markdown Escaping', () => {
 
         it('should escape backticks in file headers', () => {
             const fileInfo = createFileInfo('test`malicious`.js');
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should escape backticks in the header
             expect(result).toContain('## 📄 test\\`malicious\\`.js {#');
@@ -113,8 +116,9 @@ describe('Markdown Escaping', () => {
                 content: 'Error: File too large',
                 isErrorPlaceholder: true
             };
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should escape brackets in error placeholder header
             expect(result).toContain('## ⚠️ test\\[malicious\\].js {#');
@@ -154,7 +158,8 @@ describe('Markdown Escaping', () => {
             const context = createContext([fileInfo]);
             
             expect(() => strategy.generateHeader(context)).not.toThrow();
-            expect(() => strategy.processFile(fileInfo)).not.toThrow();
+            const fileContext = createContext([fileInfo]);
+            expect(() => strategy.processFile(fileInfo, fileContext)).not.toThrow();
         });
 
         it('should handle filenames with only special characters', () => {
@@ -162,7 +167,7 @@ describe('Markdown Escaping', () => {
             const context = createContext([fileInfo]);
             
             const header = strategy.generateHeader(context);
-            const fileResult = strategy.processFile(fileInfo);
+            const fileResult = strategy.processFile(fileInfo, context);
             
             // Should escape all characters
             expect(header).toContain('\\[\\]\\(\\)\\`\\`');
@@ -174,7 +179,7 @@ describe('Markdown Escaping', () => {
             const context = createContext([fileInfo]);
             
             const header = strategy.generateHeader(context);
-            const fileResult = strategy.processFile(fileInfo);
+            const fileResult = strategy.processFile(fileInfo, context);
             
             // Anchor should be generated from original filename (slugified)
             const anchorMatch = header.match(/#([\da-z-]+)/);
@@ -190,8 +195,9 @@ describe('Markdown Escaping', () => {
         it('should detect and block javascript: protocol in file content', () => {
             const maliciousContent = 'Click [here](javascript:alert("XSS")) for more info';
             const fileInfo = createFileInfo('test.js', maliciousContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should replace javascript: with [BLOCKED-JAVASCRIPT]:
             expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
@@ -201,8 +207,9 @@ describe('Markdown Escaping', () => {
         it('should detect and block data: protocol in file content', () => {
             const maliciousContent = 'Image: ![image](data:text/html,<script>alert("XSS")</script>)';
             const fileInfo = createFileInfo('test.js', maliciousContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should replace data: with [BLOCKED-DATA]:
             expect(result).toContain('[BLOCKED-DATA]:text/html,<script>alert("XSS")</script>');
@@ -212,8 +219,9 @@ describe('Markdown Escaping', () => {
         it('should detect and block vbscript: protocol in file content', () => {
             const maliciousContent = 'Link: [click](vbscript:msgbox("XSS"))';
             const fileInfo = createFileInfo('test.js', maliciousContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should replace vbscript: with [BLOCKED-VBSCRIPT]:
             expect(result).toContain('[BLOCKED-VBSCRIPT]:msgbox("XSS")');
@@ -227,8 +235,9 @@ describe('Markdown Escaping', () => {
                 vbscript:execute("evil")
             `;
             const fileInfo = createFileInfo('test.js', maliciousContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should replace all dangerous protocols
             expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(1)');
@@ -244,8 +253,9 @@ describe('Markdown Escaping', () => {
         it('should be case insensitive when detecting protocols', () => {
             const maliciousContent = 'JAVASCRIPT:alert(1) JavaScript:alert(2) jAvAsCrIpT:alert(3)';
             const fileInfo = createFileInfo('test.js', maliciousContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should detect and block all case variations
             expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert(1)');
@@ -264,8 +274,9 @@ describe('Markdown Escaping', () => {
                 mailto:user@example.com
             `;
             const fileInfo = createFileInfo('test.js', legitimateContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should preserve legitimate protocols
             expect(result).toContain('https://example.com');
@@ -281,8 +292,9 @@ describe('Markdown Escaping', () => {
                 content: 'Error: File contains javascript:alert("XSS") in content',
                 isErrorPlaceholder: true
             };
+            const context = createContext([errorFileInfo]);
             
-            const result = strategy.processFile(errorFileInfo);
+            const result = strategy.processFile(errorFileInfo, context);
             
             // Should sanitize error content too
             expect(result).toContain('[BLOCKED-JAVASCRIPT]:alert("XSS")');
@@ -296,8 +308,9 @@ describe('Markdown Escaping', () => {
                 javascript:void(0)
             `;
             const fileInfo = createFileInfo('test.js', edgeContent);
+            const context = createContext([fileInfo]);
             
-            const result = strategy.processFile(fileInfo);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should only block the actual protocol usage
             expect(result).toContain('// This is not a protocol: javascript');

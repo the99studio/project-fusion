@@ -81,6 +81,8 @@ export class FusionError extends Error {
  * Main configuration interface (properties in alphabetical order)
  */
 export interface Config {
+    /** Enable aggressive content sanitization for highly sensitive environments */
+    aggressiveContentSanitization: boolean;
     /** Explicit list of allowed external plugin paths for security */
     allowedExternalPluginPaths?: string[];
     allowSymlinks: boolean;

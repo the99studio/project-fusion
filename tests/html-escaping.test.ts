@@ -13,10 +13,18 @@ describe('HTML Escaping', () => {
         isErrorPlaceholder: false
     });
 
+    const createContext = (filesToProcess: FileInfo[] = []): OutputContext => ({
+        projectTitle: 'Test Project',
+        versionInfo: '',
+        filesToProcess,
+        config: defaultConfig
+    });
+
     describe('escapeHtml() through processFile()', () => {
         it('should escape basic HTML entities', () => {
             const fileInfo = createFileInfo('const html = "<div>&test</div>";');
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;div&gt;&amp;test&lt;&#47;div&gt;');
             expect(result).not.toContain('<div>');
@@ -26,7 +34,8 @@ describe('HTML Escaping', () => {
         it('should escape script tags to prevent XSS', () => {
             const maliciousContent = '<script>alert("XSS")</script>';
             const fileInfo = createFileInfo(maliciousContent);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;script&gt;alert&#40;&quot;XSS&quot;&#41;&lt;&#47;script&gt;');
             expect(result).not.toContain('<script>');
@@ -36,7 +45,8 @@ describe('HTML Escaping', () => {
         it('should escape double quotes', () => {
             const content = 'const attr = "data-value="test"";';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&quot;data-value&#61;&quot;test&quot;&quot;');
             expect(result).not.toContain('"data-value="');
@@ -45,7 +55,8 @@ describe('HTML Escaping', () => {
         it('should escape single quotes', () => {
             const content = "const text = 'It\\'s a test';";
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&#39;It\\&#39;s a test&#39;');
             expect(result).not.toContain("'It\\'s");
@@ -54,7 +65,8 @@ describe('HTML Escaping', () => {
         it('should handle mixed quotes and HTML entities', () => {
             const content = `<button onclick="alert('XSS & "injection"')">Click me</button>`;
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;button onclick&#61;&quot;alert&#40;&#39;XSS &amp; &quot;injection&quot;&#39;&#41;&quot;&gt;Click me&lt;&#47;button&gt;');
             expect(result).not.toContain('<button');
@@ -65,7 +77,8 @@ describe('HTML Escaping', () => {
         it('should handle high Unicode characters correctly', () => {
             const content = 'const emoji = "🔥💻🚀"; const chinese = "你好世界"; const arabic = "مرحبا بالعالم";';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             // High Unicode should pass through unchanged
             expect(result).toContain('🔥💻🚀');
@@ -80,7 +93,8 @@ describe('HTML Escaping', () => {
             const content = 'test content';
             const dangerousFileName = '<script>alert("xss")</script>.js';
             const fileInfo = createFileInfo(content, dangerousFileName);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;.js');
             expect(result).not.toContain('<script>');
@@ -95,7 +109,8 @@ describe('HTML Escaping', () => {
                 </div>
             `;
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             // Check that the actual HTML content is escaped (wrapper HTML will contain div elements)
             expect(result).not.toContain('<div class="container">');
@@ -110,7 +125,8 @@ describe('HTML Escaping', () => {
         it('should handle edge cases with multiple consecutive special characters', () => {
             const content = '<<<>>>&&&"""\'\'\'';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;&lt;&lt;&gt;&gt;&gt;&amp;&amp;&amp;&quot;&quot;&quot;&#39;&#39;&#39;');
         });
@@ -118,7 +134,8 @@ describe('HTML Escaping', () => {
         it('should preserve escaped characters in the original content', () => {
             const content = 'const escaped = "Already escaped: &lt; &gt; &amp; &quot; &#39;";';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             // The & in &lt; should be escaped to &amp;lt;
             expect(result).toContain('&amp;lt;');
@@ -131,7 +148,8 @@ describe('HTML Escaping', () => {
         it('should handle null bytes and control characters', () => {
             const content = 'test\u0000null\u0001control\u001Fescape';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             // Control characters should pass through but HTML chars should be escaped
             expect(result).toContain('test\u0000null\u0001control\u001Fescape');
@@ -140,7 +158,8 @@ describe('HTML Escaping', () => {
         it('should handle very long strings with special characters efficiently', () => {
             const longString = `<script>${'x'.repeat(10_000)}</script>`;
             const fileInfo = createFileInfo(longString);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;script&gt;');
             expect(result).toContain('&lt;&#47;script&gt;');
@@ -155,7 +174,8 @@ describe('HTML Escaping', () => {
                 content: errorContent,
                 isErrorPlaceholder: true
             };
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             // Should escape HTML in error messages
             expect(result).toContain('&lt;div&gt;Error: File contains &lt;script&gt;dangerous&lt;&#47;script&gt; content&lt;&#47;div&gt;');
@@ -254,7 +274,8 @@ describe('HTML Escaping', () => {
         it('should handle HTML entity-like strings that are not actual entities', () => {
             const content = 'const regex = /&[a-z]+;/g; // Matches &nbsp; &lt; etc';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&#47;&amp;&#91;a-z&#93;&#43;;');
             expect(result).toContain('&amp;nbsp;');
@@ -264,7 +285,8 @@ describe('HTML Escaping', () => {
         it('should handle JavaScript template literals with HTML', () => {
             const content = 'const template = `<div>${user}</div>`;';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;div&gt;&#36;&#123;user&#125;&lt;&#47;div&gt;');
         });
@@ -272,7 +294,8 @@ describe('HTML Escaping', () => {
         it('should handle XML/JSX syntax', () => {
             const content = '<Component prop="value" onClick={() => alert("test")} />';
             const fileInfo = createFileInfo(content);
-            const result = strategy.processFile(fileInfo);
+            const context = createContext([fileInfo]);
+            const result = strategy.processFile(fileInfo, context);
             
             expect(result).toContain('&lt;Component prop&#61;&quot;value&quot;');
             expect(result).toContain('onClick&#61;&#123;&#40;&#41; &#61;&gt; alert&#40;&quot;test&quot;&#41;&#125;');
