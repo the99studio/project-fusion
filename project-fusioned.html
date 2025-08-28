@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; base-uri 'none'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
 <title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0 - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
@@ -17,8 +20,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 27&#47;08&#47;2025 21:35:32 UTC−4</p>
-<p><strong>Files:</strong> 69</p>
+<p><strong>Generated:</strong> 27&#47;08&#47;2025 21:57:35 UTC−4</p>
+<p><strong>Files:</strong> 71</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
 <h2>Table of Contents</h2>
@@ -67,6 +70,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testsloggertestts">tests&#47;logger.test.ts</a></li>
 <li><a href="#testsmarkdown-escapingtestts">tests&#47;markdown-escaping.test.ts</a></li>
 <li><a href="#testsmemory-fstestts">tests&#47;memory-fs.test.ts</a></li>
+<li><a href="#testsoutput-size-limitstestts">tests&#47;output-size-limits.test.ts</a></li>
 <li><a href="#testspath-traversal-edge-casestestts">tests&#47;path-traversal-edge-cases.test.ts</a></li>
 <li><a href="#testsperformancetestts">tests&#47;performance.test.ts</a></li>
 <li><a href="#testsplugin-contracttestts">tests&#47;plugin-contract.test.ts</a></li>
@@ -78,6 +82,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testsschematestts">tests&#47;schema.test.ts</a></li>
 <li><a href="#testssecret-detectiontestts">tests&#47;secret-detection.test.ts</a></li>
 <li><a href="#testssecurity-fuzzingtestts">tests&#47;security-fuzzing.test.ts</a></li>
+<li><a href="#testssecurity-headerstestts">tests&#47;security-headers.test.ts</a></li>
 <li><a href="#testssecurity-limits-fuzzingtestts">tests&#47;security-limits-fuzzing.test.ts</a></li>
 <li><a href="#testssecurity-permissionstestts">tests&#47;security-permissions.test.ts</a></li>
 <li><a href="#testssecuritytestts">tests&#47;security.test.ts</a></li>
@@ -1490,6 +1495,7 @@ function mergeWithDefaults&#40;partialConfig: Partial&lt;Config&gt;, cwd: string
         maxSymlinkAuditEntries: partialConfig.maxSymlinkAuditEntries ?? defaultConfig.maxSymlinkAuditEntries,
         maxTokenLength: partialConfig.maxTokenLength ?? defaultConfig.maxTokenLength,
         maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
+        maxOutputSizeMB: partialConfig.maxOutputSizeMB ?? defaultConfig.maxOutputSizeMB,
         outputDirectory: partialConfig.outputDirectory,
         overwriteFiles: partialConfig.overwriteFiles ?? defaultConfig.overwriteFiles,
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,
@@ -3986,6 +3992,7 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
     maxSymlinkAuditEntries: z.number&#40;&#41;.min&#40;1&#41;.max&#40;100&#41;.default&#40;10&#41;,
     maxTokenLength: z.number&#40;&#41;.min&#40;500&#41;.max&#40;20_000&#41;.default&#40;2000&#41;,
     maxTotalSizeMB: z.number&#40;&#41;.min&#40;1&#41;.max&#40;10_240&#41;.default&#40;100&#41;,
+    maxOutputSizeMB: z.number&#40;&#41;.min&#40;1&#41;.max&#40;1024&#41;.default&#40;50&#41;,
     outputDirectory: z.string&#40;&#41;.optional&#40;&#41;,
     overwriteFiles: z.boolean&#40;&#41;.default&#40;false&#41;,
     parsedFileExtensions: ParsedFileExtensionsSchema.default&#40;&#123;
@@ -4212,7 +4219,10 @@ export class HtmlOutputStrategy implements OutputStrategy &#123;
 &lt;head&gt;
 &lt;meta charset&#61;&quot;UTF-8&quot;&gt;
 &lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
-&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot; content&#61;&quot;default-src &#39;none&#39;; style-src &#39;unsafe-inline&#39;; font-src &#39;self&#39;&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot; content&#61;&quot;default-src &#39;none&#39;; style-src &#39;unsafe-inline&#39;; font-src &#39;self&#39;; base-uri &#39;none&#39;&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Content-Type-Options&quot; content&#61;&quot;nosniff&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Frame-Options&quot; content&#61;&quot;DENY&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Referrer-Policy&quot; content&#61;&quot;no-referrer&quot;&gt;
 &lt;title&gt;&#36;&#123;escapeHtml&#40;context.projectTitle&#41;&#125;&#36;&#123;escapeHtml&#40;context.versionInfo&#41;&#125; - Project Fusion&lt;&#47;title&gt;
 &lt;style&gt;
 body&#123;font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff&#125;
@@ -4326,6 +4336,7 @@ export class OutputStrategyManager &#123;
         if &#40;isMemoryFS&#41; &#123;
             &#47;&#47; For memory file system, build content in memory and write at once
             let content &#61; strategy.generateHeader&#40;context&#41;;
+            const maxOutputBytes &#61; &#40;context.config.maxOutputSizeMB ?? 50&#41; * 1024 * 1024;
             
             for &#40;let i &#61; 0; i &lt; context.filesToProcess.length; i&#43;&#43;&#41; &#123;
                 &#47;&#47; Check for cancellation
@@ -4335,7 +4346,16 @@ export class OutputStrategyManager &#123;
                 
                 const fileInfo &#61; context.filesToProcess&#91;i&#93;;
                 if &#40;fileInfo&#41; &#123;
-                    content &#43;&#61; strategy.processFile&#40;fileInfo, context&#41;;
+                    const fileContent &#61; strategy.processFile&#40;fileInfo, context&#41;;
+                    
+                    &#47;&#47; Check output size limit to prevent DoS
+                    if &#40;Buffer.byteLength&#40;content &#43; fileContent, &#39;utf8&#39;&#41; &gt; maxOutputBytes&#41; &#123;
+                        const limitMB &#61; context.config.maxOutputSizeMB ?? 50;
+                        const errorMsg &#61; &#96;Output size would exceed maximum limit of &#36;&#123;limitMB&#125;MB. Consider increasing maxOutputSizeMB in config or reducing file count.&#96;;
+                        throw new Error&#40;errorMsg&#41;;
+                    &#125;
+                    
+                    content &#43;&#61; fileContent;
                     if &#40;onFileProcessed&#41; &#123;
                         onFileProcessed&#40;fileInfo, i, context.filesToProcess.length&#41;;
                     &#125;
@@ -4343,7 +4363,13 @@ export class OutputStrategyManager &#123;
             &#125;
             
             if &#40;strategy.generateFooter&#41; &#123;
-                content &#43;&#61; strategy.generateFooter&#40;context&#41;;
+                const footer &#61; strategy.generateFooter&#40;context&#41;;
+                if &#40;Buffer.byteLength&#40;content &#43; footer, &#39;utf8&#39;&#41; &gt; maxOutputBytes&#41; &#123;
+                    const limitMB &#61; context.config.maxOutputSizeMB ?? 50;
+                    const errorMsg &#61; &#96;Output size would exceed maximum limit of &#36;&#123;limitMB&#125;MB. Consider increasing maxOutputSizeMB in config.&#96;;
+                    throw new Error&#40;errorMsg&#41;;
+                &#125;
+                content &#43;&#61; footer;
             &#125;
             
             await fs.writeFile&#40;outputPath, content&#41;;
@@ -4353,12 +4379,24 @@ export class OutputStrategyManager &#123;
         &#47;&#47; For real file system, use streaming
         const outputStream &#61; strategy.createStream&#40;outputPath&#41;;
         let streamClosed &#61; false;
+        let totalBytesWritten &#61; 0;
+        const maxOutputBytes &#61; &#40;context.config.maxOutputSizeMB ?? 50&#41; * 1024 * 1024;
         
         &#47;&#47; Helper to safely close the stream
         const closeStream &#61; &#40;&#41;: void &#61;&gt; &#123;
             if &#40;&#33;streamClosed&#41; &#123;
                 streamClosed &#61; true;
                 outputStream.destroy&#40;&#41;;
+            &#125;
+        &#125;;
+        
+        &#47;&#47; Helper to check size limits before writing
+        const checkSizeLimit &#61; &#40;content: string&#41;: void &#61;&gt; &#123;
+            const contentBytes &#61; Buffer.byteLength&#40;content, &#39;utf8&#39;&#41;;
+            if &#40;totalBytesWritten &#43; contentBytes &gt; maxOutputBytes&#41; &#123;
+                const limitMB &#61; context.config.maxOutputSizeMB ?? 50;
+                const errorMsg &#61; &#96;Output size would exceed maximum limit of &#36;&#123;limitMB&#125;MB. Consider increasing maxOutputSizeMB in config or reducing file count.&#96;;
+                throw new Error&#40;errorMsg&#41;;
             &#125;
         &#125;;
         
@@ -4391,6 +4429,17 @@ export class OutputStrategyManager &#123;
                 if &#40;&#33;headerWritten&#41; &#123;
                     headerWritten &#61; true;
                     const header &#61; strategy.generateHeader&#40;context&#41;;
+                    
+                    try &#123;
+                        checkSizeLimit&#40;header&#41;;
+                    &#125; catch &#40;error&#41; &#123;
+                        closeStream&#40;&#41;;
+                        reject&#40;error instanceof Error ? error : new Error&#40;String&#40;error&#41;&#41;&#41;;
+                        return;
+                    &#125;
+                    
+                    totalBytesWritten &#43;&#61; Buffer.byteLength&#40;header, &#39;utf8&#39;&#41;;
+                    
                     if &#40;&#33;outputStream.write&#40;header&#41;&#41; &#123;
                         &#47;&#47; Header caused backpressure, wait for drain
                         outputStream.once&#40;&#39;drain&#39;, processNextFile&#41;;
@@ -4403,6 +4452,17 @@ export class OutputStrategyManager &#123;
                     &#47;&#47; All files processed, write footer and end
                     if &#40;strategy.generateFooter&#41; &#123;
                         const footer &#61; strategy.generateFooter&#40;context&#41;;
+                        
+                        try &#123;
+                            checkSizeLimit&#40;footer&#41;;
+                        &#125; catch &#40;error&#41; &#123;
+                            closeStream&#40;&#41;;
+                            reject&#40;error instanceof Error ? error : new Error&#40;String&#40;error&#41;&#41;&#41;;
+                            return;
+                        &#125;
+                        
+                        totalBytesWritten &#43;&#61; Buffer.byteLength&#40;footer, &#39;utf8&#39;&#41;;
+                        
                         if &#40;&#33;outputStream.write&#40;footer&#41;&#41; &#123;
                             &#47;&#47; Footer caused backpressure, wait for drain before ending
                             outputStream.once&#40;&#39;drain&#39;, &#40;&#41; &#61;&gt; &#123;
@@ -4423,6 +4483,15 @@ export class OutputStrategyManager &#123;
                 &#125;
                 
                 const fileContent &#61; strategy.processFile&#40;fileInfo, context&#41;;
+                
+                &#47;&#47; Check size limit for the file content
+                try &#123;
+                    checkSizeLimit&#40;fileContent&#41;;
+                &#125; catch &#40;error&#41; &#123;
+                    closeStream&#40;&#41;;
+                    reject&#40;error instanceof Error ? error : new Error&#40;String&#40;error&#41;&#41;&#41;;
+                    return;
+                &#125;
                 
                 &#47;&#47; Report progress
                 if &#40;onFileProcessed&#41; &#123;
@@ -4454,6 +4523,8 @@ export class OutputStrategyManager &#123;
                         const chunk &#61; fileContent.slice&#40;offset, offset &#43; chunkSize&#41;;
                         offset &#43;&#61; chunkSize;
                         
+                        totalBytesWritten &#43;&#61; Buffer.byteLength&#40;chunk, &#39;utf8&#39;&#41;;
+                        
                         if &#40;&#33;outputStream.write&#40;chunk&#41;&#41; &#123;
                             &#47;&#47; Wait for drain event before continuing
                             outputStream.once&#40;&#39;drain&#39;, writeNextChunk&#41;;
@@ -4464,12 +4535,16 @@ export class OutputStrategyManager &#123;
                     &#125;;
                     
                     writeNextChunk&#40;&#41;;
-                &#125; else if &#40;&#33;outputStream.write&#40;fileContent&#41;&#41; &#123;
-                    &#47;&#47; Wait for drain event before continuing
-                    outputStream.once&#40;&#39;drain&#39;, processNextFile&#41;;
                 &#125; else &#123;
-                    &#47;&#47; Continue with next file
-                    setImmediate&#40;processNextFile&#41;;
+                    totalBytesWritten &#43;&#61; Buffer.byteLength&#40;fileContent, &#39;utf8&#39;&#41;;
+                    
+                    if &#40;&#33;outputStream.write&#40;fileContent&#41;&#41; &#123;
+                        &#47;&#47; Wait for drain event before continuing
+                        outputStream.once&#40;&#39;drain&#39;, processNextFile&#41;;
+                    &#125; else &#123;
+                        &#47;&#47; Continue with next file
+                        setImmediate&#40;processNextFile&#41;;
+                    &#125;
                 &#125;
             &#125;;
             
@@ -4584,6 +4659,7 @@ export interface Config &#123;
     &#47;** Maximum token length &#40;for detecting minified content&#41; *&#47;
     maxTokenLength: number;
     maxTotalSizeMB: number;
+    maxOutputSizeMB: number;
     outputDirectory?: string | undefined;
     overwriteFiles: boolean;
     parsedFileExtensions: &#123;
@@ -4753,6 +4829,7 @@ export const defaultConfig &#61; &#123;
     maxSymlinkAuditEntries: 10,
     maxTokenLength: 2000,
     maxTotalSizeMB: 100,
+    maxOutputSizeMB: 50,
     overwriteFiles: false,
     parsedFileExtensions: &#123;
         backend: &#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93; as const,
@@ -11988,6 +12065,170 @@ describe&#40;&#39;MemoryFileSystemAdapter&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
+<h2 id="testsoutput-size-limitstestts">tests&#47;output-size-limits.test.ts</h2>
+<pre>&#47;&#47; SPDX-License-Identifier: MIT
+&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
+import &#123; beforeEach, describe, expect, it &#125; from &#39;vitest&#39;;
+import &#123; MemoryFileSystemAdapter &#125; from &#39;..&#47;src&#47;adapters&#47;file-system.js&#39;;
+import &#123; OutputStrategyManager, TextOutputStrategy &#125; from &#39;..&#47;src&#47;strategies&#47;output-strategy.js&#39;;
+import &#123; createFilePath, type Config, type FileInfo, type OutputContext &#125; from &#39;..&#47;src&#47;types.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+describe&#40;&#39;Output Size Limits&#39;, &#40;&#41; &#61;&gt; &#123;
+    let fs: MemoryFileSystemAdapter;
+    let manager: OutputStrategyManager;
+    let strategy: TextOutputStrategy;
+
+    beforeEach&#40;&#40;&#41; &#61;&gt; &#123;
+        fs &#61; new MemoryFileSystemAdapter&#40;&#41;;
+        manager &#61; new OutputStrategyManager&#40;&#41;;
+        strategy &#61; new TextOutputStrategy&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should enforce maxOutputSizeMB limit in memory file system&#39;, async &#40;&#41; &#61;&gt; &#123;
+        const config: Config &#61; &#123;
+            ...defaultConfig,
+            maxOutputSizeMB: 1 &#47;&#47; 1MB limit
+        &#125;;
+
+        &#47;&#47; Create file content that exceeds 1MB
+        const largeContent &#61; &#39;x&#39;.repeat&#40;&#40;1024 * 1024&#41; &#43; 1000&#41;; &#47;&#47; ~1MB &#43; 1000 chars
+        const fileInfo: FileInfo &#61; &#123;
+            content: largeContent,
+            relativePath: &#39;large-file.txt&#39;,
+            path: createFilePath&#40;&#39;&#47;test&#47;large-file.txt&#39;&#41;,
+            size: largeContent.length
+        &#125;;
+
+        const context: OutputContext &#61; &#123;
+            projectTitle: &#39;Test Project&#39;,
+            versionInfo: &#39;&#39;,
+            filesToProcess: &#91;fileInfo&#93;,
+            config,
+            toolVersion: &#39;1.0.0&#39;
+        &#125;;
+
+        await expect&#40;
+            manager.generateOutput&#40;strategy, context, fs&#41;
+        &#41;.rejects.toThrow&#40;&#39;Output size would exceed maximum limit of 1MB&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should allow content within size limit&#39;, async &#40;&#41; &#61;&gt; &#123;
+        const config: Config &#61; &#123;
+            ...defaultConfig,
+            maxOutputSizeMB: 2 &#47;&#47; 2MB limit
+        &#125;;
+
+        const smallContent &#61; &#39;small content for testing&#39;;
+        const fileInfo: FileInfo &#61; &#123;
+            content: smallContent,
+            relativePath: &#39;small-file.txt&#39;,
+            path: createFilePath&#40;&#39;&#47;test&#47;small-file.txt&#39;&#41;,
+            size: smallContent.length
+        &#125;;
+
+        const context: OutputContext &#61; &#123;
+            projectTitle: &#39;Test Project&#39;,
+            versionInfo: &#39;&#39;,
+            filesToProcess: &#91;fileInfo&#93;,
+            config,
+            toolVersion: &#39;1.0.0&#39;
+        &#125;;
+
+        const outputPath &#61; await manager.generateOutput&#40;strategy, context, fs&#41;;
+        expect&#40;outputPath&#41;.toBeDefined&#40;&#41;;
+        
+        const output &#61; await fs.readFile&#40;outputPath&#41;;
+        expect&#40;output&#41;.toContain&#40;smallContent&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should enforce size limit across multiple files&#39;, async &#40;&#41; &#61;&gt; &#123;
+        const config: Config &#61; &#123;
+            ...defaultConfig,
+            maxOutputSizeMB: 1 &#47;&#47; 1MB limit
+        &#125;;
+
+        &#47;&#47; Create multiple files that together exceed 1MB
+        const files: FileInfo&#91;&#93; &#61; &#91;&#93;;
+        for &#40;let i &#61; 0; i &lt; 5; i&#43;&#43;&#41; &#123;
+            const content &#61; &#39;x&#39;.repeat&#40;250 * 1024&#41;; &#47;&#47; 250KB each &#61; 1.25MB total
+            files.push&#40;&#123;
+                content,
+                relativePath: &#96;file-&#36;&#123;i&#125;.txt&#96;,
+                path: createFilePath&#40;&#96;&#47;test&#47;file-&#36;&#123;i&#125;.txt&#96;&#41;,
+                size: content.length
+            &#125;&#41;;
+        &#125;
+
+        const context: OutputContext &#61; &#123;
+            projectTitle: &#39;Test Project&#39;,
+            versionInfo: &#39;&#39;,
+            filesToProcess: files,
+            config,
+            toolVersion: &#39;1.0.0&#39;
+        &#125;;
+
+        await expect&#40;
+            manager.generateOutput&#40;strategy, context, fs&#41;
+        &#41;.rejects.toThrow&#40;&#39;Output size would exceed maximum limit of 1MB&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should count header and footer in size calculation&#39;, async &#40;&#41; &#61;&gt; &#123;
+        const config: Config &#61; &#123;
+            ...defaultConfig,
+            maxOutputSizeMB: 1 &#47;&#47; 1MB limit
+        &#125;;
+
+        &#47;&#47; Create content that&#39;s just under 1MB but with header&#43;footer goes over
+        const content &#61; &#39;x&#39;.repeat&#40;&#40;1024 * 1024&#41; - 200&#41;; &#47;&#47; ~1MB - 200 chars &#40;smaller buffer to ensure header pushes over&#41;
+        const fileInfo: FileInfo &#61; &#123;
+            content,
+            relativePath: &#39;borderline-file.txt&#39;,
+            path: createFilePath&#40;&#39;&#47;test&#47;borderline-file.txt&#39;&#41;,
+            size: content.length
+        &#125;;
+
+        const context: OutputContext &#61; &#123;
+            projectTitle: &#39;Test Project with a very long name that adds to the header size&#39;,
+            versionInfo: &#39; v1.0.0-very-long-version-string-that-adds-bytes&#39;,
+            filesToProcess: &#91;fileInfo&#93;,
+            config,
+            toolVersion: &#39;1.0.0&#39;
+        &#125;;
+
+        await expect&#40;
+            manager.generateOutput&#40;strategy, context, fs&#41;
+        &#41;.rejects.toThrow&#40;&#39;Output size would exceed maximum limit of 1MB&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should use default maxOutputSizeMB when not configured&#39;, async &#40;&#41; &#61;&gt; &#123;
+        const config: Config &#61; &#123;
+            ...defaultConfig,
+            maxOutputSizeMB: undefined as any
+        &#125;;
+
+        &#47;&#47; Create content larger than default 50MB
+        const largeContent &#61; &#39;x&#39;.repeat&#40;51 * 1024 * 1024&#41;; &#47;&#47; 51MB
+        const fileInfo: FileInfo &#61; &#123;
+            content: largeContent,
+            relativePath: &#39;huge-file.txt&#39;,
+            path: createFilePath&#40;&#39;&#47;test&#47;huge-file.txt&#39;&#41;,
+            size: largeContent.length
+        &#125;;
+
+        const context: OutputContext &#61; &#123;
+            projectTitle: &#39;Test Project&#39;,
+            versionInfo: &#39;&#39;,
+            filesToProcess: &#91;fileInfo&#93;,
+            config,
+            toolVersion: &#39;1.0.0&#39;
+        &#125;;
+
+        await expect&#40;
+            manager.generateOutput&#40;strategy, context, fs&#41;
+        &#41;.rejects.toThrow&#40;&#47;Output size would exceed maximum limit of 50MB&#47;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
 <h2 id="testspath-traversal-edge-casestestts">tests&#47;path-traversal-edge-cases.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -16064,6 +16305,74 @@ describe&#40;&#39;Security Fuzzing Tests&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;, 15_000&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
+<h2 id="testssecurity-headerstestts">tests&#47;security-headers.test.ts</h2>
+<pre>&#47;&#47; SPDX-License-Identifier: MIT
+&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
+import &#123; describe, expect, it &#125; from &#39;vitest&#39;;
+import &#123; HtmlOutputStrategy, type OutputContext &#125; from &#39;..&#47;src&#47;strategies&#47;output-strategy.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+describe&#40;&#39;Security Headers&#39;, &#40;&#41; &#61;&gt; &#123;
+    const strategy &#61; new HtmlOutputStrategy&#40;&#41;;
+    const mockContext: OutputContext &#61; &#123;
+        projectTitle: &#39;Test Project&#39;,
+        versionInfo: &#39;&#39;,
+        filesToProcess: &#91;&#93;,
+        config: defaultConfig,
+        toolVersion: &#39;1.0.0&#39;
+    &#125;;
+
+    it&#40;&#39;should include X-Content-Type-Options header&#39;, &#40;&#41; &#61;&gt; &#123;
+        const header &#61; strategy.generateHeader&#40;mockContext&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;&lt;meta http-equiv&#61;&quot;X-Content-Type-Options&quot; content&#61;&quot;nosniff&quot;&gt;&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should include X-Frame-Options header&#39;, &#40;&#41; &#61;&gt; &#123;
+        const header &#61; strategy.generateHeader&#40;mockContext&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;&lt;meta http-equiv&#61;&quot;X-Frame-Options&quot; content&#61;&quot;DENY&quot;&gt;&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should include Referrer-Policy header&#39;, &#40;&#41; &#61;&gt; &#123;
+        const header &#61; strategy.generateHeader&#40;mockContext&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;&lt;meta http-equiv&#61;&quot;Referrer-Policy&quot; content&#61;&quot;no-referrer&quot;&gt;&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should include CSP with base-uri none&#39;, &#40;&#41; &#61;&gt; &#123;
+        const header &#61; strategy.generateHeader&#40;mockContext&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;content&#61;&quot;default-src \&#39;none\&#39;; style-src \&#39;unsafe-inline\&#39;; font-src \&#39;self\&#39;; base-uri \&#39;none\&#39;&quot;&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should include all security headers in correct order&#39;, &#40;&#41; &#61;&gt; &#123;
+        const header &#61; strategy.generateHeader&#40;mockContext&#41;;
+        const cspIndex &#61; header.indexOf&#40;&#39;Content-Security-Policy&#39;&#41;;
+        const contentTypeIndex &#61; header.indexOf&#40;&#39;X-Content-Type-Options&#39;&#41;;
+        const frameOptionsIndex &#61; header.indexOf&#40;&#39;X-Frame-Options&#39;&#41;;
+        const referrerPolicyIndex &#61; header.indexOf&#40;&#39;Referrer-Policy&#39;&#41;;
+
+        expect&#40;cspIndex&#41;.toBeGreaterThan&#40;-1&#41;;
+        expect&#40;contentTypeIndex&#41;.toBeGreaterThan&#40;cspIndex&#41;;
+        expect&#40;frameOptionsIndex&#41;.toBeGreaterThan&#40;contentTypeIndex&#41;;
+        expect&#40;referrerPolicyIndex&#41;.toBeGreaterThan&#40;frameOptionsIndex&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should have secure GitHub link with proper attributes&#39;, &#40;&#41; &#61;&gt; &#123;
+        const header &#61; strategy.generateHeader&#40;mockContext&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;&lt;a href&#61;&quot;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&quot; target&#61;&quot;_blank&quot; rel&#61;&quot;noopener noreferrer&quot;&gt;&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should escape project title in security headers&#39;, &#40;&#41; &#61;&gt; &#123;
+        const maliciousContext: OutputContext &#61; &#123;
+            ...mockContext,
+            projectTitle: &#39;&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;Test&#39;,
+            versionInfo: &#39; v1.0&lt;script&gt;alert&#40;&quot;xss&quot;&#41;&lt;&#47;script&gt;&#39;
+        &#125;;
+
+        const header &#61; strategy.generateHeader&#40;maliciousContext&#41;;
+        expect&#40;header&#41;.not.toContain&#40;&#39;&lt;script&gt;&#39;&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;&amp;lt;script&amp;gt;&#39;&#41;;
+        expect&#40;header&#41;.toContain&#40;&#39;&amp;quot;xss&amp;quot;&#39;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
 <h2 id="testssecurity-limits-fuzzingtestts">tests&#47;security-limits-fuzzing.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -19296,19 +19605,10 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>Security Enhancements
-- &#91; &#93; **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder &#40;.&#47;project-fusion&#47;&#41;, add --overwrite flag
-
-## Additional Security Enhancements
-
-### HTML Security &#40;High Priority&#41;
-- &#91; &#93; **Additional security headers**: Add X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Referrer-Policy: no-referrer meta tags
-- &#91; &#93; **Enhanced CSP**: Add base-uri &#39;none&#39; to Content-Security-Policy for base URI attack prevention
+<pre>### HTML Security &#40;High Priority&#41;
 - &#91; &#93; **Link validation**: Validate internal href&#61;&quot;#slug&quot; links to prevent injection in table of contents
 
 ### Cross-Format Security &#40;Low Priority&#41;
-- &#91; &#93; **Malicious pattern detection**: Detect and log suspicious patterns &#40;javascript:, data: URLs, script tags&#41; in file content
-- &#91; &#93; **Output size limits**: Add configurable limits on generated file sizes to prevent DoS attacks on browsers&#47;viewers
 - &#91; &#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
 
 ### Bonus

@@ -1,11 +1,7 @@
 ### HTML Security (High Priority)
-- [ ] **Additional security headers**: Add X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Referrer-Policy: no-referrer meta tags
-- [ ] **Enhanced CSP**: Add base-uri 'none' to Content-Security-Policy for base URI attack prevention
 - [ ] **Link validation**: Validate internal href="#slug" links to prevent injection in table of contents
 
 ### Cross-Format Security (Low Priority)
-- [ ] **Malicious pattern detection**: Detect and log suspicious patterns (javascript:, data: URLs, script tags) in file content
-- [ ] **Output size limits**: Add configurable limits on generated file sizes to prevent DoS attacks on browsers/viewers
 - [ ] **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
 
 ### Bonus

@@ -207,7 +207,10 @@ export class HtmlOutputStrategy implements OutputStrategy {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; base-uri 'none'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
 <title>${escapeHtml(context.projectTitle)}${escapeHtml(context.versionInfo)} - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
@@ -321,6 +324,7 @@ export class OutputStrategyManager {
         if (isMemoryFS) {
             // For memory file system, build content in memory and write at once
             let content = strategy.generateHeader(context);
+            const maxOutputBytes = (context.config.maxOutputSizeMB ?? 50) * 1024 * 1024;
             
             for (let i = 0; i < context.filesToProcess.length; i++) {
                 // Check for cancellation
@@ -330,7 +334,16 @@ export class OutputStrategyManager {
                 
                 const fileInfo = context.filesToProcess[i];
                 if (fileInfo) {
-                    content += strategy.processFile(fileInfo, context);
+                    const fileContent = strategy.processFile(fileInfo, context);
+                    
+                    // Check output size limit to prevent DoS
+                    if (Buffer.byteLength(content + fileContent, 'utf8') > maxOutputBytes) {
+                        const limitMB = context.config.maxOutputSizeMB ?? 50;
+                        const errorMsg = `Output size would exceed maximum limit of ${limitMB}MB. Consider increasing maxOutputSizeMB in config or reducing file count.`;
+                        throw new Error(errorMsg);
+                    }
+                    
+                    content += fileContent;
                     if (onFileProcessed) {
                         onFileProcessed(fileInfo, i, context.filesToProcess.length);
                     }
@@ -338,7 +351,13 @@ export class OutputStrategyManager {
             }
             
             if (strategy.generateFooter) {
-                content += strategy.generateFooter(context);
+                const footer = strategy.generateFooter(context);
+                if (Buffer.byteLength(content + footer, 'utf8') > maxOutputBytes) {
+                    const limitMB = context.config.maxOutputSizeMB ?? 50;
+                    const errorMsg = `Output size would exceed maximum limit of ${limitMB}MB. Consider increasing maxOutputSizeMB in config.`;
+                    throw new Error(errorMsg);
+                }
+                content += footer;
             }
             
             await fs.writeFile(outputPath, content);
@@ -348,12 +367,24 @@ export class OutputStrategyManager {
         // For real file system, use streaming
         const outputStream = strategy.createStream(outputPath);
         let streamClosed = false;
+        let totalBytesWritten = 0;
+        const maxOutputBytes = (context.config.maxOutputSizeMB ?? 50) * 1024 * 1024;
         
         // Helper to safely close the stream
         const closeStream = (): void => {
             if (!streamClosed) {
                 streamClosed = true;
                 outputStream.destroy();
+            }
+        };
+        
+        // Helper to check size limits before writing
+        const checkSizeLimit = (content: string): void => {
+            const contentBytes = Buffer.byteLength(content, 'utf8');
+            if (totalBytesWritten + contentBytes > maxOutputBytes) {
+                const limitMB = context.config.maxOutputSizeMB ?? 50;
+                const errorMsg = `Output size would exceed maximum limit of ${limitMB}MB. Consider increasing maxOutputSizeMB in config or reducing file count.`;
+                throw new Error(errorMsg);
             }
         };
         
@@ -386,6 +417,17 @@ export class OutputStrategyManager {
                 if (!headerWritten) {
                     headerWritten = true;
                     const header = strategy.generateHeader(context);
+                    
+                    try {
+                        checkSizeLimit(header);
+                    } catch (error) {
+                        closeStream();
+                        reject(error instanceof Error ? error : new Error(String(error)));
+                        return;
+                    }
+                    
+                    totalBytesWritten += Buffer.byteLength(header, 'utf8');
+                    
                     if (!outputStream.write(header)) {
                         // Header caused backpressure, wait for drain
                         outputStream.once('drain', processNextFile);
@@ -398,6 +440,17 @@ export class OutputStrategyManager {
                     // All files processed, write footer and end
                     if (strategy.generateFooter) {
                         const footer = strategy.generateFooter(context);
+                        
+                        try {
+                            checkSizeLimit(footer);
+                        } catch (error) {
+                            closeStream();
+                            reject(error instanceof Error ? error : new Error(String(error)));
+                            return;
+                        }
+                        
+                        totalBytesWritten += Buffer.byteLength(footer, 'utf8');
+                        
                         if (!outputStream.write(footer)) {
                             // Footer caused backpressure, wait for drain before ending
                             outputStream.once('drain', () => {
@@ -418,6 +471,15 @@ export class OutputStrategyManager {
                 }
                 
                 const fileContent = strategy.processFile(fileInfo, context);
+                
+                // Check size limit for the file content
+                try {
+                    checkSizeLimit(fileContent);
+                } catch (error) {
+                    closeStream();
+                    reject(error instanceof Error ? error : new Error(String(error)));
+                    return;
+                }
                 
                 // Report progress
                 if (onFileProcessed) {
@@ -449,6 +511,8 @@ export class OutputStrategyManager {
                         const chunk = fileContent.slice(offset, offset + chunkSize);
                         offset += chunkSize;
                         
+                        totalBytesWritten += Buffer.byteLength(chunk, 'utf8');
+                        
                         if (!outputStream.write(chunk)) {
                             // Wait for drain event before continuing
                             outputStream.once('drain', writeNextChunk);
@@ -459,12 +523,16 @@ export class OutputStrategyManager {
                     };
                     
                     writeNextChunk();
-                } else if (!outputStream.write(fileContent)) {
-                    // Wait for drain event before continuing
-                    outputStream.once('drain', processNextFile);
                 } else {
-                    // Continue with next file
-                    setImmediate(processNextFile);
+                    totalBytesWritten += Buffer.byteLength(fileContent, 'utf8');
+                    
+                    if (!outputStream.write(fileContent)) {
+                        // Wait for drain event before continuing
+                        outputStream.once('drain', processNextFile);
+                    } else {
+                        // Continue with next file
+                        setImmediate(processNextFile);
+                    }
                 }
             };
             

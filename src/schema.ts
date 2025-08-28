@@ -110,6 +110,7 @@ export const ConfigSchemaV1 = z.object({
     maxSymlinkAuditEntries: z.number().min(1).max(100).default(10),
     maxTokenLength: z.number().min(500).max(20_000).default(2000),
     maxTotalSizeMB: z.number().min(1).max(10_240).default(100),
+    maxOutputSizeMB: z.number().min(1).max(1024).default(50),
     outputDirectory: z.string().optional(),
     overwriteFiles: z.boolean().default(false),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({

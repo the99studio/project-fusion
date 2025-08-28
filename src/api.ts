@@ -110,6 +110,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         maxSymlinkAuditEntries: partialConfig.maxSymlinkAuditEntries ?? defaultConfig.maxSymlinkAuditEntries,
         maxTokenLength: partialConfig.maxTokenLength ?? defaultConfig.maxTokenLength,
         maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
+        maxOutputSizeMB: partialConfig.maxOutputSizeMB ?? defaultConfig.maxOutputSizeMB,
         outputDirectory: partialConfig.outputDirectory,
         overwriteFiles: partialConfig.overwriteFiles ?? defaultConfig.overwriteFiles,
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,

@@ -103,6 +103,7 @@ export interface Config {
     /** Maximum token length (for detecting minified content) */
     maxTokenLength: number;
     maxTotalSizeMB: number;
+    maxOutputSizeMB: number;
     outputDirectory?: string | undefined;
     overwriteFiles: boolean;
     parsedFileExtensions: {
