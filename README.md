@@ -184,6 +184,10 @@ project-fusion [options]
 
 MIT - See [LICENSE](./LICENSE)
 
+## Security
+
+For reporting security vulnerabilities, see our [Security Policy](./SECURITY.md).
+
 ## Links
 
 - [GitHub Repository](https://github.com/the99studio/project-fusion)

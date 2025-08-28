@@ -3,8 +3,6 @@
 ## 🔴 Priorité HAUTE (à faire en premier)
 
 ### Sécurité & Trust
-• Créer `SECURITY.md` avec politique de disclosure
-• Créer `.github/CODEOWNERS` pour contrôle des reviews  
 • Activer GitHub CodeQL dans `.github/workflows/codeql.yml`
 • **Activer Push Protection** dans Settings → Code security (empêche commit de secrets)
 
@@ -58,15 +56,6 @@
 
 ## 📝 Snippets Prêts à Copier
 
-### SECURITY.md
-```markdown
-# Security Policy
-
-## Reporting a Vulnerability
-Please email security@the99studio.dev with details.
-We aim to respond within 7 days.
-```
-
 ### package.json - publishConfig + prerelease
 ```json
 {
@@ -91,15 +80,6 @@ We aim to respond within 7 days.
     "tsup": "^8.0.0" 
   }
 }
-```
-
-### .github/CODEOWNERS
-```
-# Toute la base nécessite review
-* @the99studio/core
-
-# Workflows protégés  
-.github/workflows/* @the99studio/secops
 ```
 
 ### .github/workflows/codeql.yml

@@ -1,0 +1,5 @@
+# Toute la base nécessite review
+* @the99studio/core
+
+# Workflows protégés  
+.github/workflows/* @the99studio/secops
