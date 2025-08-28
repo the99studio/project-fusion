@@ -76,7 +76,6 @@ module.exports = { formatDate, capitalize };`);
             // Normalize timestamps for consistent snapshots
             const normalizedMd = mdContent
                 .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replaceAll(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
             
             // Test structure and content
             expect(normalizedMd).toMatchSnapshot('javascript-files.md');
@@ -143,7 +142,6 @@ export class UserService {
             // Normalize timestamps for consistent snapshots
             const normalizedMd = mdContent
                 .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replaceAll(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
                 
             expect(normalizedMd).toMatchSnapshot('typescript-files.md');
         });
@@ -222,7 +220,6 @@ echo "Deployment complete!"`);
             // Normalize timestamps for consistent snapshots
             const normalizedMd = mdContent
                 .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replaceAll(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
                 
             expect(normalizedMd).toMatchSnapshot('mixed-files.md');
         });
