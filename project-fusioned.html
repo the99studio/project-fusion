@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 27&#47;08&#47;2025 22:56:42 UTC−4</p>
+<p><strong>Generated:</strong> 27&#47;08&#47;2025 23:13:05 UTC−4</p>
 <p><strong>Files:</strong> 72</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -999,6 +999,7 @@ Run &#96;project-fusion init&#96; to create &#96;project-fusion.json&#96; if you
   &quot;useGitIgnoreForExcludes&quot;: true,             &#47;&#47; Use .gitignore patterns
   
   &#47;&#47; Security settings
+  &quot;aggressiveContentSanitization&quot;: false,      &#47;&#47; Enable aggressive sanitization for highly sensitive environments
   &quot;allowSymlinks&quot;: false,                      &#47;&#47; Allow symbolic links
   &quot;allowedExternalPluginPaths&quot;: &#91;&#93;,            &#47;&#47; Allowed external plugin paths
   &quot;excludeSecrets&quot;: true,                      &#47;&#47; Exclude files with secrets
@@ -1066,6 +1067,8 @@ project-fusion &#91;options&#93;
                                 &#40;By default, fusion will error if output files exist&#41;
   
 # Security Options &#40;use with caution&#41;
+  --aggressive-sanitization     Enable aggressive content sanitization for highly sensitive environments
+                                Removes dangerous patterns like scripts, iframes, eval functions, etc.
   --allow-symlinks              Allow processing symbolic links &#40;SECURITY WARNING&#41;
                                 Note: Symlinks can escape the project directory,
                                 potentially exposing files outside the intended scope
@@ -1787,6 +1790,7 @@ program
 program
     .option&#40;&#39;--extensions &lt;groups&gt;&#39;, &#39;Comma-separated list of extension groups &#40;e.g., backend,web&#41;&#39;&#41;
     .option&#40;&#39;--root &lt;directory&gt;&#39;, &#39;Root directory to start scanning from &#40;defaults to current directory&#41;&#39;&#41;
+    .option&#40;&#39;--aggressive-sanitization&#39;, &#39;Enable aggressive content sanitization for highly sensitive environments&#39;&#41;
     .option&#40;&#39;--allow-symlinks&#39;, &#39;Allow processing symbolic links &#40;SECURITY WARNING: use with caution&#41;&#39;&#41;
     .option&#40;&#39;--allowed-plugin-paths &lt;paths&gt;&#39;, &#39;Comma-separated list of allowed external plugin paths&#39;&#41;
     .option&#40;&#39;--plugins-dir &lt;directory&gt;&#39;, &#39;Directory containing plugins to load&#39;&#41;
@@ -1820,6 +1824,7 @@ program
     .action&#40;&#40;options: &#123; 
         extensions?: string; 
         root?: string; 
+        aggressiveSanitization?: boolean;
         allowSymlinks?: boolean;
         pluginsDir?: string;
         plugins?: string;
@@ -1889,6 +1894,7 @@ import &#123; defaultConfig, getExtensionsFromGroups, loadConfig &#125; from &#3
  * &#64;param options Command options
  *&#47;
 export async function runFusionCommand&#40;options: &#123; 
+    aggressiveSanitization?: boolean;
     allowSymlinks?: boolean;
     clipboard?: boolean;
     extensions?: string;
@@ -1969,6 +1975,13 @@ export async function runFusionCommand&#40;options: &#123;
             config.allowSymlinks &#61; options.allowSymlinks;
             if &#40;options.allowSymlinks&#41; &#123;
                 logger.consoleWarning&#40;&#39;⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.&#39;&#41;;
+            &#125;
+        &#125;
+
+        if &#40;options.aggressiveSanitization &#33;&#61;&#61; undefined&#41; &#123;
+            config.aggressiveContentSanitization &#61; options.aggressiveSanitization;
+            if &#40;options.aggressiveSanitization&#41; &#123;
+                logger.consoleWarning&#40;&#39;🛡️ Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.&#39;&#41;;
             &#125;
         &#125;
 
@@ -2335,6 +2348,10 @@ async function displayConfigInfo&#40;config: Config, isDefault: boolean&#41;: Pr
     const symlinkColor &#61; config.allowSymlinks ? chalk.yellow&#40;symlinkValue&#41; : chalk.green&#40;symlinkValue&#41;;
     addLine&#40;&#96;   Allow Symlinks: &#36;&#123;symlinkValue&#125;&#36;&#123;isDefault || config.allowSymlinks &#61;&#61;&#61; defaultConfig.allowSymlinks ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
            &#96;   Allow Symlinks: &#36;&#123;isDefault || config.allowSymlinks &#61;&#61;&#61; defaultConfig.allowSymlinks ? symlinkColor : chalk.yellow&#40;symlinkValue&#41;&#125;&#96;&#41;;
+    const sanitizationValue &#61; config.aggressiveContentSanitization ? &#39;Yes &#40;🛡️ Enhanced Security&#41;&#39; : &#39;No &#40;Standard&#41;&#39;;
+    const sanitizationColor &#61; config.aggressiveContentSanitization ? chalk.green&#40;sanitizationValue&#41; : chalk.gray&#40;sanitizationValue&#41;;
+    addLine&#40;&#96;   Aggressive Sanitization: &#36;&#123;sanitizationValue&#125;&#36;&#123;isDefault || config.aggressiveContentSanitization &#61;&#61;&#61; defaultConfig.aggressiveContentSanitization ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
+           &#96;   Aggressive Sanitization: &#36;&#123;isDefault || config.aggressiveContentSanitization &#61;&#61;&#61; defaultConfig.aggressiveContentSanitization ? sanitizationColor : chalk.green&#40;sanitizationValue&#41;&#125;&#96;&#41;;
     addLine&#40;&#96;   Max File Size: &#36;&#123;config.maxFileSizeKB&#125; KB&#36;&#123;isDefault || config.maxFileSizeKB &#61;&#61;&#61; defaultConfig.maxFileSizeKB ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
            &#96;   Max File Size: &#36;&#123;highlightDiff&#40;&#96;&#36;&#123;config.maxFileSizeKB&#125; KB&#96;, &#96;&#36;&#123;defaultConfig.maxFileSizeKB&#125; KB&#96;, &#96;&#36;&#123;config.maxFileSizeKB&#125; KB&#96;&#41;&#125;&#96;&#41;;
     addLine&#40;&#96;   Max Files: &#36;&#123;config.maxFiles.toLocaleString&#40;&#41;&#125;&#36;&#123;isDefault || config.maxFiles &#61;&#61;&#61; defaultConfig.maxFiles ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
@@ -19915,16 +19932,11 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>### HTML Security &#40;High Priority&#41;
-- &#91;x&#93; **Link validation**: Validate internal href&#61;&quot;#slug&quot; links to prevent injection in table of contents
-
-### Cross-Format Security &#40;Low Priority&#41;
-- &#91;x&#93; **Content sanitization**: Add optional aggressive content sanitization mode for highly sensitive environments
-
-### Bonus
+<pre>### Bonus
  &#91; &#93; S&#39;assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning dans le project-fusion.log
- 
+
  &#91; &#93; Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité &#40;peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?&#41;
+ 
  &#91; &#93; Remove repetition of Generated: 27&#47;08&#47;2025 07:12:31 UTC−4 and UTC: 2025-08-27T11:12:31.544Z</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;

@@ -91,6 +91,7 @@ Run `project-fusion init` to create `project-fusion.json` if you want to fine-tu
   "useGitIgnoreForExcludes": true,             // Use .gitignore patterns
   
   // Security settings
+  "aggressiveContentSanitization": false,      // Enable aggressive sanitization for highly sensitive environments
   "allowSymlinks": false,                      // Allow symbolic links
   "allowedExternalPluginPaths": [],            // Allowed external plugin paths
   "excludeSecrets": true,                      // Exclude files with secrets
@@ -158,6 +159,8 @@ project-fusion [options]
                                 (By default, fusion will error if output files exist)
   
 # Security Options (use with caution)
+  --aggressive-sanitization     Enable aggressive content sanitization for highly sensitive environments
+                                Removes dangerous patterns like scripts, iframes, eval functions, etc.
   --allow-symlinks              Allow processing symbolic links (SECURITY WARNING)
                                 Note: Symlinks can escape the project directory,
                                 potentially exposing files outside the intended scope

@@ -18,6 +18,7 @@ import { defaultConfig, getExtensionsFromGroups, loadConfig } from './utils.js';
  * @param options Command options
  */
 export async function runFusionCommand(options: { 
+    aggressiveSanitization?: boolean;
     allowSymlinks?: boolean;
     clipboard?: boolean;
     extensions?: string;
@@ -98,6 +99,13 @@ export async function runFusionCommand(options: {
             config.allowSymlinks = options.allowSymlinks;
             if (options.allowSymlinks) {
                 logger.consoleWarning('⚠️ SECURITY WARNING: Symbolic links processing is enabled. This may allow access to files outside the project directory.');
+            }
+        }
+
+        if (options.aggressiveSanitization !== undefined) {
+            config.aggressiveContentSanitization = options.aggressiveSanitization;
+            if (options.aggressiveSanitization) {
+                logger.consoleWarning('🛡️ Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.');
             }
         }
 
@@ -464,6 +472,10 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     const symlinkColor = config.allowSymlinks ? chalk.yellow(symlinkValue) : chalk.green(symlinkValue);
     addLine(`   Allow Symlinks: ${symlinkValue}${isDefault || config.allowSymlinks === defaultConfig.allowSymlinks ? '' : ' (modified)'}`,
            `   Allow Symlinks: ${isDefault || config.allowSymlinks === defaultConfig.allowSymlinks ? symlinkColor : chalk.yellow(symlinkValue)}`);
+    const sanitizationValue = config.aggressiveContentSanitization ? 'Yes (🛡️ Enhanced Security)' : 'No (Standard)';
+    const sanitizationColor = config.aggressiveContentSanitization ? chalk.green(sanitizationValue) : chalk.gray(sanitizationValue);
+    addLine(`   Aggressive Sanitization: ${sanitizationValue}${isDefault || config.aggressiveContentSanitization === defaultConfig.aggressiveContentSanitization ? '' : ' (modified)'}`,
+           `   Aggressive Sanitization: ${isDefault || config.aggressiveContentSanitization === defaultConfig.aggressiveContentSanitization ? sanitizationColor : chalk.green(sanitizationValue)}`);
     addLine(`   Max File Size: ${config.maxFileSizeKB} KB${isDefault || config.maxFileSizeKB === defaultConfig.maxFileSizeKB ? '' : ' (modified)'}`,
            `   Max File Size: ${highlightDiff(`${config.maxFileSizeKB} KB`, `${defaultConfig.maxFileSizeKB} KB`, `${config.maxFileSizeKB} KB`)}`);
     addLine(`   Max Files: ${config.maxFiles.toLocaleString()}${isDefault || config.maxFiles === defaultConfig.maxFiles ? '' : ' (modified)'}`,

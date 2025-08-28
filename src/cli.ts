@@ -25,6 +25,7 @@ program
 program
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
+    .option('--aggressive-sanitization', 'Enable aggressive content sanitization for highly sensitive environments')
     .option('--allow-symlinks', 'Allow processing symbolic links (SECURITY WARNING: use with caution)')
     .option('--allowed-plugin-paths <paths>', 'Comma-separated list of allowed external plugin paths')
     .option('--plugins-dir <directory>', 'Directory containing plugins to load')
@@ -58,6 +59,7 @@ program
     .action((options: { 
         extensions?: string; 
         root?: string; 
+        aggressiveSanitization?: boolean;
         allowSymlinks?: boolean;
         pluginsDir?: string;
         plugins?: string;
