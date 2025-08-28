@@ -21,7 +21,9 @@
             "request": "launch",
             "name": "Fusion",
             "program": "${workspaceFolder}/dist/cli.js",
-            "args": [],
+            "args": [
+                "--overwrite"
+            ],
             "console": "integratedTerminal",
             "skipFiles": [
                 "<node_internals>/**"

@@ -17,8 +17,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 27&#47;08&#47;2025 07:12:31 UTC−4</p>
-<p><strong>Files:</strong> 68</p>
+<p><strong>Generated:</strong> 27&#47;08&#47;2025 21:35:32 UTC−4</p>
+<p><strong>Files:</strong> 69</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
 <h2>Table of Contents</h2>
@@ -55,6 +55,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testsclipboard-size-guardtestts">tests&#47;clipboard-size-guard.test.ts</a></li>
 <li><a href="#testsconfig-consistencytestts">tests&#47;config-consistency.test.ts</a></li>
 <li><a href="#testscontent-validationtestts">tests&#47;content-validation.test.ts</a></li>
+<li><a href="#testsfile-overwrite-protectiontestts">tests&#47;file-overwrite-protection.test.ts</a></li>
 <li><a href="#testsfile-securitytestts">tests&#47;file-security.test.ts</a></li>
 <li><a href="#testsfluenttestts">tests&#47;fluent.test.ts</a></li>
 <li><a href="#testsformatstestts">tests&#47;formats.test.ts</a></li>
@@ -995,6 +996,7 @@ Run &#96;project-fusion init&#96; to create &#96;project-fusion.json&#96; if you
   &quot;allowedExternalPluginPaths&quot;: &#91;&#93;,            &#47;&#47; Allowed external plugin paths
   &quot;excludeSecrets&quot;: true,                      &#47;&#47; Exclude files with secrets
   &quot;maxSymlinkAuditEntries&quot;: 10,                &#47;&#47; Max symlink audit log entries
+  &quot;overwriteFiles&quot;: false,                     &#47;&#47; Allow overwriting existing output files
   
   &#47;&#47; File extension groups
   &quot;parsedFileExtensions&quot;: &#123;
@@ -1041,15 +1043,26 @@ project-fusion &#91;options&#93;
   --max-files &lt;count&gt;           Maximum number of files &#40;default: 10000&#41;
   --max-total-size &lt;mb&gt;         Maximum total size in MB &#40;default: 100&#41;
   
+# Content Validation Limits
+  --max-base64-kb &lt;size&gt;        Maximum base64 block size in KB &#40;default: 2&#41;
+  --max-line-length &lt;chars&gt;     Maximum line length in characters &#40;default: 5000&#41;
+  --max-token-length &lt;chars&gt;    Maximum token length for minified detection &#40;default: 2000&#41;
+  
 # Parsing Behavior
   --no-exclude-secrets          Disable automatic secret detection&#47;exclusion
   --no-gitignore                Don&#39;t use .gitignore for exclusions
   --no-subdirs                  Don&#39;t scan subdirectories
   
+# File Protection
+  --overwrite                   Overwrite existing output files without prompting
+                                &#40;By default, fusion will error if output files exist&#41;
+  
 # Security Options &#40;use with caution&#41;
   --allow-symlinks              Allow processing symbolic links &#40;SECURITY WARNING&#41;
                                 Note: Symlinks can escape the project directory,
                                 potentially exposing files outside the intended scope
+  --allowed-plugin-paths &lt;paths&gt; Comma-separated list of allowed external plugin paths
+                                &#40;bypasses security restrictions for plugin loading&#41;
   
 # Plugin System
   --plugins &lt;names&gt;             Comma-separated list of plugin names to enable
@@ -1478,6 +1491,7 @@ function mergeWithDefaults&#40;partialConfig: Partial&lt;Config&gt;, cwd: string
         maxTokenLength: partialConfig.maxTokenLength ?? defaultConfig.maxTokenLength,
         maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
         outputDirectory: partialConfig.outputDirectory,
+        overwriteFiles: partialConfig.overwriteFiles ?? defaultConfig.overwriteFiles,
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,
         parseSubDirectories: partialConfig.parseSubDirectories ?? defaultConfig.parseSubDirectories,
         rootDirectory,
@@ -1764,6 +1778,7 @@ program
     .option&#40;&#39;--extensions &lt;groups&gt;&#39;, &#39;Comma-separated list of extension groups &#40;e.g., backend,web&#41;&#39;&#41;
     .option&#40;&#39;--root &lt;directory&gt;&#39;, &#39;Root directory to start scanning from &#40;defaults to current directory&#41;&#39;&#41;
     .option&#40;&#39;--allow-symlinks&#39;, &#39;Allow processing symbolic links &#40;SECURITY WARNING: use with caution&#41;&#39;&#41;
+    .option&#40;&#39;--allowed-plugin-paths &lt;paths&gt;&#39;, &#39;Comma-separated list of allowed external plugin paths&#39;&#41;
     .option&#40;&#39;--plugins-dir &lt;directory&gt;&#39;, &#39;Directory containing plugins to load&#39;&#41;
     .option&#40;&#39;--plugins &lt;names&gt;&#39;, &#39;Comma-separated list of plugin names to enable&#39;&#41;
     &#47;&#47; Output format flags
@@ -1780,6 +1795,9 @@ program
     .option&#40;&#39;--max-file-size &lt;kb&gt;&#39;, &#39;Maximum file size in KB &#40;default: 1024&#41;&#39;&#41;
     .option&#40;&#39;--max-files &lt;count&gt;&#39;, &#39;Maximum number of files to process &#40;default: 10000&#41;&#39;&#41;
     .option&#40;&#39;--max-total-size &lt;mb&gt;&#39;, &#39;Maximum total size in MB &#40;default: 100&#41;&#39;&#41;
+    .option&#40;&#39;--max-base64-kb &lt;size&gt;&#39;, &#39;Maximum base64 block size in KB &#40;default: 2&#41;&#39;&#41;
+    .option&#40;&#39;--max-line-length &lt;chars&gt;&#39;, &#39;Maximum line length in characters &#40;default: 5000&#41;&#39;&#41;
+    .option&#40;&#39;--max-token-length &lt;chars&gt;&#39;, &#39;Maximum token length for minified detection &#40;default: 2000&#41;&#39;&#41;
     &#47;&#47; Parsing behavior
     .option&#40;&#39;--no-subdirs&#39;, &#39;Disable parsing subdirectories&#39;&#41;
     .option&#40;&#39;--no-gitignore&#39;, &#39;Disable using .gitignore for exclusions&#39;&#41;
@@ -1787,6 +1805,8 @@ program
     .option&#40;&#39;--ignore &lt;patterns&gt;&#39;, &#39;Additional comma-separated ignore patterns&#39;&#41;
     &#47;&#47; Preview mode
     .option&#40;&#39;--preview&#39;, &#39;Preview mode: list files without generating output&#39;&#41;
+    &#47;&#47; File overwrite protection
+    .option&#40;&#39;--overwrite&#39;, &#39;Overwrite existing output files without prompting&#39;&#41;
     .action&#40;&#40;options: &#123; 
         extensions?: string; 
         root?: string; 
@@ -1803,11 +1823,16 @@ program
         maxFileSize?: string;
         maxFiles?: string;
         maxTotalSize?: string;
+        maxBase64Kb?: string;
+        maxLineLength?: string;
+        maxTokenLength?: string;
+        allowedPluginPaths?: string;
         subdirs?: boolean;
         gitignore?: boolean;
         excludeSecrets?: boolean;
         ignore?: string;
         preview?: boolean;
+        overwrite?: boolean;
     &#125;&#41; &#61;&gt; &#123;
         &#47;&#47; Default action is to run fusion
         void runFusionCommand&#40;options&#41;;
@@ -1864,6 +1889,10 @@ export async function runFusionCommand&#40;options: &#123;
     maxFileSize?: string;
     maxFiles?: string;
     maxTotalSize?: string;
+    maxBase64Kb?: string;
+    maxLineLength?: string;
+    maxTokenLength?: string;
+    allowedPluginPaths?: string;
     md?: boolean;
     name?: string;
     out?: string;
@@ -1874,6 +1903,7 @@ export async function runFusionCommand&#40;options: &#123;
     txt?: boolean;
     ignore?: string;
     preview?: boolean;
+    overwrite?: boolean;
 &#125;&#41;: Promise&lt;void&gt; &#123;
     try &#123;
         logger.consoleInfo&#40;&#39;🔄 Starting Fusion Process...&#39;&#41;;
@@ -1962,6 +1992,46 @@ export async function runFusionCommand&#40;options: &#123;
             console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum total size set to: &#36;&#123;config.maxTotalSizeMB&#125; MB&#96;&#41;&#41;;
         &#125;
 
+        &#47;&#47; Handle content validation limits
+        if &#40;options.maxBase64Kb&#41; &#123;
+            const maxBase64KB &#61; Number.parseInt&#40;options.maxBase64Kb, 10&#41;;
+            if &#40;Number.isNaN&#40;maxBase64KB&#41; || maxBase64KB &lt;&#61; 0&#41; &#123;
+                logger.consoleError&#40;&#96;❌ Invalid value for --max-base64-kb: &quot;&#36;&#123;options.maxBase64Kb&#125;&quot;. Expected a positive integer.&#96;&#41;;
+                process.exit&#40;1&#41;;
+            &#125;
+            config.maxBase64BlockKB &#61; maxBase64KB;
+            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum base64 block size set to: &#36;&#123;config.maxBase64BlockKB&#125; KB&#96;&#41;&#41;;
+        &#125;
+
+        if &#40;options.maxLineLength&#41; &#123;
+            const maxLineLength &#61; Number.parseInt&#40;options.maxLineLength, 10&#41;;
+            if &#40;Number.isNaN&#40;maxLineLength&#41; || maxLineLength &lt;&#61; 0&#41; &#123;
+                logger.consoleError&#40;&#96;❌ Invalid value for --max-line-length: &quot;&#36;&#123;options.maxLineLength&#125;&quot;. Expected a positive integer.&#96;&#41;;
+                process.exit&#40;1&#41;;
+            &#125;
+            config.maxLineLength &#61; maxLineLength;
+            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum line length set to: &#36;&#123;config.maxLineLength&#125; chars&#96;&#41;&#41;;
+        &#125;
+
+        if &#40;options.maxTokenLength&#41; &#123;
+            const maxTokenLength &#61; Number.parseInt&#40;options.maxTokenLength, 10&#41;;
+            if &#40;Number.isNaN&#40;maxTokenLength&#41; || maxTokenLength &lt;&#61; 0&#41; &#123;
+                logger.consoleError&#40;&#96;❌ Invalid value for --max-token-length: &quot;&#36;&#123;options.maxTokenLength&#125;&quot;. Expected a positive integer.&#96;&#41;;
+                process.exit&#40;1&#41;;
+            &#125;
+            config.maxTokenLength &#61; maxTokenLength;
+            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum token length set to: &#36;&#123;config.maxTokenLength&#125; chars&#96;&#41;&#41;;
+        &#125;
+
+        &#47;&#47; Handle external plugin paths &#40;security setting&#41;
+        if &#40;options.allowedPluginPaths&#41; &#123;
+            const pluginPaths &#61; options.allowedPluginPaths.split&#40;&#39;,&#39;&#41;.map&#40;p &#61;&gt; p.trim&#40;&#41;&#41;.filter&#40;p &#61;&gt; p.length &gt; 0&#41;;
+            if &#40;pluginPaths.length &gt; 0&#41; &#123;
+                config.allowedExternalPluginPaths &#61; pluginPaths;
+                console.log&#40;chalk.yellow&#40;&#96;🔐 Allowed external plugin paths set to: &#36;&#123;pluginPaths.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
+            &#125;
+        &#125;
+
         &#47;&#47; Handle parsing behavior
         if &#40;options.subdirs &#61;&#61;&#61; false&#41; &#123;
             config.parseSubDirectories &#61; false;
@@ -2015,6 +2085,41 @@ export async function runFusionCommand&#40;options: &#123;
         if &#40;options.preview&#41; &#123;
             console.log&#40;chalk.blue&#40;&#39;👁️ Preview Mode: Scanning files without generating output...&#39;&#41;&#41;;
             fusionOptions.previewMode &#61; true;
+        &#125;
+
+        &#47;&#47; Handle overwrite protection
+        const shouldOverwrite &#61; options.overwrite ?? config.overwriteFiles;
+        if &#40;&#33;options.preview &amp;&amp; &#33;shouldOverwrite&#41; &#123;
+            const outputDir &#61; config.outputDirectory ?? &#39;.&#39;;
+            const outputFiles &#61; &#91;&#93;;
+            
+            if &#40;config.generateText&#41; &#123;
+                outputFiles.push&#40;path.join&#40;outputDir, &#96;&#36;&#123;config.generatedFileName&#125;.txt&#96;&#41;&#41;;
+            &#125;
+            if &#40;config.generateMarkdown&#41; &#123;
+                outputFiles.push&#40;path.join&#40;outputDir, &#96;&#36;&#123;config.generatedFileName&#125;.md&#96;&#41;&#41;;
+            &#125;
+            if &#40;config.generateHtml&#41; &#123;
+                outputFiles.push&#40;path.join&#40;outputDir, &#96;&#36;&#123;config.generatedFileName&#125;.html&#96;&#41;&#41;;
+            &#125;
+            
+            &#47;&#47; Check if any output files already exist
+            const existingFiles &#61; &#91;&#93;;
+            for &#40;const file of outputFiles&#41; &#123;
+                if &#40;await fs.pathExists&#40;file&#41;&#41; &#123;
+                    existingFiles.push&#40;path.basename&#40;file&#41;&#41;;
+                &#125;
+            &#125;
+            
+            if &#40;existingFiles.length &gt; 0&#41; &#123;
+                console.error&#40;chalk.red&#40;&#39;❌ Error: Output files already exist:&#39;&#41;&#41;;
+                for &#40;const file of existingFiles&#41; &#123;
+                    console.error&#40;chalk.yellow&#40;&#96;   - &#36;&#123;file&#125;&#96;&#41;&#41;;
+                &#125;
+                console.error&#40;chalk.yellow&#40;&#39;\n💡 Use --overwrite flag to replace existing files.&#39;&#41;&#41;;
+                process.exitCode &#61; 1;
+                return;
+            &#125;
         &#125;
 
         const result &#61; await processFusion&#40;config, fusionOptions&#41;;
@@ -3882,6 +3987,7 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
     maxTokenLength: z.number&#40;&#41;.min&#40;500&#41;.max&#40;20_000&#41;.default&#40;2000&#41;,
     maxTotalSizeMB: z.number&#40;&#41;.min&#40;1&#41;.max&#40;10_240&#41;.default&#40;100&#41;,
     outputDirectory: z.string&#40;&#41;.optional&#40;&#41;,
+    overwriteFiles: z.boolean&#40;&#41;.default&#40;false&#41;,
     parsedFileExtensions: ParsedFileExtensionsSchema.default&#40;&#123;
         backend: &#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93;,
         config: &#91;&quot;.json&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;,
@@ -4479,6 +4585,7 @@ export interface Config &#123;
     maxTokenLength: number;
     maxTotalSizeMB: number;
     outputDirectory?: string | undefined;
+    overwriteFiles: boolean;
     parsedFileExtensions: &#123;
         backend?: readonly string&#91;&#93;;
         config?: readonly string&#91;&#93;;
@@ -4646,6 +4753,7 @@ export const defaultConfig &#61; &#123;
     maxSymlinkAuditEntries: 10,
     maxTokenLength: 2000,
     maxTotalSizeMB: 100,
+    overwriteFiles: false,
     parsedFileExtensions: &#123;
         backend: &#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93; as const,
         config: &#91;&quot;.json&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93; as const,
@@ -8994,6 +9102,316 @@ describe&#40;&#39;Content Validation Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             const result &#61; validateFileContent&#40;content, &#39;mixed.js&#39;, validationConfig&#41;;
             
             expect&#40;result.valid&#41;.toBe&#40;true&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
+<h2 id="testsfile-overwrite-protectiontestts">tests&#47;file-overwrite-protection.test.ts</h2>
+<pre>import path from &#39;node:path&#39;;
+import fs from &#39;fs-extra&#39;;
+import &#123; describe, it, expect, beforeEach, afterEach, vi &#125; from &#39;vitest&#39;;
+import &#123; runFusionCommand &#125; from &#39;..&#47;src&#47;clicommands.js&#39;;
+import &#123; defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
+
+vi.mock&#40;&#39;clipboardy&#39;, &#40;&#41; &#61;&gt; &#40;&#123;
+    default: &#123;
+        writeSync: vi.fn&#40;&#41;
+    &#125;
+&#125;&#41;&#41;;
+
+describe&#40;&#39;File Overwrite Protection&#39;, &#40;&#41; &#61;&gt; &#123;
+    const tempDir &#61; path.join&#40;process.cwd&#40;&#41;, &#39;temp&#39;, &#39;overwrite-test&#39;&#41;;
+    const originalCwd &#61; process.cwd&#40;&#41;;
+    const originalExitCode &#61; process.exitCode;
+    
+    beforeEach&#40;async &#40;&#41; &#61;&gt; &#123;
+        await fs.ensureDir&#40;tempDir&#41;;
+        process.chdir&#40;tempDir&#41;;
+        
+        &#47;&#47; Create a simple test file
+        await fs.writeFile&#40;&#39;test.js&#39;, &#39;console.log&#40;&quot;test&quot;&#41;;&#39;, &#39;utf-8&#39;&#41;;
+        
+        &#47;&#47; Create a minimal config
+        const config &#61; &#123;
+            ...defaultConfig,
+            generateText: true,
+            generateMarkdown: true,
+            generateHtml: true,
+            generatedFileName: &#39;project-fusioned&#39;,
+            parsedFileExtensions: &#123; web: &#91;&#39;.js&#39;&#93; &#125;
+        &#125;;
+        await fs.writeJSON&#40;&#39;project-fusion.json&#39;, config&#41;;
+        
+        &#47;&#47; Reset console methods
+        vi.spyOn&#40;console, &#39;log&#39;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;&#125;&#41;;
+        vi.spyOn&#40;console, &#39;error&#39;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;&#125;&#41;;
+        vi.spyOn&#40;console, &#39;warn&#39;&#41;.mockImplementation&#40;&#40;&#41; &#61;&gt; &#123;&#125;&#41;;
+    &#125;&#41;;
+    
+    afterEach&#40;async &#40;&#41; &#61;&gt; &#123;
+        process.chdir&#40;originalCwd&#41;;
+        process.exitCode &#61; originalExitCode;
+        await fs.remove&#40;tempDir&#41;;
+        vi.restoreAllMocks&#40;&#41;;
+    &#125;&#41;;
+    
+    describe&#40;&#39;Default behavior &#40;protection enabled&#41;&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should error when output files already exist&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Create existing output files
+            await fs.writeFile&#40;&#39;project-fusioned.txt&#39;, &#39;existing content&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.md&#39;, &#39;existing content&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.html&#39;, &#39;existing content&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion without --overwrite
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            
+            &#47;&#47; Should set exit code to 1
+            expect&#40;process.exitCode&#41;.toBe&#40;1&#41;;
+            
+            &#47;&#47; Should show error messages
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;❌ Error: Output files already exist:&#39;&#41;
+            &#41;;
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;project-fusioned.txt&#39;&#41;
+            &#41;;
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;project-fusioned.md&#39;&#41;
+            &#41;;
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;project-fusioned.html&#39;&#41;
+            &#41;;
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;Use --overwrite flag to replace existing files&#39;&#41;
+            &#41;;
+            
+            &#47;&#47; Files should NOT be overwritten
+            const txtContent &#61; await fs.readFile&#40;&#39;project-fusioned.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;txtContent&#41;.toBe&#40;&#39;existing content&#39;&#41;;
+        &#125;&#41;;
+        
+        it&#40;&#39;should error even if only one output file exists&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Create only one existing file
+            await fs.writeFile&#40;&#39;project-fusioned.md&#39;, &#39;existing markdown&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion without --overwrite
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            
+            &#47;&#47; Should set exit code to 1
+            expect&#40;process.exitCode&#41;.toBe&#40;1&#41;;
+            
+            &#47;&#47; Should show error for the existing file
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;project-fusioned.md&#39;&#41;
+            &#41;;
+            
+            &#47;&#47; The existing file should not be modified
+            const mdContent &#61; await fs.readFile&#40;&#39;project-fusioned.md&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;mdContent&#41;.toBe&#40;&#39;existing markdown&#39;&#41;;
+            
+            &#47;&#47; Other files should not be created
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.txt&#39;&#41;&#41;.toBe&#40;false&#41;;
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.html&#39;&#41;&#41;.toBe&#40;false&#41;;
+        &#125;&#41;;
+        
+        it&#40;&#39;should work normally when no output files exist&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Run fusion without existing files
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            
+            &#47;&#47; Should not set error exit code
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            &#47;&#47; Should create all output files
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.txt&#39;&#41;&#41;.toBe&#40;true&#41;;
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.md&#39;&#41;&#41;.toBe&#40;true&#41;;
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.html&#39;&#41;&#41;.toBe&#40;true&#41;;
+            
+            &#47;&#47; Should show success message
+            expect&#40;console.log&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;✅&#39;&#41;
+            &#41;;
+        &#125;&#41;;
+        
+        it&#40;&#39;should respect outputDirectory setting&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Create output directory
+            await fs.ensureDir&#40;&#39;output&#39;&#41;;
+            
+            &#47;&#47; Update config with outputDirectory
+            const config &#61; await fs.readJSON&#40;&#39;project-fusion.json&#39;&#41;;
+            config.outputDirectory &#61; &#39;.&#47;output&#39;;
+            await fs.writeJSON&#40;&#39;project-fusion.json&#39;, config&#41;;
+            
+            &#47;&#47; Create existing file in output directory
+            await fs.writeFile&#40;&#39;output&#47;project-fusioned.txt&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion without --overwrite
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            
+            &#47;&#47; Should detect the file in output directory
+            expect&#40;process.exitCode&#41;.toBe&#40;1&#41;;
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;project-fusioned.txt&#39;&#41;
+            &#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+    
+    describe&#40;&#39;With --overwrite flag&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should overwrite existing files when --overwrite is used&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Create existing output files with old content
+            await fs.writeFile&#40;&#39;project-fusioned.txt&#39;, &#39;old content&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.md&#39;, &#39;old content&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.html&#39;, &#39;old content&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion with --overwrite
+            await runFusionCommand&#40;&#123; overwrite: true &#125;&#41;;
+            
+            &#47;&#47; Should not set error exit code
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            &#47;&#47; Files should be overwritten with new content
+            const txtContent &#61; await fs.readFile&#40;&#39;project-fusioned.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;txtContent&#41;.not.toBe&#40;&#39;old content&#39;&#41;;
+            expect&#40;txtContent&#41;.toContain&#40;&#39;test.js&#39;&#41;;
+            
+            &#47;&#47; Should show success message
+            expect&#40;console.log&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;✅&#39;&#41;
+            &#41;;
+        &#125;&#41;;
+        
+        it&#40;&#39;should work with custom output filename&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Update config with custom filename
+            const config &#61; await fs.readJSON&#40;&#39;project-fusion.json&#39;&#41;;
+            config.generatedFileName &#61; &#39;my-output&#39;;
+            await fs.writeJSON&#40;&#39;project-fusion.json&#39;, config&#41;;
+            
+            &#47;&#47; Create existing file with custom name
+            await fs.writeFile&#40;&#39;my-output.txt&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run without --overwrite should error
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            expect&#40;process.exitCode&#41;.toBe&#40;1&#41;;
+            expect&#40;console.error&#41;.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;my-output.txt&#39;&#41;
+            &#41;;
+            
+            &#47;&#47; Reset exit code
+            process.exitCode &#61; originalExitCode;
+            vi.clearAllMocks&#40;&#41;;
+            
+            &#47;&#47; Run with --overwrite should work
+            await runFusionCommand&#40;&#123; overwrite: true &#125;&#41;;
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            const content &#61; await fs.readFile&#40;&#39;my-output.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;content&#41;.not.toBe&#40;&#39;existing&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+    
+    describe&#40;&#39;Preview mode interaction&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should not check for existing files in preview mode&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Create existing output files
+            await fs.writeFile&#40;&#39;project-fusioned.txt&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.md&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion in preview mode
+            await runFusionCommand&#40;&#123; preview: true &#125;&#41;;
+            
+            &#47;&#47; Should not set error exit code
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            &#47;&#47; Should not show overwrite errors
+            expect&#40;console.error&#41;.not.toHaveBeenCalledWith&#40;
+                expect.stringContaining&#40;&#39;Output files already exist&#39;&#41;
+            &#41;;
+            
+            &#47;&#47; Files should remain unchanged
+            const txtContent &#61; await fs.readFile&#40;&#39;project-fusioned.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;txtContent&#41;.toBe&#40;&#39;existing&#39;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+    
+    describe&#40;&#39;Selective output generation&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should only check for files that will be generated&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Update config to only generate markdown
+            const config &#61; await fs.readJSON&#40;&#39;project-fusion.json&#39;&#41;;
+            config.generateText &#61; false;
+            config.generateMarkdown &#61; true;
+            config.generateHtml &#61; false;
+            await fs.writeJSON&#40;&#39;project-fusion.json&#39;, config&#41;;
+            
+            &#47;&#47; Create .txt and .html files &#40;which won&#39;t be generated&#41;
+            await fs.writeFile&#40;&#39;project-fusioned.txt&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.html&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion - should succeed since .md doesn&#39;t exist
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            
+            &#47;&#47; Should not error
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            &#47;&#47; Should create .md file
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.md&#39;&#41;&#41;.toBe&#40;true&#41;;
+            
+            &#47;&#47; Other files should remain unchanged
+            const txtContent &#61; await fs.readFile&#40;&#39;project-fusioned.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;txtContent&#41;.toBe&#40;&#39;existing&#39;&#41;;
+        &#125;&#41;;
+        
+        it&#40;&#39;should check the correct files based on CLI flags&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Create only .html file
+            await fs.writeFile&#40;&#39;project-fusioned.html&#39;, &#39;existing&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run with --txt flag only &#40;should override config&#41;
+            await runFusionCommand&#40;&#123; txt: true &#125;&#41;;
+            
+            &#47;&#47; Should succeed since .txt doesn&#39;t exist
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            expect&#40;await fs.pathExists&#40;&#39;project-fusioned.txt&#39;&#41;&#41;.toBe&#40;true&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    describe&#40;&#39;Configuration-based overwrite&#39;, &#40;&#41; &#61;&gt; &#123;
+        it&#40;&#39;should respect overwriteFiles config setting&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Update config to allow overwriting
+            const config &#61; await fs.readJSON&#40;&#39;project-fusion.json&#39;&#41;;
+            config.overwriteFiles &#61; true;
+            await fs.writeJSON&#40;&#39;project-fusion.json&#39;, config&#41;;
+            
+            &#47;&#47; Create existing output files
+            await fs.writeFile&#40;&#39;project-fusioned.txt&#39;, &#39;old content&#39;, &#39;utf-8&#39;&#41;;
+            await fs.writeFile&#40;&#39;project-fusioned.md&#39;, &#39;old content&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run fusion without --overwrite flag &#40;should still work due to config&#41;
+            await runFusionCommand&#40;&#123;&#125;&#41;;
+            
+            &#47;&#47; Should not set error exit code
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            &#47;&#47; Files should be overwritten with new content
+            const txtContent &#61; await fs.readFile&#40;&#39;project-fusioned.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;txtContent&#41;.not.toBe&#40;&#39;old content&#39;&#41;;
+            expect&#40;txtContent&#41;.toContain&#40;&#39;test.js&#39;&#41;;
+        &#125;&#41;;
+
+        it&#40;&#39;should allow CLI --overwrite to override config overwriteFiles&#61;false&#39;, async &#40;&#41; &#61;&gt; &#123;
+            &#47;&#47; Update config to NOT allow overwriting
+            const config &#61; await fs.readJSON&#40;&#39;project-fusion.json&#39;&#41;;
+            config.overwriteFiles &#61; false;
+            await fs.writeJSON&#40;&#39;project-fusion.json&#39;, config&#41;;
+            
+            &#47;&#47; Create existing output files
+            await fs.writeFile&#40;&#39;project-fusioned.txt&#39;, &#39;existing content&#39;, &#39;utf-8&#39;&#41;;
+            
+            &#47;&#47; Run with CLI --overwrite should override config
+            await runFusionCommand&#40;&#123; overwrite: true &#125;&#41;;
+            
+            &#47;&#47; Should not set error exit code
+            expect&#40;process.exitCode&#41;.not.toBe&#40;1&#41;;
+            
+            &#47;&#47; File should be overwritten despite config setting
+            const txtContent &#61; await fs.readFile&#40;&#39;project-fusioned.txt&#39;, &#39;utf-8&#39;&#41;;
+            expect&#40;txtContent&#41;.not.toBe&#40;&#39;existing content&#39;&#41;;
+            expect&#40;txtContent&#41;.toContain&#40;&#39;test.js&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
@@ -18895,7 +19313,8 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 
 ### Bonus
  &#91; &#93; S&#39;assurer que tous les problèmes de sécurité rencontrés lors du parsing des fichiers soient loggués en warning dans le project-fusion.log
- &#91; &#93; Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité &#40;peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?&#41;</pre>
+ &#91; &#93; Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité &#40;peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?&#41;
+ &#91; &#93; Remove repetition of Generated: 27&#47;08&#47;2025 07:12:31 UTC−4 and UTC: 2025-08-27T11:12:31.544Z</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;
     &quot;compilerOptions&quot;: &#123;

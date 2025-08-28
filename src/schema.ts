@@ -111,6 +111,7 @@ export const ConfigSchemaV1 = z.object({
     maxTokenLength: z.number().min(500).max(20_000).default(2000),
     maxTotalSizeMB: z.number().min(1).max(10_240).default(100),
     outputDirectory: z.string().optional(),
+    overwriteFiles: z.boolean().default(false),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],

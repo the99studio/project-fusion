@@ -94,6 +94,7 @@ Run `project-fusion init` to create `project-fusion.json` if you want to fine-tu
   "allowedExternalPluginPaths": [],            // Allowed external plugin paths
   "excludeSecrets": true,                      // Exclude files with secrets
   "maxSymlinkAuditEntries": 10,                // Max symlink audit log entries
+  "overwriteFiles": false,                     // Allow overwriting existing output files
   
   // File extension groups
   "parsedFileExtensions": {
@@ -140,15 +141,26 @@ project-fusion [options]
   --max-files <count>           Maximum number of files (default: 10000)
   --max-total-size <mb>         Maximum total size in MB (default: 100)
   
+# Content Validation Limits
+  --max-base64-kb <size>        Maximum base64 block size in KB (default: 2)
+  --max-line-length <chars>     Maximum line length in characters (default: 5000)
+  --max-token-length <chars>    Maximum token length for minified detection (default: 2000)
+  
 # Parsing Behavior
   --no-exclude-secrets          Disable automatic secret detection/exclusion
   --no-gitignore                Don't use .gitignore for exclusions
   --no-subdirs                  Don't scan subdirectories
   
+# File Protection
+  --overwrite                   Overwrite existing output files without prompting
+                                (By default, fusion will error if output files exist)
+  
 # Security Options (use with caution)
   --allow-symlinks              Allow processing symbolic links (SECURITY WARNING)
                                 Note: Symlinks can escape the project directory,
                                 potentially exposing files outside the intended scope
+  --allowed-plugin-paths <paths> Comma-separated list of allowed external plugin paths
+                                (bypasses security restrictions for plugin loading)
   
 # Plugin System
   --plugins <names>             Comma-separated list of plugin names to enable

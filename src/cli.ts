@@ -26,6 +26,7 @@ program
     .option('--extensions <groups>', 'Comma-separated list of extension groups (e.g., backend,web)')
     .option('--root <directory>', 'Root directory to start scanning from (defaults to current directory)')
     .option('--allow-symlinks', 'Allow processing symbolic links (SECURITY WARNING: use with caution)')
+    .option('--allowed-plugin-paths <paths>', 'Comma-separated list of allowed external plugin paths')
     .option('--plugins-dir <directory>', 'Directory containing plugins to load')
     .option('--plugins <names>', 'Comma-separated list of plugin names to enable')
     // Output format flags
@@ -42,6 +43,9 @@ program
     .option('--max-file-size <kb>', 'Maximum file size in KB (default: 1024)')
     .option('--max-files <count>', 'Maximum number of files to process (default: 10000)')
     .option('--max-total-size <mb>', 'Maximum total size in MB (default: 100)')
+    .option('--max-base64-kb <size>', 'Maximum base64 block size in KB (default: 2)')
+    .option('--max-line-length <chars>', 'Maximum line length in characters (default: 5000)')
+    .option('--max-token-length <chars>', 'Maximum token length for minified detection (default: 2000)')
     // Parsing behavior
     .option('--no-subdirs', 'Disable parsing subdirectories')
     .option('--no-gitignore', 'Disable using .gitignore for exclusions')
@@ -49,6 +53,8 @@ program
     .option('--ignore <patterns>', 'Additional comma-separated ignore patterns')
     // Preview mode
     .option('--preview', 'Preview mode: list files without generating output')
+    // File overwrite protection
+    .option('--overwrite', 'Overwrite existing output files without prompting')
     .action((options: { 
         extensions?: string; 
         root?: string; 
@@ -65,11 +71,16 @@ program
         maxFileSize?: string;
         maxFiles?: string;
         maxTotalSize?: string;
+        maxBase64Kb?: string;
+        maxLineLength?: string;
+        maxTokenLength?: string;
+        allowedPluginPaths?: string;
         subdirs?: boolean;
         gitignore?: boolean;
         excludeSecrets?: boolean;
         ignore?: string;
         preview?: boolean;
+        overwrite?: boolean;
     }) => {
         // Default action is to run fusion
         void runFusionCommand(options);

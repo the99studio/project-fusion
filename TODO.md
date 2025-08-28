@@ -1,8 +1,3 @@
-Security Enhancements
-- [ ] **File overwrite protection**: By default, prevent overwriting existing files or write to subfolder (./project-fusion/), add --overwrite flag
-
-## Additional Security Enhancements
-
 ### HTML Security (High Priority)
 - [ ] **Additional security headers**: Add X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Referrer-Policy: no-referrer meta tags
 - [ ] **Enhanced CSP**: Add base-uri 'none' to Content-Security-Policy for base URI attack prevention
@@ -16,3 +11,4 @@ Security Enhancements
 ### Bonus
  [ ] S'assurer que tous les problèmes de sécurité rencontrés lors du parsing des fichiers soient loggués en warning dans le project-fusion.log
  [ ] Avoir une fonction permettant de récupérer la liste des fichiers ayant un probleme de sécurité (peut être récupérer également la liste des warnings associés si possible pour utilisation dans un viewer tool?)
+ [ ] Remove repetition of Generated: 27/08/2025 07:12:31 UTC−4 and UTC: 2025-08-27T11:12:31.544Z

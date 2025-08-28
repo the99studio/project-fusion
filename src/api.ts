@@ -111,6 +111,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         maxTokenLength: partialConfig.maxTokenLength ?? defaultConfig.maxTokenLength,
         maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
         outputDirectory: partialConfig.outputDirectory,
+        overwriteFiles: partialConfig.overwriteFiles ?? defaultConfig.overwriteFiles,
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,
         parseSubDirectories: partialConfig.parseSubDirectories ?? defaultConfig.parseSubDirectories,
         rootDirectory,

@@ -95,6 +95,7 @@
     "maxSymlinkAuditEntries": 10,
     "maxTokenLength": 2000,
     "maxTotalSizeMB": 100,
+    "overwriteFiles": false,
     "parsedFileExtensions": {
         "backend": [
             ".cs",

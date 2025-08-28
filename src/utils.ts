@@ -116,6 +116,7 @@ export const defaultConfig = {
     maxSymlinkAuditEntries: 10,
     maxTokenLength: 2000,
     maxTotalSizeMB: 100,
+    overwriteFiles: false,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"] as const,
         config: [".json", ".toml", ".xml", ".yaml", ".yml"] as const,

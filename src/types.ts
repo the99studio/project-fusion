@@ -104,6 +104,7 @@ export interface Config {
     maxTokenLength: number;
     maxTotalSizeMB: number;
     outputDirectory?: string | undefined;
+    overwriteFiles: boolean;
     parsedFileExtensions: {
         backend?: readonly string[];
         config?: readonly string[];

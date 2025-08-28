@@ -28,6 +28,10 @@ export async function runFusionCommand(options: {
     maxFileSize?: string;
     maxFiles?: string;
     maxTotalSize?: string;
+    maxBase64Kb?: string;
+    maxLineLength?: string;
+    maxTokenLength?: string;
+    allowedPluginPaths?: string;
     md?: boolean;
     name?: string;
     out?: string;
@@ -38,6 +42,7 @@ export async function runFusionCommand(options: {
     txt?: boolean;
     ignore?: string;
     preview?: boolean;
+    overwrite?: boolean;
 }): Promise<void> {
     try {
         logger.consoleInfo('🔄 Starting Fusion Process...');
@@ -126,6 +131,46 @@ export async function runFusionCommand(options: {
             console.log(chalk.yellow(`ℹ️ Maximum total size set to: ${config.maxTotalSizeMB} MB`));
         }
 
+        // Handle content validation limits
+        if (options.maxBase64Kb) {
+            const maxBase64KB = Number.parseInt(options.maxBase64Kb, 10);
+            if (Number.isNaN(maxBase64KB) || maxBase64KB <= 0) {
+                logger.consoleError(`❌ Invalid value for --max-base64-kb: "${options.maxBase64Kb}". Expected a positive integer.`);
+                process.exit(1);
+            }
+            config.maxBase64BlockKB = maxBase64KB;
+            console.log(chalk.yellow(`ℹ️ Maximum base64 block size set to: ${config.maxBase64BlockKB} KB`));
+        }
+
+        if (options.maxLineLength) {
+            const maxLineLength = Number.parseInt(options.maxLineLength, 10);
+            if (Number.isNaN(maxLineLength) || maxLineLength <= 0) {
+                logger.consoleError(`❌ Invalid value for --max-line-length: "${options.maxLineLength}". Expected a positive integer.`);
+                process.exit(1);
+            }
+            config.maxLineLength = maxLineLength;
+            console.log(chalk.yellow(`ℹ️ Maximum line length set to: ${config.maxLineLength} chars`));
+        }
+
+        if (options.maxTokenLength) {
+            const maxTokenLength = Number.parseInt(options.maxTokenLength, 10);
+            if (Number.isNaN(maxTokenLength) || maxTokenLength <= 0) {
+                logger.consoleError(`❌ Invalid value for --max-token-length: "${options.maxTokenLength}". Expected a positive integer.`);
+                process.exit(1);
+            }
+            config.maxTokenLength = maxTokenLength;
+            console.log(chalk.yellow(`ℹ️ Maximum token length set to: ${config.maxTokenLength} chars`));
+        }
+
+        // Handle external plugin paths (security setting)
+        if (options.allowedPluginPaths) {
+            const pluginPaths = options.allowedPluginPaths.split(',').map(p => p.trim()).filter(p => p.length > 0);
+            if (pluginPaths.length > 0) {
+                config.allowedExternalPluginPaths = pluginPaths;
+                console.log(chalk.yellow(`🔐 Allowed external plugin paths set to: ${pluginPaths.join(', ')}`));
+            }
+        }
+
         // Handle parsing behavior
         if (options.subdirs === false) {
             config.parseSubDirectories = false;
@@ -179,6 +224,41 @@ export async function runFusionCommand(options: {
         if (options.preview) {
             console.log(chalk.blue('👁️ Preview Mode: Scanning files without generating output...'));
             fusionOptions.previewMode = true;
+        }
+
+        // Handle overwrite protection
+        const shouldOverwrite = options.overwrite ?? config.overwriteFiles;
+        if (!options.preview && !shouldOverwrite) {
+            const outputDir = config.outputDirectory ?? '.';
+            const outputFiles = [];
+            
+            if (config.generateText) {
+                outputFiles.push(path.join(outputDir, `${config.generatedFileName}.txt`));
+            }
+            if (config.generateMarkdown) {
+                outputFiles.push(path.join(outputDir, `${config.generatedFileName}.md`));
+            }
+            if (config.generateHtml) {
+                outputFiles.push(path.join(outputDir, `${config.generatedFileName}.html`));
+            }
+            
+            // Check if any output files already exist
+            const existingFiles = [];
+            for (const file of outputFiles) {
+                if (await fs.pathExists(file)) {
+                    existingFiles.push(path.basename(file));
+                }
+            }
+            
+            if (existingFiles.length > 0) {
+                console.error(chalk.red('❌ Error: Output files already exist:'));
+                for (const file of existingFiles) {
+                    console.error(chalk.yellow(`   - ${file}`));
+                }
+                console.error(chalk.yellow('\n💡 Use --overwrite flag to replace existing files.'));
+                process.exitCode = 1;
+                return;
+            }
         }
 
         const result = await processFusion(config, fusionOptions);
