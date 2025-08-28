@@ -42,6 +42,7 @@ pnpm-debug.log*
 Thumbs.db
 
 # Project Fusion generated files
+!project-fusioned.html
 !project-fusioned.md
 !project-fusioned.txt
-!project-fusion.log
+!project-fusioned.log

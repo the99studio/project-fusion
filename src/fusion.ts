@@ -74,7 +74,7 @@ export async function processFusion(
             const filePath = createFilePath(logFilePath);
             await (append ? fs.appendFile(filePath, `${content  }\n`) : fs.writeFile(filePath, `${content  }\n`));
             if (consoleOutput) {
-                console.log(content);
+                logger.info(content);
             }
         } catch (error) {
             console.error('Error writing log:', error);
@@ -246,7 +246,7 @@ export async function processFusion(
         
         // Log processing information
         await writeLogWithFs(logFilePath, `\n--- PROCESSING ---`, true);
-        console.log(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
+        logger.info(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
         await writeLogWithFs(logFilePath, `File extensions to process: ${extensions.length}`, true);
         await writeLogWithFs(logFilePath, `Available extension categories: ${Object.keys(mergedConfig.parsedFileExtensions).length}`, true);
         
@@ -312,7 +312,7 @@ export async function processFusion(
         });
 
         reportProgress('scanning', `Found ${filePaths.length} files after filtering`, 0, filePaths.length, undefined, true);
-        console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
+        logger.info(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
             const message = 'No files found to process.';

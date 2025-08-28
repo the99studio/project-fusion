@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 28/08/2025 18:50:20 UTC−4
+**Generated:** 28/08/2025 19:30:15 UTC−4
 
 **Files:** 74
 
@@ -2885,7 +2885,7 @@ export async function processFusion(
             const filePath = createFilePath(logFilePath);
             await (append ? fs.appendFile(filePath, `${content  }\n`) : fs.writeFile(filePath, `${content  }\n`));
             if (consoleOutput) {
-                console.log(content);
+                logger.info(content);
             }
         } catch (error) {
             console.error('Error writing log:', error);
@@ -3057,7 +3057,7 @@ export async function processFusion(
         
         // Log processing information
         await writeLogWithFs(logFilePath, `\n--- PROCESSING ---`, true);
-        console.log(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
+        logger.info(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
         await writeLogWithFs(logFilePath, `File extensions to process: ${extensions.length}`, true);
         await writeLogWithFs(logFilePath, `Available extension categories: ${Object.keys(mergedConfig.parsedFileExtensions).length}`, true);
         
@@ -3123,7 +3123,7 @@ export async function processFusion(
         });
 
         reportProgress('scanning', `Found ${filePaths.length} files after filtering`, 0, filePaths.length, undefined, true);
-        console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
+        logger.info(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
             const message = 'No files found to process.';
@@ -20475,11 +20475,6 @@ describe('VS Code API enhancements', () => {
 ## 📄 TODO.md {#todomd}
 
 ```markdown
-### Build Moderne avec tsup
-• Migrer de `tsc` vers `tsup` pour build 10x plus rapide
-• Ajouter scripts: `"build": "tsup"`
-• Mettre à jour CI pour utiliser: `npm ci && npm run build`
-
 ### Versioning Automatique avec gate
 • Installer et configurer `@changesets/cli`  
 • Créer `.changeset/config.json`

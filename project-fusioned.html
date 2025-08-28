@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 28&#47;08&#47;2025 18:50:20 UTC−4</p>
+<p><strong>Generated:</strong> 28&#47;08&#47;2025 19:30:15 UTC−4</p>
 <p><strong>Files:</strong> 74</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -2844,7 +2844,7 @@ export async function processFusion&#40;
             const filePath &#61; createFilePath&#40;logFilePath&#41;;
             await &#40;append ? fs.appendFile&#40;filePath, &#96;&#36;&#123;content  &#125;\n&#96;&#41; : fs.writeFile&#40;filePath, &#96;&#36;&#123;content  &#125;\n&#96;&#41;&#41;;
             if &#40;consoleOutput&#41; &#123;
-                console.log&#40;content&#41;;
+                logger.info&#40;content&#41;;
             &#125;
         &#125; catch &#40;error&#41; &#123;
             console.error&#40;&#39;Error writing log:&#39;, error&#41;;
@@ -3016,7 +3016,7 @@ export async function processFusion&#40;
         
         &#47;&#47; Log processing information
         await writeLogWithFs&#40;logFilePath, &#96;\n--- PROCESSING ---&#96;, true&#41;;
-        console.log&#40;&#96;Processing &#36;&#123;extensions.length&#125; file extensions from &#36;&#123;Object.keys&#40;mergedConfig.parsedFileExtensions&#41;.length&#125; categories&#96;&#41;;
+        logger.info&#40;&#96;Processing &#36;&#123;extensions.length&#125; file extensions from &#36;&#123;Object.keys&#40;mergedConfig.parsedFileExtensions&#41;.length&#125; categories&#96;&#41;;
         await writeLogWithFs&#40;logFilePath, &#96;File extensions to process: &#36;&#123;extensions.length&#125;&#96;, true&#41;;
         await writeLogWithFs&#40;logFilePath, &#96;Available extension categories: &#36;&#123;Object.keys&#40;mergedConfig.parsedFileExtensions&#41;.length&#125;&#96;, true&#41;;
         
@@ -3082,7 +3082,7 @@ export async function processFusion&#40;
         &#125;&#41;;
 
         reportProgress&#40;&#39;scanning&#39;, &#96;Found &#36;&#123;filePaths.length&#125; files after filtering&#96;, 0, filePaths.length, undefined, true&#41;;
-        console.log&#40;&#96;Found &#36;&#123;originalFileCount&#125; files, &#36;&#123;filePaths.length&#125; after filtering &#40;&#36;&#123;&#40;&#40;originalFileCount - filePaths.length&#41; &#47; originalFileCount * 100&#41;.toFixed&#40;1&#41;&#125;&#37; filtered&#41;&#96;&#41;;
+        logger.info&#40;&#96;Found &#36;&#123;originalFileCount&#125; files, &#36;&#123;filePaths.length&#125; after filtering &#40;&#36;&#123;&#40;&#40;originalFileCount - filePaths.length&#41; &#47; originalFileCount * 100&#41;.toFixed&#40;1&#41;&#125;&#37; filtered&#41;&#96;&#41;;
 
         if &#40;filePaths.length &#61;&#61;&#61; 0&#41; &#123;
             const message &#61; &#39;No files found to process.&#39;;
@@ -20206,12 +20206,7 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>### Build Moderne avec tsup
-• Migrer de &#96;tsc&#96; vers &#96;tsup&#96; pour build 10x plus rapide
-• Ajouter scripts: &#96;&quot;build&quot;: &quot;tsup&quot;&#96;
-• Mettre à jour CI pour utiliser: &#96;npm ci &amp;&amp; npm run build&#96;
-
-### Versioning Automatique avec gate
+<pre>### Versioning Automatique avec gate
 • Installer et configurer &#96;&#64;changesets&#47;cli&#96;  
 • Créer &#96;.changeset&#47;config.json&#96;
 • Ajouter workflow &#96;.github&#47;workflows&#47;changesets.yml&#96; pour Release PR auto
