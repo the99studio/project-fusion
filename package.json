@@ -38,7 +38,7 @@
         "build": "npm run lint && tsc",
         "build:clean": "npm run clean && npm run build",
         "clean": "node -e \"import('fs').then(fs => fs.rmSync('dist', {recursive: true, force: true}))\"",
-        "lint": "npx eslint 'src/**/*.ts' 'tests/**/*.ts'",
+        "lint": "npx eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
         "prepublishOnly": "npm run test",
         "test": "npm run build:clean && vitest run --coverage"
     },
