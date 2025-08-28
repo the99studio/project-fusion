@@ -15,6 +15,7 @@ import {
     OutputStrategyManager
 } from './strategies/output-strategy.js';
 import { type Config, type FilePath, type FusionOptions, type FusionResult, createFilePath } from './types.js';
+import { logger } from './utils/logger.js';
 import {
     formatTimestamp,
     generateHelpfulEmptyMessage,
@@ -423,6 +424,8 @@ export async function processFusion(
                 if (sizeKB > maxFileSizeKB) {
                     skippedCount++;
                     skippedFiles.push(relativePath);
+                    const warningMsg = `⚠️ Large file skipped: ${relativePath} (${sizeKB.toFixed(2)} KB > ${maxFileSizeKB} KB)`;
+                    logger.consoleWarn(warningMsg);
                     await writeLogWithFs(logFilePath, `Skipped large file: ${relativePath} (${sizeKB.toFixed(2)} KB)`, true);
                 } else {
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
@@ -431,7 +434,7 @@ export async function processFusion(
                     checkCancellation();
                     if (await isBinaryFile(safePath)) {
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
-                        console.warn(`Skipping binary file: ${relativePath}`);
+                        logger.consoleWarn(`⚠️ Binary file skipped: ${relativePath}`);
                         continue;
                     }
                     
@@ -454,7 +457,7 @@ export async function processFusion(
                     // Log warnings and errors
                     for (const warning of validationResult.warnings) {
                         await writeLogWithFs(logFilePath, `Content validation warning: ${warning}`, true);
-                        console.warn(`⚠️ ${warning}`);
+                        logger.consoleWarn(`⚠️ ${warning}`);
                     }
                     
                     for (const error of validationResult.errors) {

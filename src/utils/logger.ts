@@ -193,6 +193,10 @@ export class Logger {
         console.log(chalk.yellow(message));
     }
 
+    consoleWarn(message: string): void {
+        console.warn(chalk.yellow(message));
+    }
+
     consoleError(message: string): void {
         console.log(chalk.red(message));
     }

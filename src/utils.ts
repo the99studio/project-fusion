@@ -324,7 +324,7 @@ export function getExtensionsFromGroups(
     for (const group of groups) {
         // Type-safe group validation
         if (!isValidExtensionGroup(group)) {
-            console.warn(`Unknown extension group '${group}'. Valid groups: ${Object.keys(config.parsedFileExtensions).join(', ')}`);
+            logger.consoleWarn(`Unknown extension group '${group}'. Valid groups: ${Object.keys(config.parsedFileExtensions).join(', ')}`);
             continue;
         }
 
@@ -332,7 +332,7 @@ export function getExtensionsFromGroups(
         if (extensions && isNonEmptyArray(extensions)) {
             result.push(...extensions);
         } else {
-            console.warn(`Extension group '${group}' is empty or not found in configuration`);
+            logger.consoleWarn(`Extension group '${group}' is empty or not found in configuration`);
         }
     }
     return result;
@@ -356,6 +356,8 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
         
         // If relative path starts with '..' or is absolute, the file escapes the root
         if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+            const warningMsg = `🚨 SECURITY: Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`;
+            logger.consoleWarn(warningMsg);
             throw new FusionError(
                 `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
                 'PATH_TRAVERSAL',
@@ -391,6 +393,8 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks = false
         
         if (stats.isSymbolicLink()) {
             if (!allowSymlinks) {
+                const warningMsg = `🚨 SECURITY: Symbolic link not allowed: '${filePath}'`;
+                logger.consoleWarn(warningMsg);
                 throw new FusionError(
                     `Symbolic link not allowed: '${filePath}'`,
                     'SYMLINK_NOT_ALLOWED',
@@ -780,7 +784,7 @@ export async function logMemoryUsageIfNeeded(
         if (memCheck.level === 'error') {
             console.error(logMessage);
         } else {
-            console.warn(logMessage);
+            logger.consoleWarn(logMessage);
         }
     }
 }

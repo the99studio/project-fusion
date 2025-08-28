@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 28&#47;08&#47;2025 16:37:57 UTC−4</p>
+<p><strong>Generated:</strong> 28&#47;08&#47;2025 18:50:20 UTC−4</p>
 <p><strong>Files:</strong> 74</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -2785,6 +2785,7 @@ import &#123;
     OutputStrategyManager
 &#125; from &#39;.&#47;strategies&#47;output-strategy.js&#39;;
 import &#123; type Config, type FilePath, type FusionOptions, type FusionResult, createFilePath &#125; from &#39;.&#47;types.js&#39;;
+import &#123; logger &#125; from &#39;.&#47;utils&#47;logger.js&#39;;
 import &#123;
     formatTimestamp,
     generateHelpfulEmptyMessage,
@@ -3193,6 +3194,8 @@ export async function processFusion&#40;
                 if &#40;sizeKB &gt; maxFileSizeKB&#41; &#123;
                     skippedCount&#43;&#43;;
                     skippedFiles.push&#40;relativePath&#41;;
+                    const warningMsg &#61; &#96;⚠️ Large file skipped: &#36;&#123;relativePath&#125; &#40;&#36;&#123;sizeKB.toFixed&#40;2&#41;&#125; KB &gt; &#36;&#123;maxFileSizeKB&#125; KB&#41;&#96;;
+                    logger.consoleWarn&#40;warningMsg&#41;;
                     await writeLogWithFs&#40;logFilePath, &#96;Skipped large file: &#36;&#123;relativePath&#125; &#40;&#36;&#123;sizeKB.toFixed&#40;2&#41;&#125; KB&#41;&#96;, true&#41;;
                 &#125; else &#123;
                     const safePath &#61; validateSecurePath&#40;filePath, config.rootDirectory&#41;;
@@ -3201,7 +3204,7 @@ export async function processFusion&#40;
                     checkCancellation&#40;&#41;;
                     if &#40;await isBinaryFile&#40;safePath&#41;&#41; &#123;
                         await writeLogWithFs&#40;logFilePath, &#96;Skipping binary file: &#36;&#123;relativePath&#125;&#96;, true&#41;;
-                        console.warn&#40;&#96;Skipping binary file: &#36;&#123;relativePath&#125;&#96;&#41;;
+                        logger.consoleWarn&#40;&#96;⚠️ Binary file skipped: &#36;&#123;relativePath&#125;&#96;&#41;;
                         continue;
                     &#125;
                     
@@ -3224,7 +3227,7 @@ export async function processFusion&#40;
                     &#47;&#47; Log warnings and errors
                     for &#40;const warning of validationResult.warnings&#41; &#123;
                         await writeLogWithFs&#40;logFilePath, &#96;Content validation warning: &#36;&#123;warning&#125;&#96;, true&#41;;
-                        console.warn&#40;&#96;⚠️ &#36;&#123;warning&#125;&#96;&#41;;
+                        logger.consoleWarn&#40;&#96;⚠️ &#36;&#123;warning&#125;&#96;&#41;;
                     &#125;
                     
                     for &#40;const error of validationResult.errors&#41; &#123;
@@ -5199,7 +5202,7 @@ export function getExtensionsFromGroups&#40;
     for &#40;const group of groups&#41; &#123;
         &#47;&#47; Type-safe group validation
         if &#40;&#33;isValidExtensionGroup&#40;group&#41;&#41; &#123;
-            console.warn&#40;&#96;Unknown extension group &#39;&#36;&#123;group&#125;&#39;. Valid groups: &#36;&#123;Object.keys&#40;config.parsedFileExtensions&#41;.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;;
+            logger.consoleWarn&#40;&#96;Unknown extension group &#39;&#36;&#123;group&#125;&#39;. Valid groups: &#36;&#123;Object.keys&#40;config.parsedFileExtensions&#41;.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;;
             continue;
         &#125;
 
@@ -5207,7 +5210,7 @@ export function getExtensionsFromGroups&#40;
         if &#40;extensions &amp;&amp; isNonEmptyArray&#40;extensions&#41;&#41; &#123;
             result.push&#40;...extensions&#41;;
         &#125; else &#123;
-            console.warn&#40;&#96;Extension group &#39;&#36;&#123;group&#125;&#39; is empty or not found in configuration&#96;&#41;;
+            logger.consoleWarn&#40;&#96;Extension group &#39;&#36;&#123;group&#125;&#39; is empty or not found in configuration&#96;&#41;;
         &#125;
     &#125;
     return result;
@@ -5231,6 +5234,8 @@ export function validateSecurePath&#40;filePath: string, rootDirectory: string&#
         
         &#47;&#47; If relative path starts with &#39;..&#39; or is absolute, the file escapes the root
         if &#40;relativePath.startsWith&#40;&#39;..&#39;&#41; || path.isAbsolute&#40;relativePath&#41;&#41; &#123;
+            const warningMsg &#61; &#96;🚨 SECURITY: Path traversal detected: &#39;&#36;&#123;filePath&#125;&#39; escapes root directory &#39;&#36;&#123;rootDirectory&#125;&#39;&#96;;
+            logger.consoleWarn&#40;warningMsg&#41;;
             throw new FusionError&#40;
                 &#96;Path traversal detected: &#39;&#36;&#123;filePath&#125;&#39; escapes root directory &#39;&#36;&#123;rootDirectory&#125;&#39;&#96;,
                 &#39;PATH_TRAVERSAL&#39;,
@@ -5266,6 +5271,8 @@ export async function validateNoSymlinks&#40;filePath: string, allowSymlinks &#6
         
         if &#40;stats.isSymbolicLink&#40;&#41;&#41; &#123;
             if &#40;&#33;allowSymlinks&#41; &#123;
+                const warningMsg &#61; &#96;🚨 SECURITY: Symbolic link not allowed: &#39;&#36;&#123;filePath&#125;&#39;&#96;;
+                logger.consoleWarn&#40;warningMsg&#41;;
                 throw new FusionError&#40;
                     &#96;Symbolic link not allowed: &#39;&#36;&#123;filePath&#125;&#39;&#96;,
                     &#39;SYMLINK_NOT_ALLOWED&#39;,
@@ -5655,7 +5662,7 @@ export async function logMemoryUsageIfNeeded&#40;
         if &#40;memCheck.level &#61;&#61;&#61; &#39;error&#39;&#41; &#123;
             console.error&#40;logMessage&#41;;
         &#125; else &#123;
-            console.warn&#40;logMessage&#41;;
+            logger.consoleWarn&#40;logMessage&#41;;
         &#125;
     &#125;
 &#125;
@@ -6069,6 +6076,10 @@ export class Logger &#123;
 
     consoleWarning&#40;message: string&#41;: void &#123;
         console.log&#40;chalk.yellow&#40;message&#41;&#41;;
+    &#125;
+
+    consoleWarn&#40;message: string&#41;: void &#123;
+        console.warn&#40;chalk.yellow&#40;message&#41;&#41;;
     &#125;
 
     consoleError&#40;message: string&#41;: void &#123;
@@ -20195,26 +20206,7 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre># TODO: Améliorations Essentielles Project Fusion
-
-## 🔴 Priorité HAUTE &#40;à faire en premier&#41;
-
-### Sécurité &amp; Trust
-• Activer GitHub CodeQL dans &#96;.github&#47;workflows&#47;codeql.yml&#96;
-• **Activer Push Protection** dans Settings → Code security &#40;empêche commit de secrets&#41;
-
-### NPM Publishing
-• Ajouter script &#96;prerelease&#96; avec dry-run: &#96;&quot;prerelease&quot;: &quot;npm pack &amp;&amp; tar -tzf *.tgz&quot;&#96;
-
-### Logging Sécurité &#40;from ancien TODO&#41;
-• S&#39;assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning
-• Avoir une fonction permettant de récupérer la liste des fichiers ayant un problème de sécurité
-
----
-
-## 🟡 Priorité MOYENNE &#40;amélioration performance &amp; DX&#41;
-
-### Build Moderne avec tsup
+<pre>### Build Moderne avec tsup
 • Migrer de &#96;tsc&#96; vers &#96;tsup&#96; pour build 10x plus rapide
 • Ajouter scripts: &#96;&quot;build&quot;: &quot;tsup&quot;&#96;
 • Mettre à jour CI pour utiliser: &#96;npm ci &amp;&amp; npm run build&#96;
@@ -20228,10 +20220,6 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 ### Tests Critiques &#40;minimum vital&#41;
 • **1 test de types** avec &#96;expectTypeOf&#96; pour la Fluent API
 • **1 smoke test d&#39;import ESM**: &#96;import &#123; projectFusion &#125; from &#39;&#64;the99studio&#47;project-fusion&#39;&#96;
-
----
-
-## 🟢 Priorité BASSE &#40;nice to have&#41;
 
 ### CI&#47;CD
 • Configurer OIDC pour npm publish dans GitHub Actions
@@ -20247,19 +20235,6 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 • Ajouter &#96;eslint-config-prettier&#96; pour éviter conflits format
 • Installer &#96;eslint-plugin-security&#96; pour détection anti-patterns
 
----
-
-## 📝 Snippets Prêts à Copier
-
-### package.json - prerelease
-&#96;&#96;&#96;json
-&#123;
-  &quot;scripts&quot;: &#123;
-    &quot;prerelease&quot;: &quot;npm pack &amp;&amp; tar -tzf *.tgz &amp;&amp; rm -f *.tgz&quot;
-  &#125;
-&#125;
-&#96;&#96;&#96;
-
 ### tsup dans package.json
 &#96;&#96;&#96;json
 &#123;
@@ -20271,27 +20246,6 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &quot;tsup&quot;: &quot;^8.0.0&quot; 
   &#125;
 &#125;
-&#96;&#96;&#96;
-
-### .github&#47;workflows&#47;codeql.yml
-&#96;&#96;&#96;yaml
-name: codeql
-on:
-  push: &#123; branches: &#91;main&#93; &#125;
-  pull_request: &#123; branches: &#91;main&#93; &#125;
-  schedule: &#91;&#123; cron: &#39;0 3 * * 1&#39; &#125;&#93;
-permissions:
-  actions: read
-  contents: read
-  security-events: write
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions&#47;checkout&#64;v4
-      - uses: github&#47;codeql-action&#47;init&#64;v3
-        with: &#123; languages: javascript-typescript &#125;
-      - uses: github&#47;codeql-action&#47;analyze&#64;v3
 &#96;&#96;&#96;
 
 ### changesets config
