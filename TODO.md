@@ -4,9 +4,13 @@
 
 ### Sécurité & Trust
 • Créer `SECURITY.md` avec politique de disclosure
-• Ajouter `publishConfig.provenance: true` dans package.json
-• Créer `.github/CODEOWNERS` pour contrôle des reviews
+• Créer `.github/CODEOWNERS` pour contrôle des reviews  
 • Activer GitHub CodeQL dans `.github/workflows/codeql.yml`
+• **Activer Push Protection** dans Settings → Code security (empêche commit de secrets)
+
+### NPM Publishing
+• Ajouter `publishConfig.provenance: true` dans package.json
+• Ajouter script `prerelease` avec dry-run: `"prerelease": "npm pack && tar -tzf *.tgz"`
 
 ### Logging Sécurité (from ancien TODO)
 • S'assurer que tous les problèmes de sécurité rencontrés lors de la fusion soient bien loggués en warning
@@ -16,19 +20,21 @@
 
 ## 🟡 Priorité MOYENNE (amélioration performance & DX)
 
-### Build Moderne
+### Build Moderne avec tsup
 • Migrer de `tsc` vers `tsup` pour build 10x plus rapide
+• Ajouter scripts: `"build": "tsup"` et `"build:watch": "tsup --watch"`
+• Mettre à jour CI pour utiliser: `npm ci && npm run build`
 • Ajouter `noImplicitOverride: true` dans tsconfig.json
-• Ajouter script `build:watch` pour développement
 
-### Versioning Automatique
-• Installer et configurer `@changesets/cli`
+### Versioning Automatique avec gate
+• Installer et configurer `@changesets/cli`  
 • Créer `.changeset/config.json`
 • Ajouter workflow `.github/workflows/changesets.yml` pour Release PR auto
+• **Configurer gate CI: "no changeset, no release"** (échec si pas de changeset sur PR)
 
-### Tests de Types
-• Ajouter tests avec `expectTypeOf` de Vitest pour l'API publique
-• Tester Fluent API et types exportés
+### Tests Critiques (minimum vital)
+• **1 test de types** avec `expectTypeOf` pour la Fluent API
+• **1 smoke test d'import ESM**: `import { projectFusion } from '@the99studio/project-fusion'`
 
 ---
 
@@ -61,9 +67,12 @@ Please email security@the99studio.dev with details.
 We aim to respond within 7 days.
 ```
 
-### package.json - publishConfig
+### package.json - publishConfig + prerelease
 ```json
 {
+  "scripts": {
+    "prerelease": "npm pack && tar -tzf *.tgz && rm -f *.tgz"
+  },
   "publishConfig": { 
     "access": "public", 
     "provenance": true 
