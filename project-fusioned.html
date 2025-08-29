@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 17:12:41 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 18:50:31 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
@@ -4342,15 +4342,23 @@ function aggressiveContentSanitization&#40;content: string&#41;: string &#123;
     
     let sanitized &#61; content;
     
-    &#47;&#47; 1. Remove or neutralize script-like patterns - non-greedy, bounded
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;script&#91;^&gt;&#93;*&gt;.*?&lt;\&#47;script&gt;&#47;gi, &#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+    &#47;&#47; 1. Remove script blocks completely - safe string-based approach
+    while &#40;sanitized.includes&#40;&#39;&lt;script&#39;&#41; || sanitized.includes&#40;&#39;&lt;&#47;script&gt;&#39;&#41;&#41; &#123;
+        sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;script\b&#91;^&gt;&#93;*&gt;&#47;gi, &#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+        sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;\&#47;script&gt;&#47;gi, &#39;&#39;&#41;;
+    &#125;
     sanitized &#61; sanitized.replaceAll&#40;&#47;on\w&#123;1,20&#125;\s*&#61;\s*&#91;&quot;&#39;&#93;&#91;^&quot;&#39;&#93;&#123;0,200&#125;&#91;&quot;&#39;&#93;&#47;gi, &#39;&#91;REMOVED: EVENT HANDLER&#93;&#39;&#41;;
     
-    &#47;&#47; 2. Neutralize dangerous HTML elements - bounded patterns
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;iframe&#91;^&gt;&#93;&#123;0,500&#125;&gt;.*?&lt;\&#47;iframe&gt;&#47;gi, &#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;object&#91;^&gt;&#93;&#123;0,500&#125;&gt;.*?&lt;\&#47;object&gt;&#47;gi, &#39;&#91;REMOVED: OBJECT&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;embed&#91;^&gt;&#93;&#123;0,500&#125;&#40;?:\&#47;&gt;|&gt;.*?&lt;\&#47;embed&gt;&#41;&#47;gi, &#39;&#91;REMOVED: EMBED&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;form&#91;^&gt;&#93;&#123;0,500&#125;&gt;.*?&lt;\&#47;form&gt;&#47;gi, &#39;&#91;REMOVED: FORM&#93;&#39;&#41;;
+    &#47;&#47; 2. Remove dangerous HTML elements - safe string-based approach
+    &#47;&#47; Use literal regex patterns to avoid dynamic RegExp constructor
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;iframe\b&#91;^&gt;&#93;*&gt;&#47;gi, &#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;\&#47;iframe&gt;&#47;gi, &#39;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;object\b&#91;^&gt;&#93;*&gt;&#47;gi, &#39;&#91;REMOVED: OBJECT&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;\&#47;object&gt;&#47;gi, &#39;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;embed\b&#91;^&gt;&#93;*\&#47;?&gt;&#47;gi, &#39;&#91;REMOVED: EMBED&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;\&#47;embed&gt;&#47;gi, &#39;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;form\b&#91;^&gt;&#93;*&gt;&#47;gi, &#39;&#91;REMOVED: FORM&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;\&#47;form&gt;&#47;gi, &#39;&#39;&#41;;
     
     &#47;&#47; 3. Remove dangerous CSS patterns - bounded
     sanitized &#61; sanitized.replaceAll&#40;&#47;expression\s*\&#40;&#91;^&#41;&#93;&#123;0,200&#125;\&#41;&#47;gi, &#39;&#91;REMOVED: CSS EXPRESSION&#93;&#39;&#41;;
