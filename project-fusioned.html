@@ -7,7 +7,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
-<title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0 - Project Fusion</title>
+<title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0 - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
 pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
@@ -19,10 +19,10 @@ a{color:#00e;text-decoration:underline}
 </head>
 <body>
 <h1>Project Fusion Output</h1>
-<p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 11:04:13 UTC−4</p>
+<p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 15:10:06 UTC−4</p>
 <p><strong>Files:</strong> 76</p>
-<p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
+<p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -441,7 +441,9 @@ npm uninstall -g &#64;the99studio&#47;project-fusion
 
 ## Publishing
 
-Publishing is automated via GitHub Actions when you push a version tag:
+**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
+
+Publishing is automated via GitHub Actions when you push a version tag.
 
 &#96;&#96;&#96;bash
 # 1. Ensure you&#39;re on main branch with latest changes
@@ -458,12 +460,11 @@ git push &amp;&amp; git push --tags
 &#96;&#96;&#96;
 
 The &#91;release.yml&#93;&#40;.&#47;.github&#47;workflows&#47;release.yml&#41; workflow automatically:
-- Runs all tests
-- Builds the project
-- Publishes to npm
-- Creates a GitHub release
-
-**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
+- ✅ Verifies version consistency between tag and package.json
+- ✅ Runs all tests via build-test.yml
+- ✅ Builds the project
+- ✅ Publishes to npm &#40;stable or pre-release&#41;
+- ✅ Creates a GitHub release with auto-generated notes
 
 ## Plugin Development
 
@@ -827,7 +828,7 @@ export default &#91;
 <h2 id="packagejson">package.json</h2>
 <pre>&#123;
     &quot;name&quot;: &quot;&#64;the99studio&#47;project-fusion&quot;,
-    &quot;version&quot;: &quot;1.1.0&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
     &quot;description&quot;: &quot;CLI tool for merging project files into a single file for easy sharing&quot;,
     &quot;main&quot;: &quot;dist&#47;index.js&quot;,
     &quot;types&quot;: &quot;dist&#47;index.d.ts&quot;,
@@ -20383,19 +20384,7 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="todomd">TODO.md</h2>
-<pre>### Versioning Automatique avec gate
-• Installer et configurer &#96;&#64;changesets&#47;cli&#96;  
-• Créer &#96;.changeset&#47;config.json&#96;
-• Ajouter workflow &#96;.github&#47;workflows&#47;changesets.yml&#96; pour Release PR auto
-• **Configurer gate CI: &quot;no changeset, no release&quot;** &#40;échec si pas de changeset sur PR&#41;
-
-### changesets config
-&#96;&#96;&#96;bash
-npm install --save-dev &#64;changesets&#47;cli &#64;changesets&#47;changelog-github
-npx changeset init
-&#96;&#96;&#96;
-
-### CI&#47;CD
+<pre>### CI&#47;CD
 • Configurer OIDC pour npm publish dans GitHub Actions
 • Ajouter tags &#96;next&#96; et &#96;canary&#96; pour pre-releases NPM
 • Ajouter benchmarks avec tinybench

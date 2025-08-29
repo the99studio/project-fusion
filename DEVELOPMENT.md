@@ -64,7 +64,9 @@ npm uninstall -g @the99studio/project-fusion
 
 ## Publishing
 
-Publishing is automated via GitHub Actions when you push a version tag:
+**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
+
+Publishing is automated via GitHub Actions when you push a version tag.
 
 ```bash
 # 1. Ensure you're on main branch with latest changes
@@ -81,12 +83,11 @@ git push && git push --tags
 ```
 
 The [release.yml](./.github/workflows/release.yml) workflow automatically:
-- Runs all tests
-- Builds the project
-- Publishes to npm
-- Creates a GitHub release
-
-**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
+- ✅ Verifies version consistency between tag and package.json
+- ✅ Runs all tests via build-test.yml
+- ✅ Builds the project
+- ✅ Publishes to npm (stable or pre-release)
+- ✅ Creates a GitHub release with auto-generated notes
 
 ## Plugin Development
 
