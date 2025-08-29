@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 09:17:24 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 09:31:59 UTC−4</p>
 <p><strong>Files:</strong> 76</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -10287,7 +10287,7 @@ describe&#40;&#39;Fluent API Type Tests&#39;, &#40;&#41; &#61;&gt; &#123;
 
     it&#40;&#39;should have correct type for generate method&#39;, &#40;&#41; &#61;&gt; &#123;
         const builder &#61; projectFusion&#40;&#41;;
-        expectTypeOf&#40;builder.generate&#40;&#41;&#41;.toEqualTypeOf&lt;Promise&lt;FusionResult&gt;&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.generate&#41;.toEqualTypeOf&lt;&#40;&#41; &#61;&gt; Promise&lt;FusionResult&gt;&gt;&#40;&#41;;
     &#125;&#41;;
 
     it&#40;&#39;should support method chaining with correct types&#39;, &#40;&#41; &#61;&gt; &#123;
@@ -10360,14 +10360,14 @@ describe&#40;&#39;Fluent API Type Tests&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;&gt;&#40;&#41;;
     &#125;&#41;;
 
-    it&#40;&#39;should correctly type FusionResult from generate&#39;, async &#40;&#41; &#61;&gt; &#123;
-        const result &#61; await projectFusion&#40;&#41;.generate&#40;&#41;;
+    it&#40;&#39;should correctly type FusionResult from generate&#39;, &#40;&#41; &#61;&gt; &#123;
+        const builder &#61; projectFusion&#40;&#41;;
         
-        expectTypeOf&#40;result&#41;.toMatchTypeOf&lt;&#123;
+        expectTypeOf&#40;builder.generate&#41;.toMatchTypeOf&lt;&#40;&#41; &#61;&gt; Promise&lt;&#123;
             success: boolean;
             message: string;
             error?: unknown;
-        &#125;&gt;&#40;&#41;;
+        &#125;&gt;&gt;&#40;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="testsfluenttestts">tests&#47;fluent.test.ts</h2>

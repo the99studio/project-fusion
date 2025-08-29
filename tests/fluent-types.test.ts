@@ -33,7 +33,7 @@ describe('Fluent API Type Tests', () => {
 
     it('should have correct type for generate method', () => {
         const builder = projectFusion();
-        expectTypeOf(builder.generate()).toEqualTypeOf<Promise<FusionResult>>();
+        expectTypeOf(builder.generate).toEqualTypeOf<() => Promise<FusionResult>>();
     });
 
     it('should support method chaining with correct types', () => {
@@ -106,13 +106,13 @@ describe('Fluent API Type Tests', () => {
         }>();
     });
 
-    it('should correctly type FusionResult from generate', async () => {
-        const result = await projectFusion().generate();
+    it('should correctly type FusionResult from generate', () => {
+        const builder = projectFusion();
         
-        expectTypeOf(result).toMatchTypeOf<{
+        expectTypeOf(builder.generate).toMatchTypeOf<() => Promise<{
             success: boolean;
             message: string;
             error?: unknown;
-        }>();
+        }>>();
     });
 });

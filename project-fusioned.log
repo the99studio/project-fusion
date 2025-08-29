@@ -1,6 +1,6 @@
 === PROJECT FUSION SESSION START ===
-Session ID: mewuxro1-vdnqylo9r
-Start time: 2025-08-29T13:17:24.431Z
+Session ID: mewvgiat-sm8dwn6xs
+Start time: 2025-08-29T13:31:58.754Z
 Working directory: .
 Generated file name: project-fusioned
 
@@ -24,33 +24,33 @@ Auto-ignoring generated files: project-fusioned.txt, project-fusioned.md, projec
 File extensions to process: 38
 Available extension categories: 7
 Status: Fusion completed successfully
-Start time: 2025-08-29T13:17:24.431Z
-End time: 2025-08-29T13:17:24.850Z
-Duration: 0.42s
+Start time: 2025-08-29T13:31:58.754Z
+End time: 2025-08-29T13:31:59.162Z
+Duration: 0.41s
 Total data processed: 0.76 MB
 
 --- FILE TYPE STATISTICS ---
-Files found: 11136
+Files found: 11134
 Files processed successfully: 76
 Files skipped (too large): 0
-Files filtered out: 11060
+Files filtered out: 11058
 
 File types processed:
-  .ts: 66 files (738.26 KB)
+  .ts: 66 files (738.27 KB)
   .md: 6 files (26.56 KB)
   .json: 3 files (3.83 KB)
   .js: 1 files (8.23 KB)
 
 --- PERFORMANCE METRICS ---
 Duration breakdown:
-  Total execution: 0.42s
-  File discovery: 100.7% of total
+  Total execution: 0.41s
+  File discovery: 100.5% of total
 Memory usage:
-  Peak memory: 23.70 MB
-  Memory per file: 319.30 KB
+  Peak memory: 24.01 MB
+  Memory per file: 323.50 KB
 Processing speed:
-  Data throughput: 1.79 MB/s
-  File processing rate: 184.40 files/s
+  Data throughput: 1.84 MB/s
+  File processing rate: 189.78 files/s
   Average file size: 10.22 KB
 Output generation:
   Generated formats: text, markdown, html
