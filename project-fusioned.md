@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 29/08/2025 16:21:39 UTC−4
+**Generated:** 29/08/2025 16:38:49 UTC−4
 
 **Files:** 75
 
@@ -8007,7 +8007,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
 
         it('should exit with code 1 on invalid options', async () => {
@@ -8206,7 +8206,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
     });
 
@@ -8321,7 +8321,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
 
         it('should handle non-existent extension groups', async () => {
@@ -8474,8 +8474,8 @@ describe('CLI E2E Tests', () => {
             
             // Check content of markdown file
             const mdContent = await readFile('project-fusioned.md', 'utf8');
-            expect(mdContent).toContain('## 📄 test.js');
-            expect(mdContent).toContain('## 📄 test.ts');
+            expect(mdContent).toContain('## test.js');
+            expect(mdContent).toContain('## test.ts');
             expect(mdContent).toContain('```javascript');
             expect(mdContent).toContain('```typescript');
             
@@ -8716,7 +8716,7 @@ describe('CLI E2E Tests', () => {
             });
             
             expect(output).toContain('✅');
-            expect(output).toContain('📋 Clipboard copy skipped (non-interactive environment)');
+            expect(output).toContain('Clipboard copy skipped (non-interactive environment)');
         });
 
         it('should handle non-TTY environment', async () => {
@@ -9030,7 +9030,7 @@ describe('CLI Commands', () => {
 
             await runFusionCommand({});
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📋 Fusion content copied to clipboard'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Fusion content copied to clipboard'));
 
             // Restore
             process.stdout.isTTY = originalTTY;
@@ -9061,7 +9061,7 @@ describe('CLI Commands', () => {
 
             await runFusionCommand({});
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📋 Clipboard copy skipped (non-interactive environment)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Clipboard copy skipped (non-interactive environment)'));
         });
 
         it('should handle clipboard error gracefully', async () => {
@@ -9160,9 +9160,9 @@ describe('CLI Commands', () => {
                 maxTotalSize: '50.5' 
             });
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum file size set to: 2048 KB'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum files set to: 500'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum total size set to: 50.5 MB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum file size set to: 2048 KB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum files set to: 500'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum total size set to: 50.5 MB'));
             expect(mockExit).not.toHaveBeenCalledWith(1);
         });
 
@@ -9284,18 +9284,18 @@ describe('CLI Commands', () => {
 
             await runConfigCheckCommand();
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔧 Basic Settings'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📄 Output Generation'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🚫 Ignore Patterns'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔍 File Discovery Preview'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Basic Settings'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Output Generation'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Extension Groups'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Ignore Patterns'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Discovery Preview'));
         });
 
         it('should display structured table for extension groups', async () => {
             await runConfigCheckCommand();
 
             // Check for structured table elements
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups (Structured View)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Extension Groups (Structured View)'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('┌─────────────┬─────────┬────────────────────────────────────────────┐'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('│ Group       │ Count   │ Extensions                                 │'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('└─────────────┴─────────┴────────────────────────────────────────────┘'));

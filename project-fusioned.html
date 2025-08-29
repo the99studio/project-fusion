@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 16:21:39 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 16:38:49 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
@@ -7906,7 +7906,7 @@ describe&#40;&#39;CLI Binary E2E Tests&#39;, &#40;&#41; &#61;&gt; &#123;
 
             expect&#40;result.exitCode&#41;.toBe&#40;0&#41;;
             expect&#40;result.stdout&#41;.toContain&#40;&#39;No files found to process&#39;&#41;;
-            expect&#40;result.stdout&#41;.toContain&#40;&#39;💡 Suggestions to find files&#39;&#41;;
+            expect&#40;result.stdout&#41;.toContain&#40;&#39;Suggestions to find files&#39;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should exit with code 1 on invalid options&#39;, async &#40;&#41; &#61;&gt; &#123;
@@ -8105,7 +8105,7 @@ describe&#40;&#39;CLI Binary E2E Tests&#39;, &#40;&#41; &#61;&gt; &#123;
 
             expect&#40;result.exitCode&#41;.toBe&#40;0&#41;;
             expect&#40;result.stdout&#41;.toContain&#40;&#39;No files found to process&#39;&#41;;
-            expect&#40;result.stdout&#41;.toContain&#40;&#39;💡 Suggestions to find files&#39;&#41;;
+            expect&#40;result.stdout&#41;.toContain&#40;&#39;Suggestions to find files&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 
@@ -8220,7 +8220,7 @@ describe&#40;&#39;CLI Binary E2E Tests&#39;, &#40;&#41; &#61;&gt; &#123;
 
             expect&#40;result.exitCode&#41;.toBe&#40;0&#41;;
             expect&#40;result.stdout&#41;.toContain&#40;&#39;No files found to process&#39;&#41;;
-            expect&#40;result.stdout&#41;.toContain&#40;&#39;💡 Suggestions to find files&#39;&#41;;
+            expect&#40;result.stdout&#41;.toContain&#40;&#39;Suggestions to find files&#39;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should handle non-existent extension groups&#39;, async &#40;&#41; &#61;&gt; &#123;
@@ -8369,8 +8369,8 @@ describe&#40;&#39;CLI E2E Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             
             &#47;&#47; Check content of markdown file
             const mdContent &#61; await readFile&#40;&#39;project-fusioned.md&#39;, &#39;utf8&#39;&#41;;
-            expect&#40;mdContent&#41;.toContain&#40;&#39;## 📄 test.js&#39;&#41;;
-            expect&#40;mdContent&#41;.toContain&#40;&#39;## 📄 test.ts&#39;&#41;;
+            expect&#40;mdContent&#41;.toContain&#40;&#39;## test.js&#39;&#41;;
+            expect&#40;mdContent&#41;.toContain&#40;&#39;## test.ts&#39;&#41;;
             expect&#40;mdContent&#41;.toContain&#40;&#39;&#96;&#96;&#96;javascript&#39;&#41;;
             expect&#40;mdContent&#41;.toContain&#40;&#39;&#96;&#96;&#96;typescript&#39;&#41;;
             
@@ -8611,7 +8611,7 @@ describe&#40;&#39;CLI E2E Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             &#125;&#41;;
             
             expect&#40;output&#41;.toContain&#40;&#39;✅&#39;&#41;;
-            expect&#40;output&#41;.toContain&#40;&#39;📋 Clipboard copy skipped &#40;non-interactive environment&#41;&#39;&#41;;
+            expect&#40;output&#41;.toContain&#40;&#39;Clipboard copy skipped &#40;non-interactive environment&#41;&#39;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should handle non-TTY environment&#39;, async &#40;&#41; &#61;&gt; &#123;
@@ -8921,7 +8921,7 @@ describe&#40;&#39;CLI Commands&#39;, &#40;&#41; &#61;&gt; &#123;
 
             await runFusionCommand&#40;&#123;&#125;&#41;;
 
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;📋 Fusion content copied to clipboard&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Fusion content copied to clipboard&#39;&#41;&#41;;
 
             &#47;&#47; Restore
             process.stdout.isTTY &#61; originalTTY;
@@ -8952,7 +8952,7 @@ describe&#40;&#39;CLI Commands&#39;, &#40;&#41; &#61;&gt; &#123;
 
             await runFusionCommand&#40;&#123;&#125;&#41;;
 
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;📋 Clipboard copy skipped &#40;non-interactive environment&#41;&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Clipboard copy skipped &#40;non-interactive environment&#41;&#39;&#41;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should handle clipboard error gracefully&#39;, async &#40;&#41; &#61;&gt; &#123;
@@ -9051,9 +9051,9 @@ describe&#40;&#39;CLI Commands&#39;, &#40;&#41; &#61;&gt; &#123;
                 maxTotalSize: &#39;50.5&#39; 
             &#125;&#41;;
 
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;ℹ️ Maximum file size set to: 2048 KB&#39;&#41;&#41;;
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;ℹ️ Maximum files set to: 500&#39;&#41;&#41;;
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;ℹ️ Maximum total size set to: 50.5 MB&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Maximum file size set to: 2048 KB&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Maximum files set to: 500&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Maximum total size set to: 50.5 MB&#39;&#41;&#41;;
             expect&#40;mockExit&#41;.not.toHaveBeenCalledWith&#40;1&#41;;
         &#125;&#41;;
 
@@ -9175,18 +9175,18 @@ describe&#40;&#39;CLI Commands&#39;, &#40;&#41; &#61;&gt; &#123;
 
             await runConfigCheckCommand&#40;&#41;;
 
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;🔧 Basic Settings&#39;&#41;&#41;;
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;📄 Output Generation&#39;&#41;&#41;;
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;📁 File Extension Groups&#39;&#41;&#41;;
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;🚫 Ignore Patterns&#39;&#41;&#41;;
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;🔍 File Discovery Preview&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Basic Settings&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Output Generation&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;File Extension Groups&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;Ignore Patterns&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;File Discovery Preview&#39;&#41;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should display structured table for extension groups&#39;, async &#40;&#41; &#61;&gt; &#123;
             await runConfigCheckCommand&#40;&#41;;
 
             &#47;&#47; Check for structured table elements
-            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;📁 File Extension Groups &#40;Structured View&#41;&#39;&#41;&#41;;
+            expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;File Extension Groups &#40;Structured View&#41;&#39;&#41;&#41;;
             expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;┌─────────────┬─────────┬────────────────────────────────────────────┐&#39;&#41;&#41;;
             expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;│ Group       │ Count   │ Extensions                                 │&#39;&#41;&#41;;
             expect&#40;mockConsole.log&#41;.toHaveBeenCalledWith&#40;expect.stringContaining&#40;&#39;└─────────────┴─────────┴────────────────────────────────────────────┘&#39;&#41;&#41;;
