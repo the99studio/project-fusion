@@ -64,9 +64,7 @@ npm uninstall -g @the99studio/project-fusion
 
 ## Publishing
 
-**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
-
-Publishing is automated via GitHub Actions when you push a version tag.
+Publishing is automated via GitHub Actions when you push a version tag using OpenID Connect (OIDC) for secure, token-free authentication.
 
 ```bash
 # 1. Ensure you're on main branch with latest changes
