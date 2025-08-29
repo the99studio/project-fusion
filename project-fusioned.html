@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 28&#47;08&#47;2025 19:30:15 UTC−4</p>
+<p><strong>Generated:</strong> 28&#47;08&#47;2025 20:37:22 UTC−4</p>
 <p><strong>Files:</strong> 74</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -888,22 +888,22 @@ export default &#91;
         &quot;glob&quot;: &quot;^11.0.3&quot;,
         &quot;ignore&quot;: &quot;^7.0.5&quot;,
         &quot;minimatch&quot;: &quot;^10.0.3&quot;,
-        &quot;zod&quot;: &quot;^4.0.17&quot;
+        &quot;zod&quot;: &quot;^4.1.5&quot;
     &#125;,
     &quot;devDependencies&quot;: &#123;
         &quot;&#64;types&#47;fs-extra&quot;: &quot;^11.0.4&quot;,
         &quot;&#64;types&#47;node&quot;: &quot;^24.3.0&quot;,
-        &quot;&#64;typescript-eslint&#47;eslint-plugin&quot;: &quot;^8.40.0&quot;,
-        &quot;&#64;typescript-eslint&#47;parser&quot;: &quot;^8.40.0&quot;,
+        &quot;&#64;typescript-eslint&#47;eslint-plugin&quot;: &quot;^8.41.0&quot;,
+        &quot;&#64;typescript-eslint&#47;parser&quot;: &quot;^8.41.0&quot;,
         &quot;&#64;vitest&#47;coverage-v8&quot;: &quot;^3.2.4&quot;,
-        &quot;eslint&quot;: &quot;^9.33.0&quot;,
+        &quot;eslint&quot;: &quot;^9.34.0&quot;,
         &quot;eslint-import-resolver-typescript&quot;: &quot;^4.4.4&quot;,
         &quot;eslint-plugin-import&quot;: &quot;^2.32.0&quot;,
         &quot;eslint-plugin-node&quot;: &quot;^11.1.0&quot;,
         &quot;eslint-plugin-unicorn&quot;: &quot;^60.0.0&quot;,
         &quot;fast-check&quot;: &quot;^4.2.0&quot;,
         &quot;typescript&quot;: &quot;^5.9.2&quot;,
-        &quot;typescript-eslint&quot;: &quot;^8.40.0&quot;,
+        &quot;typescript-eslint&quot;: &quot;^8.41.0&quot;,
         &quot;vitest&quot;: &quot;^3.2.4&quot;
     &#125;
 &#125;
@@ -20212,6 +20212,12 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 • Ajouter workflow &#96;.github&#47;workflows&#47;changesets.yml&#96; pour Release PR auto
 • **Configurer gate CI: &quot;no changeset, no release&quot;** &#40;échec si pas de changeset sur PR&#41;
 
+### changesets config
+&#96;&#96;&#96;bash
+npm install --save-dev &#64;changesets&#47;cli &#64;changesets&#47;changelog-github
+npx changeset init
+&#96;&#96;&#96;
+
 ### Tests Critiques &#40;minimum vital&#41;
 • **1 test de types** avec &#96;expectTypeOf&#96; pour la Fluent API
 • **1 smoke test d&#39;import ESM**: &#96;import &#123; projectFusion &#125; from &#39;&#64;the99studio&#47;project-fusion&#39;&#96;
@@ -20228,26 +20234,7 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 
 ### Linting
 • Ajouter &#96;eslint-config-prettier&#96; pour éviter conflits format
-• Installer &#96;eslint-plugin-security&#96; pour détection anti-patterns
-
-### tsup dans package.json
-&#96;&#96;&#96;json
-&#123;
-  &quot;scripts&quot;: &#123;
-    &quot;build&quot;: &quot;tsup src&#47;index.ts --dts --format esm --sourcemap&quot;,
-    &quot;build:watch&quot;: &quot;tsup src&#47;index.ts --dts --format esm --sourcemap --watch&quot;
-  &#125;,
-  &quot;devDependencies&quot;: &#123; 
-    &quot;tsup&quot;: &quot;^8.0.0&quot; 
-  &#125;
-&#125;
-&#96;&#96;&#96;
-
-### changesets config
-&#96;&#96;&#96;bash
-npm install --save-dev &#64;changesets&#47;cli &#64;changesets&#47;changelog-github
-npx changeset init
-&#96;&#96;&#96;</pre>
+• Installer &#96;eslint-plugin-security&#96; pour détection anti-patterns</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;
     &quot;compilerOptions&quot;: &#123;

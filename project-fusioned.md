@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 28/08/2025 19:30:15 UTC−4
+**Generated:** 28/08/2025 20:37:22 UTC−4
 
 **Files:** 74
 
@@ -893,22 +893,22 @@ export default [
         "glob": "^11.0.3",
         "ignore": "^7.0.5",
         "minimatch": "^10.0.3",
-        "zod": "^4.0.17"
+        "zod": "^4.1.5"
     },
     "devDependencies": {
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^24.3.0",
-        "@typescript-eslint/eslint-plugin": "^8.40.0",
-        "@typescript-eslint/parser": "^8.40.0",
+        "@typescript-eslint/eslint-plugin": "^8.41.0",
+        "@typescript-eslint/parser": "^8.41.0",
         "@vitest/coverage-v8": "^3.2.4",
-        "eslint": "^9.33.0",
+        "eslint": "^9.34.0",
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-unicorn": "^60.0.0",
         "fast-check": "^4.2.0",
         "typescript": "^5.9.2",
-        "typescript-eslint": "^8.40.0",
+        "typescript-eslint": "^8.41.0",
         "vitest": "^3.2.4"
     }
 }
@@ -20481,6 +20481,12 @@ describe('VS Code API enhancements', () => {
 • Ajouter workflow `.github/workflows/changesets.yml` pour Release PR auto
 • **Configurer gate CI: "no changeset, no release"** (échec si pas de changeset sur PR)
 
+### changesets config
+```bash
+npm install --save-dev @changesets/cli @changesets/changelog-github
+npx changeset init
+```
+
 ### Tests Critiques (minimum vital)
 • **1 test de types** avec `expectTypeOf` pour la Fluent API
 • **1 smoke test d'import ESM**: `import { projectFusion } from '@the99studio/project-fusion'`
@@ -20498,25 +20504,6 @@ describe('VS Code API enhancements', () => {
 ### Linting
 • Ajouter `eslint-config-prettier` pour éviter conflits format
 • Installer `eslint-plugin-security` pour détection anti-patterns
-
-### tsup dans package.json
-```json
-{
-  "scripts": {
-    "build": "tsup src/index.ts --dts --format esm --sourcemap",
-    "build:watch": "tsup src/index.ts --dts --format esm --sourcemap --watch"
-  },
-  "devDependencies": { 
-    "tsup": "^8.0.0" 
-  }
-}
-```
-
-### changesets config
-```bash
-npm install --save-dev @changesets/cli @changesets/changelog-github
-npx changeset init
-```
 ```
 
 ## 📄 tsconfig.json {#tsconfigjson}
