@@ -282,14 +282,13 @@ export async function runFusionCommand(options: {
                 const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
                 if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
                     try {
-                        // Check file size before reading (skip if > 5 MB)
-                        const fileStats = await fs.stat(result.fusionFilePath);
-                        const fileSizeMB = fileStats.size / (1024 * 1024);
+                        // Read file and check size atomically to prevent race condition
+                        const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+                        const fileSizeMB = Buffer.byteLength(fusionContent, 'utf8') / (1024 * 1024);
                         
                         if (fileSizeMB > 5) {
                             console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
-                            const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                             await clipboardy.write(fusionContent);
                             console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }

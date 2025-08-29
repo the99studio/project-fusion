@@ -144,7 +144,7 @@ export class UserService {
             
             // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]');
                 
             const pathNormalizedMd = normalizeFilePaths(normalizedMd);
             expect(pathNormalizedMd).toMatchSnapshot('typescript-files.md');
@@ -223,7 +223,7 @@ echo "Deployment complete!"`);
             
             // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]');
                 
             const pathNormalizedMd = normalizeFilePaths(normalizedMd);
             expect(pathNormalizedMd).toMatchSnapshot('mixed-files.md');
@@ -469,7 +469,7 @@ body {
             
             // Normalize timestamps and paths for consistent snapshots
             const normalizedHtml = htmlContent
-                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>')
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
             const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
             expect(pathNormalizedHtml).toMatchSnapshot('html-with-toc.html');
