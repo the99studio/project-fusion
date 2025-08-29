@@ -20,8 +20,8 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 28&#47;08&#47;2025 20:37:22 UTC−4</p>
-<p><strong>Files:</strong> 74</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 09:17:24 UTC−4</p>
+<p><strong>Files:</strong> 76</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
 <h2>Table of Contents</h2>
@@ -60,8 +60,10 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#testsclipboard-size-guardtestts">tests&#47;clipboard-size-guard.test.ts</a></li>
 <li><a href="#testsconfig-consistencytestts">tests&#47;config-consistency.test.ts</a></li>
 <li><a href="#testscontent-validationtestts">tests&#47;content-validation.test.ts</a></li>
+<li><a href="#testsesm-importtestts">tests&#47;esm-import.test.ts</a></li>
 <li><a href="#testsfile-overwrite-protectiontestts">tests&#47;file-overwrite-protection.test.ts</a></li>
 <li><a href="#testsfile-securitytestts">tests&#47;file-security.test.ts</a></li>
+<li><a href="#testsfluent-typestestts">tests&#47;fluent-types.test.ts</a></li>
 <li><a href="#testsfluenttestts">tests&#47;fluent.test.ts</a></li>
 <li><a href="#testsformatstestts">tests&#47;formats.test.ts</a></li>
 <li><a href="#testsfusion-coveragetestts">tests&#47;fusion-coverage.test.ts</a></li>
@@ -9524,6 +9526,39 @@ describe&#40;&#39;Content Validation Tests&#39;, &#40;&#41; &#61;&gt; &#123;
         &#125;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
+<h2 id="testsesm-importtestts">tests&#47;esm-import.test.ts</h2>
+<pre>&#47;&#47; SPDX-License-Identifier: MIT
+&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
+&#47;**
+ * ESM Import Smoke Test
+ *&#47;
+import &#123; describe, it, expect &#125; from &#39;vitest&#39;;
+import &#123; projectFusion &#125; from &#39;..&#47;src&#47;index.js&#39;;
+
+describe&#40;&#39;ESM Import Smoke Test&#39;, &#40;&#41; &#61;&gt; &#123;
+    it&#40;&#39;should successfully import projectFusion from package&#39;, &#40;&#41; &#61;&gt; &#123;
+        expect&#40;projectFusion&#41;.toBeDefined&#40;&#41;;
+        expect&#40;typeof projectFusion&#41;.toBe&#40;&#39;function&#39;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should create a valid builder instance&#39;, &#40;&#41; &#61;&gt; &#123;
+        const builder &#61; projectFusion&#40;&#41;;
+        expect&#40;builder&#41;.toBeDefined&#40;&#41;;
+        expect&#40;builder.root&#41;.toBeDefined&#40;&#41;;
+        expect&#40;builder.include&#41;.toBeDefined&#40;&#41;;
+        expect&#40;builder.exclude&#41;.toBeDefined&#40;&#41;;
+        expect&#40;builder.generate&#41;.toBeDefined&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should support method chaining after import&#39;, &#40;&#41; &#61;&gt; &#123;
+        const builder &#61; projectFusion&#40;&#41;
+            .root&#40;&#39;.&#47;src&#39;&#41;
+            .include&#40;&#91;&#39;web&#39;&#93;&#41;;
+        
+        expect&#40;builder&#41;.toBeDefined&#40;&#41;;
+        expect&#40;typeof builder.generate&#41;.toBe&#40;&#39;function&#39;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
 <h2 id="testsfile-overwrite-protectiontestts">tests&#47;file-overwrite-protection.test.ts</h2>
 <pre>import path from &#39;node:path&#39;;
 import fs from &#39;fs-extra&#39;;
@@ -10214,6 +10249,125 @@ describe&#40;&#39;File Security Tests&#39;, &#40;&#41; &#61;&gt; &#123;
                 expect&#40;logContent&#41;.toContain&#40;filename&#41;;
             &#125;
         &#125;&#41;;
+    &#125;&#41;;
+&#125;&#41;;</pre>
+<h2 id="testsfluent-typestestts">tests&#47;fluent-types.test.ts</h2>
+<pre>&#47;&#47; SPDX-License-Identifier: MIT
+&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
+&#47;**
+ * Type tests for Fluent API
+ *&#47;
+import &#123; describe, it, expectTypeOf &#125; from &#39;vitest&#39;;
+import &#123; projectFusion, type ProjectFusionBuilder &#125; from &#39;..&#47;src&#47;fluent.js&#39;;
+import type &#123; FusionResult &#125; from &#39;..&#47;src&#47;types.js&#39;;
+
+describe&#40;&#39;Fluent API Type Tests&#39;, &#40;&#41; &#61;&gt; &#123;
+    it&#40;&#39;should have correct type for projectFusion factory function&#39;, &#40;&#41; &#61;&gt; &#123;
+        expectTypeOf&#40;projectFusion&#41;.toBeFunction&#40;&#41;;
+        expectTypeOf&#40;projectFusion&#40;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should have correct return types for all builder methods&#39;, &#40;&#41; &#61;&gt; &#123;
+        const builder &#61; projectFusion&#40;&#41;;
+        
+        expectTypeOf&#40;builder.root&#40;&#39;.&#47;src&#39;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.cwd&#40;&#39;&#47;path&#39;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.include&#40;&#91;&#39;web&#39;&#93;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.exclude&#40;&#91;&#39;*.test.ts&#39;&#93;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.maxSize&#40;&#39;1MB&#39;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.maxSize&#40;1024&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.output&#40;&#91;&#39;md&#39;, &#39;html&#39;&#93;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.name&#40;&#39;test&#39;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.subdirectories&#40;true&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.clipboard&#40;false&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.gitignore&#40;true&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.extensions&#40;&#39;custom&#39;, &#91;&#39;.ext&#39;&#93;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.reset&#40;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should have correct type for generate method&#39;, &#40;&#41; &#61;&gt; &#123;
+        const builder &#61; projectFusion&#40;&#41;;
+        expectTypeOf&#40;builder.generate&#40;&#41;&#41;.toEqualTypeOf&lt;Promise&lt;FusionResult&gt;&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should support method chaining with correct types&#39;, &#40;&#41; &#61;&gt; &#123;
+        const chain &#61; projectFusion&#40;&#41;
+            .root&#40;&#39;.&#47;src&#39;&#41;
+            .include&#40;&#91;&#39;web&#39;, &#39;backend&#39;&#93;&#41;
+            .exclude&#40;&#91;&#39;*.test.ts&#39;&#93;&#41;
+            .maxSize&#40;&#39;2MB&#39;&#41;
+            .output&#40;&#91;&#39;md&#39;&#93;&#41;
+            .name&#40;&#39;fusion&#39;&#41;
+            .subdirectories&#40;false&#41;
+            .clipboard&#40;true&#41;
+            .gitignore&#40;false&#41;;
+            
+        expectTypeOf&#40;chain&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should correctly type configure callback parameter&#39;, &#40;&#41; &#61;&gt; &#123;
+        projectFusion&#40;&#41;.configure&#40;&#40;options&#41; &#61;&gt; &#123;
+            expectTypeOf&#40;options.maxFileSizeKB&#41;.toEqualTypeOf&lt;number | undefined&gt;&#40;&#41;;
+            expectTypeOf&#40;options.generateText&#41;.toEqualTypeOf&lt;boolean | undefined&gt;&#40;&#41;;
+            expectTypeOf&#40;options.rootDirectory&#41;.toEqualTypeOf&lt;string | undefined&gt;&#40;&#41;;
+            expectTypeOf&#40;options.extensionGroups&#41;.toEqualTypeOf&lt;string&#91;&#93; | undefined&gt;&#40;&#41;;
+        &#125;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should correctly type allExtensions parameter&#39;, &#40;&#41; &#61;&gt; &#123;
+        const extensions: Record&lt;string, string&#91;&#93;&gt; &#61; &#123;
+            web: &#91;&#39;.ts&#39;, &#39;.js&#39;&#93;,
+            backend: &#91;&#39;.py&#39;&#93;
+        &#125;;
+        
+        const builder &#61; projectFusion&#40;&#41;.allExtensions&#40;extensions&#41;;
+        expectTypeOf&#40;builder&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should correctly type output format parameter&#39;, &#40;&#41; &#61;&gt; &#123;
+        type OutputFormat &#61; &#39;text&#39; | &#39;md&#39; | &#39;html&#39;;
+        const formats: OutputFormat&#91;&#93; &#61; &#91;&#39;text&#39;, &#39;md&#39;, &#39;html&#39;&#93;;
+        
+        const builder &#61; projectFusion&#40;&#41;.output&#40;formats&#41;;
+        expectTypeOf&#40;builder&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should correctly type optional parameters with defaults&#39;, &#40;&#41; &#61;&gt; &#123;
+        const builder &#61; projectFusion&#40;&#41;;
+        
+        expectTypeOf&#40;builder.subdirectories&#40;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.clipboard&#40;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+        expectTypeOf&#40;builder.gitignore&#40;&#41;&#41;.toEqualTypeOf&lt;ProjectFusionBuilder&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should correctly type getConfig return value&#39;, &#40;&#41; &#61;&gt; &#123;
+        const config &#61; projectFusion&#40;&#41;.getConfig&#40;&#41;;
+        
+        expectTypeOf&#40;config&#41;.toMatchTypeOf&lt;&#123;
+            rootDirectory?: string;
+            cwd?: string;
+            extensionGroups?: string&#91;&#93;;
+            ignorePatterns?: string&#91;&#93;;
+            maxFileSizeKB?: number;
+            generateText?: boolean;
+            generateMarkdown?: boolean;
+            generateHtml?: boolean;
+            generatedFileName?: string;
+            parseSubDirectories?: boolean;
+            copyToClipboard?: boolean;
+            useGitIgnoreForExcludes?: boolean;
+            parsedFileExtensions?: Record&lt;string, string&#91;&#93;&gt;;
+        &#125;&gt;&#40;&#41;;
+    &#125;&#41;;
+
+    it&#40;&#39;should correctly type FusionResult from generate&#39;, async &#40;&#41; &#61;&gt; &#123;
+        const result &#61; await projectFusion&#40;&#41;.generate&#40;&#41;;
+        
+        expectTypeOf&#40;result&#41;.toMatchTypeOf&lt;&#123;
+            success: boolean;
+            message: string;
+            error?: unknown;
+        &#125;&gt;&#40;&#41;;
     &#125;&#41;;
 &#125;&#41;;</pre>
 <h2 id="testsfluenttestts">tests&#47;fluent.test.ts</h2>
@@ -20217,10 +20371,6 @@ describe&#40;&#39;VS Code API enhancements&#39;, &#40;&#41; &#61;&gt; &#123;
 npm install --save-dev &#64;changesets&#47;cli &#64;changesets&#47;changelog-github
 npx changeset init
 &#96;&#96;&#96;
-
-### Tests Critiques &#40;minimum vital&#41;
-• **1 test de types** avec &#96;expectTypeOf&#96; pour la Fluent API
-• **1 smoke test d&#39;import ESM**: &#96;import &#123; projectFusion &#125; from &#39;&#64;the99studio&#47;project-fusion&#39;&#96;
 
 ### CI&#47;CD
 • Configurer OIDC pour npm publish dans GitHub Actions

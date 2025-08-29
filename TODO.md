@@ -10,10 +10,6 @@ npm install --save-dev @changesets/cli @changesets/changelog-github
 npx changeset init
 ```
 
-### Tests Critiques (minimum vital)
-• **1 test de types** avec `expectTypeOf` pour la Fluent API
-• **1 smoke test d'import ESM**: `import { projectFusion } from '@the99studio/project-fusion'`
-
 ### CI/CD
 • Configurer OIDC pour npm publish dans GitHub Actions
 • Ajouter tags `next` et `canary` pour pre-releases NPM
