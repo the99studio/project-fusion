@@ -175,15 +175,23 @@ function aggressiveContentSanitization(content: string): string {
     
     let sanitized = content;
     
-    // 1. Remove or neutralize script-like patterns - non-greedy, bounded
-    sanitized = sanitized.replaceAll(/<script[^>]*>.*?<\/script>/gi, '[REMOVED: SCRIPT BLOCK]');
+    // 1. Remove script blocks completely - safe string-based approach
+    while (sanitized.includes('<script') || sanitized.includes('</script>')) {
+        sanitized = sanitized.replaceAll(/<script\b[^>]*>/gi, '[REMOVED: SCRIPT BLOCK]');
+        sanitized = sanitized.replaceAll(/<\/script>/gi, '');
+    }
     sanitized = sanitized.replaceAll(/on\w{1,20}\s*=\s*["'][^"']{0,200}["']/gi, '[REMOVED: EVENT HANDLER]');
     
-    // 2. Neutralize dangerous HTML elements - bounded patterns
-    sanitized = sanitized.replaceAll(/<iframe[^>]{0,500}>.*?<\/iframe>/gi, '[REMOVED: IFRAME]');
-    sanitized = sanitized.replaceAll(/<object[^>]{0,500}>.*?<\/object>/gi, '[REMOVED: OBJECT]');
-    sanitized = sanitized.replaceAll(/<embed[^>]{0,500}(?:\/>|>.*?<\/embed>)/gi, '[REMOVED: EMBED]');
-    sanitized = sanitized.replaceAll(/<form[^>]{0,500}>.*?<\/form>/gi, '[REMOVED: FORM]');
+    // 2. Remove dangerous HTML elements - safe string-based approach
+    // Use literal regex patterns to avoid dynamic RegExp constructor
+    sanitized = sanitized.replaceAll(/<iframe\b[^>]*>/gi, '[REMOVED: IFRAME]');
+    sanitized = sanitized.replaceAll(/<\/iframe>/gi, '');
+    sanitized = sanitized.replaceAll(/<object\b[^>]*>/gi, '[REMOVED: OBJECT]');
+    sanitized = sanitized.replaceAll(/<\/object>/gi, '');
+    sanitized = sanitized.replaceAll(/<embed\b[^>]*\/?>/gi, '[REMOVED: EMBED]');
+    sanitized = sanitized.replaceAll(/<\/embed>/gi, '');
+    sanitized = sanitized.replaceAll(/<form\b[^>]*>/gi, '[REMOVED: FORM]');
+    sanitized = sanitized.replaceAll(/<\/form>/gi, '');
     
     // 3. Remove dangerous CSS patterns - bounded
     sanitized = sanitized.replaceAll(/expression\s*\([^)]{0,200}\)/gi, '[REMOVED: CSS EXPRESSION]');
