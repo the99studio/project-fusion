@@ -4,7 +4,6 @@
             "Bash(./dist/cli.js *)",
             "Bash(cat *)",
             "Bash(cat:*)",
-            "Bash(chmod +x *)",
             "Bash(cp * temp/*)",
             "Bash(cp *)",
             "Bash(eslint *)",
