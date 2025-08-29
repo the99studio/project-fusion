@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 29/08/2025 10:35:49 UTC−4
+**Generated:** 29/08/2025 11:04:13 UTC−4
 
 **Files:** 76
 
@@ -732,19 +732,19 @@ const sharedRules = {
   'unicorn/no-invalid-fetch-options': 'error',
   'unicorn/no-magic-array-flat-depth': 'error',
   
-  // Security rules
-  'security/detect-non-literal-fs-filename': 'warn',
-  'security/detect-non-literal-regexp': 'warn',
-  'security/detect-unsafe-regex': 'warn',
+  // Security rules - only relevant ones for a file processing tool
+  'security/detect-non-literal-fs-filename': 'off', // File processing tool needs dynamic paths
+  'security/detect-non-literal-regexp': 'error',
+  'security/detect-unsafe-regex': 'off', // Some complex patterns needed for secret detection
   'security/detect-buffer-noassert': 'error',
-  'security/detect-child-process': 'warn',
+  'security/detect-child-process': 'error',
   'security/detect-disable-mustache-escape': 'error',
   'security/detect-eval-with-expression': 'error',
   'security/detect-new-buffer': 'error',
   'security/detect-no-csrf-before-method-override': 'error',
-  'security/detect-possible-timing-attacks': 'warn',
+  'security/detect-possible-timing-attacks': 'error',
   'security/detect-pseudoRandomBytes': 'error',
-  'security/detect-object-injection': 'warn'
+  'security/detect-object-injection': 'off' // Dynamic config access is required
 };
 
 // Shared globals for Node.js environment
@@ -5819,8 +5819,11 @@ export function redactSecrets(content: string): { redactedContent: string; detec
                 seenTypes.add(pattern.name);
             }
             // Replace all matches with [REDACTED]
+            // Create a global version of the regex if not already global
+            const globalFlags = pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`;
             redactedContent = redactedContent.replace(
-                new RegExp(pattern.regex.source, pattern.regex.flags + (pattern.regex.global ? '' : 'g')),
+                // eslint-disable-next-line security/detect-non-literal-regexp
+                new RegExp(pattern.regex.source, globalFlags),
                 '[REDACTED]'
             );
         }

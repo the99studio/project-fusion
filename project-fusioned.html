@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 10:35:49 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 11:04:13 UTC−4</p>
 <p><strong>Files:</strong> 76</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -731,19 +731,19 @@ const sharedRules &#61; &#123;
   &#39;unicorn&#47;no-invalid-fetch-options&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-magic-array-flat-depth&#39;: &#39;error&#39;,
   
-  &#47;&#47; Security rules
-  &#39;security&#47;detect-non-literal-fs-filename&#39;: &#39;warn&#39;,
-  &#39;security&#47;detect-non-literal-regexp&#39;: &#39;warn&#39;,
-  &#39;security&#47;detect-unsafe-regex&#39;: &#39;warn&#39;,
+  &#47;&#47; Security rules - only relevant ones for a file processing tool
+  &#39;security&#47;detect-non-literal-fs-filename&#39;: &#39;off&#39;, &#47;&#47; File processing tool needs dynamic paths
+  &#39;security&#47;detect-non-literal-regexp&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-unsafe-regex&#39;: &#39;off&#39;, &#47;&#47; Some complex patterns needed for secret detection
   &#39;security&#47;detect-buffer-noassert&#39;: &#39;error&#39;,
-  &#39;security&#47;detect-child-process&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-child-process&#39;: &#39;error&#39;,
   &#39;security&#47;detect-disable-mustache-escape&#39;: &#39;error&#39;,
   &#39;security&#47;detect-eval-with-expression&#39;: &#39;error&#39;,
   &#39;security&#47;detect-new-buffer&#39;: &#39;error&#39;,
   &#39;security&#47;detect-no-csrf-before-method-override&#39;: &#39;error&#39;,
-  &#39;security&#47;detect-possible-timing-attacks&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-possible-timing-attacks&#39;: &#39;error&#39;,
   &#39;security&#47;detect-pseudoRandomBytes&#39;: &#39;error&#39;,
-  &#39;security&#47;detect-object-injection&#39;: &#39;warn&#39;
+  &#39;security&#47;detect-object-injection&#39;: &#39;off&#39; &#47;&#47; Dynamic config access is required
 &#125;;
 
 &#47;&#47; Shared globals for Node.js environment
@@ -5754,8 +5754,11 @@ export function redactSecrets&#40;content: string&#41;: &#123; redactedContent: 
                 seenTypes.add&#40;pattern.name&#41;;
             &#125;
             &#47;&#47; Replace all matches with &#91;REDACTED&#93;
+            &#47;&#47; Create a global version of the regex if not already global
+            const globalFlags &#61; pattern.regex.global ? pattern.regex.flags : &#96;&#36;&#123;pattern.regex.flags&#125;g&#96;;
             redactedContent &#61; redactedContent.replace&#40;
-                new RegExp&#40;pattern.regex.source, pattern.regex.flags &#43; &#40;pattern.regex.global ? &#39;&#39; : &#39;g&#39;&#41;&#41;,
+                &#47;&#47; eslint-disable-next-line security&#47;detect-non-literal-regexp
+                new RegExp&#40;pattern.regex.source, globalFlags&#41;,
                 &#39;&#91;REDACTED&#93;&#39;
             &#41;;
         &#125;
