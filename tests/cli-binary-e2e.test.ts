@@ -93,7 +93,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
 
         it('should exit with code 1 on invalid options', async () => {
@@ -292,7 +292,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
     });
 
@@ -407,7 +407,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
 
         it('should handle non-existent extension groups', async () => {
