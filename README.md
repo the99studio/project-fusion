@@ -54,6 +54,8 @@ Generates three output formats:
 - `project-fusioned.md` - Markdown with syntax highlighting and table of contents
 - `project-fusioned.html` - Interactive HTML with navigation and responsive design
 
+**Examples**: The `project-fusioned.*` files in this repository were generated using project-fusion itself and serve as practical examples. Check out [`project-fusioned.md`](./project-fusioned.md) on GitHub for a comprehensive overview of the codebase structure.
+
 ## Configuration
 
 Run `project-fusion init` to create `project-fusion.json` if you want to fine-tune file selection, output formats, processing limits, etc.:
