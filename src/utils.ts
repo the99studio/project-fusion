@@ -856,8 +856,8 @@ export function redactSecrets(content: string): { redactedContent: string; detec
             // Replace all matches with [REDACTED]
             // Create a global version of the regex if not already global
             const globalFlags = pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`;
-            // eslint-disable-next-line security/detect-non-literal-regexp
             redactedContent = redactedContent.replace(
+                // eslint-disable-next-line security/detect-non-literal-regexp
                 new RegExp(pattern.regex.source, globalFlags),
                 '[REDACTED]'
             );
