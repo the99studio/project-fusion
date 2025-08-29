@@ -199,19 +199,19 @@ const sharedRules = {
   'unicorn/no-invalid-fetch-options': 'error',
   'unicorn/no-magic-array-flat-depth': 'error',
   
-  // Security rules
-  'security/detect-non-literal-fs-filename': 'warn',
-  'security/detect-non-literal-regexp': 'warn',
-  'security/detect-unsafe-regex': 'warn',
+  // Security rules - only relevant ones for a file processing tool
+  'security/detect-non-literal-fs-filename': 'off', // File processing tool needs dynamic paths
+  'security/detect-non-literal-regexp': 'error',
+  'security/detect-unsafe-regex': 'off', // Some complex patterns needed for secret detection
   'security/detect-buffer-noassert': 'error',
-  'security/detect-child-process': 'warn',
+  'security/detect-child-process': 'error',
   'security/detect-disable-mustache-escape': 'error',
   'security/detect-eval-with-expression': 'error',
   'security/detect-new-buffer': 'error',
   'security/detect-no-csrf-before-method-override': 'error',
-  'security/detect-possible-timing-attacks': 'warn',
+  'security/detect-possible-timing-attacks': 'error',
   'security/detect-pseudoRandomBytes': 'error',
-  'security/detect-object-injection': 'warn'
+  'security/detect-object-injection': 'off' // Dynamic config access is required
 };
 
 // Shared globals for Node.js environment
