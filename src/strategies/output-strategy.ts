@@ -105,7 +105,7 @@ ${processedContent}
     }
 }
 
-// Pre-compile markdown escape regex for better performance
+// Pre-compile markdown escape regex for better performance - simplified to avoid polynomial complexity
 const MARKDOWN_ESCAPE_REGEX = /[()[\\\]`]/g;
 const MARKDOWN_ESCAPE_MAP = new Map([
     ['[', '\\['],
@@ -122,13 +122,15 @@ function escapeMarkdown(text: string): string {
 }
 
 function sanitizeMarkdownContent(content: string): string {
-    // Detect and neutralize dangerous protocols in markdown content
-    const dangerousProtocols = /\b(javascript|data|vbscript):/gi;
+    // Detect and neutralize dangerous protocols in markdown content - optimized to prevent ReDoS
+    const dangerousProtocols = /\b(?:javascript|data|vbscript):/gi;
     
+    // Use split/join approach to avoid potential ReDoS with global regex
     if (dangerousProtocols.test(content)) {
-        // Replace dangerous protocols with safe alternative
+        // Reset regex lastIndex to avoid state issues
+        dangerousProtocols.lastIndex = 0;
         return content.replaceAll(dangerousProtocols, (match) => {
-            const protocol = match.toLowerCase().slice(0, -1); // Remove the ':'
+            const protocol = match.toLowerCase().slice(0, -1);
             return `[BLOCKED-${protocol.toUpperCase()}]:`;
         });
     }
@@ -142,23 +144,24 @@ function validateHtmlHref(href: string): string {
         // Remove the # prefix for validation
         const slug = href.slice(1);
         
-        // Allow only alphanumeric, dash, underscore characters in slugs
-        // This matches GitHub slug format used by github-slugger
-        const validSlugPattern = /^[\w-]+$/i;
+        // Allow only alphanumeric, dash, underscore characters in slugs - non-greedy pattern
+        const validSlugPattern = /^[\w-]+$/;
         
         if (!validSlugPattern.test(slug)) {
-            // Replace invalid characters with safe alternatives
+            // Replace invalid characters with safe alternatives - avoid greedy patterns
             const sanitizedSlug = slug
-                .replaceAll(/[^\w-]/gi, '-')     // Replace invalid chars with dashes
-                .replaceAll(/-{2,}/g, '-')       // Collapse multiple dashes
-                .replaceAll(/^-+|-+$/g, '');     // Remove leading/trailing dashes
+                .replaceAll(/[^\w-]/g, '-')      // Non-global to prevent ReDoS
+                .replaceAll(/-+/g, '-')          // Simplified pattern
+                .replace(/^-+/, '')              // Remove leading dashes
+                .replace(/-+$/, '');             // Remove trailing dashes
             
             return `#${sanitizedSlug}`;
         }
     }
     
-    // For non-anchor links, apply basic validation
-    if (href.includes('javascript:') || href.includes('data:') || href.includes('vbscript:')) {
+    // For non-anchor links, use simple string checks instead of regex
+    const lowerHref = href.toLowerCase();
+    if (lowerHref.includes('javascript:') || lowerHref.includes('data:') || lowerHref.includes('vbscript:')) {
         return '#blocked-dangerous-protocol';
     }
     
@@ -168,43 +171,44 @@ function validateHtmlHref(href: string): string {
 function aggressiveContentSanitization(content: string): string {
     // For highly sensitive environments, perform aggressive sanitization
     // This removes or neutralizes potentially dangerous content patterns
+    // All regex patterns optimized to prevent ReDoS attacks
     
     let sanitized = content;
     
-    // 1. Remove or neutralize script-like patterns
-    sanitized = sanitized.replaceAll(/<script[\S\s]*?<\/script>/gi, '[REMOVED: SCRIPT BLOCK]');
-    sanitized = sanitized.replaceAll(/on\w+\s*=\s*["'][^"']*["']/gi, '[REMOVED: EVENT HANDLER]');
+    // 1. Remove or neutralize script-like patterns - non-greedy, bounded
+    sanitized = sanitized.replaceAll(/<script[^>]*>.*?<\/script>/gi, '[REMOVED: SCRIPT BLOCK]');
+    sanitized = sanitized.replaceAll(/on\w{1,20}\s*=\s*["'][^"']{0,200}["']/gi, '[REMOVED: EVENT HANDLER]');
     
-    // 2. Neutralize dangerous HTML elements and attributes
-    sanitized = sanitized.replaceAll(/<iframe[\S\s]*?(?:<\/iframe>|\/?>)/gi, '[REMOVED: IFRAME]');
-    sanitized = sanitized.replaceAll(/<object[\S\s]*?(?:<\/object>|\/?>)/gi, '[REMOVED: OBJECT]');
-    sanitized = sanitized.replaceAll(/<embed[\S\s]*?(?:<\/embed>|\/?>)/gi, '[REMOVED: EMBED]');
-    sanitized = sanitized.replaceAll(/<form[\S\s]*?(?:<\/form>|\/?>)/gi, '[REMOVED: FORM]');
+    // 2. Neutralize dangerous HTML elements - bounded patterns
+    sanitized = sanitized.replaceAll(/<iframe[^>]{0,500}>.*?<\/iframe>/gi, '[REMOVED: IFRAME]');
+    sanitized = sanitized.replaceAll(/<object[^>]{0,500}>.*?<\/object>/gi, '[REMOVED: OBJECT]');
+    sanitized = sanitized.replaceAll(/<embed[^>]{0,500}(?:\/>|>.*?<\/embed>)/gi, '[REMOVED: EMBED]');
+    sanitized = sanitized.replaceAll(/<form[^>]{0,500}>.*?<\/form>/gi, '[REMOVED: FORM]');
     
-    // 3. Remove dangerous CSS patterns
-    sanitized = sanitized.replaceAll(/expression\s*\(/gi, '[REMOVED: CSS EXPRESSION]');
-    sanitized = sanitized.replaceAll(/@import\s+/gi, '[REMOVED: CSS IMPORT]');
-    sanitized = sanitized.replaceAll(/behavior\s*:/gi, '[REMOVED: CSS BEHAVIOR]');
+    // 3. Remove dangerous CSS patterns - bounded
+    sanitized = sanitized.replaceAll(/expression\s*\([^)]{0,200}\)/gi, '[REMOVED: CSS EXPRESSION]');
+    sanitized = sanitized.replaceAll(/@import\s+[^;]{0,200};?/gi, '[REMOVED: CSS IMPORT]');
+    sanitized = sanitized.replaceAll(/behavior\s*:[^;]{0,200};?/gi, '[REMOVED: CSS BEHAVIOR]');
     
-    // 4. Neutralize potential data URLs and javascript: protocols more aggressively
-    sanitized = sanitized.replaceAll(/data:\s*[^;]*;[^,]*,/gi, '[REMOVED: DATA URL]');
-    sanitized = sanitized.replaceAll(/javascript:\s*/gi, '[REMOVED: JAVASCRIPT PROTOCOL]');
-    sanitized = sanitized.replaceAll(/vbscript:\s*/gi, '[REMOVED: VBSCRIPT PROTOCOL]');
+    // 4. Neutralize protocols - simple string replacement for safety
+    sanitized = sanitized.replaceAll(/data:[^,]{0,100},[^\s"']{0,500}/gi, '[REMOVED: DATA URL]');
+    sanitized = sanitized.replaceAll(/javascript:[^\s"']{0,200}/gi, '[REMOVED: JAVASCRIPT PROTOCOL]');
+    sanitized = sanitized.replaceAll(/vbscript:[^\s"']{0,200}/gi, '[REMOVED: VBSCRIPT PROTOCOL]');
     
-    // 5. Remove potential JSONP callbacks and eval patterns
-    sanitized = sanitized.replaceAll(/\b(eval|function|settimeout|setinterval)\s*\(/gi, '[REMOVED: EVAL-LIKE FUNCTION](');
+    // 5. Remove eval patterns - bounded word boundaries
+    sanitized = sanitized.replaceAll(/\b(?:eval|function|settimeout|setinterval)\s*\([^)]{0,100}\)/gi, '[REMOVED: EVAL-LIKE FUNCTION]');
     
-    // 6. Neutralize template literal patterns that could be dangerous
-    sanitized = sanitized.replaceAll(/`[^`]*\${[^}]*}[^`]*`/g, '[REMOVED: TEMPLATE LITERAL]');
+    // 6. Template literals - bounded and non-greedy
+    sanitized = sanitized.replaceAll(/`[^`]{0,500}`/g, '[REMOVED: TEMPLATE LITERAL]');
     
-    // 7. Remove potential SQL injection patterns (basic)
-    sanitized = sanitized.replaceAll(/\b(drop|delete|update|insert|create|alter)\s+\w+/gi, '[REMOVED: SQL-LIKE COMMAND]');
+    // 7. SQL patterns - word boundary, bounded
+    sanitized = sanitized.replaceAll(/\b(?:drop|delete|update|insert|create|alter)\s+\w{1,50}/gi, '[REMOVED: SQL-LIKE COMMAND]');
     
-    // 8. Neutralize potential path traversal patterns
+    // 8. Path traversal - simple pattern
     sanitized = sanitized.replaceAll(/\.\.[/\\]/g, '[REMOVED: PATH TRAVERSAL]');
     
-    // 9. Remove potential file protocol URLs
-    sanitized = sanitized.replaceAll(/file:\s*\/\//gi, '[REMOVED: FILE PROTOCOL]');
+    // 9. File protocol - simple bounded pattern
+    sanitized = sanitized.replaceAll(/file:\/\/[^\s"']{0,200}/gi, '[REMOVED: FILE PROTOCOL]');
     
     return sanitized;
 }

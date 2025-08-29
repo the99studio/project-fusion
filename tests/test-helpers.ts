@@ -18,15 +18,19 @@ export async function canCreateSymlinks(): Promise<boolean> {
     }
 
     // On Windows, try to create a symlink to test permissions
-    const tempDir = join(os.tmpdir(), `symlink-test-${Date.now()}`);
+    // Use crypto.randomBytes for secure temp directory naming
+    const { randomBytes } = await import('node:crypto');
+    const randomSuffix = randomBytes(8).toString('hex');
+    const tempDir = join(os.tmpdir(), `symlink-test-${randomSuffix}`);
     
     try {
-        await mkdir(tempDir, { recursive: true });
+        // Create directory with restricted permissions (mode 0o700 = rwx------)
+        await mkdir(tempDir, { recursive: true, mode: 0o700 });
         
         const targetFile = join(tempDir, 'target.txt');
         const symlinkFile = join(tempDir, 'symlink.txt');
         
-        await writeFile(targetFile, 'test content');
+        await writeFile(targetFile, 'test content', { mode: 0o600 }); // rw-------
         await symlink(targetFile, symlinkFile);
         
         // If we get here without error, symlinks work
@@ -34,9 +38,14 @@ export async function canCreateSymlinks(): Promise<boolean> {
         return true;
         
     } catch (error: any) {
-        // Clean up on error
-        if (existsSync(tempDir)) {
-            await rm(tempDir, { recursive: true, force: true }).catch(() => {});
+        // Clean up on error with additional safety checks
+        try {
+            if (existsSync(tempDir)) {
+                await rm(tempDir, { recursive: true, force: true });
+            }
+        } catch (cleanupError) {
+            // Log cleanup error but don't throw to preserve original error
+            console.warn(`Warning: Failed to cleanup temp directory: ${String(cleanupError)}`);
         }
         
         // Check for Windows permission errors

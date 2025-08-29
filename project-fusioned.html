@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 16:38:49 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 17:12:41 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
@@ -1050,6 +1050,8 @@ Generates three output formats:
 - &#96;project-fusioned.txt&#96; - Plain text with file separators
 - &#96;project-fusioned.md&#96; - Markdown with syntax highlighting and table of contents
 - &#96;project-fusioned.html&#96; - Interactive HTML with navigation and responsive design
+
+**Examples**: The &#96;project-fusioned.*&#96; files in this repository were generated using project-fusion itself and serve as practical examples. Check out &#91;&#96;project-fusioned.md&#96;&#93;&#40;.&#47;project-fusioned.md&#41; on GitHub for a comprehensive overview of the codebase structure.
 
 ## Configuration
 
@@ -2229,10 +2231,18 @@ export async function runFusionCommand&#40;options: &#123;
                 outputFiles.push&#40;path.join&#40;outputDir, &#96;&#36;&#123;config.generatedFileName&#125;.html&#96;&#41;&#41;;
             &#125;
             
+            &#47;&#47; Check all files atomically to prevent race conditions
             const existingFiles &#61; &#91;&#93;;
-            for &#40;const file of outputFiles&#41; &#123;
-                if &#40;await fs.pathExists&#40;file&#41;&#41; &#123;
-                    existingFiles.push&#40;path.basename&#40;file&#41;&#41;;
+            const fileChecks &#61; await Promise.allSettled&#40;
+                outputFiles.map&#40;async &#40;file&#41; &#61;&gt; &#123;
+                    const exists &#61; await fs.pathExists&#40;file&#41;;
+                    return &#123; file, exists &#125;;
+                &#125;&#41;
+            &#41;;
+            
+            for &#40;const result of fileChecks&#41; &#123;
+                if &#40;result.status &#61;&#61;&#61; &#39;fulfilled&#39; &amp;&amp; result.value.exists&#41; &#123;
+                    existingFiles.push&#40;path.basename&#40;result.value.file&#41;&#41;;
                 &#125;
             &#125;
             
@@ -4262,7 +4272,7 @@ export class TextOutputStrategy implements OutputStrategy &#123;
     &#125;
 &#125;
 
-&#47;&#47; Pre-compile markdown escape regex for better performance
+&#47;&#47; Pre-compile markdown escape regex for better performance - simplified to avoid polynomial complexity
 const MARKDOWN_ESCAPE_REGEX &#61; &#47;&#91;&#40;&#41;&#91;\\\&#93;&#96;&#93;&#47;g;
 const MARKDOWN_ESCAPE_MAP &#61; new Map&#40;&#91;
     &#91;&#39;&#91;&#39;, &#39;\\&#91;&#39;&#93;,
@@ -4279,13 +4289,15 @@ function escapeMarkdown&#40;text: string&#41;: string &#123;
 &#125;
 
 function sanitizeMarkdownContent&#40;content: string&#41;: string &#123;
-    &#47;&#47; Detect and neutralize dangerous protocols in markdown content
-    const dangerousProtocols &#61; &#47;\b&#40;javascript|data|vbscript&#41;:&#47;gi;
+    &#47;&#47; Detect and neutralize dangerous protocols in markdown content - optimized to prevent ReDoS
+    const dangerousProtocols &#61; &#47;\b&#40;?:javascript|data|vbscript&#41;:&#47;gi;
     
+    &#47;&#47; Use split&#47;join approach to avoid potential ReDoS with global regex
     if &#40;dangerousProtocols.test&#40;content&#41;&#41; &#123;
-        &#47;&#47; Replace dangerous protocols with safe alternative
+        &#47;&#47; Reset regex lastIndex to avoid state issues
+        dangerousProtocols.lastIndex &#61; 0;
         return content.replaceAll&#40;dangerousProtocols, &#40;match&#41; &#61;&gt; &#123;
-            const protocol &#61; match.toLowerCase&#40;&#41;.slice&#40;0, -1&#41;; &#47;&#47; Remove the &#39;:&#39;
+            const protocol &#61; match.toLowerCase&#40;&#41;.slice&#40;0, -1&#41;;
             return &#96;&#91;BLOCKED-&#36;&#123;protocol.toUpperCase&#40;&#41;&#125;&#93;:&#96;;
         &#125;&#41;;
     &#125;
@@ -4299,23 +4311,24 @@ function validateHtmlHref&#40;href: string&#41;: string &#123;
         &#47;&#47; Remove the # prefix for validation
         const slug &#61; href.slice&#40;1&#41;;
         
-        &#47;&#47; Allow only alphanumeric, dash, underscore characters in slugs
-        &#47;&#47; This matches GitHub slug format used by github-slugger
-        const validSlugPattern &#61; &#47;^&#91;\w-&#93;&#43;&#36;&#47;i;
+        &#47;&#47; Allow only alphanumeric, dash, underscore characters in slugs - non-greedy pattern
+        const validSlugPattern &#61; &#47;^&#91;\w-&#93;&#43;&#36;&#47;;
         
         if &#40;&#33;validSlugPattern.test&#40;slug&#41;&#41; &#123;
-            &#47;&#47; Replace invalid characters with safe alternatives
+            &#47;&#47; Replace invalid characters with safe alternatives - avoid greedy patterns
             const sanitizedSlug &#61; slug
-                .replaceAll&#40;&#47;&#91;^\w-&#93;&#47;gi, &#39;-&#39;&#41;     &#47;&#47; Replace invalid chars with dashes
-                .replaceAll&#40;&#47;-&#123;2,&#125;&#47;g, &#39;-&#39;&#41;       &#47;&#47; Collapse multiple dashes
-                .replaceAll&#40;&#47;^-&#43;|-&#43;&#36;&#47;g, &#39;&#39;&#41;;     &#47;&#47; Remove leading&#47;trailing dashes
+                .replaceAll&#40;&#47;&#91;^\w-&#93;&#47;g, &#39;-&#39;&#41;      &#47;&#47; Non-global to prevent ReDoS
+                .replaceAll&#40;&#47;-&#43;&#47;g, &#39;-&#39;&#41;          &#47;&#47; Simplified pattern
+                .replace&#40;&#47;^-&#43;&#47;, &#39;&#39;&#41;              &#47;&#47; Remove leading dashes
+                .replace&#40;&#47;-&#43;&#36;&#47;, &#39;&#39;&#41;;             &#47;&#47; Remove trailing dashes
             
             return &#96;#&#36;&#123;sanitizedSlug&#125;&#96;;
         &#125;
     &#125;
     
-    &#47;&#47; For non-anchor links, apply basic validation
-    if &#40;href.includes&#40;&#39;javascript:&#39;&#41; || href.includes&#40;&#39;data:&#39;&#41; || href.includes&#40;&#39;vbscript:&#39;&#41;&#41; &#123;
+    &#47;&#47; For non-anchor links, use simple string checks instead of regex
+    const lowerHref &#61; href.toLowerCase&#40;&#41;;
+    if &#40;lowerHref.includes&#40;&#39;javascript:&#39;&#41; || lowerHref.includes&#40;&#39;data:&#39;&#41; || lowerHref.includes&#40;&#39;vbscript:&#39;&#41;&#41; &#123;
         return &#39;#blocked-dangerous-protocol&#39;;
     &#125;
     
@@ -4325,43 +4338,44 @@ function validateHtmlHref&#40;href: string&#41;: string &#123;
 function aggressiveContentSanitization&#40;content: string&#41;: string &#123;
     &#47;&#47; For highly sensitive environments, perform aggressive sanitization
     &#47;&#47; This removes or neutralizes potentially dangerous content patterns
+    &#47;&#47; All regex patterns optimized to prevent ReDoS attacks
     
     let sanitized &#61; content;
     
-    &#47;&#47; 1. Remove or neutralize script-like patterns
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;script&#91;\S\s&#93;*?&lt;\&#47;script&gt;&#47;gi, &#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;on\w&#43;\s*&#61;\s*&#91;&quot;&#39;&#93;&#91;^&quot;&#39;&#93;*&#91;&quot;&#39;&#93;&#47;gi, &#39;&#91;REMOVED: EVENT HANDLER&#93;&#39;&#41;;
+    &#47;&#47; 1. Remove or neutralize script-like patterns - non-greedy, bounded
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;script&#91;^&gt;&#93;*&gt;.*?&lt;\&#47;script&gt;&#47;gi, &#39;&#91;REMOVED: SCRIPT BLOCK&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;on\w&#123;1,20&#125;\s*&#61;\s*&#91;&quot;&#39;&#93;&#91;^&quot;&#39;&#93;&#123;0,200&#125;&#91;&quot;&#39;&#93;&#47;gi, &#39;&#91;REMOVED: EVENT HANDLER&#93;&#39;&#41;;
     
-    &#47;&#47; 2. Neutralize dangerous HTML elements and attributes
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;iframe&#91;\S\s&#93;*?&#40;?:&lt;\&#47;iframe&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;object&#91;\S\s&#93;*?&#40;?:&lt;\&#47;object&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: OBJECT&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;embed&#91;\S\s&#93;*?&#40;?:&lt;\&#47;embed&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: EMBED&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;form&#91;\S\s&#93;*?&#40;?:&lt;\&#47;form&gt;|\&#47;?&gt;&#41;&#47;gi, &#39;&#91;REMOVED: FORM&#93;&#39;&#41;;
+    &#47;&#47; 2. Neutralize dangerous HTML elements - bounded patterns
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;iframe&#91;^&gt;&#93;&#123;0,500&#125;&gt;.*?&lt;\&#47;iframe&gt;&#47;gi, &#39;&#91;REMOVED: IFRAME&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;object&#91;^&gt;&#93;&#123;0,500&#125;&gt;.*?&lt;\&#47;object&gt;&#47;gi, &#39;&#91;REMOVED: OBJECT&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;embed&#91;^&gt;&#93;&#123;0,500&#125;&#40;?:\&#47;&gt;|&gt;.*?&lt;\&#47;embed&gt;&#41;&#47;gi, &#39;&#91;REMOVED: EMBED&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&lt;form&#91;^&gt;&#93;&#123;0,500&#125;&gt;.*?&lt;\&#47;form&gt;&#47;gi, &#39;&#91;REMOVED: FORM&#93;&#39;&#41;;
     
-    &#47;&#47; 3. Remove dangerous CSS patterns
-    sanitized &#61; sanitized.replaceAll&#40;&#47;expression\s*\&#40;&#47;gi, &#39;&#91;REMOVED: CSS EXPRESSION&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&#64;import\s&#43;&#47;gi, &#39;&#91;REMOVED: CSS IMPORT&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;behavior\s*:&#47;gi, &#39;&#91;REMOVED: CSS BEHAVIOR&#93;&#39;&#41;;
+    &#47;&#47; 3. Remove dangerous CSS patterns - bounded
+    sanitized &#61; sanitized.replaceAll&#40;&#47;expression\s*\&#40;&#91;^&#41;&#93;&#123;0,200&#125;\&#41;&#47;gi, &#39;&#91;REMOVED: CSS EXPRESSION&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&#64;import\s&#43;&#91;^;&#93;&#123;0,200&#125;;?&#47;gi, &#39;&#91;REMOVED: CSS IMPORT&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;behavior\s*:&#91;^;&#93;&#123;0,200&#125;;?&#47;gi, &#39;&#91;REMOVED: CSS BEHAVIOR&#93;&#39;&#41;;
     
-    &#47;&#47; 4. Neutralize potential data URLs and javascript: protocols more aggressively
-    sanitized &#61; sanitized.replaceAll&#40;&#47;data:\s*&#91;^;&#93;*;&#91;^,&#93;*,&#47;gi, &#39;&#91;REMOVED: DATA URL&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;javascript:\s*&#47;gi, &#39;&#91;REMOVED: JAVASCRIPT PROTOCOL&#93;&#39;&#41;;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;vbscript:\s*&#47;gi, &#39;&#91;REMOVED: VBSCRIPT PROTOCOL&#93;&#39;&#41;;
+    &#47;&#47; 4. Neutralize protocols - simple string replacement for safety
+    sanitized &#61; sanitized.replaceAll&#40;&#47;data:&#91;^,&#93;&#123;0,100&#125;,&#91;^\s&quot;&#39;&#93;&#123;0,500&#125;&#47;gi, &#39;&#91;REMOVED: DATA URL&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;javascript:&#91;^\s&quot;&#39;&#93;&#123;0,200&#125;&#47;gi, &#39;&#91;REMOVED: JAVASCRIPT PROTOCOL&#93;&#39;&#41;;
+    sanitized &#61; sanitized.replaceAll&#40;&#47;vbscript:&#91;^\s&quot;&#39;&#93;&#123;0,200&#125;&#47;gi, &#39;&#91;REMOVED: VBSCRIPT PROTOCOL&#93;&#39;&#41;;
     
-    &#47;&#47; 5. Remove potential JSONP callbacks and eval patterns
-    sanitized &#61; sanitized.replaceAll&#40;&#47;\b&#40;eval|function|settimeout|setinterval&#41;\s*\&#40;&#47;gi, &#39;&#91;REMOVED: EVAL-LIKE FUNCTION&#93;&#40;&#39;&#41;;
+    &#47;&#47; 5. Remove eval patterns - bounded word boundaries
+    sanitized &#61; sanitized.replaceAll&#40;&#47;\b&#40;?:eval|function|settimeout|setinterval&#41;\s*\&#40;&#91;^&#41;&#93;&#123;0,100&#125;\&#41;&#47;gi, &#39;&#91;REMOVED: EVAL-LIKE FUNCTION&#93;&#39;&#41;;
     
-    &#47;&#47; 6. Neutralize template literal patterns that could be dangerous
-    sanitized &#61; sanitized.replaceAll&#40;&#47;&#96;&#91;^&#96;&#93;*\&#36;&#123;&#91;^&#125;&#93;*&#125;&#91;^&#96;&#93;*&#96;&#47;g, &#39;&#91;REMOVED: TEMPLATE LITERAL&#93;&#39;&#41;;
+    &#47;&#47; 6. Template literals - bounded and non-greedy
+    sanitized &#61; sanitized.replaceAll&#40;&#47;&#96;&#91;^&#96;&#93;&#123;0,500&#125;&#96;&#47;g, &#39;&#91;REMOVED: TEMPLATE LITERAL&#93;&#39;&#41;;
     
-    &#47;&#47; 7. Remove potential SQL injection patterns &#40;basic&#41;
-    sanitized &#61; sanitized.replaceAll&#40;&#47;\b&#40;drop|delete|update|insert|create|alter&#41;\s&#43;\w&#43;&#47;gi, &#39;&#91;REMOVED: SQL-LIKE COMMAND&#93;&#39;&#41;;
+    &#47;&#47; 7. SQL patterns - word boundary, bounded
+    sanitized &#61; sanitized.replaceAll&#40;&#47;\b&#40;?:drop|delete|update|insert|create|alter&#41;\s&#43;\w&#123;1,50&#125;&#47;gi, &#39;&#91;REMOVED: SQL-LIKE COMMAND&#93;&#39;&#41;;
     
-    &#47;&#47; 8. Neutralize potential path traversal patterns
+    &#47;&#47; 8. Path traversal - simple pattern
     sanitized &#61; sanitized.replaceAll&#40;&#47;\.\.&#91;&#47;\\&#93;&#47;g, &#39;&#91;REMOVED: PATH TRAVERSAL&#93;&#39;&#41;;
     
-    &#47;&#47; 9. Remove potential file protocol URLs
-    sanitized &#61; sanitized.replaceAll&#40;&#47;file:\s*\&#47;\&#47;&#47;gi, &#39;&#91;REMOVED: FILE PROTOCOL&#93;&#39;&#41;;
+    &#47;&#47; 9. File protocol - simple bounded pattern
+    sanitized &#61; sanitized.replaceAll&#40;&#47;file:\&#47;\&#47;&#91;^\s&quot;&#39;&#93;&#123;0,200&#125;&#47;gi, &#39;&#91;REMOVED: FILE PROTOCOL&#93;&#39;&#41;;
     
     return sanitized;
 &#125;
@@ -19271,15 +19285,19 @@ export async function canCreateSymlinks&#40;&#41;: Promise&lt;boolean&gt; &#123;
     &#125;
 
     &#47;&#47; On Windows, try to create a symlink to test permissions
-    const tempDir &#61; join&#40;os.tmpdir&#40;&#41;, &#96;symlink-test-&#36;&#123;Date.now&#40;&#41;&#125;&#96;&#41;;
+    &#47;&#47; Use crypto.randomBytes for secure temp directory naming
+    const &#123; randomBytes &#125; &#61; await import&#40;&#39;node:crypto&#39;&#41;;
+    const randomSuffix &#61; randomBytes&#40;8&#41;.toString&#40;&#39;hex&#39;&#41;;
+    const tempDir &#61; join&#40;os.tmpdir&#40;&#41;, &#96;symlink-test-&#36;&#123;randomSuffix&#125;&#96;&#41;;
     
     try &#123;
-        await mkdir&#40;tempDir, &#123; recursive: true &#125;&#41;;
+        &#47;&#47; Create directory with restricted permissions &#40;mode 0o700 &#61; rwx------&#41;
+        await mkdir&#40;tempDir, &#123; recursive: true, mode: 0o700 &#125;&#41;;
         
         const targetFile &#61; join&#40;tempDir, &#39;target.txt&#39;&#41;;
         const symlinkFile &#61; join&#40;tempDir, &#39;symlink.txt&#39;&#41;;
         
-        await writeFile&#40;targetFile, &#39;test content&#39;&#41;;
+        await writeFile&#40;targetFile, &#39;test content&#39;, &#123; mode: 0o600 &#125;&#41;; &#47;&#47; rw-------
         await symlink&#40;targetFile, symlinkFile&#41;;
         
         &#47;&#47; If we get here without error, symlinks work
@@ -19287,9 +19305,14 @@ export async function canCreateSymlinks&#40;&#41;: Promise&lt;boolean&gt; &#123;
         return true;
         
     &#125; catch &#40;error: any&#41; &#123;
-        &#47;&#47; Clean up on error
-        if &#40;existsSync&#40;tempDir&#41;&#41; &#123;
-            await rm&#40;tempDir, &#123; recursive: true, force: true &#125;&#41;.catch&#40;&#40;&#41; &#61;&gt; &#123;&#125;&#41;;
+        &#47;&#47; Clean up on error with additional safety checks
+        try &#123;
+            if &#40;existsSync&#40;tempDir&#41;&#41; &#123;
+                await rm&#40;tempDir, &#123; recursive: true, force: true &#125;&#41;;
+            &#125;
+        &#125; catch &#40;cleanupError&#41; &#123;
+            &#47;&#47; Log cleanup error but don&#39;t throw to preserve original error
+            console.warn&#40;&#96;Warning: Failed to cleanup temp directory: &#36;&#123;String&#40;cleanupError&#41;&#125;&#96;&#41;;
         &#125;
         
         &#47;&#47; Check for Windows permission errors

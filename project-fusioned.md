@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 29/08/2025 16:38:49 UTC−4
+**Generated:** 29/08/2025 17:12:41 UTC−4
 
 **Files:** 75
 
@@ -1059,6 +1059,8 @@ Generates three output formats:
 - `project-fusioned.txt` - Plain text with file separators
 - `project-fusioned.md` - Markdown with syntax highlighting and table of contents
 - `project-fusioned.html` - Interactive HTML with navigation and responsive design
+
+**Examples**: The `project-fusioned.*` files in this repository were generated using project-fusion itself and serve as practical examples. Check out [`project-fusioned.md`](./project-fusioned.md) on GitHub for a comprehensive overview of the codebase structure.
 
 ## Configuration
 
@@ -2262,10 +2264,18 @@ export async function runFusionCommand(options: {
                 outputFiles.push(path.join(outputDir, `${config.generatedFileName}.html`));
             }
             
+            // Check all files atomically to prevent race conditions
             const existingFiles = [];
-            for (const file of outputFiles) {
-                if (await fs.pathExists(file)) {
-                    existingFiles.push(path.basename(file));
+            const fileChecks = await Promise.allSettled(
+                outputFiles.map(async (file) => {
+                    const exists = await fs.pathExists(file);
+                    return { file, exists };
+                })
+            );
+            
+            for (const result of fileChecks) {
+                if (result.status === 'fulfilled' && result.value.exists) {
+                    existingFiles.push(path.basename(result.value.file));
                 }
             }
             
@@ -4319,7 +4329,7 @@ ${processedContent}
     }
 }
 
-// Pre-compile markdown escape regex for better performance
+// Pre-compile markdown escape regex for better performance - simplified to avoid polynomial complexity
 const MARKDOWN_ESCAPE_REGEX = /[()[\\\]`]/g;
 const MARKDOWN_ESCAPE_MAP = new Map([
     ['[', '\\['],
@@ -4336,13 +4346,15 @@ function escapeMarkdown(text: string): string {
 }
 
 function sanitizeMarkdownContent(content: string): string {
-    // Detect and neutralize dangerous protocols in markdown content
-    const dangerousProtocols = /\b(javascript|data|vbscript):/gi;
+    // Detect and neutralize dangerous protocols in markdown content - optimized to prevent ReDoS
+    const dangerousProtocols = /\b(?:javascript|data|vbscript):/gi;
     
+    // Use split/join approach to avoid potential ReDoS with global regex
     if (dangerousProtocols.test(content)) {
-        // Replace dangerous protocols with safe alternative
+        // Reset regex lastIndex to avoid state issues
+        dangerousProtocols.lastIndex = 0;
         return content.replaceAll(dangerousProtocols, (match) => {
-            const protocol = match.toLowerCase().slice(0, -1); // Remove the ':'
+            const protocol = match.toLowerCase().slice(0, -1);
             return `[BLOCKED-${protocol.toUpperCase()}]:`;
         });
     }
@@ -4356,23 +4368,24 @@ function validateHtmlHref(href: string): string {
         // Remove the # prefix for validation
         const slug = href.slice(1);
         
-        // Allow only alphanumeric, dash, underscore characters in slugs
-        // This matches GitHub slug format used by github-slugger
-        const validSlugPattern = /^[\w-]+$/i;
+        // Allow only alphanumeric, dash, underscore characters in slugs - non-greedy pattern
+        const validSlugPattern = /^[\w-]+$/;
         
         if (!validSlugPattern.test(slug)) {
-            // Replace invalid characters with safe alternatives
+            // Replace invalid characters with safe alternatives - avoid greedy patterns
             const sanitizedSlug = slug
-                .replaceAll(/[^\w-]/gi, '-')     // Replace invalid chars with dashes
-                .replaceAll(/-{2,}/g, '-')       // Collapse multiple dashes
-                .replaceAll(/^-+|-+$/g, '');     // Remove leading/trailing dashes
+                .replaceAll(/[^\w-]/g, '-')      // Non-global to prevent ReDoS
+                .replaceAll(/-+/g, '-')          // Simplified pattern
+                .replace(/^-+/, '')              // Remove leading dashes
+                .replace(/-+$/, '');             // Remove trailing dashes
             
             return `#${sanitizedSlug}`;
         }
     }
     
-    // For non-anchor links, apply basic validation
-    if (href.includes('[BLOCKED-JAVASCRIPT]:') || href.includes('[BLOCKED-DATA]:') || href.includes('[BLOCKED-VBSCRIPT]:')) {
+    // For non-anchor links, use simple string checks instead of regex
+    const lowerHref = href.toLowerCase();
+    if (lowerHref.includes('[BLOCKED-JAVASCRIPT]:') || lowerHref.includes('[BLOCKED-DATA]:') || lowerHref.includes('[BLOCKED-VBSCRIPT]:')) {
         return '#blocked-dangerous-protocol';
     }
     
@@ -4382,43 +4395,44 @@ function validateHtmlHref(href: string): string {
 function aggressiveContentSanitization(content: string): string {
     // For highly sensitive environments, perform aggressive sanitization
     // This removes or neutralizes potentially dangerous content patterns
+    // All regex patterns optimized to prevent ReDoS attacks
     
     let sanitized = content;
     
-    // 1. Remove or neutralize script-like patterns
-    sanitized = sanitized.replaceAll(/<script[\S\s]*?<\/script>/gi, '[REMOVED: SCRIPT BLOCK]');
-    sanitized = sanitized.replaceAll(/on\w+\s*=\s*["'][^"']*["']/gi, '[REMOVED: EVENT HANDLER]');
+    // 1. Remove or neutralize script-like patterns - non-greedy, bounded
+    sanitized = sanitized.replaceAll(/<script[^>]*>.*?<\/script>/gi, '[REMOVED: SCRIPT BLOCK]');
+    sanitized = sanitized.replaceAll(/on\w{1,20}\s*=\s*["'][^"']{0,200}["']/gi, '[REMOVED: EVENT HANDLER]');
     
-    // 2. Neutralize dangerous HTML elements and attributes
-    sanitized = sanitized.replaceAll(/<iframe[\S\s]*?(?:<\/iframe>|\/?>)/gi, '[REMOVED: IFRAME]');
-    sanitized = sanitized.replaceAll(/<object[\S\s]*?(?:<\/object>|\/?>)/gi, '[REMOVED: OBJECT]');
-    sanitized = sanitized.replaceAll(/<embed[\S\s]*?(?:<\/embed>|\/?>)/gi, '[REMOVED: EMBED]');
-    sanitized = sanitized.replaceAll(/<form[\S\s]*?(?:<\/form>|\/?>)/gi, '[REMOVED: FORM]');
+    // 2. Neutralize dangerous HTML elements - bounded patterns
+    sanitized = sanitized.replaceAll(/<iframe[^>]{0,500}>.*?<\/iframe>/gi, '[REMOVED: IFRAME]');
+    sanitized = sanitized.replaceAll(/<object[^>]{0,500}>.*?<\/object>/gi, '[REMOVED: OBJECT]');
+    sanitized = sanitized.replaceAll(/<embed[^>]{0,500}(?:\/>|>.*?<\/embed>)/gi, '[REMOVED: EMBED]');
+    sanitized = sanitized.replaceAll(/<form[^>]{0,500}>.*?<\/form>/gi, '[REMOVED: FORM]');
     
-    // 3. Remove dangerous CSS patterns
-    sanitized = sanitized.replaceAll(/expression\s*\(/gi, '[REMOVED: CSS EXPRESSION]');
-    sanitized = sanitized.replaceAll(/@import\s+/gi, '[REMOVED: CSS IMPORT]');
-    sanitized = sanitized.replaceAll(/behavior\s*:/gi, '[REMOVED: CSS BEHAVIOR]');
+    // 3. Remove dangerous CSS patterns - bounded
+    sanitized = sanitized.replaceAll(/expression\s*\([^)]{0,200}\)/gi, '[REMOVED: CSS EXPRESSION]');
+    sanitized = sanitized.replaceAll(/@import\s+[^;]{0,200};?/gi, '[REMOVED: CSS IMPORT]');
+    sanitized = sanitized.replaceAll(/behavior\s*:[^;]{0,200};?/gi, '[REMOVED: CSS BEHAVIOR]');
     
-    // 4. Neutralize potential data URLs and [BLOCKED-JAVASCRIPT]: protocols more aggressively
-    sanitized = sanitized.replaceAll(/[BLOCKED-DATA]:\s*[^;]*;[^,]*,/gi, '[REMOVED: DATA URL]');
-    sanitized = sanitized.replaceAll(/[BLOCKED-JAVASCRIPT]:\s*/gi, '[REMOVED: JAVASCRIPT PROTOCOL]');
-    sanitized = sanitized.replaceAll(/[BLOCKED-VBSCRIPT]:\s*/gi, '[REMOVED: VBSCRIPT PROTOCOL]');
+    // 4. Neutralize protocols - simple string replacement for safety
+    sanitized = sanitized.replaceAll(/[BLOCKED-DATA]:[^,]{0,100},[^\s"']{0,500}/gi, '[REMOVED: DATA URL]');
+    sanitized = sanitized.replaceAll(/[BLOCKED-JAVASCRIPT]:[^\s"']{0,200}/gi, '[REMOVED: JAVASCRIPT PROTOCOL]');
+    sanitized = sanitized.replaceAll(/[BLOCKED-VBSCRIPT]:[^\s"']{0,200}/gi, '[REMOVED: VBSCRIPT PROTOCOL]');
     
-    // 5. Remove potential JSONP callbacks and eval patterns
-    sanitized = sanitized.replaceAll(/\b(eval|function|settimeout|setinterval)\s*\(/gi, '[REMOVED: EVAL-LIKE FUNCTION](');
+    // 5. Remove eval patterns - bounded word boundaries
+    sanitized = sanitized.replaceAll(/\b(?:eval|function|settimeout|setinterval)\s*\([^)]{0,100}\)/gi, '[REMOVED: EVAL-LIKE FUNCTION]');
     
-    // 6. Neutralize template literal patterns that could be dangerous
-    sanitized = sanitized.replaceAll(/`[^`]*\${[^}]*}[^`]*`/g, '[REMOVED: TEMPLATE LITERAL]');
+    // 6. Template literals - bounded and non-greedy
+    sanitized = sanitized.replaceAll(/`[^`]{0,500}`/g, '[REMOVED: TEMPLATE LITERAL]');
     
-    // 7. Remove potential SQL injection patterns (basic)
-    sanitized = sanitized.replaceAll(/\b(drop|delete|update|insert|create|alter)\s+\w+/gi, '[REMOVED: SQL-LIKE COMMAND]');
+    // 7. SQL patterns - word boundary, bounded
+    sanitized = sanitized.replaceAll(/\b(?:drop|delete|update|insert|create|alter)\s+\w{1,50}/gi, '[REMOVED: SQL-LIKE COMMAND]');
     
-    // 8. Neutralize potential path traversal patterns
+    // 8. Path traversal - simple pattern
     sanitized = sanitized.replaceAll(/\.\.[/\\]/g, '[REMOVED: PATH TRAVERSAL]');
     
-    // 9. Remove potential file protocol URLs
-    sanitized = sanitized.replaceAll(/file:\s*\/\//gi, '[REMOVED: FILE PROTOCOL]');
+    // 9. File protocol - simple bounded pattern
+    sanitized = sanitized.replaceAll(/file:\/\/[^\s"']{0,200}/gi, '[REMOVED: FILE PROTOCOL]');
     
     return sanitized;
 }
@@ -19524,15 +19538,19 @@ export async function canCreateSymlinks(): Promise<boolean> {
     }
 
     // On Windows, try to create a symlink to test permissions
-    const tempDir = join(os.tmpdir(), `symlink-test-${Date.now()}`);
+    // Use crypto.randomBytes for secure temp directory naming
+    const { randomBytes } = await import('node:crypto');
+    const randomSuffix = randomBytes(8).toString('hex');
+    const tempDir = join(os.tmpdir(), `symlink-test-${randomSuffix}`);
     
     try {
-        await mkdir(tempDir, { recursive: true });
+        // Create directory with restricted permissions (mode 0o700 = rwx------)
+        await mkdir(tempDir, { recursive: true, mode: 0o700 });
         
         const targetFile = join(tempDir, 'target.txt');
         const symlinkFile = join(tempDir, 'symlink.txt');
         
-        await writeFile(targetFile, 'test content');
+        await writeFile(targetFile, 'test content', { mode: 0o600 }); // rw-------
         await symlink(targetFile, symlinkFile);
         
         // If we get here without error, symlinks work
@@ -19540,9 +19558,14 @@ export async function canCreateSymlinks(): Promise<boolean> {
         return true;
         
     } catch (error: any) {
-        // Clean up on error
-        if (existsSync(tempDir)) {
-            await rm(tempDir, { recursive: true, force: true }).catch(() => {});
+        // Clean up on error with additional safety checks
+        try {
+            if (existsSync(tempDir)) {
+                await rm(tempDir, { recursive: true, force: true });
+            }
+        } catch (cleanupError) {
+            // Log cleanup error but don't throw to preserve original error
+            console.warn(`Warning: Failed to cleanup temp directory: ${String(cleanupError)}`);
         }
         
         // Check for Windows permission errors

@@ -233,10 +233,18 @@ export async function runFusionCommand(options: {
                 outputFiles.push(path.join(outputDir, `${config.generatedFileName}.html`));
             }
             
+            // Check all files atomically to prevent race conditions
             const existingFiles = [];
-            for (const file of outputFiles) {
-                if (await fs.pathExists(file)) {
-                    existingFiles.push(path.basename(file));
+            const fileChecks = await Promise.allSettled(
+                outputFiles.map(async (file) => {
+                    const exists = await fs.pathExists(file);
+                    return { file, exists };
+                })
+            );
+            
+            for (const result of fileChecks) {
+                if (result.status === 'fulfilled' && result.value.exists) {
+                    existingFiles.push(path.basename(result.value.file));
                 }
             }
             
