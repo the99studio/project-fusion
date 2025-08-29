@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 09:31:59 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 10:35:49 UTC−4</p>
 <p><strong>Files:</strong> 76</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.0</a></p>
 <hr>
@@ -535,6 +535,8 @@ import tseslint from &#39;typescript-eslint&#39;;
 import tsParser from &#39;&#64;typescript-eslint&#47;parser&#39;;
 import importPlugin from &#39;eslint-plugin-import&#39;;
 import unicorn from &#39;eslint-plugin-unicorn&#39;;
+import securityPlugin from &#39;eslint-plugin-security&#39;;
+import prettierConfig from &#39;eslint-config-prettier&#39;;
 
 &#47;&#47; Shared configuration for all TypeScript files
 const sharedRules &#61; &#123;
@@ -727,7 +729,21 @@ const sharedRules &#61; &#123;
   &#39;unicorn&#47;no-anonymous-default-export&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-empty-file&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-invalid-fetch-options&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-magic-array-flat-depth&#39;: &#39;error&#39;
+  &#39;unicorn&#47;no-magic-array-flat-depth&#39;: &#39;error&#39;,
+  
+  &#47;&#47; Security rules
+  &#39;security&#47;detect-non-literal-fs-filename&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-non-literal-regexp&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-unsafe-regex&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-buffer-noassert&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-child-process&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-disable-mustache-escape&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-eval-with-expression&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-new-buffer&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-no-csrf-before-method-override&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-possible-timing-attacks&#39;: &#39;warn&#39;,
+  &#39;security&#47;detect-pseudoRandomBytes&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-object-injection&#39;: &#39;warn&#39;
 &#125;;
 
 &#47;&#47; Shared globals for Node.js environment
@@ -743,7 +759,8 @@ const nodeGlobals &#61; &#123;
 &#47;&#47; Shared plugins
 const sharedPlugins &#61; &#123;
   &#39;import&#39;: importPlugin,
-  &#39;unicorn&#39;: unicorn
+  &#39;unicorn&#39;: unicorn,
+  &#39;security&#39;: securityPlugin
 &#125;;
 
 &#47;&#47; Base configuration for TypeScript files
@@ -771,6 +788,7 @@ const createTsConfig &#61; &#40;project&#41; &#61;&gt; &#40;&#123;
 export default &#91;
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
+  prettierConfig,
   
   &#47;&#47; Source files configuration
   &#123;
@@ -899,9 +917,11 @@ export default &#91;
         &quot;&#64;typescript-eslint&#47;parser&quot;: &quot;^8.41.0&quot;,
         &quot;&#64;vitest&#47;coverage-v8&quot;: &quot;^3.2.4&quot;,
         &quot;eslint&quot;: &quot;^9.34.0&quot;,
+        &quot;eslint-config-prettier&quot;: &quot;^10.1.8&quot;,
         &quot;eslint-import-resolver-typescript&quot;: &quot;^4.4.4&quot;,
         &quot;eslint-plugin-import&quot;: &quot;^2.32.0&quot;,
         &quot;eslint-plugin-node&quot;: &quot;^11.1.0&quot;,
+        &quot;eslint-plugin-security&quot;: &quot;^3.0.1&quot;,
         &quot;eslint-plugin-unicorn&quot;: &quot;^60.0.0&quot;,
         &quot;fast-check&quot;: &quot;^4.2.0&quot;,
         &quot;typescript&quot;: &quot;^5.9.2&quot;,
@@ -2625,7 +2645,7 @@ export class ProjectFusionBuilder &#123;
      *&#47;
     maxSize&#40;size: string | number&#41;: this &#123;
         if &#40;typeof size &#61;&#61;&#61; &#39;string&#39;&#41; &#123;
-            const match &#61; size.match&#40;&#47;^&#40;\d&#43;&#40;?:\.\d&#43;&#41;?&#41;\s*&#40;kb|mb|gb&#41;?&#36;&#47;i&#41;;
+            const match &#61; size.match&#40;&#47;^&#40;\d&#43;&#40;?:\.\d&#43;&#41;?&#41;\s*&#40;&#91;gkm&#93;b&#41;?&#36;&#47;i&#41;;
             if &#40;&#33;match&#41; &#123;
                 throw new Error&#40;&#96;Invalid size format: &#36;&#123;size&#125;. Use format like &quot;1MB&quot;, &quot;512KB&quot;, or number in KB&#96;&#41;;
             &#125;
@@ -5709,7 +5729,7 @@ export const SECRET_PATTERNS &#61; &#91;
     &#123; name: &#39;Twilio Key&#39;, regex: &#47;&#40;SK&#91;\dA-Fa-f&#93;&#123;32&#125;&#41;&#47; &#125;,
     &#123; name: &#39;MailChimp Key&#39;, regex: &#47;&#40;&#91;\da-f&#93;&#123;32&#125;-us\d&#123;1,2&#125;&#41;&#47; &#125;,
     &#123; name: &#39;SendGrid Key&#39;, regex: &#47;&#40;SG\.&#91;\w-&#93;&#123;22&#125;\.&#91;\w-&#93;&#123;43&#125;&#41;&#47; &#125;,
-    &#123; name: &#39;Heroku API Key&#39;, regex: &#47;&#40;&#91;\da-f&#93;&#123;8&#125;&#40;?:-&#91;\da-f&#93;&#123;4&#125;&#41;&#123;3&#125;-&#91;\da-f&#93;&#123;12&#125;&#41;&#40;?&#61;.*heroku&#41;&#47;i &#125;,
+    &#123; name: &#39;Heroku API Key&#39;, regex: &#47;&#91;\da-f&#93;&#123;8&#125;&#40;?:-&#91;\da-f&#93;&#123;4&#125;&#41;&#123;3&#125;-&#91;\da-f&#93;&#123;12&#125;&#40;?&#61;.*heroku&#41;&#47;i &#125;,
     &#123; name: &#39;JWT Token&#39;, regex: &#47;&#40;&#40;?:ey&#91;\w-&#93;&#43;\.&#41;&#123;2&#125;&#91;\w&#43;.&#47;&#61;-&#93;*&#41;&#47; &#125;,
     &#123; name: &#39;npm Token&#39;, regex: &#47;&#40;npm_&#91;\dA-Za-z&#93;&#123;36&#125;&#41;&#47; &#125;,
     &#123; name: &#39;Generic API Key&#39;, regex: &#47;&#40;api&#91;_-&#93;?key&#91;_-&#93;?&#91;:&#61;&#93;\s*&#91;&quot;&#39;&#93;?&#91;\w-&#93;&#123;32,&#125;&#91;&quot;&#39;&#93;?&#41;&#47;i &#125;,
@@ -20380,11 +20400,7 @@ npx changeset init
 ### Documentation
 • Créer table d&#39;erreurs documentées &#40;code → message → remédiation&#41;
 • Ajouter plus d&#39;exemples d&#39;utilisation programmatique dans README
-• Documenter limitations connues
-
-### Linting
-• Ajouter &#96;eslint-config-prettier&#96; pour éviter conflits format
-• Installer &#96;eslint-plugin-security&#96; pour détection anti-patterns</pre>
+• Documenter limitations connues</pre>
 <h2 id="tsconfigjson">tsconfig.json</h2>
 <pre>&#123;
     &quot;compilerOptions&quot;: &#123;

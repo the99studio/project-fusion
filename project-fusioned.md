@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.0
 
-**Generated:** 29/08/2025 09:31:59 UTC−4
+**Generated:** 29/08/2025 10:35:49 UTC−4
 
 **Files:** 76
 
@@ -536,6 +536,8 @@ import tseslint from 'typescript-eslint';
 import tsParser from '@typescript-eslint/parser';
 import importPlugin from 'eslint-plugin-import';
 import unicorn from 'eslint-plugin-unicorn';
+import securityPlugin from 'eslint-plugin-security';
+import prettierConfig from 'eslint-config-prettier';
 
 // Shared configuration for all TypeScript files
 const sharedRules = {
@@ -728,7 +730,21 @@ const sharedRules = {
   'unicorn/no-anonymous-default-export': 'error',
   'unicorn/no-empty-file': 'error',
   'unicorn/no-invalid-fetch-options': 'error',
-  'unicorn/no-magic-array-flat-depth': 'error'
+  'unicorn/no-magic-array-flat-depth': 'error',
+  
+  // Security rules
+  'security/detect-non-literal-fs-filename': 'warn',
+  'security/detect-non-literal-regexp': 'warn',
+  'security/detect-unsafe-regex': 'warn',
+  'security/detect-buffer-noassert': 'error',
+  'security/detect-child-process': 'warn',
+  'security/detect-disable-mustache-escape': 'error',
+  'security/detect-eval-with-expression': 'error',
+  'security/detect-new-buffer': 'error',
+  'security/detect-no-csrf-before-method-override': 'error',
+  'security/detect-possible-timing-attacks': 'warn',
+  'security/detect-pseudoRandomBytes': 'error',
+  'security/detect-object-injection': 'warn'
 };
 
 // Shared globals for Node.js environment
@@ -744,7 +760,8 @@ const nodeGlobals = {
 // Shared plugins
 const sharedPlugins = {
   'import': importPlugin,
-  'unicorn': unicorn
+  'unicorn': unicorn,
+  'security': securityPlugin
 };
 
 // Base configuration for TypeScript files
@@ -772,6 +789,7 @@ const createTsConfig = (project) => ({
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
+  prettierConfig,
   
   // Source files configuration
   {
@@ -904,9 +922,11 @@ export default [
         "@typescript-eslint/parser": "^8.41.0",
         "@vitest/coverage-v8": "^3.2.4",
         "eslint": "^9.34.0",
+        "eslint-config-prettier": "^10.1.8",
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-node": "^11.1.0",
+        "eslint-plugin-security": "^3.0.1",
         "eslint-plugin-unicorn": "^60.0.0",
         "fast-check": "^4.2.0",
         "typescript": "^5.9.2",
@@ -2662,7 +2682,7 @@ export class ProjectFusionBuilder {
      */
     maxSize(size: string | number): this {
         if (typeof size === 'string') {
-            const match = size.match(/^(\d+(?:\.\d+)?)\s*(kb|mb|gb)?$/i);
+            const match = size.match(/^(\d+(?:\.\d+)?)\s*([gkm]b)?$/i);
             if (!match) {
                 throw new Error(`Invalid size format: ${size}. Use format like "1MB", "512KB", or number in KB`);
             }
@@ -5774,7 +5794,7 @@ export const SECRET_PATTERNS = [
     { name: 'Twilio Key', regex: /(SK[\dA-Fa-f]{32})/ },
     { name: 'MailChimp Key', regex: /([\da-f]{32}-us\d{1,2})/ },
     { name: 'SendGrid Key', regex: /(SG\.[\w-]{22}\.[\w-]{43})/ },
-    { name: 'Heroku API Key', regex: /([\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12})(?=.*heroku)/i },
+    { name: 'Heroku API Key', regex: /[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}(?=.*heroku)/i },
     { name: 'JWT Token', regex: /((?:ey[\w-]+\.){2}[\w+./=-]*)/ },
     { name: 'npm Token', regex: /(npm_[\dA-Za-z]{36})/ },
     { name: 'Generic API Key', regex: /(api[_-]?key[_-]?[:=]\s*["']?[\w-]{32,}["']?)/i },
@@ -20658,10 +20678,6 @@ npx changeset init
 • Créer table d'erreurs documentées (code → message → remédiation)
 • Ajouter plus d'exemples d'utilisation programmatique dans README
 • Documenter limitations connues
-
-### Linting
-• Ajouter `eslint-config-prettier` pour éviter conflits format
-• Installer `eslint-plugin-security` pour détection anti-patterns
 ```
 
 ## 📄 tsconfig.json {#tsconfigjson}

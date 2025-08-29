@@ -19,7 +19,3 @@ npx changeset init
 • Créer table d'erreurs documentées (code → message → remédiation)
 • Ajouter plus d'exemples d'utilisation programmatique dans README
 • Documenter limitations connues
-
-### Linting
-• Ajouter `eslint-config-prettier` pour éviter conflits format
-• Installer `eslint-plugin-security` pour détection anti-patterns

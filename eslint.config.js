@@ -3,6 +3,8 @@ import tseslint from 'typescript-eslint';
 import tsParser from '@typescript-eslint/parser';
 import importPlugin from 'eslint-plugin-import';
 import unicorn from 'eslint-plugin-unicorn';
+import securityPlugin from 'eslint-plugin-security';
+import prettierConfig from 'eslint-config-prettier';
 
 // Shared configuration for all TypeScript files
 const sharedRules = {
@@ -195,7 +197,21 @@ const sharedRules = {
   'unicorn/no-anonymous-default-export': 'error',
   'unicorn/no-empty-file': 'error',
   'unicorn/no-invalid-fetch-options': 'error',
-  'unicorn/no-magic-array-flat-depth': 'error'
+  'unicorn/no-magic-array-flat-depth': 'error',
+  
+  // Security rules
+  'security/detect-non-literal-fs-filename': 'warn',
+  'security/detect-non-literal-regexp': 'warn',
+  'security/detect-unsafe-regex': 'warn',
+  'security/detect-buffer-noassert': 'error',
+  'security/detect-child-process': 'warn',
+  'security/detect-disable-mustache-escape': 'error',
+  'security/detect-eval-with-expression': 'error',
+  'security/detect-new-buffer': 'error',
+  'security/detect-no-csrf-before-method-override': 'error',
+  'security/detect-possible-timing-attacks': 'warn',
+  'security/detect-pseudoRandomBytes': 'error',
+  'security/detect-object-injection': 'warn'
 };
 
 // Shared globals for Node.js environment
@@ -211,7 +227,8 @@ const nodeGlobals = {
 // Shared plugins
 const sharedPlugins = {
   'import': importPlugin,
-  'unicorn': unicorn
+  'unicorn': unicorn,
+  'security': securityPlugin
 };
 
 // Base configuration for TypeScript files
@@ -239,6 +256,7 @@ const createTsConfig = (project) => ({
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
+  prettierConfig,
   
   // Source files configuration
   {

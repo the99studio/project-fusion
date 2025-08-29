@@ -68,7 +68,7 @@ export class ProjectFusionBuilder {
      */
     maxSize(size: string | number): this {
         if (typeof size === 'string') {
-            const match = size.match(/^(\d+(?:\.\d+)?)\s*(kb|mb|gb)?$/i);
+            const match = size.match(/^(\d+(?:\.\d+)?)\s*([gkm]b)?$/i);
             if (!match) {
                 throw new Error(`Invalid size format: ${size}. Use format like "1MB", "512KB", or number in KB`);
             }

@@ -829,7 +829,7 @@ export const SECRET_PATTERNS = [
     { name: 'Twilio Key', regex: /(SK[\dA-Fa-f]{32})/ },
     { name: 'MailChimp Key', regex: /([\da-f]{32}-us\d{1,2})/ },
     { name: 'SendGrid Key', regex: /(SG\.[\w-]{22}\.[\w-]{43})/ },
-    { name: 'Heroku API Key', regex: /([\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12})(?=.*heroku)/i },
+    { name: 'Heroku API Key', regex: /[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}(?=.*heroku)/i },
     { name: 'JWT Token', regex: /((?:ey[\w-]+\.){2}[\w+./=-]*)/ },
     { name: 'npm Token', regex: /(npm_[\dA-Za-z]{36})/ },
     { name: 'Generic API Key', regex: /(api[_-]?key[_-]?[:=]\s*["']?[\w-]{32,}["']?)/i },
