@@ -46,32 +46,27 @@ export async function runFusionCommand(options: {
     overwrite?: boolean;
 }): Promise<void> {
     try {
-        logger.consoleInfo('🔄 Starting Fusion Process...');
+        logger.consoleInfo('Starting Fusion Process...');
 
         const config = await loadConfig();
 
-        // Handle root directory
         if (options.root) {
             config.rootDirectory = options.root;
-            console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
+            console.log(chalk.yellow(`Using specified directory as root: ${options.root}`));
         }
 
-        // Handle output directory
         if (options.out) {
             const outputPath = path.resolve(options.out);
             config.outputDirectory = outputPath;
-            console.log(chalk.yellow(`ℹ️ Using output directory: ${outputPath}`));
+            console.log(chalk.yellow(`Using output directory: ${outputPath}`));
         }
 
-        // Handle custom filename
         if (options.name) {
             config.generatedFileName = options.name;
-            console.log(chalk.yellow(`ℹ️ Using custom filename: ${options.name}`));
+            console.log(chalk.yellow(`Using custom filename: ${options.name}`));
         }
 
-        // Handle output format overrides
         if (options.html !== undefined || options.md !== undefined || options.txt !== undefined) {
-            // If any format flag is specified, only generate those formats
             config.generateHtml = options.html ?? false;
             config.generateMarkdown = options.md ?? false;
             config.generateText = options.txt ?? false;
@@ -82,17 +77,16 @@ export async function runFusionCommand(options: {
             if (config.generateText) { enabledFormats.push('Text'); }
             
             if (enabledFormats.length > 0) {
-                console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
+                console.log(chalk.yellow(`Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
             } else {
                 logger.consoleError('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
                 process.exit(1);
             }
         }
 
-        // Handle clipboard override
         if (options.clipboard === false) {
             config.copyToClipboard = false;
-            logger.consoleWarning('ℹ️ Clipboard copying disabled');
+            logger.consoleWarning('Clipboard copying disabled');
         }
 
         if (options.allowSymlinks !== undefined) {
@@ -105,12 +99,11 @@ export async function runFusionCommand(options: {
         if (options.aggressiveSanitization !== undefined) {
             config.aggressiveContentSanitization = options.aggressiveSanitization;
             if (options.aggressiveSanitization) {
-                logger.consoleWarning('🛡️ Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.');
+                logger.consoleWarning('Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.');
             }
         }
 
 
-        // Handle size limits with validation
         if (options.maxFileSize) {
             const maxFileSize = Number.parseInt(options.maxFileSize, 10);
             if (Number.isNaN(maxFileSize) || maxFileSize <= 0) {
@@ -118,7 +111,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxFileSizeKB = maxFileSize;
-            console.log(chalk.yellow(`ℹ️ Maximum file size set to: ${config.maxFileSizeKB} KB`));
+            console.log(chalk.yellow(`Maximum file size set to: ${config.maxFileSizeKB} KB`));
         }
         if (options.maxFiles) {
             const maxFiles = Number.parseInt(options.maxFiles, 10);
@@ -127,7 +120,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxFiles = maxFiles;
-            console.log(chalk.yellow(`ℹ️ Maximum files set to: ${config.maxFiles}`));
+            console.log(chalk.yellow(`Maximum files set to: ${config.maxFiles}`));
         }
         if (options.maxTotalSize) {
             const maxTotalSize = Number.parseFloat(options.maxTotalSize);
@@ -136,10 +129,9 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxTotalSizeMB = maxTotalSize;
-            console.log(chalk.yellow(`ℹ️ Maximum total size set to: ${config.maxTotalSizeMB} MB`));
+            console.log(chalk.yellow(`Maximum total size set to: ${config.maxTotalSizeMB} MB`));
         }
 
-        // Handle content validation limits
         if (options.maxBase64Kb) {
             const maxBase64KB = Number.parseInt(options.maxBase64Kb, 10);
             if (Number.isNaN(maxBase64KB) || maxBase64KB <= 0) {
@@ -147,7 +139,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxBase64BlockKB = maxBase64KB;
-            console.log(chalk.yellow(`ℹ️ Maximum base64 block size set to: ${config.maxBase64BlockKB} KB`));
+            console.log(chalk.yellow(`Maximum base64 block size set to: ${config.maxBase64BlockKB} KB`));
         }
 
         if (options.maxLineLength) {
@@ -157,7 +149,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxLineLength = maxLineLength;
-            console.log(chalk.yellow(`ℹ️ Maximum line length set to: ${config.maxLineLength} chars`));
+            console.log(chalk.yellow(`Maximum line length set to: ${config.maxLineLength} chars`));
         }
 
         if (options.maxTokenLength) {
@@ -167,40 +159,36 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxTokenLength = maxTokenLength;
-            console.log(chalk.yellow(`ℹ️ Maximum token length set to: ${config.maxTokenLength} chars`));
+            console.log(chalk.yellow(`Maximum token length set to: ${config.maxTokenLength} chars`));
         }
 
-        // Handle external plugin paths (security setting)
         if (options.allowedPluginPaths) {
             const pluginPaths = options.allowedPluginPaths.split(',').map(p => p.trim()).filter(p => p.length > 0);
             if (pluginPaths.length > 0) {
                 config.allowedExternalPluginPaths = pluginPaths;
-                console.log(chalk.yellow(`🔐 Allowed external plugin paths set to: ${pluginPaths.join(', ')}`));
+                console.log(chalk.yellow(`Allowed external plugin paths set to: ${pluginPaths.join(', ')}`));
             }
         }
 
-        // Handle parsing behavior
         if (options.subdirs === false) {
             config.parseSubDirectories = false;
-            console.log(chalk.yellow('ℹ️ Subdirectory parsing disabled'));
+            console.log(chalk.yellow('Subdirectory parsing disabled'));
         }
         if (options.gitignore === false) {
             config.useGitIgnoreForExcludes = false;
-            console.log(chalk.yellow('ℹ️ .gitignore exclusions disabled'));
+            console.log(chalk.yellow('.gitignore exclusions disabled'));
         }
         if (options.excludeSecrets === false) {
             config.excludeSecrets = false;
             console.log(chalk.yellow('⚠️ Secret exclusion disabled - files may contain sensitive data'));
         }
 
-        // Handle additional ignore patterns
         if (options.ignore) {
             const additionalPatterns = options.ignore.split(',').map(p => p.trim());
             config.ignorePatterns = [...config.ignorePatterns, ...additionalPatterns];
-            console.log(chalk.yellow(`ℹ️ Added ignore patterns: ${additionalPatterns.join(', ')}`));
+            console.log(chalk.yellow(`Added ignore patterns: ${additionalPatterns.join(', ')}`));
         }
 
-        // Parse extension groups from command line (comma-separated)
         // Support both --extensions and --groups for convenience
         let extensionGroups: string[] | undefined;
         const groupsOption = options.extensions ?? options.groups;
@@ -209,32 +197,27 @@ export async function runFusionCommand(options: {
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
         }
 
-        // Build fusion options with plugin support
         const fusionOptions: FusionOptions = {};
         
         if (extensionGroups) {
             fusionOptions.extensionGroups = extensionGroups;
         }
         
-        // Handle plugins directory
         if (options.pluginsDir) {
             fusionOptions.pluginsDir = path.resolve(options.pluginsDir);
-            console.log(chalk.blue(`📦 Loading plugins from: ${fusionOptions.pluginsDir}`));
+            console.log(chalk.blue(`Loading plugins from: ${fusionOptions.pluginsDir}`));
         }
         
-        // Handle enabled plugins list
         if (options.plugins) {
             fusionOptions.enabledPlugins = options.plugins.split(',').map(p => p.trim());
-            console.log(chalk.blue(`🔌 Enabled plugins: ${fusionOptions.enabledPlugins.join(', ')}`));
+            console.log(chalk.blue(`Enabled plugins: ${fusionOptions.enabledPlugins.join(', ')}`));
         }
 
-        // Handle preview mode
         if (options.preview) {
-            console.log(chalk.blue('👁️ Preview Mode: Scanning files without generating output...'));
+            console.log(chalk.blue('Preview Mode: Scanning files without generating output...'));
             fusionOptions.previewMode = true;
         }
 
-        // Handle overwrite protection
         const shouldOverwrite = options.overwrite ?? config.overwriteFiles;
         if (!options.preview && !shouldOverwrite) {
             const outputDir = config.outputDirectory ?? '.';
@@ -250,7 +233,6 @@ export async function runFusionCommand(options: {
                 outputFiles.push(path.join(outputDir, `${config.generatedFileName}.html`));
             }
             
-            // Check if any output files already exist
             const existingFiles = [];
             for (const file of outputFiles) {
                 if (await fs.pathExists(file)) {
@@ -263,7 +245,7 @@ export async function runFusionCommand(options: {
                 for (const file of existingFiles) {
                     console.error(chalk.yellow(`   - ${file}`));
                 }
-                console.error(chalk.yellow('\n💡 Use --overwrite flag to replace existing files.'));
+                console.error(chalk.yellow('\nUse --overwrite flag to replace existing files.'));
                 process.exitCode = 1;
                 return;
             }
@@ -276,7 +258,7 @@ export async function runFusionCommand(options: {
             
             // In preview mode, don't show generated files section
             if (!options.preview) {
-                console.log(chalk.green(`📄 Generated files:`));
+                console.log(chalk.green(`Generated files:`));
                 
                 if (config.generateText) {
                     console.log(chalk.cyan(`   - ${config.generatedFileName}.txt`));
@@ -297,25 +279,25 @@ export async function runFusionCommand(options: {
                         const fileSizeMB = fileStats.size / (1024 * 1024);
                         
                         if (fileSizeMB > 5) {
-                            console.log(chalk.gray(`📋 Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
+                            console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
                             const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                             await clipboardy.write(fusionContent);
-                            console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
+                            console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }
                     } catch (clipboardError) {
                         console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
                     }
                 } else if (config.copyToClipboard === true && isNonInteractive) {
-                    console.log(chalk.gray(`📋 Clipboard copy skipped (non-interactive environment)`));
+                    console.log(chalk.gray(`Clipboard copy skipped (non-interactive environment)`));
                 }
             }
 
-            console.log(chalk.gray(`📝 Log file available at: ${result.logFilePath}`));
+            console.log(chalk.gray(`Log file available at: ${result.logFilePath}`));
         } else {
             console.log(chalk.red(`❌ ${result.message}`));
             if (result.logFilePath) {
-                console.log(chalk.gray(`📝 Check log file for details: ${result.logFilePath}`));
+                console.log(chalk.gray(`Check log file for details: ${result.logFilePath}`));
             }
         }
     } catch (error) {
@@ -330,7 +312,7 @@ export async function runFusionCommand(options: {
  */
 export async function runInitCommand(options: { force?: boolean } = {}): Promise<void> {
     try {
-        console.log(chalk.blue('🔄 Initializing Project Fusion...'));
+        console.log(chalk.blue('Initializing Project Fusion...'));
 
         const configPath = path.resolve('./project-fusion.json');
         if (await fs.pathExists(configPath)) {
@@ -346,10 +328,10 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
         await fs.writeJson(configPath, defaultConfig, { spaces: 4 });
 
         console.log(chalk.green('✅ Project Fusion initialized successfully!'));
-        console.log(chalk.blue('📁 Created:'));
+        console.log(chalk.blue('Created:'));
         console.log(chalk.cyan('  - ./project-fusion.json'));
 
-        console.log(chalk.blue('\n📝 Next steps:'));
+        console.log(chalk.blue('\nNext steps:'));
         console.log(chalk.cyan('  1. Review project-fusion.json and adjust as needed'));
         console.log(chalk.cyan('  2. Run fusion: project-fusion'));
     } catch (error) {
@@ -363,7 +345,7 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
  */
 export async function runConfigCheckCommand(): Promise<void> {
     try {
-        console.log(chalk.blue('🔍 Checking Project Fusion Configuration...'));
+        console.log(chalk.blue('Checking Project Fusion Configuration...'));
 
         const configPath = path.resolve('./project-fusion.json');
         
@@ -377,7 +359,6 @@ export async function runConfigCheckCommand(): Promise<void> {
             return;
         }
 
-        // Load and parse configuration
         let configContent: string;
         try {
             configContent = await fs.readFile(configPath, 'utf8');
@@ -394,7 +375,6 @@ export async function runConfigCheckCommand(): Promise<void> {
             process.exit(1);
         }
 
-        // Validate configuration against schema
         const validation = ConfigSchemaV1.safeParse(parsedConfig);
         
         if (!validation.success) {
@@ -420,7 +400,7 @@ export async function runConfigCheckCommand(): Promise<void> {
                 }
             }
             
-            console.log(chalk.yellow('\n💡 Suggestions:'));
+            console.log(chalk.yellow('\nSuggestions:'));
             console.log(chalk.cyan('   - Check your configuration against the schema'));
             console.log(chalk.cyan('   - Run "project-fusion init --force" to reset to default config'));
             process.exit(1);
@@ -448,7 +428,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
         output.push(line.replaceAll(/\u001B\[[\d;]*m/gu, '')); // Strip ANSI colors for log
     };
 
-    addLine('\n📋 Configuration Summary:', chalk.blue('\n📋 Configuration Summary:'));
+    addLine('\nConfiguration Summary:', chalk.blue('\nConfiguration Summary:'));
     
     if (isDefault) {
         addLine('   (Using default configuration)\n', chalk.gray('   (Using default configuration)\n'));
@@ -457,7 +437,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     }
 
     // Core configuration settings with diff highlighting
-    addLine('🔧 Basic Settings:', chalk.cyan('🔧 Basic Settings:'));
+    addLine('Basic Settings:', chalk.cyan('Basic Settings:'));
     addLine(`   Schema Version: ${config.schemaVersion}${isDefault || config.schemaVersion === defaultConfig.schemaVersion ? '' : ' (modified)'}`,
            `   Schema Version: ${highlightDiff(config.schemaVersion.toString(), defaultConfig.schemaVersion.toString(), config.schemaVersion.toString())}`);
     addLine(`   Root Directory: ${config.rootDirectory}${isDefault || config.rootDirectory === defaultConfig.rootDirectory ? '' : ' (modified)'}`,
@@ -484,7 +464,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
            `   Max Total Size: ${highlightDiff(`${config.maxTotalSizeMB} MB`, `${defaultConfig.maxTotalSizeMB} MB`, `${config.maxTotalSizeMB} MB`)}`);
 
     // File generation options
-    addLine('\n📄 Output Generation:', chalk.cyan('\n📄 Output Generation:'));
+    addLine('\nOutput Generation:', chalk.cyan('\nOutput Generation:'));
     addLine(`   Generated File Name: ${config.generatedFileName}${isDefault || config.generatedFileName === defaultConfig.generatedFileName ? '' : ' (modified)'}`,
            `   Generated File Name: ${highlightDiff(config.generatedFileName, defaultConfig.generatedFileName, config.generatedFileName)}`);
     addLine(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}${isDefault || config.generateText === defaultConfig.generateText ? '' : ' (modified)'}`,
@@ -496,15 +476,15 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     addLine('   Log File: project-fusion.log');
 
     // File type configuration - structured table
-    addLine('\n📁 File Extension Groups (Structured View):', chalk.cyan('\n📁 File Extension Groups (Structured View):'));
+    addLine('\nFile Extension Groups (Structured View):', chalk.cyan('\nFile Extension Groups (Structured View):'));
     displayExtensionGroupsTable(config, isDefault, addLine);
 
     // Pattern exclusions with diff
-    addLine('\n🚫 Ignore Patterns:', chalk.cyan('\n🚫 Ignore Patterns:'));
+    addLine('\nIgnore Patterns:', chalk.cyan('\nIgnore Patterns:'));
     displayIgnorePatternsWithDiff(config, isDefault, addLine);
 
     // Preview matching files using current configuration
-    addLine('\n🔍 File Discovery Preview:', chalk.cyan('\n🔍 File Discovery Preview:'));
+    addLine('\nFile Discovery Preview:', chalk.cyan('\nFile Discovery Preview:'));
     try {
         const { glob } = await import('glob');
         const rootDir = path.resolve(config.rootDirectory);

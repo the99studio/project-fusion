@@ -33,8 +33,8 @@ export const defaultConfig = {
         "*.7z",
         "*.a",
         "*.avi",
-        "*.bmp",
         "*.blend",
+        "*.bmp",
         "*.class",
         "*.dll",
         "*.doc",
@@ -51,6 +51,7 @@ export const defaultConfig = {
         "*.jpeg",
         "*.jpg",
         "*.key",
+        "*.keystore",
         "*.log",
         "*.min.css",
         "*.min.js",
@@ -59,6 +60,7 @@ export const defaultConfig = {
         "*.mp4",
         "*.o",
         "*.obj",
+        "*.p12",
         "*.pdf",
         "*.pem",
         "*.png",
@@ -84,19 +86,17 @@ export const defaultConfig = {
         "*.zip",
         "**/credentials/*",
         "**/secrets/*",
+        ".*history",
+        ".aws/",
+        ".azure/",
         ".DS_Store",
         ".env",
         ".env.*",
-        ".idea/",
-        ".vscode/",
-        ".ssh/",
-        ".aws/",
-        ".azure/",
         ".gcloud/",
-        "*.p12",
-        "*.keystore",
-        ".*history",
+        ".idea/",
         ".npmrc",
+        ".ssh/",
+        ".vscode/",
         "build/",
         "dist/",
         "dist/**/*.map",
@@ -243,7 +243,7 @@ export function formatTimestamp(date?: Date): string {
  * Generate a helpful message when no files match the criteria
  */
 export function generateHelpfulEmptyMessage(extensions: string[], config: Config): string {
-    const messages = ['💡 Suggestions to find files:'];
+    const messages = ['Suggestions to find files:'];
     
     // Suggest different extension groups
     const availableGroups = Object.keys(config.parsedFileExtensions);
@@ -356,7 +356,7 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
         
         // If relative path starts with '..' or is absolute, the file escapes the root
         if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
-            const warningMsg = `🚨 SECURITY: Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`;
+            const warningMsg = `SECURITY: Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`;
             logger.consoleWarn(warningMsg);
             throw new FusionError(
                 `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
@@ -393,7 +393,7 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks = false
         
         if (stats.isSymbolicLink()) {
             if (!allowSymlinks) {
-                const warningMsg = `🚨 SECURITY: Symbolic link not allowed: '${filePath}'`;
+                const warningMsg = `SECURITY: Symbolic link not allowed: '${filePath}'`;
                 logger.consoleWarn(warningMsg);
                 throw new FusionError(
                     `Symbolic link not allowed: '${filePath}'`,
@@ -483,7 +483,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             tracker.entries.push(auditEntry);
             
             // Log with security warning banner
-            logger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
+            logger.warn(`SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
                 symlink: symlinkPath,
                 target: resolvedTarget,
                 targetExists,
@@ -494,7 +494,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             });
         } else if (tracker.entries.length === maxEntries) {
             // Log limit reached message once
-            logger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
+            logger.warn(`SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
                 totalSymlinks: tracker.count,
                 maxEntries,
                 sessionKey
@@ -503,7 +503,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
         
     } catch (error) {
         // Log symlink resolution failure
-        logger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
+        logger.error(`SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
             symlink: symlinkPath,
             error: error instanceof Error ? error.message : String(error),
             auditCount: tracker.count
@@ -560,31 +560,36 @@ export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise
         const buffer = await fs.readFile(filePath, { encoding: null });
         const actualBytesToCheck = Math.min(buffer.length, bytesToRead);
         
-        // Check for null bytes which indicate binary content
-        for (let i = 0; i < actualBytesToCheck; i++) {
-            if (buffer[i] === 0) {
-                binaryFileCache.set(filePath, true);
-                return true;
-            }
+        // Early exit for null bytes - most efficient binary detection
+        const nullByteIndex = buffer.subarray(0, actualBytesToCheck).indexOf(0);
+        if (nullByteIndex !== -1) {
+            binaryFileCache.set(filePath, true);
+            return true;
         }
         
-        // Check for high ratio of non-printable characters
+        // Optimized non-printable character check using bit operations
         let nonPrintable = 0;
+        const threshold = Math.floor(actualBytesToCheck * 0.3); // Pre-calculate 30% threshold
+        
         for (let i = 0; i < actualBytesToCheck; i++) {
             const byte = buffer[i];
-            if (byte === undefined) { continue; } // Skip undefined bytes
-            // Allow common whitespace chars: space(32), tab(9), newline(10), carriage return(13)
-            if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
+            if (byte === undefined) { continue; }
+            
+            // Use bit operations for faster range checks
+            // Allow common whitespace: tab(9), newline(10), carriage return(13), space(32)
+            if ((byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) || byte > 126) {
                 nonPrintable++;
-            } else if (byte > 126) {
-                nonPrintable++;
+                // Early exit if threshold already exceeded
+                if (nonPrintable > threshold) {
+                    binaryFileCache.set(filePath, true);
+                    return true;
+                }
             }
         }
         
-        // If more than 30% non-printable, consider it binary
-        const isBinary = (nonPrintable / actualBytesToCheck) > 0.3;
-        binaryFileCache.set(filePath, isBinary);
-        return isBinary;
+        // File is text-based
+        binaryFileCache.set(filePath, false);
+        return false;
     } catch {
         // If we can't read the file, assume it's not binary
         binaryFileCache.set(filePath, false);
@@ -837,6 +842,13 @@ export const SECRET_PATTERNS = [
     { name: 'Password Field', regex: /(password[_-]?[:=]\s*["']?[^\s"']{8,}["']?)/i }
 ];
 
+// Pre-compile global regexes for better performance
+const GLOBAL_SECRET_PATTERNS = SECRET_PATTERNS.map(pattern => ({
+    name: pattern.name,
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    regex: new RegExp(pattern.regex.source, pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`)
+}));
+
 /**
  * Redact secrets from content by replacing them with [REDACTED]
  * @param content File content to redact
@@ -847,20 +859,18 @@ export function redactSecrets(content: string): { redactedContent: string; detec
     const detectedSecrets: string[] = [];
     const seenTypes = new Set<string>();
     
-    for (const pattern of SECRET_PATTERNS) {
+    // Use pre-compiled global regexes for better performance
+    for (const pattern of GLOBAL_SECRET_PATTERNS) {
         if (pattern.regex.test(redactedContent)) {
             if (!seenTypes.has(pattern.name)) {
                 detectedSecrets.push(pattern.name);
                 seenTypes.add(pattern.name);
             }
-            // Replace all matches with [REDACTED]
-            // Create a global version of the regex if not already global
-            const globalFlags = pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`;
-            redactedContent = redactedContent.replace(
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                new RegExp(pattern.regex.source, globalFlags),
-                '[REDACTED]'
-            );
+            // Reset regex lastIndex since we're reusing compiled regexes
+            pattern.regex.lastIndex = 0;
+            redactedContent = redactedContent.replace(pattern.regex, '[REDACTED]');
+            // Reset again for next potential use
+            pattern.regex.lastIndex = 0;
         }
     }
     
@@ -903,9 +913,24 @@ export function validateFileContent(
         }
     }
 
-    // Check for long lines
-    const lines = content.split('\n');
-    const maxLineLength = Math.max(...lines.map(line => line.length));
+    // Check for long lines - optimized to avoid creating line array if not needed
+    let maxLineLength = 0;
+    let currentLineLength = 0;
+    
+    for (let i = 0; i < content.length; i++) {
+        if (content[i] === '\n') {
+            maxLineLength = Math.max(maxLineLength, currentLineLength);
+            currentLineLength = 0;
+            // Early exit if already over limit
+            if (maxLineLength > config.maxLineLength) {
+                break;
+            }
+        } else {
+            currentLineLength++;
+        }
+    }
+    maxLineLength = Math.max(maxLineLength, currentLineLength); // Handle last line
+    
     if (maxLineLength > config.maxLineLength) {
         result.issues.hasLongLines = true;
         result.issues.maxLineLength = maxLineLength;

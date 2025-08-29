@@ -169,8 +169,10 @@ describe('utils', () => {
   describe('loadConfig', () => {
     const testDir = path.resolve('./temp/test-config');
     const configFile = path.join(testDir, 'project-fusion.json');
+    let originalCwd: string;
 
     beforeEach(async () => {
+      originalCwd = process.cwd();
       await fs.ensureDir(testDir);
       // Set working directory to test directory
       process.chdir(testDir);
@@ -178,7 +180,7 @@ describe('utils', () => {
 
     afterEach(async () => {
       // Restore original working directory
-      process.chdir(path.resolve('./../../'));
+      process.chdir(originalCwd);
       await fs.remove(testDir);
     });
 

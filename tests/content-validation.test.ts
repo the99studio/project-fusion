@@ -9,6 +9,17 @@ import { processFusion } from '../src/fusion.js';
 import { createFilePath, type Config } from '../src/types.js';
 import { validateFileContent, isMinifiedContent, defaultConfig } from '../src/utils.js';
 
+// Shared test configuration factory for better consistency
+const createTestConfig = (overrides: Partial<Config> = {}): Config => ({
+    ...defaultConfig,
+    generateHtml: false,
+    generateMarkdown: false,
+    generateText: true,
+    rootDirectory: '.',
+    parsedFileExtensions: { web: ['.js'] },
+    ...overrides
+});
+
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {
         const validationConfig: Config = {
@@ -169,16 +180,7 @@ describe('Content Validation Tests', () => {
             memFS.addFile('problem.js', `const data="${largeBase64}";`);
             memFS.addFile('normal.js', 'console.log("hello");');
             
-            const config: Config = {
-                ...defaultConfig,
-                rootDirectory: '.',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: {
-                    web: ['.js']
-                }
-            };
+            const config = createTestConfig();
 
             await processFusion(config, { fs: memFS });
             
@@ -201,16 +203,7 @@ describe('Content Validation Tests', () => {
             memFS.addFile('minified.js', minifiedContent);
             memFS.addFile('normal.js', 'console.log("hello");');
             
-            const config: Config = {
-                ...defaultConfig,
-                rootDirectory: '.',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: {
-                    web: ['.js']
-                }
-            };
+            const config = createTestConfig();
 
             const result = await processFusion(config, { fs: memFS });
             

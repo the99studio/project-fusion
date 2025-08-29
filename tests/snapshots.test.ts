@@ -527,7 +527,7 @@ export class ApiClient {
             expect(htmlContent).toContain('example.ts');
             
             // Both should have proper structure
-            expect(mdContent).toContain('## 📄 example.ts');
+            expect(mdContent).toContain('## example.ts');
             expect(htmlContent).toContain('<h2 id="examplets">example.ts</h2>');
         });
     });

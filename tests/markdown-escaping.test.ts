@@ -78,9 +78,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape brackets in the header
-            expect(result).toContain('## 📄 test\\[malicious\\].js {#');
+            expect(result).toContain('## test\\[malicious\\].js {#');
             // Should not contain unescaped brackets
-            expect(result).not.toContain('## 📄 test[malicious].js {#');
+            expect(result).not.toContain('## test[malicious].js {#');
         });
 
         it('should escape parentheses in file headers', () => {
@@ -90,9 +90,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape parentheses in the header
-            expect(result).toContain('## 📄 test\\(malicious\\).js {#');
+            expect(result).toContain('## test\\(malicious\\).js {#');
             // Should not contain unescaped parentheses
-            expect(result).not.toContain('## 📄 test(malicious).js {#');
+            expect(result).not.toContain('## test(malicious).js {#');
         });
 
         it('should escape backticks in file headers', () => {
@@ -102,9 +102,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape backticks in the header
-            expect(result).toContain('## 📄 test\\`malicious\\`.js {#');
+            expect(result).toContain('## test\\`malicious\\`.js {#');
             // Should not contain unescaped backticks
-            expect(result).not.toContain('## 📄 test`malicious`.js {#');
+            expect(result).not.toContain('## test`malicious`.js {#');
         });
     });
 
@@ -121,9 +121,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape brackets in error placeholder header
-            expect(result).toContain('## ⚠️ test\\[malicious\\].js {#');
+            expect(result).toContain('## Error: test\\[malicious\\].js {#');
             // Should not contain unescaped brackets
-            expect(result).not.toContain('## ⚠️ test[malicious].js {#');
+            expect(result).not.toContain('## Error: test[malicious].js {#');
         });
     });
 

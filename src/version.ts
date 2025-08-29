@@ -26,7 +26,6 @@ function initializeVersion(): string {
     }
 
     try {
-        // Try to get current directory and package.json path
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
         const packagePath = path.resolve(__dirname, '..', 'package.json');
@@ -41,7 +40,6 @@ function initializeVersion(): string {
         cachedVersion = packageJson.version;
         return cachedVersion;
     } catch {
-        // Fallback version
         cachedVersion = '1.0.0-unknown';
         return cachedVersion;
     }
@@ -57,12 +55,10 @@ export async function getVersion(): Promise<string> {
     }
 
     try {
-        // Try modern JSON import syntax (Node 20+)
         const pkg = await import('../package.json', { with: { type: 'json' } });
         cachedVersion = pkg.default.version;
         return cachedVersion;
     } catch {
-        // Use the synchronous fallback
         return initializeVersion();
     }
 }

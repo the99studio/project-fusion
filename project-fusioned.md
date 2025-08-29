@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 29/08/2025 15:38:13 UTC−4
+**Generated:** 29/08/2025 16:21:39 UTC−4
 
 **Files:** 75
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 - [CHANGELOG.md](#changelogmd)
 - [CLAUDE.md](#claudemd)
@@ -90,7 +90,7 @@
 
 ---
 
-## 📄 CHANGELOG.md {#changelogmd}
+## CHANGELOG.md {#changelogmd}
 
 ```markdown
 # Changelog
@@ -100,11 +100,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - In Development
+## [1.1.0] - 2025-08-29
+
+### Added
+
+#### Security Enhancements
+- Added aggressive content sanitization for enhanced security
+- Added clipboard size guards to prevent memory issues
+- Added CodeQL security analysis workflow
+- Added comprehensive security fuzzing tests with edge cases
+- Added Content Security Policy (CSP) headers for HTML output
+- Added dependency review workflow for automated security scanning
+- Added file overwrite protection with confirmation prompts
+- Added GitHub link security validation and escaping
+- Added HTML escaping for all user content to prevent XSS
+- Added Markdown protocol validation to prevent malicious links
+- Added secret detection for sensitive file patterns (.ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, dist/**/*.map)
+- Added security headers for enhanced protection
+- Added version fallback mechanism for secure version reading
+
+#### Core Features  
+- Added anchor generation for improved navigation using github-slugger
+- Added cancellation support with checkCancellation() for long operations
+- Added configuration consistency validation tests
+- Added ESM import validation and type safety tests
+- Added file system streaming for better memory management
+- Added fluent API type validation tests
+- Added granular progress reporting for better user feedback
+- Added output size limits with configurable thresholds
+- Added plugin contract validation system
+- Added plugin coverage testing framework
+- Added project-fusion version tracking in generated files
+- Added proper logger centralization system
+- Added TypeScript strict configuration with noImplicitOverride
+
+#### Development and CI/CD
+- Added CODEOWNERS file for repository maintenance
+- Added comprehensive ESLint configuration with security rules
+- Added consistent-type-imports for better code organization
+- Added cross-platform compatibility fixes (Windows, macOS, Linux)
+- Added Dependabot for automated dependency updates
+- Added enhanced test helpers for better test organization
+- Added NPM provenance for supply chain security
+- Added separate TypeScript configuration for tests
+
+### Changed
+- Enhanced CLI validation with proper NaN handling for numeric flags
+- Improved configuration validation with better error messages
+- Improved coverage reporting and test organization
+- Improved Markdown language detection for better syntax highlighting
+- Improved symlink handling with configuration warnings
+- Optimized ESLint configuration for better performance
+- Refactored logger system for centralized logging
+- Updated development documentation with comprehensive guides
+- Updated package dependencies to latest secure versions
+- Updated README with better examples and documentation
 
 ### Fixed
-- Fixed NPM badge in README to correctly display package version on npmjs.com
-- Fixed CI badge to use shields.io with GitHub logo for consistent styling
+- Fixed cross-platform file removal using cross-platform packages
+- Fixed duplicate timestamp generation in output files
+- Fixed file system adapter issues on Windows platforms
+- Fixed lint execution on Windows environments
+- Fixed macOS-specific test failures
+- Fixed multiple logger initialization in test environments
+- Fixed NPM badge in README to correctly display package version
+- Fixed test isolation issues with memory filesystem
+
+### Security
+- Enhanced path traversal protection with comprehensive validation
+- Improved binary file detection with null byte analysis
+- Strengthened plugin security with external path validation
+- Updated secret patterns for broader coverage of sensitive files
 
 ## [1.0.0] - 2025-01-22
 
@@ -209,7 +275,7 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 [1.0.0]: https://github.com/the99studio/project-fusion/releases/tag/v1.0.0
 ```
 
-## 📄 CLAUDE.md {#claudemd}
+## CLAUDE.md {#claudemd}
 
 ```markdown
 # Project Fusion - AI Context
@@ -368,7 +434,7 @@ Located in `schema.ts:parsedFileExtensions`:
 node_modules/, dist/, build/, .git/, .idea/, .vscode/, .DS_Store, *.exe, *.dll, *.so, *.dylib, *.zip, *.tar, *.gz, *.rar, images, videos, audio files
 ```
 
-## 📄 DEVELOPMENT.md {#developmentmd}
+## DEVELOPMENT.md {#developmentmd}
 
 ```markdown
 # Development Guide
@@ -437,9 +503,7 @@ npm uninstall -g @the99studio/project-fusion
 
 ## Publishing
 
-**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
-
-Publishing is automated via GitHub Actions when you push a version tag.
+Publishing is automated via GitHub Actions when you push a version tag using OpenID Connect (OIDC) for secure, token-free authentication.
 
 ```bash
 # 1. Ensure you're on main branch with latest changes
@@ -528,45 +592,45 @@ await projectFusion()
 ```
 ```
 
-## 📄 eslint.config.js {#eslintconfigjs}
+## eslint.config.js {#eslintconfigjs}
 
 ```javascript
 import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import tsParser from '@typescript-eslint/parser';
-import importPlugin from 'eslint-plugin-import';
-import unicorn from 'eslint-plugin-unicorn';
-import securityPlugin from 'eslint-plugin-security';
 import prettierConfig from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
+import securityPlugin from 'eslint-plugin-security';
+import unicorn from 'eslint-plugin-unicorn';
+import tsParser from '@typescript-eslint/parser';
+import tseslint from 'typescript-eslint';
 
 // Shared configuration for all TypeScript files
 const sharedRules = {
   // TypeScript strict rules
-  '@typescript-eslint/no-explicit-any': 'error',
-  '@typescript-eslint/no-unused-vars': 'error',
-  '@typescript-eslint/prefer-readonly': 'error',
-  '@typescript-eslint/explicit-function-return-type': 'error',
-  '@typescript-eslint/explicit-module-boundary-types': 'error',
-  '@typescript-eslint/no-inferrable-types': 'error',
-  '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-  '@typescript-eslint/prefer-nullish-coalescing': 'error',
-  '@typescript-eslint/prefer-optional-chain': 'error',
-  '@typescript-eslint/prefer-string-starts-ends-with': 'error',
-  '@typescript-eslint/prefer-includes': 'error',
-  '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/await-thenable': 'error',
-  '@typescript-eslint/no-misused-promises': 'error',
-  '@typescript-eslint/require-await': 'error',
-  '@typescript-eslint/no-non-null-assertion': 'error',
-  '@typescript-eslint/prefer-reduce-type-parameter': 'error',
-  '@typescript-eslint/prefer-return-this-type': 'error',
-  '@typescript-eslint/no-unnecessary-type-arguments': 'error',
-  '@typescript-eslint/switch-exhaustiveness-check': 'error',
-  '@typescript-eslint/no-redundant-type-constituents': 'error',
-  '@typescript-eslint/no-useless-empty-export': 'error',
   '@typescript-eslint/consistent-type-exports': 'error',
   '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'separate-type-imports' }],
+  '@typescript-eslint/explicit-function-return-type': 'error',
+  '@typescript-eslint/explicit-module-boundary-types': 'error',
+  '@typescript-eslint/no-explicit-any': 'error',
+  '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/no-import-type-side-effects': 'error',
+  '@typescript-eslint/no-inferrable-types': 'error',
+  '@typescript-eslint/no-misused-promises': 'error',
+  '@typescript-eslint/no-non-null-assertion': 'error',
+  '@typescript-eslint/no-redundant-type-constituents': 'error',
+  '@typescript-eslint/no-unnecessary-type-arguments': 'error',
+  '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+  '@typescript-eslint/no-unused-vars': 'error',
+  '@typescript-eslint/no-useless-empty-export': 'error',
+  '@typescript-eslint/prefer-includes': 'error',
+  '@typescript-eslint/prefer-nullish-coalescing': 'error',
+  '@typescript-eslint/prefer-optional-chain': 'error',
+  '@typescript-eslint/prefer-readonly': 'error',
+  '@typescript-eslint/prefer-reduce-type-parameter': 'error',
+  '@typescript-eslint/prefer-return-this-type': 'error',
+  '@typescript-eslint/prefer-string-starts-ends-with': 'error',
+  '@typescript-eslint/require-await': 'error',
+  '@typescript-eslint/switch-exhaustiveness-check': 'error',
   '@typescript-eslint/naming-convention': [
     'error',
     {
@@ -588,15 +652,15 @@ const sharedRules = {
   ],
 
   // General code quality
-  'no-debugger': 'error',
   'no-alert': 'error',
-  'no-var': 'error',
-  'prefer-const': 'error',
-  'prefer-arrow-callback': 'error',
-  'prefer-template': 'error',
-  'object-shorthand': 'error',
-  'quote-props': ['error', 'as-needed'],
+  'no-debugger': 'error',
   'no-duplicate-imports': 'error',
+  'no-var': 'error',
+  'object-shorthand': 'error',
+  'prefer-arrow-callback': 'error',
+  'prefer-const': 'error',
+  'prefer-template': 'error',
+  'quote-props': ['error', 'as-needed'],
   'no-restricted-syntax': [
     'error',
     {
@@ -608,14 +672,9 @@ const sharedRules = {
       message: 'With statements are not allowed'
     }
   ],
-  'no-nested-ternary': 'error',
-  'no-unneeded-ternary': 'error',
-  'no-mixed-operators': 'error',
-  'yoda': ['error', 'never'],
+  'complexity': ['error', 100],
   'curly': ['error', 'all'],
   'eqeqeq': ['error', 'always'],
-  'no-else-return': ['error', { allowElseIf: true }],
-  'no-lonely-if': 'error',
   'max-depth': ['error', 7],
   'max-lines': ['error', {
     max: 800,
@@ -627,9 +686,24 @@ const sharedRules = {
     skipBlankLines: true,
     skipComments: true
   }],
-  'complexity': ['error', 100],
+  'no-else-return': ['error', { allowElseIf: true }],
+  'no-lonely-if': 'error',
+  'no-mixed-operators': 'error',
+  'no-nested-ternary': 'error',
+  'no-unneeded-ternary': 'error',
+  'yoda': ['error', 'never'],
   
   // Import rules
+  'import/extensions': [
+    'error',
+    'always',
+    {
+      'ts': 'never',
+      'tsx': 'never'
+    }
+  ],
+  'import/no-duplicates': 'error',
+  'import/no-unresolved': 'error',
   'import/order': [
     'error',
     {
@@ -648,37 +722,27 @@ const sharedRules = {
       }
     }
   ],
-  'import/no-duplicates': 'error',
-  'import/no-unresolved': 'error',
-  'import/extensions': [
-    'error',
-    'always',
-    {
-      'ts': 'never',
-      'tsx': 'never'
-    }
-  ],
 
   // Unicorn rules
-  'unicorn/prefer-node-protocol': 'error',
-  'unicorn/prefer-module': 'error',
-  'unicorn/prefer-ternary': 'error',
-  'unicorn/prefer-logical-operator-over-ternary': 'error',
-  'unicorn/no-array-for-each': 'error',
-  'unicorn/prefer-array-some': 'error',
-  'unicorn/prefer-array-find': 'error',
-  'unicorn/prefer-array-flat': 'error',
-  'unicorn/prefer-object-from-entries': 'error',
-  'unicorn/prefer-set-has': 'error',
-  'unicorn/prefer-string-slice': 'error',
-  'unicorn/prefer-number-properties': 'error',
-  'unicorn/numeric-separators-style': 'error',
   'unicorn/better-regex': 'error',
   'unicorn/catch-error-name': 'error',
   'unicorn/custom-error-definition': 'error',
   'unicorn/error-message': 'error',
   'unicorn/escape-case': 'error',
   'unicorn/explicit-length-check': 'error',
+  'unicorn/no-array-for-each': 'error',
+  'unicorn/numeric-separators-style': 'error',
+  'unicorn/prefer-array-find': 'error',
+  'unicorn/prefer-array-flat': 'error',
+  'unicorn/prefer-array-some': 'error',
+  'unicorn/prefer-logical-operator-over-ternary': 'error',
+  'unicorn/prefer-module': 'error',
+  'unicorn/prefer-node-protocol': 'error',
+  'unicorn/prefer-number-properties': 'error',
+  'unicorn/prefer-object-from-entries': 'error',
+  'unicorn/prefer-set-has': 'error',
+  'unicorn/prefer-string-slice': 'error',
+  'unicorn/prefer-ternary': 'error',
   'unicorn/filename-case': [
     'error',
     {
@@ -691,22 +755,35 @@ const sharedRules = {
   ],
   'unicorn/new-for-builtins': 'error',
   'unicorn/no-abusive-eslint-disable': 'error',
+  'unicorn/no-anonymous-default-export': 'error',
   'unicorn/no-array-push-push': 'error',
   'unicorn/no-console-spaces': 'error',
+  'unicorn/no-document-cookie': 'error',
+  'unicorn/no-empty-file': 'error',
   'unicorn/no-hex-escape': 'error',
   'unicorn/no-instanceof-array': 'error',
+  'unicorn/no-invalid-fetch-options': 'error',
+  'unicorn/no-magic-array-flat-depth': 'error',
+  'unicorn/no-nested-ternary': 'error',
   'unicorn/no-new-buffer': 'error',
+  'unicorn/no-typeof-undefined': 'error',
   'unicorn/no-unnecessary-await': 'error',
+  'unicorn/no-unreadable-iife': 'error',
   'unicorn/no-useless-length-check': 'error',
   'unicorn/no-useless-spread': 'error',
   'unicorn/no-zero-fractions': 'error',
   'unicorn/number-literal-case': 'error',
   'unicorn/prefer-add-event-listener': 'error',
   'unicorn/prefer-array-index-of': 'error',
+  'unicorn/prefer-at': 'error',
+  'unicorn/prefer-blob-reading-methods': 'error',
   'unicorn/prefer-date-now': 'error',
   'unicorn/prefer-default-parameters': 'error',
+  'unicorn/prefer-export-from': 'error',
   'unicorn/prefer-includes': 'error',
   'unicorn/prefer-math-trunc': 'error',
+  'unicorn/prefer-modern-math-apis': 'error',
+  'unicorn/prefer-native-coercion-functions': 'error',
   'unicorn/prefer-negative-index': 'error',
   'unicorn/prefer-optional-catch-binding': 'error',
   'unicorn/prefer-prototype-methods': 'error',
@@ -718,50 +795,37 @@ const sharedRules = {
   'unicorn/prefer-switch': 'error',
   'unicorn/prefer-type-error': 'error',
   'unicorn/throw-new-error': 'error',
-  'unicorn/no-nested-ternary': 'error',
-  'unicorn/no-typeof-undefined': 'error',
-  'unicorn/prefer-export-from': 'error',
-  'unicorn/prefer-at': 'error',
-  'unicorn/no-unreadable-iife': 'error',
-  'unicorn/prefer-modern-math-apis': 'error',
-  'unicorn/prefer-native-coercion-functions': 'error',
-  'unicorn/no-document-cookie': 'error',
-  'unicorn/prefer-blob-reading-methods': 'error',
-  'unicorn/no-anonymous-default-export': 'error',
-  'unicorn/no-empty-file': 'error',
-  'unicorn/no-invalid-fetch-options': 'error',
-  'unicorn/no-magic-array-flat-depth': 'error',
   
   // Security rules - only relevant ones for a file processing tool
-  'security/detect-non-literal-fs-filename': 'off', // File processing tool needs dynamic paths
-  'security/detect-non-literal-regexp': 'error',
-  'security/detect-unsafe-regex': 'off', // Some complex patterns needed for secret detection
   'security/detect-buffer-noassert': 'error',
   'security/detect-child-process': 'error',
   'security/detect-disable-mustache-escape': 'error',
   'security/detect-eval-with-expression': 'error',
   'security/detect-new-buffer': 'error',
   'security/detect-no-csrf-before-method-override': 'error',
+  'security/detect-non-literal-fs-filename': 'off', // File processing tool needs dynamic paths
+  'security/detect-non-literal-regexp': 'error',
+  'security/detect-object-injection': 'off', // Dynamic config access is required
   'security/detect-possible-timing-attacks': 'error',
   'security/detect-pseudoRandomBytes': 'error',
-  'security/detect-object-injection': 'off' // Dynamic config access is required
+  'security/detect-unsafe-regex': 'off' // Some complex patterns needed for secret detection
 };
 
 // Shared globals for Node.js environment
 const nodeGlobals = {
-  console: 'readonly',
-  process: 'readonly',
-  Buffer: 'readonly',
   __dirname: 'readonly',
   __filename: 'readonly',
-  NodeJS: 'readonly'
+  Buffer: 'readonly',
+  console: 'readonly',
+  NodeJS: 'readonly',
+  process: 'readonly'
 };
 
 // Shared plugins
 const sharedPlugins = {
   'import': importPlugin,
-  'unicorn': unicorn,
-  'security': securityPlugin
+  'security': securityPlugin,
+  'unicorn': unicorn
 };
 
 // Base configuration for TypeScript files
@@ -827,7 +891,7 @@ export default [
 ];
 ```
 
-## 📄 package.json {#packagejson}
+## package.json {#packagejson}
 
 ```json
 {
@@ -937,7 +1001,7 @@ export default [
 
 ```
 
-## 📄 README.md {#readmemd}
+## README.md {#readmemd}
 
 ```markdown
 # Project Fusion
@@ -1137,7 +1201,7 @@ For reporting security vulnerabilities, see our [Security Policy](./SECURITY.md)
 - [NPM Package](https://npmjs.com/package/@the99studio/project-fusion)
 ```
 
-## 📄 SECURITY.md {#securitymd}
+## SECURITY.md {#securitymd}
 
 ```markdown
 # Security Policy
@@ -1147,7 +1211,7 @@ Please report security vulnerabilities by creating a private issue on GitHub.
 We aim to respond within 7 days.
 ```
 
-## 📄 src/adapters/file-system.ts {#srcadaptersfile-systemts}
+## src/adapters/file-system.ts {#srcadaptersfile-systemts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -1465,7 +1529,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
 }
 ```
 
-## 📄 src/api.ts {#srcapits}
+## src/api.ts {#srcapits}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -1616,7 +1680,6 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
 export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promise<ProgrammaticFusionResult> {
     const cwd = options.cwd ?? process.cwd();
     
-    // Extract fusion options and callbacks
     const { 
         extensionGroups,
         rootDirectory,
@@ -1771,7 +1834,7 @@ export async function runFusion(
 }
 ```
 
-## 📄 src/benchmark.ts {#srcbenchmarkts}
+## src/benchmark.ts {#srcbenchmarkts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -1847,7 +1910,7 @@ export class BenchmarkTracker {
 }
 ```
 
-## 📄 src/cli.ts {#srcclits}
+## src/cli.ts {#srcclits}
 
 ```typescript
 #!/usr/bin/env node
@@ -1958,11 +2021,10 @@ program
         void runConfigCheckCommand();
     });
 
-// Parse arguments with Commander.js
 program.parse(process.argv);
 ```
 
-## 📄 src/clicommands.ts {#srcclicommandsts}
+## src/clicommands.ts {#srcclicommandsts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -2013,32 +2075,27 @@ export async function runFusionCommand(options: {
     overwrite?: boolean;
 }): Promise<void> {
     try {
-        logger.consoleInfo('🔄 Starting Fusion Process...');
+        logger.consoleInfo('Starting Fusion Process...');
 
         const config = await loadConfig();
 
-        // Handle root directory
         if (options.root) {
             config.rootDirectory = options.root;
-            console.log(chalk.yellow(`ℹ️ Using specified directory as root: ${options.root}`));
+            console.log(chalk.yellow(`Using specified directory as root: ${options.root}`));
         }
 
-        // Handle output directory
         if (options.out) {
             const outputPath = path.resolve(options.out);
             config.outputDirectory = outputPath;
-            console.log(chalk.yellow(`ℹ️ Using output directory: ${outputPath}`));
+            console.log(chalk.yellow(`Using output directory: ${outputPath}`));
         }
 
-        // Handle custom filename
         if (options.name) {
             config.generatedFileName = options.name;
-            console.log(chalk.yellow(`ℹ️ Using custom filename: ${options.name}`));
+            console.log(chalk.yellow(`Using custom filename: ${options.name}`));
         }
 
-        // Handle output format overrides
         if (options.html !== undefined || options.md !== undefined || options.txt !== undefined) {
-            // If any format flag is specified, only generate those formats
             config.generateHtml = options.html ?? false;
             config.generateMarkdown = options.md ?? false;
             config.generateText = options.txt ?? false;
@@ -2049,17 +2106,16 @@ export async function runFusionCommand(options: {
             if (config.generateText) { enabledFormats.push('Text'); }
             
             if (enabledFormats.length > 0) {
-                console.log(chalk.yellow(`ℹ️ Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
+                console.log(chalk.yellow(`Generating only: ${enabledFormats.join(', ')} format${enabledFormats.length > 1 ? 's' : ''}`));
             } else {
                 logger.consoleError('❌ No output formats selected. Please specify at least one: --html, --md, or --txt');
                 process.exit(1);
             }
         }
 
-        // Handle clipboard override
         if (options.clipboard === false) {
             config.copyToClipboard = false;
-            logger.consoleWarning('ℹ️ Clipboard copying disabled');
+            logger.consoleWarning('Clipboard copying disabled');
         }
 
         if (options.allowSymlinks !== undefined) {
@@ -2072,12 +2128,11 @@ export async function runFusionCommand(options: {
         if (options.aggressiveSanitization !== undefined) {
             config.aggressiveContentSanitization = options.aggressiveSanitization;
             if (options.aggressiveSanitization) {
-                logger.consoleWarning('🛡️ Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.');
+                logger.consoleWarning('Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.');
             }
         }
 
 
-        // Handle size limits with validation
         if (options.maxFileSize) {
             const maxFileSize = Number.parseInt(options.maxFileSize, 10);
             if (Number.isNaN(maxFileSize) || maxFileSize <= 0) {
@@ -2085,7 +2140,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxFileSizeKB = maxFileSize;
-            console.log(chalk.yellow(`ℹ️ Maximum file size set to: ${config.maxFileSizeKB} KB`));
+            console.log(chalk.yellow(`Maximum file size set to: ${config.maxFileSizeKB} KB`));
         }
         if (options.maxFiles) {
             const maxFiles = Number.parseInt(options.maxFiles, 10);
@@ -2094,7 +2149,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxFiles = maxFiles;
-            console.log(chalk.yellow(`ℹ️ Maximum files set to: ${config.maxFiles}`));
+            console.log(chalk.yellow(`Maximum files set to: ${config.maxFiles}`));
         }
         if (options.maxTotalSize) {
             const maxTotalSize = Number.parseFloat(options.maxTotalSize);
@@ -2103,10 +2158,9 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxTotalSizeMB = maxTotalSize;
-            console.log(chalk.yellow(`ℹ️ Maximum total size set to: ${config.maxTotalSizeMB} MB`));
+            console.log(chalk.yellow(`Maximum total size set to: ${config.maxTotalSizeMB} MB`));
         }
 
-        // Handle content validation limits
         if (options.maxBase64Kb) {
             const maxBase64KB = Number.parseInt(options.maxBase64Kb, 10);
             if (Number.isNaN(maxBase64KB) || maxBase64KB <= 0) {
@@ -2114,7 +2168,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxBase64BlockKB = maxBase64KB;
-            console.log(chalk.yellow(`ℹ️ Maximum base64 block size set to: ${config.maxBase64BlockKB} KB`));
+            console.log(chalk.yellow(`Maximum base64 block size set to: ${config.maxBase64BlockKB} KB`));
         }
 
         if (options.maxLineLength) {
@@ -2124,7 +2178,7 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxLineLength = maxLineLength;
-            console.log(chalk.yellow(`ℹ️ Maximum line length set to: ${config.maxLineLength} chars`));
+            console.log(chalk.yellow(`Maximum line length set to: ${config.maxLineLength} chars`));
         }
 
         if (options.maxTokenLength) {
@@ -2134,40 +2188,36 @@ export async function runFusionCommand(options: {
                 process.exit(1);
             }
             config.maxTokenLength = maxTokenLength;
-            console.log(chalk.yellow(`ℹ️ Maximum token length set to: ${config.maxTokenLength} chars`));
+            console.log(chalk.yellow(`Maximum token length set to: ${config.maxTokenLength} chars`));
         }
 
-        // Handle external plugin paths (security setting)
         if (options.allowedPluginPaths) {
             const pluginPaths = options.allowedPluginPaths.split(',').map(p => p.trim()).filter(p => p.length > 0);
             if (pluginPaths.length > 0) {
                 config.allowedExternalPluginPaths = pluginPaths;
-                console.log(chalk.yellow(`🔐 Allowed external plugin paths set to: ${pluginPaths.join(', ')}`));
+                console.log(chalk.yellow(`Allowed external plugin paths set to: ${pluginPaths.join(', ')}`));
             }
         }
 
-        // Handle parsing behavior
         if (options.subdirs === false) {
             config.parseSubDirectories = false;
-            console.log(chalk.yellow('ℹ️ Subdirectory parsing disabled'));
+            console.log(chalk.yellow('Subdirectory parsing disabled'));
         }
         if (options.gitignore === false) {
             config.useGitIgnoreForExcludes = false;
-            console.log(chalk.yellow('ℹ️ .gitignore exclusions disabled'));
+            console.log(chalk.yellow('.gitignore exclusions disabled'));
         }
         if (options.excludeSecrets === false) {
             config.excludeSecrets = false;
             console.log(chalk.yellow('⚠️ Secret exclusion disabled - files may contain sensitive data'));
         }
 
-        // Handle additional ignore patterns
         if (options.ignore) {
             const additionalPatterns = options.ignore.split(',').map(p => p.trim());
             config.ignorePatterns = [...config.ignorePatterns, ...additionalPatterns];
-            console.log(chalk.yellow(`ℹ️ Added ignore patterns: ${additionalPatterns.join(', ')}`));
+            console.log(chalk.yellow(`Added ignore patterns: ${additionalPatterns.join(', ')}`));
         }
 
-        // Parse extension groups from command line (comma-separated)
         // Support both --extensions and --groups for convenience
         let extensionGroups: string[] | undefined;
         const groupsOption = options.extensions ?? options.groups;
@@ -2176,32 +2226,27 @@ export async function runFusionCommand(options: {
             console.log(chalk.blue(`Using extension groups: ${extensionGroups.join(', ')}`));
         }
 
-        // Build fusion options with plugin support
         const fusionOptions: FusionOptions = {};
         
         if (extensionGroups) {
             fusionOptions.extensionGroups = extensionGroups;
         }
         
-        // Handle plugins directory
         if (options.pluginsDir) {
             fusionOptions.pluginsDir = path.resolve(options.pluginsDir);
-            console.log(chalk.blue(`📦 Loading plugins from: ${fusionOptions.pluginsDir}`));
+            console.log(chalk.blue(`Loading plugins from: ${fusionOptions.pluginsDir}`));
         }
         
-        // Handle enabled plugins list
         if (options.plugins) {
             fusionOptions.enabledPlugins = options.plugins.split(',').map(p => p.trim());
-            console.log(chalk.blue(`🔌 Enabled plugins: ${fusionOptions.enabledPlugins.join(', ')}`));
+            console.log(chalk.blue(`Enabled plugins: ${fusionOptions.enabledPlugins.join(', ')}`));
         }
 
-        // Handle preview mode
         if (options.preview) {
-            console.log(chalk.blue('👁️ Preview Mode: Scanning files without generating output...'));
+            console.log(chalk.blue('Preview Mode: Scanning files without generating output...'));
             fusionOptions.previewMode = true;
         }
 
-        // Handle overwrite protection
         const shouldOverwrite = options.overwrite ?? config.overwriteFiles;
         if (!options.preview && !shouldOverwrite) {
             const outputDir = config.outputDirectory ?? '.';
@@ -2217,7 +2262,6 @@ export async function runFusionCommand(options: {
                 outputFiles.push(path.join(outputDir, `${config.generatedFileName}.html`));
             }
             
-            // Check if any output files already exist
             const existingFiles = [];
             for (const file of outputFiles) {
                 if (await fs.pathExists(file)) {
@@ -2230,7 +2274,7 @@ export async function runFusionCommand(options: {
                 for (const file of existingFiles) {
                     console.error(chalk.yellow(`   - ${file}`));
                 }
-                console.error(chalk.yellow('\n💡 Use --overwrite flag to replace existing files.'));
+                console.error(chalk.yellow('\nUse --overwrite flag to replace existing files.'));
                 process.exitCode = 1;
                 return;
             }
@@ -2243,7 +2287,7 @@ export async function runFusionCommand(options: {
             
             // In preview mode, don't show generated files section
             if (!options.preview) {
-                console.log(chalk.green(`📄 Generated files:`));
+                console.log(chalk.green(`Generated files:`));
                 
                 if (config.generateText) {
                     console.log(chalk.cyan(`   - ${config.generatedFileName}.txt`));
@@ -2264,25 +2308,25 @@ export async function runFusionCommand(options: {
                         const fileSizeMB = fileStats.size / (1024 * 1024);
                         
                         if (fileSizeMB > 5) {
-                            console.log(chalk.gray(`📋 Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
+                            console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
                             const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                             await clipboardy.write(fusionContent);
-                            console.log(chalk.blue(`📋 Fusion content copied to clipboard`));
+                            console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }
                     } catch (clipboardError) {
                         console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
                     }
                 } else if (config.copyToClipboard === true && isNonInteractive) {
-                    console.log(chalk.gray(`📋 Clipboard copy skipped (non-interactive environment)`));
+                    console.log(chalk.gray(`Clipboard copy skipped (non-interactive environment)`));
                 }
             }
 
-            console.log(chalk.gray(`📝 Log file available at: ${result.logFilePath}`));
+            console.log(chalk.gray(`Log file available at: ${result.logFilePath}`));
         } else {
             console.log(chalk.red(`❌ ${result.message}`));
             if (result.logFilePath) {
-                console.log(chalk.gray(`📝 Check log file for details: ${result.logFilePath}`));
+                console.log(chalk.gray(`Check log file for details: ${result.logFilePath}`));
             }
         }
     } catch (error) {
@@ -2297,7 +2341,7 @@ export async function runFusionCommand(options: {
  */
 export async function runInitCommand(options: { force?: boolean } = {}): Promise<void> {
     try {
-        console.log(chalk.blue('🔄 Initializing Project Fusion...'));
+        console.log(chalk.blue('Initializing Project Fusion...'));
 
         const configPath = path.resolve('./project-fusion.json');
         if (await fs.pathExists(configPath)) {
@@ -2313,10 +2357,10 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
         await fs.writeJson(configPath, defaultConfig, { spaces: 4 });
 
         console.log(chalk.green('✅ Project Fusion initialized successfully!'));
-        console.log(chalk.blue('📁 Created:'));
+        console.log(chalk.blue('Created:'));
         console.log(chalk.cyan('  - ./project-fusion.json'));
 
-        console.log(chalk.blue('\n📝 Next steps:'));
+        console.log(chalk.blue('\nNext steps:'));
         console.log(chalk.cyan('  1. Review project-fusion.json and adjust as needed'));
         console.log(chalk.cyan('  2. Run fusion: project-fusion'));
     } catch (error) {
@@ -2330,7 +2374,7 @@ export async function runInitCommand(options: { force?: boolean } = {}): Promise
  */
 export async function runConfigCheckCommand(): Promise<void> {
     try {
-        console.log(chalk.blue('🔍 Checking Project Fusion Configuration...'));
+        console.log(chalk.blue('Checking Project Fusion Configuration...'));
 
         const configPath = path.resolve('./project-fusion.json');
         
@@ -2344,7 +2388,6 @@ export async function runConfigCheckCommand(): Promise<void> {
             return;
         }
 
-        // Load and parse configuration
         let configContent: string;
         try {
             configContent = await fs.readFile(configPath, 'utf8');
@@ -2361,7 +2404,6 @@ export async function runConfigCheckCommand(): Promise<void> {
             process.exit(1);
         }
 
-        // Validate configuration against schema
         const validation = ConfigSchemaV1.safeParse(parsedConfig);
         
         if (!validation.success) {
@@ -2387,7 +2429,7 @@ export async function runConfigCheckCommand(): Promise<void> {
                 }
             }
             
-            console.log(chalk.yellow('\n💡 Suggestions:'));
+            console.log(chalk.yellow('\nSuggestions:'));
             console.log(chalk.cyan('   - Check your configuration against the schema'));
             console.log(chalk.cyan('   - Run "project-fusion init --force" to reset to default config'));
             process.exit(1);
@@ -2415,7 +2457,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
         output.push(line.replaceAll(/\u001B\[[\d;]*m/gu, '')); // Strip ANSI colors for log
     };
 
-    addLine('\n📋 Configuration Summary:', chalk.blue('\n📋 Configuration Summary:'));
+    addLine('\nConfiguration Summary:', chalk.blue('\nConfiguration Summary:'));
     
     if (isDefault) {
         addLine('   (Using default configuration)\n', chalk.gray('   (Using default configuration)\n'));
@@ -2424,7 +2466,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     }
 
     // Core configuration settings with diff highlighting
-    addLine('🔧 Basic Settings:', chalk.cyan('🔧 Basic Settings:'));
+    addLine('Basic Settings:', chalk.cyan('Basic Settings:'));
     addLine(`   Schema Version: ${config.schemaVersion}${isDefault || config.schemaVersion === defaultConfig.schemaVersion ? '' : ' (modified)'}`,
            `   Schema Version: ${highlightDiff(config.schemaVersion.toString(), defaultConfig.schemaVersion.toString(), config.schemaVersion.toString())}`);
     addLine(`   Root Directory: ${config.rootDirectory}${isDefault || config.rootDirectory === defaultConfig.rootDirectory ? '' : ' (modified)'}`,
@@ -2451,7 +2493,7 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
            `   Max Total Size: ${highlightDiff(`${config.maxTotalSizeMB} MB`, `${defaultConfig.maxTotalSizeMB} MB`, `${config.maxTotalSizeMB} MB`)}`);
 
     // File generation options
-    addLine('\n📄 Output Generation:', chalk.cyan('\n📄 Output Generation:'));
+    addLine('\nOutput Generation:', chalk.cyan('\nOutput Generation:'));
     addLine(`   Generated File Name: ${config.generatedFileName}${isDefault || config.generatedFileName === defaultConfig.generatedFileName ? '' : ' (modified)'}`,
            `   Generated File Name: ${highlightDiff(config.generatedFileName, defaultConfig.generatedFileName, config.generatedFileName)}`);
     addLine(`   Generate Text: ${config.generateText ? 'Yes' : 'No'}${isDefault || config.generateText === defaultConfig.generateText ? '' : ' (modified)'}`,
@@ -2463,15 +2505,15 @@ async function displayConfigInfo(config: Config, isDefault: boolean): Promise<vo
     addLine('   Log File: project-fusion.log');
 
     // File type configuration - structured table
-    addLine('\n📁 File Extension Groups (Structured View):', chalk.cyan('\n📁 File Extension Groups (Structured View):'));
+    addLine('\nFile Extension Groups (Structured View):', chalk.cyan('\nFile Extension Groups (Structured View):'));
     displayExtensionGroupsTable(config, isDefault, addLine);
 
     // Pattern exclusions with diff
-    addLine('\n🚫 Ignore Patterns:', chalk.cyan('\n🚫 Ignore Patterns:'));
+    addLine('\nIgnore Patterns:', chalk.cyan('\nIgnore Patterns:'));
     displayIgnorePatternsWithDiff(config, isDefault, addLine);
 
     // Preview matching files using current configuration
-    addLine('\n🔍 File Discovery Preview:', chalk.cyan('\n🔍 File Discovery Preview:'));
+    addLine('\nFile Discovery Preview:', chalk.cyan('\nFile Discovery Preview:'));
     try {
         const { glob } = await import('glob');
         const rootDir = path.resolve(config.rootDirectory);
@@ -2609,7 +2651,7 @@ function displayIgnorePatternsWithDiff(config: Config, isDefault: boolean, addLi
 }
 ```
 
-## 📄 src/fluent.ts {#srcfluentts}
+## src/fluent.ts {#srcfluentts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -2828,7 +2870,7 @@ export function projectFusion(): ProjectFusionBuilder {
 }
 ```
 
-## 📄 src/fusion.ts {#srcfusionts}
+## src/fusion.ts {#srcfusionts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -2899,6 +2941,11 @@ export async function processFusion(
     
     // Configure progress granularity (emit every N files or on phase change)
     const PROGRESS_EMIT_INTERVAL = 10; // Emit progress every 10 files
+    
+    // Pre-compute frequently used values
+    const rootDir = path.resolve(config.rootDirectory);
+    const maxFileSizeKB = config.maxFileSizeKB;
+    const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
 
     // Helper function to write logs using the FileSystemAdapter
     const writeLogWithFs = async (logFilePath: string, content: string, append = false, consoleOutput = false): Promise<void> => {
@@ -2932,7 +2979,6 @@ export async function processFusion(
     ): void => {
         if (!options.onProgress) { return; }
         
-        // Check if we should emit (phase change, forced, or interval reached)
         const phaseChanged = step !== progressState.currentPhase;
         progressState.filesProcessedSinceLastEmit++;
         
@@ -2968,7 +3014,6 @@ export async function processFusion(
             etaSeconds = Math.round(averageTimePerFile * remainingFiles);
         }
         
-        // Get current metrics from benchmark
         const metrics = benchmark.getMetrics();
         const mbProcessed = metrics.totalSizeMB;
         const throughputMBps = metrics.throughputMBps;
@@ -3098,7 +3143,6 @@ export async function processFusion(
         }
 
         const ig = ignoreLib();
-        const rootDir = path.resolve(config.rootDirectory);
 
         if (config.useGitIgnoreForExcludes) {
             const gitIgnorePath = path.join(rootDir, '.gitignore');
@@ -3201,8 +3245,6 @@ export async function processFusion(
             };
         }
 
-        const maxFileSizeKB = config.maxFileSizeKB;
-        const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
         const filesToProcess: FileInfo[] = [];
         const skippedFiles: string[] = [];
         let skippedCount = 0;
@@ -3212,18 +3254,18 @@ export async function processFusion(
         
         for (let i = 0; i < filePaths.length; i++) {
             const filePath = filePaths[i];
-            if (!filePath) { continue; } // Skip if undefined (shouldn't happen)
+            if (!filePath) { continue; }
             const relativePath = path.relative(rootDir, filePath);
 
             checkCancellation();
             
-            // Update bytes processed for accurate throughput
-            if (i > 0) {
-                const lastFile = filesToProcess.at(-1);
-                if (lastFile) {
-                    progressState.totalBytesProcessed += lastFile.size;
-                    benchmark.markFileProcessed(lastFile.size);
-                }
+            // Batch update bytes processed for better throughput calculation
+            if (i > 0 && i % 5 === 0) {
+                // Update every 5 files for better performance
+                const lastFiles = filesToProcess.slice(-5);
+                const batchSize = lastFiles.reduce((sum, file) => sum + file.size, 0);
+                progressState.totalBytesProcessed += batchSize;
+                benchmark.markFileProcessed(batchSize);
             }
             
             reportProgress('processing', `Processing ${relativePath}`, i + 1, filePaths.length, relativePath);
@@ -3232,7 +3274,6 @@ export async function processFusion(
                 const stats = await fs.stat(filePath);
                 const sizeKB = stats.size / 1024;
                 
-                // Check if adding this file would exceed total size limit
                 if (totalSizeBytes + stats.size > maxTotalSizeBytes) {
                     const totalSizeMB = (totalSizeBytes + stats.size) / (1024 * 1024);
                     const message = `Total size limit exceeded (${totalSizeMB.toFixed(2)} MB > ${config.maxTotalSizeMB} MB). ` +
@@ -3257,40 +3298,42 @@ export async function processFusion(
                 if (sizeKB > maxFileSizeKB) {
                     skippedCount++;
                     skippedFiles.push(relativePath);
-                    const warningMsg = `⚠️ Large file skipped: ${relativePath} (${sizeKB.toFixed(2)} KB > ${maxFileSizeKB} KB)`;
+                    const warningMsg = `Large file skipped: ${relativePath} (${sizeKB.toFixed(2)} KB > ${maxFileSizeKB} KB)`;
                     logger.consoleWarn(warningMsg);
                     await writeLogWithFs(logFilePath, `Skipped large file: ${relativePath} (${sizeKB.toFixed(2)} KB)`, true);
                 } else {
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
                     await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks, config);
                     
-                    checkCancellation();
-                    if (await isBinaryFile(safePath)) {
+                    // Batch operations to reduce async overhead
+                    const [isBinary, rawFileContent] = await Promise.all([
+                        isBinaryFile(safePath),
+                        fs.readFile(createFilePath(safePath))
+                    ]);
+                    
+                    if (isBinary) {
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
-                        logger.consoleWarn(`⚠️ Binary file skipped: ${relativePath}`);
+                        logger.consoleWarn(`Binary file skipped: ${relativePath}`);
                         continue;
                     }
                     
                     checkCancellation();
-                    let content = await fs.readFile(createFilePath(safePath));
+                    let content = rawFileContent;
                     
                     // Redact secrets if enabled
                     if (config.excludeSecrets) {
-                        checkCancellation();
                         const { redactedContent, detectedSecrets } = redactSecrets(content);
                         if (detectedSecrets.length > 0) {
                             content = redactedContent;
                         }
                     }
                     
-                    // Validate content according to content validation rules
-                    checkCancellation();
                     const validationResult = validateFileContent(content, relativePath, config);
                     
                     // Log warnings and errors
                     for (const warning of validationResult.warnings) {
                         await writeLogWithFs(logFilePath, `Content validation warning: ${warning}`, true);
-                        logger.consoleWarn(`⚠️ ${warning}`);
+                        logger.consoleWarn(warning);
                     }
                     
                     for (const error of validationResult.errors) {
@@ -3315,7 +3358,7 @@ export async function processFusion(
                     
                     // If validation failed, create error placeholder
                     // BUT: don't create placeholders for minified content that we want to skip
-                    let fileContent = content;
+                    let processedFileContent = content;
                     let isErrorPlaceholder = false;
                     
                     if (!validationResult.valid) {
@@ -3328,13 +3371,13 @@ export async function processFusion(
                         if (!isMinified || !hasOnlyLongLineIssues) {
                             await writeLogWithFs(logFilePath, `Content validation failed for: ${relativePath}`, true);
                             const errorDetails = validationResult.errors.join('\n');
-                            fileContent = createErrorPlaceholder(relativePath, errorDetails);
+                            processedFileContent = createErrorPlaceholder(relativePath, errorDetails);
                             isErrorPlaceholder = true;
                         }
                     }
                     
                     let fileInfo: FileInfo = {
-                        content: fileContent,
+                        content: processedFileContent,
                         relativePath,
                         path: filePath,
                         size: stats.size,
@@ -3362,7 +3405,6 @@ export async function processFusion(
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
 
-        // Handle preview mode - show files and exit without generating output
         if (options.previewMode) {
             const endTime = new Date();
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -3413,7 +3455,6 @@ export async function processFusion(
             };
         }
 
-        // Check if no files to process and provide helpful message
         if (finalFilesToProcess.length === 0) {
             const endTime = new Date();
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -3509,16 +3550,21 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `Duration: ${duration}s`, true);
         await writeLogWithFs(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        // File type statistics
-        const fileTypeStats: Record<string, { count: number; sizeKB: number }> = {};
+        // File type statistics - optimized with Map for better performance
+        const fileTypeStats = new Map<string, { count: number; sizeKB: number }>();
+        const BYTES_TO_KB = 1 / 1024;
         
         for (const fileInfo of finalFilesToProcess) {
             const ext = path.extname(fileInfo.path).toLowerCase();
             const displayExt = ext || 'no extension';
             
-            fileTypeStats[displayExt] ??= { count: 0, sizeKB: 0 };
-            fileTypeStats[displayExt].count++;
-            fileTypeStats[displayExt].sizeKB += fileInfo.size / 1024;
+            const existing = fileTypeStats.get(displayExt);
+            if (existing) {
+                existing.count++;
+                existing.sizeKB += fileInfo.size * BYTES_TO_KB;
+            } else {
+                fileTypeStats.set(displayExt, { count: 1, sizeKB: fileInfo.size * BYTES_TO_KB });
+            }
         }
         
         await writeLogWithFs(logFilePath, `\n--- FILE TYPE STATISTICS ---`, true);
@@ -3527,9 +3573,9 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLogWithFs(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        if (Object.keys(fileTypeStats).length > 0) {
+        if (fileTypeStats.size > 0) {
             await writeLogWithFs(logFilePath, `\nFile types processed:`, true);
-            const sortedStats = Object.entries(fileTypeStats)
+            const sortedStats = [...fileTypeStats.entries()]
                 .sort(([,a], [,b]) => b.count - a.count);
                 
             for (const [ext, stats] of sortedStats) {
@@ -3624,7 +3670,7 @@ export async function processFusion(
 }
 ```
 
-## 📄 src/index.ts {#srcindexts}
+## src/index.ts {#srcindexts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -3636,15 +3682,15 @@ export async function processFusion(
 // Architecture exports (alphabetical)
 export { DefaultFileSystemAdapter, MemoryFileSystemAdapter } from './adapters/file-system.js';
 export type { FileSystemAdapter } from './adapters/file-system.js';
-export { PluginManager, BasePlugin, createPlugin } from './plugins/plugin-system.js';
+export { BasePlugin, createPlugin, PluginManager } from './plugins/plugin-system.js';
 export type { Plugin, PluginHooks, PluginMetadata } from './plugins/plugin-system.js';
 export { 
-    OutputStrategyManager, 
-    TextOutputStrategy, 
+    HtmlOutputStrategy,
     MarkdownOutputStrategy, 
-    HtmlOutputStrategy 
+    OutputStrategyManager, 
+    TextOutputStrategy
 } from './strategies/output-strategy.js';
-export type { OutputStrategy, OutputContext } from './strategies/output-strategy.js';
+export type { OutputContext, OutputStrategy } from './strategies/output-strategy.js';
 
 // Core API (alphabetical)
 export { 
@@ -3658,8 +3704,8 @@ export {
 } from './api.js';
 export { BenchmarkTracker, type BenchmarkMetrics } from './benchmark.js';
 export { 
-    projectFusion,
-    ProjectFusionBuilder 
+    ProjectFusionBuilder,
+    projectFusion
 } from './fluent.js';
 export { processFusion } from './fusion.js';
 
@@ -3670,7 +3716,7 @@ export * from './utils.js';
 
 ```
 
-## 📄 src/plugins/plugin-system.ts {#srcpluginsplugin-systemts}
+## src/plugins/plugin-system.ts {#srcpluginsplugin-systemts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -3734,12 +3780,10 @@ export class PluginManager {
         const resolvedPluginPath = path.resolve(pluginPath);
         const resolvedRootDir = path.resolve(config.rootDirectory);
         
-        // Check if plugin path is within root directory
         const relativePath = path.relative(resolvedRootDir, resolvedPluginPath);
         const isExternalPlugin = relativePath.startsWith('..') || path.isAbsolute(relativePath);
         
         if (isExternalPlugin) {
-            // Check if path is in allowedExternalPluginPaths
             if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
                 const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
                     const resolvedAllowedPath = path.resolve(allowedPath);
@@ -3749,7 +3793,7 @@ export class PluginManager {
                 
                 if (isAllowed) {
                     // Log warning banner for external plugin usage
-                    logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
+                    logger.warn(`SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
                                `Ensure this plugin is from a trusted source.`, { pluginPath });
                     return;
                 }
@@ -3768,7 +3812,6 @@ export class PluginManager {
 
     async loadPlugin(pluginPath: string, config?: Config): Promise<void> {
         try {
-            // Validate plugin path if config is provided
             if (config) {
                 this.validatePluginPath(pluginPath, config);
             }
@@ -3781,6 +3824,7 @@ export class PluginManager {
             }
             
             this.plugins.set(plugin.metadata.name, plugin);
+            this.invalidateCache();
             logger.info(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`, { pluginPath });
         } catch (error) {
             logger.error(`Failed to load plugin from ${pluginPath}`, { error, pluginPath });
@@ -3810,26 +3854,42 @@ export class PluginManager {
 
     registerPlugin(plugin: Plugin): void {
         this.plugins.set(plugin.metadata.name, plugin);
+        this.invalidateCache();
     }
 
     unregisterPlugin(name: string): void {
         this.plugins.delete(name);
         this.pluginConfigs.delete(name);
+        this.invalidateCache();
     }
 
     configurePlugin(name: string, config: PluginConfig): void {
         this.pluginConfigs.set(name, config);
+        this.invalidateCache();
     }
 
     getPlugin(name: string): Plugin | undefined {
         return this.plugins.get(name);
     }
 
+    // Cache enabled plugins to avoid repeated filtering
+    private _enabledPluginsCache: Plugin[] | null = null;
+    private _cacheInvalidated = true;
+    
     getEnabledPlugins(): Plugin[] {
-        return [...this.plugins.values()].filter(plugin => {
-            const config = this.pluginConfigs.get(plugin.metadata.name);
-            return config?.enabled !== false;
-        });
+        if (this._cacheInvalidated || this._enabledPluginsCache === null) {
+            this._enabledPluginsCache = [...this.plugins.values()].filter(plugin => {
+                const config = this.pluginConfigs.get(plugin.metadata.name);
+                return config?.enabled !== false;
+            });
+            this._cacheInvalidated = false;
+        }
+        return this._enabledPluginsCache;
+    }
+    
+    private invalidateCache(): void {
+        this._cacheInvalidated = true;
+        this._enabledPluginsCache = null;
     }
 
     async initializePlugins(config: Config): Promise<void> {
@@ -3955,8 +4015,9 @@ export class PluginManager {
 
     getAdditionalOutputStrategies(): OutputStrategy[] {
         const strategies: OutputStrategy[] = [];
+        const enabledPlugins = this.getEnabledPlugins(); // Cache the result
         
-        for (const plugin of this.getEnabledPlugins()) {
+        for (const plugin of enabledPlugins) {
             if (plugin.registerOutputStrategies) {
                 try {
                     const pluginStrategies = plugin.registerOutputStrategies();
@@ -3972,8 +4033,9 @@ export class PluginManager {
 
     getAdditionalFileExtensions(): Record<string, string[]> {
         const extensions: Record<string, string[]> = {};
+        const enabledPlugins = this.getEnabledPlugins(); // Cache the result
         
-        for (const plugin of this.getEnabledPlugins()) {
+        for (const plugin of enabledPlugins) {
             if (plugin.registerFileExtensions) {
                 try {
                     const pluginExtensions = plugin.registerFileExtensions();
@@ -4012,7 +4074,7 @@ export function createPlugin(metadata: PluginMetadata, hooks: PluginHooks = {}):
 }
 ```
 
-## 📄 src/schema.ts {#srcschemats}
+## src/schema.ts {#srcschemats}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4053,8 +4115,8 @@ export const ConfigSchemaV1 = z.object({
         "*.7z",
         "*.a",
         "*.avi",
-        "*.bmp",
         "*.blend",
+        "*.bmp",
         "*.class",
         "*.dll",
         "*.doc",
@@ -4147,7 +4209,7 @@ export const ConfigSchemaV1 = z.object({
 });
 ```
 
-## 📄 src/strategies/output-strategy.ts {#srcstrategiesoutput-strategyts}
+## src/strategies/output-strategy.ts {#srcstrategiesoutput-strategyts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4188,29 +4250,35 @@ export interface OutputStrategy {
     createStream(outputPath: FilePath): WriteStream;
 }
 
+// Pre-create replacement map for better performance
+const HTML_ESCAPE_MAP = new Map([
+    ['&', '&amp;'],   // Must be first to avoid double-escaping
+    ['<', '&lt;'],
+    ['>', '&gt;'],
+    ['"', '&quot;'],
+    ["'", '&#39;'],
+    ['/', '&#47;'],    // Prevent closing tags in attributes
+    ['`', '&#96;'],    // Prevent JS template literals
+    ['=', '&#61;'],    // Prevent attribute injection
+    ['!', '&#33;'],    // Prevent comment injection
+    ['@', '&#64;'],    // Prevent CSS injection
+    ['$', '&#36;'],    // Prevent template variable injection
+    ['%', '&#37;'],    // Prevent URL encoding issues
+    ['(', '&#40;'],    // Prevent JS execution
+    [')', '&#41;'],    // Prevent JS execution
+    ['+', '&#43;'],    // Prevent URL encoding issues
+    ['{', '&#123;'],   // Prevent template injection
+    ['}', '&#125;'],   // Prevent template injection
+    ['[', '&#91;'],    // Prevent array notation
+    [']', '&#93;']     // Prevent array notation
+]);
+
+// Pre-compile regex for better performance
+const HTML_ESCAPE_REGEX = /[!"$%&'()+/<=>@[\]`{}]/g;
+
 function escapeHtml(text: string): string {
-    // Enhanced HTML escaping for maximum security
-    // Escape all potentially dangerous characters
-    return text
-        .replaceAll('&', '&amp;')   // Must be first to avoid double-escaping
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;')
-        .replaceAll('/', '&#47;')    // Prevent closing tags in attributes
-        .replaceAll('`', '&#96;')    // Prevent JS template literals
-        .replaceAll('=', '&#61;')    // Prevent attribute injection
-        .replaceAll('!', '&#33;')    // Prevent comment injection
-        .replaceAll('@', '&#64;')    // Prevent CSS injection
-        .replaceAll('$', '&#36;')    // Prevent template variable injection
-        .replaceAll('%', '&#37;')    // Prevent URL encoding issues
-        .replaceAll('(', '&#40;')    // Prevent JS execution
-        .replaceAll(')', '&#41;')    // Prevent JS execution
-        .replaceAll('+', '&#43;')    // Prevent URL encoding issues
-        .replaceAll('{', '&#123;')   // Prevent template injection
-        .replaceAll('}', '&#125;')   // Prevent template injection
-        .replaceAll('[', '&#91;')    // Prevent array notation
-        .replaceAll(']', '&#93;');   // Prevent array notation
+    // Enhanced HTML escaping for maximum security using optimized regex replacement
+    return text.replaceAll(HTML_ESCAPE_REGEX, (char) => HTML_ESCAPE_MAP.get(char) ?? char);
 }
 
 export class TextOutputStrategy implements OutputStrategy {
@@ -4234,7 +4302,6 @@ export class TextOutputStrategy implements OutputStrategy {
         
         let processedContent = fileInfo.content;
         
-        // Apply aggressive sanitization if enabled
         if (context.config.aggressiveContentSanitization) {
             processedContent = aggressiveContentSanitization(processedContent);
         }
@@ -4252,15 +4319,20 @@ ${processedContent}
     }
 }
 
+// Pre-compile markdown escape regex for better performance
+const MARKDOWN_ESCAPE_REGEX = /[()[\\\]`]/g;
+const MARKDOWN_ESCAPE_MAP = new Map([
+    ['[', '\\['],
+    [']', '\\]'],
+    ['(', '\\('],
+    [')', '\\)'],
+    ['`', '\\`']
+]);
+
 function escapeMarkdown(text: string): string {
     // Escape special Markdown characters that could create malicious links
     // Focus on filename context - these characters could be used for link injection
-    return text
-        .replaceAll('[', '\\[')      // Prevent link start
-        .replaceAll(']', '\\]')      // Prevent link end
-        .replaceAll('(', '\\(')      // Prevent URL start
-        .replaceAll(')', '\\)')      // Prevent URL end
-        .replaceAll('`', '\\`');     // Prevent code injection
+    return text.replaceAll(MARKDOWN_ESCAPE_REGEX, (char) => MARKDOWN_ESCAPE_MAP.get(char) ?? char);
 }
 
 function sanitizeMarkdownContent(content: string): string {
@@ -4377,7 +4449,7 @@ export class MarkdownOutputStrategy implements OutputStrategy {
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 ${tocEntries}
 
@@ -4390,17 +4462,15 @@ ${tocEntries}
         const anchor = this.slugger.slug(fileInfo.relativePath);
         let processedContent = fileInfo.content;
         
-        // Apply aggressive sanitization if enabled
         if (context.config.aggressiveContentSanitization) {
             processedContent = aggressiveContentSanitization(processedContent);
         }
         
-        // Always apply basic markdown sanitization
         processedContent = sanitizeMarkdownContent(processedContent);
         
         if (fileInfo.isErrorPlaceholder) {
             // For error placeholders, display without code block
-            return `## ⚠️ ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
+            return `## Error: ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 > **Content Validation Error**
 
@@ -4413,7 +4483,7 @@ ${processedContent}
         const basename = path.basename(fileInfo.path);
         const language = getMarkdownLanguage(fileExt || basename);
 
-        return `## 📄 ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
+        return `## ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 \`\`\`${language}
 ${processedContent}
@@ -4487,12 +4557,10 @@ ${tocEntries}
         
         let processedContent = fileInfo.content;
         
-        // Apply aggressive sanitization if enabled
         if (context.config.aggressiveContentSanitization) {
             processedContent = aggressiveContentSanitization(processedContent);
         }
         
-        // Always apply HTML escaping
         const escapedContent = escapeHtml(processedContent);
         
         if (fileInfo.isErrorPlaceholder) {
@@ -4572,7 +4640,6 @@ export class OutputStrategyManager {
         
         await fs.ensureDir(path.dirname(outputPath));
         
-        // Check if we're using a memory file system (for testing)
         const isMemoryFS = fs.constructor.name === 'MemoryFileSystemAdapter';
         
         if (isMemoryFS) {
@@ -4645,13 +4712,11 @@ export class OutputStrategyManager {
         return new Promise<FilePath>((resolve, reject) => {
             let filesWritten = 0;
             
-            // Handle stream errors
             outputStream.on('error', (err) => {
                 closeStream();
                 reject(err);
             });
             
-            // Handle stream finish
             outputStream.on('finish', () => {
                 streamClosed = true;
                 resolve(outputPath);
@@ -4742,10 +4807,13 @@ export class OutputStrategyManager {
                 
                 filesWritten++;
                 
-                // Write file content with backpressure handling
-                if (fileContent.length > 65_536) {
-                    // For large content, write in chunks
-                    const chunkSize = 65_536; // 64KB chunks
+                // Write file content with backpressure handling - optimized chunking
+                const CHUNK_SIZE = 65_536; // 64KB chunks
+                const contentByteLength = Buffer.byteLength(fileContent, 'utf8');
+                totalBytesWritten += contentByteLength;
+                
+                if (fileContent.length > CHUNK_SIZE) {
+                    // For large content, write in chunks with optimized slicing
                     let offset = 0;
                     
                     const writeNextChunk = (): void => {
@@ -4762,31 +4830,28 @@ export class OutputStrategyManager {
                             return;
                         }
                         
-                        const chunk = fileContent.slice(offset, offset + chunkSize);
-                        offset += chunkSize;
-                        
-                        totalBytesWritten += Buffer.byteLength(chunk, 'utf8');
+                        const nextOffset = Math.min(offset + CHUNK_SIZE, fileContent.length);
+                        const chunk = fileContent.slice(offset, nextOffset);
+                        offset = nextOffset;
                         
                         if (!outputStream.write(chunk)) {
                             // Wait for drain event before continuing
                             outputStream.once('drain', writeNextChunk);
+                        } else if (offset < fileContent.length) {
+                            // Continue immediately - use setTimeout for better performance than setImmediate
+                            setTimeout(writeNextChunk, 0);
                         } else {
-                            // Continue immediately
-                            setImmediate(writeNextChunk);
+                            processNextFile();
                         }
                     };
                     
                     writeNextChunk();
+                } else if (!outputStream.write(fileContent)) {
+                    // Wait for drain event before continuing
+                    outputStream.once('drain', processNextFile);
                 } else {
-                    totalBytesWritten += Buffer.byteLength(fileContent, 'utf8');
-                    
-                    if (!outputStream.write(fileContent)) {
-                        // Wait for drain event before continuing
-                        outputStream.once('drain', processNextFile);
-                    } else {
-                        // Continue with next file
-                        setImmediate(processNextFile);
-                    }
+                    // Continue with next file
+                    setImmediate(processNextFile);
                 }
             };
             
@@ -4797,7 +4862,7 @@ export class OutputStrategyManager {
 }
 ```
 
-## 📄 src/types.ts {#srctypests}
+## src/types.ts {#srctypests}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4960,7 +5025,7 @@ export type FusionResult =
     };
 ```
 
-## 📄 src/utils.ts {#srcutilsts}
+## src/utils.ts {#srcutilsts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -4998,8 +5063,8 @@ export const defaultConfig = {
         "*.7z",
         "*.a",
         "*.avi",
-        "*.bmp",
         "*.blend",
+        "*.bmp",
         "*.class",
         "*.dll",
         "*.doc",
@@ -5016,6 +5081,7 @@ export const defaultConfig = {
         "*.jpeg",
         "*.jpg",
         "*.key",
+        "*.keystore",
         "*.log",
         "*.min.css",
         "*.min.js",
@@ -5024,6 +5090,7 @@ export const defaultConfig = {
         "*.mp4",
         "*.o",
         "*.obj",
+        "*.p12",
         "*.pdf",
         "*.pem",
         "*.png",
@@ -5049,19 +5116,17 @@ export const defaultConfig = {
         "*.zip",
         "**/credentials/*",
         "**/secrets/*",
+        ".*history",
+        ".aws/",
+        ".azure/",
         ".DS_Store",
         ".env",
         ".env.*",
-        ".idea/",
-        ".vscode/",
-        ".ssh/",
-        ".aws/",
-        ".azure/",
         ".gcloud/",
-        "*.p12",
-        "*.keystore",
-        ".*history",
+        ".idea/",
         ".npmrc",
+        ".ssh/",
+        ".vscode/",
         "build/",
         "dist/",
         "dist/**/*.map",
@@ -5208,7 +5273,7 @@ export function formatTimestamp(date?: Date): string {
  * Generate a helpful message when no files match the criteria
  */
 export function generateHelpfulEmptyMessage(extensions: string[], config: Config): string {
-    const messages = ['💡 Suggestions to find files:'];
+    const messages = ['Suggestions to find files:'];
     
     // Suggest different extension groups
     const availableGroups = Object.keys(config.parsedFileExtensions);
@@ -5321,7 +5386,7 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
         
         // If relative path starts with '..' or is absolute, the file escapes the root
         if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
-            const warningMsg = `🚨 SECURITY: Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`;
+            const warningMsg = `SECURITY: Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`;
             logger.consoleWarn(warningMsg);
             throw new FusionError(
                 `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
@@ -5358,7 +5423,7 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks = false
         
         if (stats.isSymbolicLink()) {
             if (!allowSymlinks) {
-                const warningMsg = `🚨 SECURITY: Symbolic link not allowed: '${filePath}'`;
+                const warningMsg = `SECURITY: Symbolic link not allowed: '${filePath}'`;
                 logger.consoleWarn(warningMsg);
                 throw new FusionError(
                     `Symbolic link not allowed: '${filePath}'`,
@@ -5448,7 +5513,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             tracker.entries.push(auditEntry);
             
             // Log with security warning banner
-            logger.warn(`🔗 SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
+            logger.warn(`SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
                 symlink: symlinkPath,
                 target: resolvedTarget,
                 targetExists,
@@ -5459,7 +5524,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
             });
         } else if (tracker.entries.length === maxEntries) {
             // Log limit reached message once
-            logger.warn(`🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
+            logger.warn(`SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
                 totalSymlinks: tracker.count,
                 maxEntries,
                 sessionKey
@@ -5468,7 +5533,7 @@ async function auditSymlink(symlinkPath: string, config?: Config): Promise<void>
         
     } catch (error) {
         // Log symlink resolution failure
-        logger.error(`🔗 SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
+        logger.error(`SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
             symlink: symlinkPath,
             error: error instanceof Error ? error.message : String(error),
             auditCount: tracker.count
@@ -5525,31 +5590,36 @@ export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise
         const buffer = await fs.readFile(filePath, { encoding: null });
         const actualBytesToCheck = Math.min(buffer.length, bytesToRead);
         
-        // Check for null bytes which indicate binary content
-        for (let i = 0; i < actualBytesToCheck; i++) {
-            if (buffer[i] === 0) {
-                binaryFileCache.set(filePath, true);
-                return true;
-            }
+        // Early exit for null bytes - most efficient binary detection
+        const nullByteIndex = buffer.subarray(0, actualBytesToCheck).indexOf(0);
+        if (nullByteIndex !== -1) {
+            binaryFileCache.set(filePath, true);
+            return true;
         }
         
-        // Check for high ratio of non-printable characters
+        // Optimized non-printable character check using bit operations
         let nonPrintable = 0;
+        const threshold = Math.floor(actualBytesToCheck * 0.3); // Pre-calculate 30% threshold
+        
         for (let i = 0; i < actualBytesToCheck; i++) {
             const byte = buffer[i];
-            if (byte === undefined) { continue; } // Skip undefined bytes
-            // Allow common whitespace chars: space(32), tab(9), newline(10), carriage return(13)
-            if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
+            if (byte === undefined) { continue; }
+            
+            // Use bit operations for faster range checks
+            // Allow common whitespace: tab(9), newline(10), carriage return(13), space(32)
+            if ((byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) || byte > 126) {
                 nonPrintable++;
-            } else if (byte > 126) {
-                nonPrintable++;
+                // Early exit if threshold already exceeded
+                if (nonPrintable > threshold) {
+                    binaryFileCache.set(filePath, true);
+                    return true;
+                }
             }
         }
         
-        // If more than 30% non-printable, consider it binary
-        const isBinary = (nonPrintable / actualBytesToCheck) > 0.3;
-        binaryFileCache.set(filePath, isBinary);
-        return isBinary;
+        // File is text-based
+        binaryFileCache.set(filePath, false);
+        return false;
     } catch {
         // If we can't read the file, assume it's not binary
         binaryFileCache.set(filePath, false);
@@ -5802,6 +5872,13 @@ export const SECRET_PATTERNS = [
     { name: 'Password Field', regex: /(password[_-]?[:=]\s*["']?[^\s"']{8,}["']?)/i }
 ];
 
+// Pre-compile global regexes for better performance
+const GLOBAL_SECRET_PATTERNS = SECRET_PATTERNS.map(pattern => ({
+    name: pattern.name,
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    regex: new RegExp(pattern.regex.source, pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`)
+}));
+
 /**
  * Redact secrets from content by replacing them with [REDACTED]
  * @param content File content to redact
@@ -5812,20 +5889,18 @@ export function redactSecrets(content: string): { redactedContent: string; detec
     const detectedSecrets: string[] = [];
     const seenTypes = new Set<string>();
     
-    for (const pattern of SECRET_PATTERNS) {
+    // Use pre-compiled global regexes for better performance
+    for (const pattern of GLOBAL_SECRET_PATTERNS) {
         if (pattern.regex.test(redactedContent)) {
             if (!seenTypes.has(pattern.name)) {
                 detectedSecrets.push(pattern.name);
                 seenTypes.add(pattern.name);
             }
-            // Replace all matches with [REDACTED]
-            // Create a global version of the regex if not already global
-            const globalFlags = pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`;
-            redactedContent = redactedContent.replace(
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                new RegExp(pattern.regex.source, globalFlags),
-                '[REDACTED]'
-            );
+            // Reset regex lastIndex since we're reusing compiled regexes
+            pattern.regex.lastIndex = 0;
+            redactedContent = redactedContent.replace(pattern.regex, '[REDACTED]');
+            // Reset again for next potential use
+            pattern.regex.lastIndex = 0;
         }
     }
     
@@ -5868,9 +5943,24 @@ export function validateFileContent(
         }
     }
 
-    // Check for long lines
-    const lines = content.split('\n');
-    const maxLineLength = Math.max(...lines.map(line => line.length));
+    // Check for long lines - optimized to avoid creating line array if not needed
+    let maxLineLength = 0;
+    let currentLineLength = 0;
+    
+    for (let i = 0; i < content.length; i++) {
+        if (content[i] === '\n') {
+            maxLineLength = Math.max(maxLineLength, currentLineLength);
+            currentLineLength = 0;
+            // Early exit if already over limit
+            if (maxLineLength > config.maxLineLength) {
+                break;
+            }
+        } else {
+            currentLineLength++;
+        }
+    }
+    maxLineLength = Math.max(maxLineLength, currentLineLength); // Handle last line
+    
     if (maxLineLength > config.maxLineLength) {
         result.issues.hasLongLines = true;
         result.issues.maxLineLength = maxLineLength;
@@ -5974,7 +6064,7 @@ export function isMinifiedContent(content: string, filePath: string): boolean {
 }
 ```
 
-## 📄 src/utils/logger.ts {#srcutilsloggerts}
+## src/utils/logger.ts {#srcutilsloggerts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -6212,7 +6302,7 @@ export function createPluginLogger(pluginName: string): {
 }
 ```
 
-## 📄 src/version.ts {#srcversionts}
+## src/version.ts {#srcversionts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -6243,7 +6333,6 @@ function initializeVersion(): string {
     }
 
     try {
-        // Try to get current directory and package.json path
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
         const packagePath = path.resolve(__dirname, '..', 'package.json');
@@ -6258,7 +6347,6 @@ function initializeVersion(): string {
         cachedVersion = packageJson.version;
         return cachedVersion;
     } catch {
-        // Fallback version
         cachedVersion = '1.0.0-unknown';
         return cachedVersion;
     }
@@ -6274,12 +6362,10 @@ export async function getVersion(): Promise<string> {
     }
 
     try {
-        // Try modern JSON import syntax (Node 20+)
         const pkg = await import('../package.json', { with: { type: 'json' } });
         cachedVersion = pkg.default.version;
         return cachedVersion;
     } catch {
-        // Use the synchronous fallback
         return initializeVersion();
     }
 }
@@ -6295,7 +6381,7 @@ export function getVersionSync(): string {
 initializeVersion();
 ```
 
-## 📄 tests/aggressive-sanitization.test.ts {#testsaggressive-sanitizationtestts}
+## tests/aggressive-sanitization.test.ts {#testsaggressive-sanitizationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -6458,7 +6544,7 @@ describe('Aggressive Content Sanitization', () => {
 });
 ```
 
-## 📄 tests/anchor-generation.test.ts {#testsanchor-generationtestts}
+## tests/anchor-generation.test.ts {#testsanchor-generationtestts}
 
 ```typescript
 import GithubSlugger from 'github-slugger';
@@ -6787,7 +6873,7 @@ describe('Anchor Generation with github-slugger', () => {
 });
 ```
 
-## 📄 tests/api-integration.test.ts {#testsapi-integrationtestts}
+## tests/api-integration.test.ts {#testsapi-integrationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -7083,7 +7169,7 @@ describe('API Integration for VS Code', () => {
 });
 ```
 
-## 📄 tests/api.test.ts {#testsapitestts}
+## tests/api.test.ts {#testsapitestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -7441,7 +7527,7 @@ describe('API Tests', () => {
 });
 ```
 
-## 📄 tests/architecture.test.ts {#testsarchitecturetestts}
+## tests/architecture.test.ts {#testsarchitecturetestts}
 
 ```typescript
 import path from 'node:path';
@@ -7656,7 +7742,7 @@ describe('Architecture Tests', () => {
 });
 ```
 
-## 📄 tests/benchmark.test.ts {#testsbenchmarktestts}
+## tests/benchmark.test.ts {#testsbenchmarktestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -7823,7 +7909,7 @@ describe('BenchmarkTracker', () => {
 });
 ```
 
-## 📄 tests/cli-binary-e2e.test.ts {#testscli-binary-e2etestts}
+## tests/cli-binary-e2e.test.ts {#testscli-binary-e2etestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -8320,7 +8406,7 @@ describe('CLI Binary E2E Tests', () => {
 });
 ```
 
-## 📄 tests/cli-e2e.test.ts {#testscli-e2etestts}
+## tests/cli-e2e.test.ts {#testscli-e2etestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -8690,7 +8776,7 @@ describe('CLI E2E Tests', () => {
 });
 ```
 
-## 📄 tests/clicommands.test.ts {#testsclicommandstestts}
+## tests/clicommands.test.ts {#testsclicommandstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -9301,7 +9387,7 @@ describe('CLI Commands', () => {
 });
 ```
 
-## 📄 tests/clipboard-size-guard.test.ts {#testsclipboard-size-guardtestts}
+## tests/clipboard-size-guard.test.ts {#testsclipboard-size-guardtestts}
 
 ```typescript
 import { describe, expect, it } from 'vitest';
@@ -9338,7 +9424,7 @@ describe('Clipboard Size Guard Tests', () => {
 });
 ```
 
-## 📄 tests/config-consistency.test.ts {#testsconfig-consistencytestts}
+## tests/config-consistency.test.ts {#testsconfig-consistencytestts}
 
 ```typescript
 import fs from 'fs-extra';
@@ -9414,7 +9500,7 @@ describe('Config Consistency', () => {
 });
 ```
 
-## 📄 tests/content-validation.test.ts {#testscontent-validationtestts}
+## tests/content-validation.test.ts {#testscontent-validationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -9427,6 +9513,17 @@ import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { processFusion } from '../src/fusion.js';
 import { createFilePath, type Config } from '../src/types.js';
 import { validateFileContent, isMinifiedContent, defaultConfig } from '../src/utils.js';
+
+// Shared test configuration factory for better consistency
+const createTestConfig = (overrides: Partial<Config> = {}): Config => ({
+    ...defaultConfig,
+    generateHtml: false,
+    generateMarkdown: false,
+    generateText: true,
+    rootDirectory: '.',
+    parsedFileExtensions: { web: ['.js'] },
+    ...overrides
+});
 
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {
@@ -9588,16 +9685,7 @@ describe('Content Validation Tests', () => {
             memFS.addFile('problem.js', `const data="${largeBase64}";`);
             memFS.addFile('normal.js', 'console.log("hello");');
             
-            const config: Config = {
-                ...defaultConfig,
-                rootDirectory: '.',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: {
-                    web: ['.js']
-                }
-            };
+            const config = createTestConfig();
 
             await processFusion(config, { fs: memFS });
             
@@ -9620,16 +9708,7 @@ describe('Content Validation Tests', () => {
             memFS.addFile('minified.js', minifiedContent);
             memFS.addFile('normal.js', 'console.log("hello");');
             
-            const config: Config = {
-                ...defaultConfig,
-                rootDirectory: '.',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: {
-                    web: ['.js']
-                }
-            };
+            const config = createTestConfig();
 
             const result = await processFusion(config, { fs: memFS });
             
@@ -9672,7 +9751,7 @@ describe('Content Validation Tests', () => {
 });
 ```
 
-## 📄 tests/esm-import.test.ts {#testsesm-importtestts}
+## tests/esm-import.test.ts {#testsesm-importtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -9709,7 +9788,7 @@ describe('ESM Import Smoke Test', () => {
 });
 ```
 
-## 📄 tests/file-overwrite-protection.test.ts {#testsfile-overwrite-protectiontestts}
+## tests/file-overwrite-protection.test.ts {#testsfile-overwrite-protectiontestts}
 
 ```typescript
 import path from 'node:path';
@@ -10023,7 +10102,7 @@ describe('File Overwrite Protection', () => {
 });
 ```
 
-## 📄 tests/file-security.test.ts {#testsfile-securitytestts}
+## tests/file-security.test.ts {#testsfile-securitytestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -10409,7 +10488,7 @@ describe('File Security Tests', () => {
 });
 ```
 
-## 📄 tests/fluent-types.test.ts {#testsfluent-typestestts}
+## tests/fluent-types.test.ts {#testsfluent-typestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -10532,7 +10611,7 @@ describe('Fluent API Type Tests', () => {
 });
 ```
 
-## 📄 tests/fluent.test.ts {#testsfluenttestts}
+## tests/fluent.test.ts {#testsfluenttestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -10886,7 +10965,7 @@ describe('Fluent API', () => {
 });
 ```
 
-## 📄 tests/formats.test.ts {#testsformatstestts}
+## tests/formats.test.ts {#testsformatstestts}
 
 ```typescript
 import path from 'node:path';
@@ -11057,7 +11136,7 @@ console.log(html);
 });
 ```
 
-## 📄 tests/fusion-coverage.test.ts {#testsfusion-coveragetestts}
+## tests/fusion-coverage.test.ts {#testsfusion-coveragetestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -11356,7 +11435,7 @@ Some **bold** and *italic* text.
 });
 ```
 
-## 📄 tests/github-link-security.test.ts {#testsgithub-link-securitytestts}
+## tests/github-link-security.test.ts {#testsgithub-link-securitytestts}
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -11505,7 +11584,7 @@ describe('GitHub Link Security', () => {
 });
 ```
 
-## 📄 tests/html-escaping.test.ts {#testshtml-escapingtestts}
+## tests/html-escaping.test.ts {#testshtml-escapingtestts}
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -11814,7 +11893,7 @@ describe('HTML Escaping', () => {
 });
 ```
 
-## 📄 tests/index.test.ts {#testsindextestts}
+## tests/index.test.ts {#testsindextestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -11904,7 +11983,7 @@ describe('Index Exports', () => {
 });
 ```
 
-## 📄 tests/integration.test.ts {#testsintegrationtestts}
+## tests/integration.test.ts {#testsintegrationtestts}
 
 ```typescript
 import path from 'node:path';
@@ -12202,7 +12281,7 @@ describe('Integration Tests - Optimized', () => {
 });
 ```
 
-## 📄 tests/logger.test.ts {#testsloggertestts}
+## tests/logger.test.ts {#testsloggertestts}
 
 ```typescript
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -12281,7 +12360,7 @@ describe('Logger', () => {
 });
 ```
 
-## 📄 tests/markdown-escaping.test.ts {#testsmarkdown-escapingtestts}
+## tests/markdown-escaping.test.ts {#testsmarkdown-escapingtestts}
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -12364,9 +12443,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape brackets in the header
-            expect(result).toContain('## 📄 test\\[malicious\\].js {#');
+            expect(result).toContain('## test\\[malicious\\].js {#');
             // Should not contain unescaped brackets
-            expect(result).not.toContain('## 📄 test[malicious].js {#');
+            expect(result).not.toContain('## test[malicious].js {#');
         });
 
         it('should escape parentheses in file headers', () => {
@@ -12376,9 +12455,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape parentheses in the header
-            expect(result).toContain('## 📄 test\\(malicious\\).js {#');
+            expect(result).toContain('## test\\(malicious\\).js {#');
             // Should not contain unescaped parentheses
-            expect(result).not.toContain('## 📄 test(malicious).js {#');
+            expect(result).not.toContain('## test(malicious).js {#');
         });
 
         it('should escape backticks in file headers', () => {
@@ -12388,9 +12467,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape backticks in the header
-            expect(result).toContain('## 📄 test\\`malicious\\`.js {#');
+            expect(result).toContain('## test\\`malicious\\`.js {#');
             // Should not contain unescaped backticks
-            expect(result).not.toContain('## 📄 test`malicious`.js {#');
+            expect(result).not.toContain('## test`malicious`.js {#');
         });
     });
 
@@ -12407,9 +12486,9 @@ describe('Markdown Escaping', () => {
             const result = strategy.processFile(fileInfo, context);
             
             // Should escape brackets in error placeholder header
-            expect(result).toContain('## ⚠️ test\\[malicious\\].js {#');
+            expect(result).toContain('## Error: test\\[malicious\\].js {#');
             // Should not contain unescaped brackets
-            expect(result).not.toContain('## ⚠️ test[malicious].js {#');
+            expect(result).not.toContain('## Error: test[malicious].js {#');
         });
     });
 
@@ -12608,7 +12687,7 @@ describe('Markdown Escaping', () => {
 });
 ```
 
-## 📄 tests/memory-fs.test.ts {#testsmemory-fstestts}
+## tests/memory-fs.test.ts {#testsmemory-fstestts}
 
 ```typescript
 /**
@@ -12834,7 +12913,7 @@ describe('MemoryFileSystemAdapter', () => {
 });
 ```
 
-## 📄 tests/output-size-limits.test.ts {#testsoutput-size-limitstestts}
+## tests/output-size-limits.test.ts {#testsoutput-size-limitstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -13002,7 +13081,7 @@ describe('Output Size Limits', () => {
 });
 ```
 
-## 📄 tests/path-traversal-edge-cases.test.ts {#testspath-traversal-edge-casestestts}
+## tests/path-traversal-edge-cases.test.ts {#testspath-traversal-edge-casestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -13284,7 +13363,7 @@ describe('Path Traversal Edge Cases', () => {
 });
 ```
 
-## 📄 tests/performance.test.ts {#testsperformancetestts}
+## tests/performance.test.ts {#testsperformancetestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -13310,27 +13389,27 @@ const performanceConfig = {
 };
 
 /**
- * Generate normal file content without problematic patterns - optimized
+ * Pre-generate content to avoid repeated generation during tests - optimized for memory
  */
 const BASE_CONTENT_TEMPLATE = 'function test() { return 42; }';
-function generateNormalContent(sizeKB: number): string {
-    const repetitions = Math.max(1, Math.floor((sizeKB * 1024) / BASE_CONTENT_TEMPLATE.length));
-    return BASE_CONTENT_TEMPLATE.repeat(repetitions);
-}
-
-/**
- * Pre-generate content to avoid repeated generation during tests
- */
 const PREGENERATED_CONTENT = {
     small: 'console.log("small");',
-    medium: generateNormalContent(10),
-    large: generateNormalContent(50)
+    medium: BASE_CONTENT_TEMPLATE.repeat(Math.floor((10 * 1024) / BASE_CONTENT_TEMPLATE.length)),
+    large: BASE_CONTENT_TEMPLATE.repeat(Math.floor((50 * 1024) / BASE_CONTENT_TEMPLATE.length))
 };
+
+// Utility for generating dynamic content when needed (unused but may be needed for future tests)
+// const generateContent = (sizeKB: number): string => {
+//     const repetitions = Math.max(1, Math.floor((sizeKB * 1024) / BASE_CONTENT_TEMPLATE.length));
+//     return BASE_CONTENT_TEMPLATE.repeat(repetitions);
+// };
 
 describe('Performance Tests - Optimized', () => {
     const testDir = join(process.cwd(), 'temp', 'performance-test');
+    let originalCwd: string;
 
     beforeEach(async () => {
+        originalCwd = process.cwd();
         if (existsSync(testDir)) {
             await rm(testDir, { recursive: true, force: true });
         }
@@ -13339,7 +13418,7 @@ describe('Performance Tests - Optimized', () => {
     });
 
     afterEach(async () => {
-        process.chdir(join(testDir, '..', '..'));
+        process.chdir(originalCwd);
         if (existsSync(testDir)) {
             await rm(testDir, { recursive: true, force: true });
         }
@@ -13550,7 +13629,7 @@ describe('Performance Tests - Optimized', () => {
 });
 ```
 
-## 📄 tests/plugin-contract.test.ts {#testsplugin-contracttestts}
+## tests/plugin-contract.test.ts {#testsplugin-contracttestts}
 
 ```typescript
 /**
@@ -14335,7 +14414,7 @@ describe('Plugin API Contract Tests', () => {
 });
 ```
 
-## 📄 tests/plugin-coverage.test.ts {#testsplugin-coveragetestts}
+## tests/plugin-coverage.test.ts {#testsplugin-coveragetestts}
 
 ```typescript
 /**
@@ -14646,7 +14725,7 @@ describe('Plugin System Coverage Tests', () => {
 });
 ```
 
-## 📄 tests/plugin-security.test.ts {#testsplugin-securitytestts}
+## tests/plugin-security.test.ts {#testsplugin-securitytestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -14829,7 +14908,7 @@ export default {
 });
 ```
 
-## 📄 tests/plugin-system.test.ts {#testsplugin-systemtestts}
+## tests/plugin-system.test.ts {#testsplugin-systemtestts}
 
 ```typescript
 /**
@@ -15340,7 +15419,7 @@ describe('Plugin System', () => {
 });
 ```
 
-## 📄 tests/property-based.test.ts {#testsproperty-basedtestts}
+## tests/property-based.test.ts {#testsproperty-basedtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -15633,7 +15712,7 @@ describe('Property-Based Tests', () => {
 });
 ```
 
-## 📄 tests/resource-limits.test.ts {#testsresource-limitstestts}
+## tests/resource-limits.test.ts {#testsresource-limitstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -15960,7 +16039,7 @@ describe('Memory Monitoring', () => {
 });
 ```
 
-## 📄 tests/schema.test.ts {#testsschematestts}
+## tests/schema.test.ts {#testsschematestts}
 
 ```typescript
 import { describe, expect, it } from 'vitest';
@@ -16145,7 +16224,7 @@ describe('schema', () => {
 });
 ```
 
-## 📄 tests/secret-detection.test.ts {#testssecret-detectiontestts}
+## tests/secret-detection.test.ts {#testssecret-detectiontestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -16479,7 +16558,7 @@ describe('Secret Detection Tests', () => {
 });
 ```
 
-## 📄 tests/security-fuzzing.test.ts {#testssecurity-fuzzingtestts}
+## tests/security-fuzzing.test.ts {#testssecurity-fuzzingtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -17133,7 +17212,7 @@ describe('Security Fuzzing Tests', () => {
 });
 ```
 
-## 📄 tests/security-headers.test.ts {#testssecurity-headerstestts}
+## tests/security-headers.test.ts {#testssecurity-headerstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -17205,7 +17284,7 @@ describe('Security Headers', () => {
 });
 ```
 
-## 📄 tests/security-limits-fuzzing.test.ts {#testssecurity-limits-fuzzingtestts}
+## tests/security-limits-fuzzing.test.ts {#testssecurity-limits-fuzzingtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -17938,7 +18017,7 @@ const image = "${largeBase64}";
 });
 ```
 
-## 📄 tests/security-permissions.test.ts {#testssecurity-permissionstestts}
+## tests/security-permissions.test.ts {#testssecurity-permissionstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -18194,7 +18273,7 @@ describe('Security Permission Tests', () => {
 });
 ```
 
-## 📄 tests/security.test.ts {#testssecuritytestts}
+## tests/security.test.ts {#testssecuritytestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -18393,7 +18472,7 @@ console.log("test");
 });
 ```
 
-## 📄 tests/snapshots.test.ts {#testssnapshotstestts}
+## tests/snapshots.test.ts {#testssnapshotstestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -18925,14 +19004,14 @@ export class ApiClient {
             expect(htmlContent).toContain('example.ts');
             
             // Both should have proper structure
-            expect(mdContent).toContain('## 📄 example.ts');
+            expect(mdContent).toContain('## example.ts');
             expect(htmlContent).toContain('<h2 id="examplets">example.ts</h2>');
         });
     });
 });
 ```
 
-## 📄 tests/symlink-configuration.test.ts {#testssymlink-configurationtestts}
+## tests/symlink-configuration.test.ts {#testssymlink-configurationtestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19422,7 +19501,7 @@ describe('Symlink Configuration Tests', () => {
 });
 ```
 
-## 📄 tests/test-helpers.ts {#teststest-helpersts}
+## tests/test-helpers.ts {#teststest-helpersts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19554,7 +19633,7 @@ export function normalizeErrorMessage(message: string): string {
 }
 ```
 
-## 📄 tests/types.test.ts {#teststypestestts}
+## tests/types.test.ts {#teststypestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19801,7 +19880,7 @@ describe('FusionError', () => {
 });
 ```
 
-## 📄 tests/utility-types.test.ts {#testsutility-typestestts}
+## tests/utility-types.test.ts {#testsutility-typestestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -19950,7 +20029,7 @@ describe('Utility Types', () => {
 });
 ```
 
-## 📄 tests/utils.test.ts {#testsutilstestts}
+## tests/utils.test.ts {#testsutilstestts}
 
 ```typescript
 import path from 'node:path';
@@ -20124,8 +20203,10 @@ describe('utils', () => {
   describe('loadConfig', () => {
     const testDir = path.resolve('./temp/test-config');
     const configFile = path.join(testDir, 'project-fusion.json');
+    let originalCwd: string;
 
     beforeEach(async () => {
+      originalCwd = process.cwd();
       await fs.ensureDir(testDir);
       // Set working directory to test directory
       process.chdir(testDir);
@@ -20133,7 +20214,7 @@ describe('utils', () => {
 
     afterEach(async () => {
       // Restore original working directory
-      process.chdir(path.resolve('./../../'));
+      process.chdir(originalCwd);
       await fs.remove(testDir);
     });
 
@@ -20197,7 +20278,7 @@ describe('utils', () => {
 });
 ```
 
-## 📄 tests/version-fallback.test.ts {#testsversion-fallbacktestts}
+## tests/version-fallback.test.ts {#testsversion-fallbacktestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -20286,7 +20367,7 @@ describe('version fallback mechanism', () => {
 });
 ```
 
-## 📄 tests/vscode-api.test.ts {#testsvscode-apitestts}
+## tests/vscode-api.test.ts {#testsvscode-apitestts}
 
 ```typescript
 // SPDX-License-Identifier: MIT
@@ -20657,7 +20738,7 @@ describe('VS Code API enhancements', () => {
 });
 ```
 
-## 📄 tsconfig.json {#tsconfigjson}
+## tsconfig.json {#tsconfigjson}
 
 ```json
 {
@@ -20687,7 +20768,7 @@ describe('VS Code API enhancements', () => {
 }
 ```
 
-## 📄 tsconfig.test.json {#tsconfigtestjson}
+## tsconfig.test.json {#tsconfigtestjson}
 
 ```json
 {
@@ -20699,7 +20780,7 @@ describe('VS Code API enhancements', () => {
 }
 ```
 
-## 📄 vitest.config.ts {#vitestconfigts}
+## vitest.config.ts {#vitestconfigts}
 
 ```typescript
 import { defineConfig } from 'vitest/config';

@@ -5,11 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - In Development
+## [1.1.0] - 2025-08-29
+
+### Added
+
+#### Security Enhancements
+- Added aggressive content sanitization for enhanced security
+- Added clipboard size guards to prevent memory issues
+- Added CodeQL security analysis workflow
+- Added comprehensive security fuzzing tests with edge cases
+- Added Content Security Policy (CSP) headers for HTML output
+- Added dependency review workflow for automated security scanning
+- Added file overwrite protection with confirmation prompts
+- Added GitHub link security validation and escaping
+- Added HTML escaping for all user content to prevent XSS
+- Added Markdown protocol validation to prevent malicious links
+- Added secret detection for sensitive file patterns (.ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, dist/**/*.map)
+- Added security headers for enhanced protection
+- Added version fallback mechanism for secure version reading
+
+#### Core Features  
+- Added anchor generation for improved navigation using github-slugger
+- Added cancellation support with checkCancellation() for long operations
+- Added configuration consistency validation tests
+- Added ESM import validation and type safety tests
+- Added file system streaming for better memory management
+- Added fluent API type validation tests
+- Added granular progress reporting for better user feedback
+- Added output size limits with configurable thresholds
+- Added plugin contract validation system
+- Added plugin coverage testing framework
+- Added project-fusion version tracking in generated files
+- Added proper logger centralization system
+- Added TypeScript strict configuration with noImplicitOverride
+
+#### Development and CI/CD
+- Added CODEOWNERS file for repository maintenance
+- Added comprehensive ESLint configuration with security rules
+- Added consistent-type-imports for better code organization
+- Added cross-platform compatibility fixes (Windows, macOS, Linux)
+- Added Dependabot for automated dependency updates
+- Added enhanced test helpers for better test organization
+- Added NPM provenance for supply chain security
+- Added separate TypeScript configuration for tests
+
+### Changed
+- Enhanced CLI validation with proper NaN handling for numeric flags
+- Improved configuration validation with better error messages
+- Improved coverage reporting and test organization
+- Improved Markdown language detection for better syntax highlighting
+- Improved symlink handling with configuration warnings
+- Optimized ESLint configuration for better performance
+- Refactored logger system for centralized logging
+- Updated development documentation with comprehensive guides
+- Updated package dependencies to latest secure versions
+- Updated README with better examples and documentation
 
 ### Fixed
-- Fixed NPM badge in README to correctly display package version on npmjs.com
-- Fixed CI badge to use shields.io with GitHub logo for consistent styling
+- Fixed cross-platform file removal using cross-platform packages
+- Fixed duplicate timestamp generation in output files
+- Fixed file system adapter issues on Windows platforms
+- Fixed lint execution on Windows environments
+- Fixed macOS-specific test failures
+- Fixed multiple logger initialization in test environments
+- Fixed NPM badge in README to correctly display package version
+- Fixed test isolation issues with memory filesystem
+
+### Security
+- Enhanced path traversal protection with comprehensive validation
+- Improved binary file detection with null byte analysis
+- Strengthened plugin security with external path validation
+- Updated secret patterns for broader coverage of sensitive files
 
 ## [1.0.0] - 2025-01-22
 

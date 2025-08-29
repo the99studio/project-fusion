@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 15:38:13 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 16:21:39 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
@@ -111,11 +111,77 @@ All notable changes to this project will be documented in this file.
 The format is based on &#91;Keep a Changelog&#93;&#40;https:&#47;&#47;keepachangelog.com&#47;en&#47;1.1.0&#47;&#41;,
 and this project adheres to &#91;Semantic Versioning&#93;&#40;https:&#47;&#47;semver.org&#47;spec&#47;v2.0.0.html&#41;.
 
-## &#91;1.1.0&#93; - In Development
+## &#91;1.1.0&#93; - 2025-08-29
+
+### Added
+
+#### Security Enhancements
+- Added aggressive content sanitization for enhanced security
+- Added clipboard size guards to prevent memory issues
+- Added CodeQL security analysis workflow
+- Added comprehensive security fuzzing tests with edge cases
+- Added Content Security Policy &#40;CSP&#41; headers for HTML output
+- Added dependency review workflow for automated security scanning
+- Added file overwrite protection with confirmation prompts
+- Added GitHub link security validation and escaping
+- Added HTML escaping for all user content to prevent XSS
+- Added Markdown protocol validation to prevent malicious links
+- Added secret detection for sensitive file patterns &#40;.ssh&#47;, .aws&#47;, .azure&#47;, .gcloud&#47;, *.p12, *.keystore, .*history, .npmrc, dist&#47;**&#47;*.map&#41;
+- Added security headers for enhanced protection
+- Added version fallback mechanism for secure version reading
+
+#### Core Features  
+- Added anchor generation for improved navigation using github-slugger
+- Added cancellation support with checkCancellation&#40;&#41; for long operations
+- Added configuration consistency validation tests
+- Added ESM import validation and type safety tests
+- Added file system streaming for better memory management
+- Added fluent API type validation tests
+- Added granular progress reporting for better user feedback
+- Added output size limits with configurable thresholds
+- Added plugin contract validation system
+- Added plugin coverage testing framework
+- Added project-fusion version tracking in generated files
+- Added proper logger centralization system
+- Added TypeScript strict configuration with noImplicitOverride
+
+#### Development and CI&#47;CD
+- Added CODEOWNERS file for repository maintenance
+- Added comprehensive ESLint configuration with security rules
+- Added consistent-type-imports for better code organization
+- Added cross-platform compatibility fixes &#40;Windows, macOS, Linux&#41;
+- Added Dependabot for automated dependency updates
+- Added enhanced test helpers for better test organization
+- Added NPM provenance for supply chain security
+- Added separate TypeScript configuration for tests
+
+### Changed
+- Enhanced CLI validation with proper NaN handling for numeric flags
+- Improved configuration validation with better error messages
+- Improved coverage reporting and test organization
+- Improved Markdown language detection for better syntax highlighting
+- Improved symlink handling with configuration warnings
+- Optimized ESLint configuration for better performance
+- Refactored logger system for centralized logging
+- Updated development documentation with comprehensive guides
+- Updated package dependencies to latest secure versions
+- Updated README with better examples and documentation
 
 ### Fixed
-- Fixed NPM badge in README to correctly display package version on npmjs.com
-- Fixed CI badge to use shields.io with GitHub logo for consistent styling
+- Fixed cross-platform file removal using cross-platform packages
+- Fixed duplicate timestamp generation in output files
+- Fixed file system adapter issues on Windows platforms
+- Fixed lint execution on Windows environments
+- Fixed macOS-specific test failures
+- Fixed multiple logger initialization in test environments
+- Fixed NPM badge in README to correctly display package version
+- Fixed test isolation issues with memory filesystem
+
+### Security
+- Enhanced path traversal protection with comprehensive validation
+- Improved binary file detection with null byte analysis
+- Strengthened plugin security with external path validation
+- Updated secret patterns for broader coverage of sensitive files
 
 ## &#91;1.0.0&#93; - 2025-01-22
 
@@ -440,9 +506,7 @@ npm uninstall -g &#64;the99studio&#47;project-fusion
 
 ## Publishing
 
-**Prerequisites**: NPM_TOKEN must be configured in repository secrets.
-
-Publishing is automated via GitHub Actions when you push a version tag.
+Publishing is automated via GitHub Actions when you push a version tag using OpenID Connect &#40;OIDC&#41; for secure, token-free authentication.
 
 &#96;&#96;&#96;bash
 # 1. Ensure you&#39;re on main branch with latest changes
@@ -531,41 +595,41 @@ await projectFusion&#40;&#41;
 &#96;&#96;&#96;</pre>
 <h2 id="eslintconfigjs">eslint.config.js</h2>
 <pre>import js from &#39;&#64;eslint&#47;js&#39;;
-import tseslint from &#39;typescript-eslint&#39;;
-import tsParser from &#39;&#64;typescript-eslint&#47;parser&#39;;
-import importPlugin from &#39;eslint-plugin-import&#39;;
-import unicorn from &#39;eslint-plugin-unicorn&#39;;
-import securityPlugin from &#39;eslint-plugin-security&#39;;
 import prettierConfig from &#39;eslint-config-prettier&#39;;
+import importPlugin from &#39;eslint-plugin-import&#39;;
+import securityPlugin from &#39;eslint-plugin-security&#39;;
+import unicorn from &#39;eslint-plugin-unicorn&#39;;
+import tsParser from &#39;&#64;typescript-eslint&#47;parser&#39;;
+import tseslint from &#39;typescript-eslint&#39;;
 
 &#47;&#47; Shared configuration for all TypeScript files
 const sharedRules &#61; &#123;
   &#47;&#47; TypeScript strict rules
-  &#39;&#64;typescript-eslint&#47;no-explicit-any&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-unused-vars&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-readonly&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;explicit-function-return-type&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;explicit-module-boundary-types&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-inferrable-types&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-unnecessary-type-assertion&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-nullish-coalescing&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-optional-chain&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-string-starts-ends-with&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-includes&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-floating-promises&#39;: &#39;error&#39;,
   &#39;&#64;typescript-eslint&#47;await-thenable&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-misused-promises&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;require-await&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-non-null-assertion&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-reduce-type-parameter&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;prefer-return-this-type&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-unnecessary-type-arguments&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;switch-exhaustiveness-check&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-redundant-type-constituents&#39;: &#39;error&#39;,
-  &#39;&#64;typescript-eslint&#47;no-useless-empty-export&#39;: &#39;error&#39;,
   &#39;&#64;typescript-eslint&#47;consistent-type-exports&#39;: &#39;error&#39;,
   &#39;&#64;typescript-eslint&#47;consistent-type-imports&#39;: &#91;&#39;error&#39;, &#123; prefer: &#39;type-imports&#39;, fixStyle: &#39;separate-type-imports&#39; &#125;&#93;,
+  &#39;&#64;typescript-eslint&#47;explicit-function-return-type&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;explicit-module-boundary-types&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-explicit-any&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-floating-promises&#39;: &#39;error&#39;,
   &#39;&#64;typescript-eslint&#47;no-import-type-side-effects&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-inferrable-types&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-misused-promises&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-non-null-assertion&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-redundant-type-constituents&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-unnecessary-type-arguments&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-unnecessary-type-assertion&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-unused-vars&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;no-useless-empty-export&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-includes&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-nullish-coalescing&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-optional-chain&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-readonly&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-reduce-type-parameter&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-return-this-type&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;prefer-string-starts-ends-with&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;require-await&#39;: &#39;error&#39;,
+  &#39;&#64;typescript-eslint&#47;switch-exhaustiveness-check&#39;: &#39;error&#39;,
   &#39;&#64;typescript-eslint&#47;naming-convention&#39;: &#91;
     &#39;error&#39;,
     &#123;
@@ -587,15 +651,15 @@ const sharedRules &#61; &#123;
   &#93;,
 
   &#47;&#47; General code quality
-  &#39;no-debugger&#39;: &#39;error&#39;,
   &#39;no-alert&#39;: &#39;error&#39;,
-  &#39;no-var&#39;: &#39;error&#39;,
-  &#39;prefer-const&#39;: &#39;error&#39;,
-  &#39;prefer-arrow-callback&#39;: &#39;error&#39;,
-  &#39;prefer-template&#39;: &#39;error&#39;,
-  &#39;object-shorthand&#39;: &#39;error&#39;,
-  &#39;quote-props&#39;: &#91;&#39;error&#39;, &#39;as-needed&#39;&#93;,
+  &#39;no-debugger&#39;: &#39;error&#39;,
   &#39;no-duplicate-imports&#39;: &#39;error&#39;,
+  &#39;no-var&#39;: &#39;error&#39;,
+  &#39;object-shorthand&#39;: &#39;error&#39;,
+  &#39;prefer-arrow-callback&#39;: &#39;error&#39;,
+  &#39;prefer-const&#39;: &#39;error&#39;,
+  &#39;prefer-template&#39;: &#39;error&#39;,
+  &#39;quote-props&#39;: &#91;&#39;error&#39;, &#39;as-needed&#39;&#93;,
   &#39;no-restricted-syntax&#39;: &#91;
     &#39;error&#39;,
     &#123;
@@ -607,14 +671,9 @@ const sharedRules &#61; &#123;
       message: &#39;With statements are not allowed&#39;
     &#125;
   &#93;,
-  &#39;no-nested-ternary&#39;: &#39;error&#39;,
-  &#39;no-unneeded-ternary&#39;: &#39;error&#39;,
-  &#39;no-mixed-operators&#39;: &#39;error&#39;,
-  &#39;yoda&#39;: &#91;&#39;error&#39;, &#39;never&#39;&#93;,
+  &#39;complexity&#39;: &#91;&#39;error&#39;, 100&#93;,
   &#39;curly&#39;: &#91;&#39;error&#39;, &#39;all&#39;&#93;,
   &#39;eqeqeq&#39;: &#91;&#39;error&#39;, &#39;always&#39;&#93;,
-  &#39;no-else-return&#39;: &#91;&#39;error&#39;, &#123; allowElseIf: true &#125;&#93;,
-  &#39;no-lonely-if&#39;: &#39;error&#39;,
   &#39;max-depth&#39;: &#91;&#39;error&#39;, 7&#93;,
   &#39;max-lines&#39;: &#91;&#39;error&#39;, &#123;
     max: 800,
@@ -626,9 +685,24 @@ const sharedRules &#61; &#123;
     skipBlankLines: true,
     skipComments: true
   &#125;&#93;,
-  &#39;complexity&#39;: &#91;&#39;error&#39;, 100&#93;,
+  &#39;no-else-return&#39;: &#91;&#39;error&#39;, &#123; allowElseIf: true &#125;&#93;,
+  &#39;no-lonely-if&#39;: &#39;error&#39;,
+  &#39;no-mixed-operators&#39;: &#39;error&#39;,
+  &#39;no-nested-ternary&#39;: &#39;error&#39;,
+  &#39;no-unneeded-ternary&#39;: &#39;error&#39;,
+  &#39;yoda&#39;: &#91;&#39;error&#39;, &#39;never&#39;&#93;,
   
   &#47;&#47; Import rules
+  &#39;import&#47;extensions&#39;: &#91;
+    &#39;error&#39;,
+    &#39;always&#39;,
+    &#123;
+      &#39;ts&#39;: &#39;never&#39;,
+      &#39;tsx&#39;: &#39;never&#39;
+    &#125;
+  &#93;,
+  &#39;import&#47;no-duplicates&#39;: &#39;error&#39;,
+  &#39;import&#47;no-unresolved&#39;: &#39;error&#39;,
   &#39;import&#47;order&#39;: &#91;
     &#39;error&#39;,
     &#123;
@@ -647,37 +721,27 @@ const sharedRules &#61; &#123;
       &#125;
     &#125;
   &#93;,
-  &#39;import&#47;no-duplicates&#39;: &#39;error&#39;,
-  &#39;import&#47;no-unresolved&#39;: &#39;error&#39;,
-  &#39;import&#47;extensions&#39;: &#91;
-    &#39;error&#39;,
-    &#39;always&#39;,
-    &#123;
-      &#39;ts&#39;: &#39;never&#39;,
-      &#39;tsx&#39;: &#39;never&#39;
-    &#125;
-  &#93;,
 
   &#47;&#47; Unicorn rules
-  &#39;unicorn&#47;prefer-node-protocol&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-module&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-ternary&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-logical-operator-over-ternary&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-array-for-each&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-array-some&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-array-find&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-array-flat&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-object-from-entries&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-set-has&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-string-slice&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-number-properties&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;numeric-separators-style&#39;: &#39;error&#39;,
   &#39;unicorn&#47;better-regex&#39;: &#39;error&#39;,
   &#39;unicorn&#47;catch-error-name&#39;: &#39;error&#39;,
   &#39;unicorn&#47;custom-error-definition&#39;: &#39;error&#39;,
   &#39;unicorn&#47;error-message&#39;: &#39;error&#39;,
   &#39;unicorn&#47;escape-case&#39;: &#39;error&#39;,
   &#39;unicorn&#47;explicit-length-check&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-array-for-each&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;numeric-separators-style&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-array-find&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-array-flat&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-array-some&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-logical-operator-over-ternary&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-module&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-node-protocol&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-number-properties&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-object-from-entries&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-set-has&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-string-slice&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-ternary&#39;: &#39;error&#39;,
   &#39;unicorn&#47;filename-case&#39;: &#91;
     &#39;error&#39;,
     &#123;
@@ -690,22 +754,35 @@ const sharedRules &#61; &#123;
   &#93;,
   &#39;unicorn&#47;new-for-builtins&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-abusive-eslint-disable&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-anonymous-default-export&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-array-push-push&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-console-spaces&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-document-cookie&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-empty-file&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-hex-escape&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-instanceof-array&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-invalid-fetch-options&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-magic-array-flat-depth&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-nested-ternary&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-new-buffer&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-typeof-undefined&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-unnecessary-await&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;no-unreadable-iife&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-useless-length-check&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-useless-spread&#39;: &#39;error&#39;,
   &#39;unicorn&#47;no-zero-fractions&#39;: &#39;error&#39;,
   &#39;unicorn&#47;number-literal-case&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-add-event-listener&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-array-index-of&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-at&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-blob-reading-methods&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-date-now&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-default-parameters&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-export-from&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-includes&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-math-trunc&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-modern-math-apis&#39;: &#39;error&#39;,
+  &#39;unicorn&#47;prefer-native-coercion-functions&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-negative-index&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-optional-catch-binding&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-prototype-methods&#39;: &#39;error&#39;,
@@ -717,50 +794,37 @@ const sharedRules &#61; &#123;
   &#39;unicorn&#47;prefer-switch&#39;: &#39;error&#39;,
   &#39;unicorn&#47;prefer-type-error&#39;: &#39;error&#39;,
   &#39;unicorn&#47;throw-new-error&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-nested-ternary&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-typeof-undefined&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-export-from&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-at&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-unreadable-iife&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-modern-math-apis&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-native-coercion-functions&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-document-cookie&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;prefer-blob-reading-methods&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-anonymous-default-export&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-empty-file&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-invalid-fetch-options&#39;: &#39;error&#39;,
-  &#39;unicorn&#47;no-magic-array-flat-depth&#39;: &#39;error&#39;,
   
   &#47;&#47; Security rules - only relevant ones for a file processing tool
-  &#39;security&#47;detect-non-literal-fs-filename&#39;: &#39;off&#39;, &#47;&#47; File processing tool needs dynamic paths
-  &#39;security&#47;detect-non-literal-regexp&#39;: &#39;error&#39;,
-  &#39;security&#47;detect-unsafe-regex&#39;: &#39;off&#39;, &#47;&#47; Some complex patterns needed for secret detection
   &#39;security&#47;detect-buffer-noassert&#39;: &#39;error&#39;,
   &#39;security&#47;detect-child-process&#39;: &#39;error&#39;,
   &#39;security&#47;detect-disable-mustache-escape&#39;: &#39;error&#39;,
   &#39;security&#47;detect-eval-with-expression&#39;: &#39;error&#39;,
   &#39;security&#47;detect-new-buffer&#39;: &#39;error&#39;,
   &#39;security&#47;detect-no-csrf-before-method-override&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-non-literal-fs-filename&#39;: &#39;off&#39;, &#47;&#47; File processing tool needs dynamic paths
+  &#39;security&#47;detect-non-literal-regexp&#39;: &#39;error&#39;,
+  &#39;security&#47;detect-object-injection&#39;: &#39;off&#39;, &#47;&#47; Dynamic config access is required
   &#39;security&#47;detect-possible-timing-attacks&#39;: &#39;error&#39;,
   &#39;security&#47;detect-pseudoRandomBytes&#39;: &#39;error&#39;,
-  &#39;security&#47;detect-object-injection&#39;: &#39;off&#39; &#47;&#47; Dynamic config access is required
+  &#39;security&#47;detect-unsafe-regex&#39;: &#39;off&#39; &#47;&#47; Some complex patterns needed for secret detection
 &#125;;
 
 &#47;&#47; Shared globals for Node.js environment
 const nodeGlobals &#61; &#123;
-  console: &#39;readonly&#39;,
-  process: &#39;readonly&#39;,
-  Buffer: &#39;readonly&#39;,
   __dirname: &#39;readonly&#39;,
   __filename: &#39;readonly&#39;,
-  NodeJS: &#39;readonly&#39;
+  Buffer: &#39;readonly&#39;,
+  console: &#39;readonly&#39;,
+  NodeJS: &#39;readonly&#39;,
+  process: &#39;readonly&#39;
 &#125;;
 
 &#47;&#47; Shared plugins
 const sharedPlugins &#61; &#123;
   &#39;import&#39;: importPlugin,
-  &#39;unicorn&#39;: unicorn,
-  &#39;security&#39;: securityPlugin
+  &#39;security&#39;: securityPlugin,
+  &#39;unicorn&#39;: unicorn
 &#125;;
 
 &#47;&#47; Base configuration for TypeScript files
@@ -1595,7 +1659,6 @@ function mergeWithDefaults&#40;partialConfig: Partial&lt;Config&gt;, cwd: string
 export async function fusionAPI&#40;options: ProgrammaticFusionOptions &#61; &#123;&#125;&#41;: Promise&lt;ProgrammaticFusionResult&gt; &#123;
     const cwd &#61; options.cwd ?? process.cwd&#40;&#41;;
     
-    &#47;&#47; Extract fusion options and callbacks
     const &#123; 
         extensionGroups,
         rootDirectory,
@@ -1929,7 +1992,6 @@ program
         void runConfigCheckCommand&#40;&#41;;
     &#125;&#41;;
 
-&#47;&#47; Parse arguments with Commander.js
 program.parse&#40;process.argv&#41;;</pre>
 <h2 id="srcclicommandsts">src&#47;clicommands.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
@@ -1980,32 +2042,27 @@ export async function runFusionCommand&#40;options: &#123;
     overwrite?: boolean;
 &#125;&#41;: Promise&lt;void&gt; &#123;
     try &#123;
-        logger.consoleInfo&#40;&#39;🔄 Starting Fusion Process...&#39;&#41;;
+        logger.consoleInfo&#40;&#39;Starting Fusion Process...&#39;&#41;;
 
         const config &#61; await loadConfig&#40;&#41;;
 
-        &#47;&#47; Handle root directory
         if &#40;options.root&#41; &#123;
             config.rootDirectory &#61; options.root;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Using specified directory as root: &#36;&#123;options.root&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Using specified directory as root: &#36;&#123;options.root&#125;&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle output directory
         if &#40;options.out&#41; &#123;
             const outputPath &#61; path.resolve&#40;options.out&#41;;
             config.outputDirectory &#61; outputPath;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Using output directory: &#36;&#123;outputPath&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Using output directory: &#36;&#123;outputPath&#125;&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle custom filename
         if &#40;options.name&#41; &#123;
             config.generatedFileName &#61; options.name;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Using custom filename: &#36;&#123;options.name&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Using custom filename: &#36;&#123;options.name&#125;&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle output format overrides
         if &#40;options.html &#33;&#61;&#61; undefined || options.md &#33;&#61;&#61; undefined || options.txt &#33;&#61;&#61; undefined&#41; &#123;
-            &#47;&#47; If any format flag is specified, only generate those formats
             config.generateHtml &#61; options.html ?? false;
             config.generateMarkdown &#61; options.md ?? false;
             config.generateText &#61; options.txt ?? false;
@@ -2016,17 +2073,16 @@ export async function runFusionCommand&#40;options: &#123;
             if &#40;config.generateText&#41; &#123; enabledFormats.push&#40;&#39;Text&#39;&#41;; &#125;
             
             if &#40;enabledFormats.length &gt; 0&#41; &#123;
-                console.log&#40;chalk.yellow&#40;&#96;ℹ️ Generating only: &#36;&#123;enabledFormats.join&#40;&#39;, &#39;&#41;&#125; format&#36;&#123;enabledFormats.length &gt; 1 ? &#39;s&#39; : &#39;&#39;&#125;&#96;&#41;&#41;;
+                console.log&#40;chalk.yellow&#40;&#96;Generating only: &#36;&#123;enabledFormats.join&#40;&#39;, &#39;&#41;&#125; format&#36;&#123;enabledFormats.length &gt; 1 ? &#39;s&#39; : &#39;&#39;&#125;&#96;&#41;&#41;;
             &#125; else &#123;
                 logger.consoleError&#40;&#39;❌ No output formats selected. Please specify at least one: --html, --md, or --txt&#39;&#41;;
                 process.exit&#40;1&#41;;
             &#125;
         &#125;
 
-        &#47;&#47; Handle clipboard override
         if &#40;options.clipboard &#61;&#61;&#61; false&#41; &#123;
             config.copyToClipboard &#61; false;
-            logger.consoleWarning&#40;&#39;ℹ️ Clipboard copying disabled&#39;&#41;;
+            logger.consoleWarning&#40;&#39;Clipboard copying disabled&#39;&#41;;
         &#125;
 
         if &#40;options.allowSymlinks &#33;&#61;&#61; undefined&#41; &#123;
@@ -2039,12 +2095,11 @@ export async function runFusionCommand&#40;options: &#123;
         if &#40;options.aggressiveSanitization &#33;&#61;&#61; undefined&#41; &#123;
             config.aggressiveContentSanitization &#61; options.aggressiveSanitization;
             if &#40;options.aggressiveSanitization&#41; &#123;
-                logger.consoleWarning&#40;&#39;🛡️ Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.&#39;&#41;;
+                logger.consoleWarning&#40;&#39;Aggressive content sanitization enabled. Dangerous patterns will be removed from file content.&#39;&#41;;
             &#125;
         &#125;
 
 
-        &#47;&#47; Handle size limits with validation
         if &#40;options.maxFileSize&#41; &#123;
             const maxFileSize &#61; Number.parseInt&#40;options.maxFileSize, 10&#41;;
             if &#40;Number.isNaN&#40;maxFileSize&#41; || maxFileSize &lt;&#61; 0&#41; &#123;
@@ -2052,7 +2107,7 @@ export async function runFusionCommand&#40;options: &#123;
                 process.exit&#40;1&#41;;
             &#125;
             config.maxFileSizeKB &#61; maxFileSize;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum file size set to: &#36;&#123;config.maxFileSizeKB&#125; KB&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Maximum file size set to: &#36;&#123;config.maxFileSizeKB&#125; KB&#96;&#41;&#41;;
         &#125;
         if &#40;options.maxFiles&#41; &#123;
             const maxFiles &#61; Number.parseInt&#40;options.maxFiles, 10&#41;;
@@ -2061,7 +2116,7 @@ export async function runFusionCommand&#40;options: &#123;
                 process.exit&#40;1&#41;;
             &#125;
             config.maxFiles &#61; maxFiles;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum files set to: &#36;&#123;config.maxFiles&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Maximum files set to: &#36;&#123;config.maxFiles&#125;&#96;&#41;&#41;;
         &#125;
         if &#40;options.maxTotalSize&#41; &#123;
             const maxTotalSize &#61; Number.parseFloat&#40;options.maxTotalSize&#41;;
@@ -2070,10 +2125,9 @@ export async function runFusionCommand&#40;options: &#123;
                 process.exit&#40;1&#41;;
             &#125;
             config.maxTotalSizeMB &#61; maxTotalSize;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum total size set to: &#36;&#123;config.maxTotalSizeMB&#125; MB&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Maximum total size set to: &#36;&#123;config.maxTotalSizeMB&#125; MB&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle content validation limits
         if &#40;options.maxBase64Kb&#41; &#123;
             const maxBase64KB &#61; Number.parseInt&#40;options.maxBase64Kb, 10&#41;;
             if &#40;Number.isNaN&#40;maxBase64KB&#41; || maxBase64KB &lt;&#61; 0&#41; &#123;
@@ -2081,7 +2135,7 @@ export async function runFusionCommand&#40;options: &#123;
                 process.exit&#40;1&#41;;
             &#125;
             config.maxBase64BlockKB &#61; maxBase64KB;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum base64 block size set to: &#36;&#123;config.maxBase64BlockKB&#125; KB&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Maximum base64 block size set to: &#36;&#123;config.maxBase64BlockKB&#125; KB&#96;&#41;&#41;;
         &#125;
 
         if &#40;options.maxLineLength&#41; &#123;
@@ -2091,7 +2145,7 @@ export async function runFusionCommand&#40;options: &#123;
                 process.exit&#40;1&#41;;
             &#125;
             config.maxLineLength &#61; maxLineLength;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum line length set to: &#36;&#123;config.maxLineLength&#125; chars&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Maximum line length set to: &#36;&#123;config.maxLineLength&#125; chars&#96;&#41;&#41;;
         &#125;
 
         if &#40;options.maxTokenLength&#41; &#123;
@@ -2101,40 +2155,36 @@ export async function runFusionCommand&#40;options: &#123;
                 process.exit&#40;1&#41;;
             &#125;
             config.maxTokenLength &#61; maxTokenLength;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Maximum token length set to: &#36;&#123;config.maxTokenLength&#125; chars&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Maximum token length set to: &#36;&#123;config.maxTokenLength&#125; chars&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle external plugin paths &#40;security setting&#41;
         if &#40;options.allowedPluginPaths&#41; &#123;
             const pluginPaths &#61; options.allowedPluginPaths.split&#40;&#39;,&#39;&#41;.map&#40;p &#61;&gt; p.trim&#40;&#41;&#41;.filter&#40;p &#61;&gt; p.length &gt; 0&#41;;
             if &#40;pluginPaths.length &gt; 0&#41; &#123;
                 config.allowedExternalPluginPaths &#61; pluginPaths;
-                console.log&#40;chalk.yellow&#40;&#96;🔐 Allowed external plugin paths set to: &#36;&#123;pluginPaths.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
+                console.log&#40;chalk.yellow&#40;&#96;Allowed external plugin paths set to: &#36;&#123;pluginPaths.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
             &#125;
         &#125;
 
-        &#47;&#47; Handle parsing behavior
         if &#40;options.subdirs &#61;&#61;&#61; false&#41; &#123;
             config.parseSubDirectories &#61; false;
-            console.log&#40;chalk.yellow&#40;&#39;ℹ️ Subdirectory parsing disabled&#39;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#39;Subdirectory parsing disabled&#39;&#41;&#41;;
         &#125;
         if &#40;options.gitignore &#61;&#61;&#61; false&#41; &#123;
             config.useGitIgnoreForExcludes &#61; false;
-            console.log&#40;chalk.yellow&#40;&#39;ℹ️ .gitignore exclusions disabled&#39;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#39;.gitignore exclusions disabled&#39;&#41;&#41;;
         &#125;
         if &#40;options.excludeSecrets &#61;&#61;&#61; false&#41; &#123;
             config.excludeSecrets &#61; false;
             console.log&#40;chalk.yellow&#40;&#39;⚠️ Secret exclusion disabled - files may contain sensitive data&#39;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle additional ignore patterns
         if &#40;options.ignore&#41; &#123;
             const additionalPatterns &#61; options.ignore.split&#40;&#39;,&#39;&#41;.map&#40;p &#61;&gt; p.trim&#40;&#41;&#41;;
             config.ignorePatterns &#61; &#91;...config.ignorePatterns, ...additionalPatterns&#93;;
-            console.log&#40;chalk.yellow&#40;&#96;ℹ️ Added ignore patterns: &#36;&#123;additionalPatterns.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#96;Added ignore patterns: &#36;&#123;additionalPatterns.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Parse extension groups from command line &#40;comma-separated&#41;
         &#47;&#47; Support both --extensions and --groups for convenience
         let extensionGroups: string&#91;&#93; | undefined;
         const groupsOption &#61; options.extensions ?? options.groups;
@@ -2143,32 +2193,27 @@ export async function runFusionCommand&#40;options: &#123;
             console.log&#40;chalk.blue&#40;&#96;Using extension groups: &#36;&#123;extensionGroups.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Build fusion options with plugin support
         const fusionOptions: FusionOptions &#61; &#123;&#125;;
         
         if &#40;extensionGroups&#41; &#123;
             fusionOptions.extensionGroups &#61; extensionGroups;
         &#125;
         
-        &#47;&#47; Handle plugins directory
         if &#40;options.pluginsDir&#41; &#123;
             fusionOptions.pluginsDir &#61; path.resolve&#40;options.pluginsDir&#41;;
-            console.log&#40;chalk.blue&#40;&#96;📦 Loading plugins from: &#36;&#123;fusionOptions.pluginsDir&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.blue&#40;&#96;Loading plugins from: &#36;&#123;fusionOptions.pluginsDir&#125;&#96;&#41;&#41;;
         &#125;
         
-        &#47;&#47; Handle enabled plugins list
         if &#40;options.plugins&#41; &#123;
             fusionOptions.enabledPlugins &#61; options.plugins.split&#40;&#39;,&#39;&#41;.map&#40;p &#61;&gt; p.trim&#40;&#41;&#41;;
-            console.log&#40;chalk.blue&#40;&#96;🔌 Enabled plugins: &#36;&#123;fusionOptions.enabledPlugins.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.blue&#40;&#96;Enabled plugins: &#36;&#123;fusionOptions.enabledPlugins.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;&#41;;
         &#125;
 
-        &#47;&#47; Handle preview mode
         if &#40;options.preview&#41; &#123;
-            console.log&#40;chalk.blue&#40;&#39;👁️ Preview Mode: Scanning files without generating output...&#39;&#41;&#41;;
+            console.log&#40;chalk.blue&#40;&#39;Preview Mode: Scanning files without generating output...&#39;&#41;&#41;;
             fusionOptions.previewMode &#61; true;
         &#125;
 
-        &#47;&#47; Handle overwrite protection
         const shouldOverwrite &#61; options.overwrite ?? config.overwriteFiles;
         if &#40;&#33;options.preview &amp;&amp; &#33;shouldOverwrite&#41; &#123;
             const outputDir &#61; config.outputDirectory ?? &#39;.&#39;;
@@ -2184,7 +2229,6 @@ export async function runFusionCommand&#40;options: &#123;
                 outputFiles.push&#40;path.join&#40;outputDir, &#96;&#36;&#123;config.generatedFileName&#125;.html&#96;&#41;&#41;;
             &#125;
             
-            &#47;&#47; Check if any output files already exist
             const existingFiles &#61; &#91;&#93;;
             for &#40;const file of outputFiles&#41; &#123;
                 if &#40;await fs.pathExists&#40;file&#41;&#41; &#123;
@@ -2197,7 +2241,7 @@ export async function runFusionCommand&#40;options: &#123;
                 for &#40;const file of existingFiles&#41; &#123;
                     console.error&#40;chalk.yellow&#40;&#96;   - &#36;&#123;file&#125;&#96;&#41;&#41;;
                 &#125;
-                console.error&#40;chalk.yellow&#40;&#39;\n💡 Use --overwrite flag to replace existing files.&#39;&#41;&#41;;
+                console.error&#40;chalk.yellow&#40;&#39;\nUse --overwrite flag to replace existing files.&#39;&#41;&#41;;
                 process.exitCode &#61; 1;
                 return;
             &#125;
@@ -2210,7 +2254,7 @@ export async function runFusionCommand&#40;options: &#123;
             
             &#47;&#47; In preview mode, don&#39;t show generated files section
             if &#40;&#33;options.preview&#41; &#123;
-                console.log&#40;chalk.green&#40;&#96;📄 Generated files:&#96;&#41;&#41;;
+                console.log&#40;chalk.green&#40;&#96;Generated files:&#96;&#41;&#41;;
                 
                 if &#40;config.generateText&#41; &#123;
                     console.log&#40;chalk.cyan&#40;&#96;   - &#36;&#123;config.generatedFileName&#125;.txt&#96;&#41;&#41;;
@@ -2231,25 +2275,25 @@ export async function runFusionCommand&#40;options: &#123;
                         const fileSizeMB &#61; fileStats.size &#47; &#40;1024 * 1024&#41;;
                         
                         if &#40;fileSizeMB &gt; 5&#41; &#123;
-                            console.log&#40;chalk.gray&#40;&#96;📋 Clipboard copy skipped &#40;file size: &#36;&#123;fileSizeMB.toFixed&#40;1&#41;&#125; MB &gt; 5 MB limit&#41;&#96;&#41;&#41;;
+                            console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;file size: &#36;&#123;fileSizeMB.toFixed&#40;1&#41;&#125; MB &gt; 5 MB limit&#41;&#96;&#41;&#41;;
                         &#125; else &#123;
                             const fusionContent &#61; await fs.readFile&#40;result.fusionFilePath, &#39;utf8&#39;&#41;;
                             await clipboardy.write&#40;fusionContent&#41;;
-                            console.log&#40;chalk.blue&#40;&#96;📋 Fusion content copied to clipboard&#96;&#41;&#41;;
+                            console.log&#40;chalk.blue&#40;&#96;Fusion content copied to clipboard&#96;&#41;&#41;;
                         &#125;
                     &#125; catch &#40;clipboardError&#41; &#123;
                         console.warn&#40;chalk.yellow&#40;&#96;⚠️ Could not copy to clipboard: &#36;&#123;String&#40;clipboardError&#41;&#125;&#96;&#41;&#41;;
                     &#125;
                 &#125; else if &#40;config.copyToClipboard &#61;&#61;&#61; true &amp;&amp; isNonInteractive&#41; &#123;
-                    console.log&#40;chalk.gray&#40;&#96;📋 Clipboard copy skipped &#40;non-interactive environment&#41;&#96;&#41;&#41;;
+                    console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;non-interactive environment&#41;&#96;&#41;&#41;;
                 &#125;
             &#125;
 
-            console.log&#40;chalk.gray&#40;&#96;📝 Log file available at: &#36;&#123;result.logFilePath&#125;&#96;&#41;&#41;;
+            console.log&#40;chalk.gray&#40;&#96;Log file available at: &#36;&#123;result.logFilePath&#125;&#96;&#41;&#41;;
         &#125; else &#123;
             console.log&#40;chalk.red&#40;&#96;❌ &#36;&#123;result.message&#125;&#96;&#41;&#41;;
             if &#40;result.logFilePath&#41; &#123;
-                console.log&#40;chalk.gray&#40;&#96;📝 Check log file for details: &#36;&#123;result.logFilePath&#125;&#96;&#41;&#41;;
+                console.log&#40;chalk.gray&#40;&#96;Check log file for details: &#36;&#123;result.logFilePath&#125;&#96;&#41;&#41;;
             &#125;
         &#125;
     &#125; catch &#40;error&#41; &#123;
@@ -2264,7 +2308,7 @@ export async function runFusionCommand&#40;options: &#123;
  *&#47;
 export async function runInitCommand&#40;options: &#123; force?: boolean &#125; &#61; &#123;&#125;&#41;: Promise&lt;void&gt; &#123;
     try &#123;
-        console.log&#40;chalk.blue&#40;&#39;🔄 Initializing Project Fusion...&#39;&#41;&#41;;
+        console.log&#40;chalk.blue&#40;&#39;Initializing Project Fusion...&#39;&#41;&#41;;
 
         const configPath &#61; path.resolve&#40;&#39;.&#47;project-fusion.json&#39;&#41;;
         if &#40;await fs.pathExists&#40;configPath&#41;&#41; &#123;
@@ -2280,10 +2324,10 @@ export async function runInitCommand&#40;options: &#123; force?: boolean &#125; 
         await fs.writeJson&#40;configPath, defaultConfig, &#123; spaces: 4 &#125;&#41;;
 
         console.log&#40;chalk.green&#40;&#39;✅ Project Fusion initialized successfully&#33;&#39;&#41;&#41;;
-        console.log&#40;chalk.blue&#40;&#39;📁 Created:&#39;&#41;&#41;;
+        console.log&#40;chalk.blue&#40;&#39;Created:&#39;&#41;&#41;;
         console.log&#40;chalk.cyan&#40;&#39;  - .&#47;project-fusion.json&#39;&#41;&#41;;
 
-        console.log&#40;chalk.blue&#40;&#39;\n📝 Next steps:&#39;&#41;&#41;;
+        console.log&#40;chalk.blue&#40;&#39;\nNext steps:&#39;&#41;&#41;;
         console.log&#40;chalk.cyan&#40;&#39;  1. Review project-fusion.json and adjust as needed&#39;&#41;&#41;;
         console.log&#40;chalk.cyan&#40;&#39;  2. Run fusion: project-fusion&#39;&#41;&#41;;
     &#125; catch &#40;error&#41; &#123;
@@ -2297,7 +2341,7 @@ export async function runInitCommand&#40;options: &#123; force?: boolean &#125; 
  *&#47;
 export async function runConfigCheckCommand&#40;&#41;: Promise&lt;void&gt; &#123;
     try &#123;
-        console.log&#40;chalk.blue&#40;&#39;🔍 Checking Project Fusion Configuration...&#39;&#41;&#41;;
+        console.log&#40;chalk.blue&#40;&#39;Checking Project Fusion Configuration...&#39;&#41;&#41;;
 
         const configPath &#61; path.resolve&#40;&#39;.&#47;project-fusion.json&#39;&#41;;
         
@@ -2311,7 +2355,6 @@ export async function runConfigCheckCommand&#40;&#41;: Promise&lt;void&gt; &#123
             return;
         &#125;
 
-        &#47;&#47; Load and parse configuration
         let configContent: string;
         try &#123;
             configContent &#61; await fs.readFile&#40;configPath, &#39;utf8&#39;&#41;;
@@ -2328,7 +2371,6 @@ export async function runConfigCheckCommand&#40;&#41;: Promise&lt;void&gt; &#123
             process.exit&#40;1&#41;;
         &#125;
 
-        &#47;&#47; Validate configuration against schema
         const validation &#61; ConfigSchemaV1.safeParse&#40;parsedConfig&#41;;
         
         if &#40;&#33;validation.success&#41; &#123;
@@ -2354,7 +2396,7 @@ export async function runConfigCheckCommand&#40;&#41;: Promise&lt;void&gt; &#123
                 &#125;
             &#125;
             
-            console.log&#40;chalk.yellow&#40;&#39;\n💡 Suggestions:&#39;&#41;&#41;;
+            console.log&#40;chalk.yellow&#40;&#39;\nSuggestions:&#39;&#41;&#41;;
             console.log&#40;chalk.cyan&#40;&#39;   - Check your configuration against the schema&#39;&#41;&#41;;
             console.log&#40;chalk.cyan&#40;&#39;   - Run &quot;project-fusion init --force&quot; to reset to default config&#39;&#41;&#41;;
             process.exit&#40;1&#41;;
@@ -2382,7 +2424,7 @@ async function displayConfigInfo&#40;config: Config, isDefault: boolean&#41;: Pr
         output.push&#40;line.replaceAll&#40;&#47;\u001B\&#91;&#91;\d;&#93;*m&#47;gu, &#39;&#39;&#41;&#41;; &#47;&#47; Strip ANSI colors for log
     &#125;;
 
-    addLine&#40;&#39;\n📋 Configuration Summary:&#39;, chalk.blue&#40;&#39;\n📋 Configuration Summary:&#39;&#41;&#41;;
+    addLine&#40;&#39;\nConfiguration Summary:&#39;, chalk.blue&#40;&#39;\nConfiguration Summary:&#39;&#41;&#41;;
     
     if &#40;isDefault&#41; &#123;
         addLine&#40;&#39;   &#40;Using default configuration&#41;\n&#39;, chalk.gray&#40;&#39;   &#40;Using default configuration&#41;\n&#39;&#41;&#41;;
@@ -2391,7 +2433,7 @@ async function displayConfigInfo&#40;config: Config, isDefault: boolean&#41;: Pr
     &#125;
 
     &#47;&#47; Core configuration settings with diff highlighting
-    addLine&#40;&#39;🔧 Basic Settings:&#39;, chalk.cyan&#40;&#39;🔧 Basic Settings:&#39;&#41;&#41;;
+    addLine&#40;&#39;Basic Settings:&#39;, chalk.cyan&#40;&#39;Basic Settings:&#39;&#41;&#41;;
     addLine&#40;&#96;   Schema Version: &#36;&#123;config.schemaVersion&#125;&#36;&#123;isDefault || config.schemaVersion &#61;&#61;&#61; defaultConfig.schemaVersion ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
            &#96;   Schema Version: &#36;&#123;highlightDiff&#40;config.schemaVersion.toString&#40;&#41;, defaultConfig.schemaVersion.toString&#40;&#41;, config.schemaVersion.toString&#40;&#41;&#41;&#125;&#96;&#41;;
     addLine&#40;&#96;   Root Directory: &#36;&#123;config.rootDirectory&#125;&#36;&#123;isDefault || config.rootDirectory &#61;&#61;&#61; defaultConfig.rootDirectory ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
@@ -2418,7 +2460,7 @@ async function displayConfigInfo&#40;config: Config, isDefault: boolean&#41;: Pr
            &#96;   Max Total Size: &#36;&#123;highlightDiff&#40;&#96;&#36;&#123;config.maxTotalSizeMB&#125; MB&#96;, &#96;&#36;&#123;defaultConfig.maxTotalSizeMB&#125; MB&#96;, &#96;&#36;&#123;config.maxTotalSizeMB&#125; MB&#96;&#41;&#125;&#96;&#41;;
 
     &#47;&#47; File generation options
-    addLine&#40;&#39;\n📄 Output Generation:&#39;, chalk.cyan&#40;&#39;\n📄 Output Generation:&#39;&#41;&#41;;
+    addLine&#40;&#39;\nOutput Generation:&#39;, chalk.cyan&#40;&#39;\nOutput Generation:&#39;&#41;&#41;;
     addLine&#40;&#96;   Generated File Name: &#36;&#123;config.generatedFileName&#125;&#36;&#123;isDefault || config.generatedFileName &#61;&#61;&#61; defaultConfig.generatedFileName ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
            &#96;   Generated File Name: &#36;&#123;highlightDiff&#40;config.generatedFileName, defaultConfig.generatedFileName, config.generatedFileName&#41;&#125;&#96;&#41;;
     addLine&#40;&#96;   Generate Text: &#36;&#123;config.generateText ? &#39;Yes&#39; : &#39;No&#39;&#125;&#36;&#123;isDefault || config.generateText &#61;&#61;&#61; defaultConfig.generateText ? &#39;&#39; : &#39; &#40;modified&#41;&#39;&#125;&#96;,
@@ -2430,15 +2472,15 @@ async function displayConfigInfo&#40;config: Config, isDefault: boolean&#41;: Pr
     addLine&#40;&#39;   Log File: project-fusion.log&#39;&#41;;
 
     &#47;&#47; File type configuration - structured table
-    addLine&#40;&#39;\n📁 File Extension Groups &#40;Structured View&#41;:&#39;, chalk.cyan&#40;&#39;\n📁 File Extension Groups &#40;Structured View&#41;:&#39;&#41;&#41;;
+    addLine&#40;&#39;\nFile Extension Groups &#40;Structured View&#41;:&#39;, chalk.cyan&#40;&#39;\nFile Extension Groups &#40;Structured View&#41;:&#39;&#41;&#41;;
     displayExtensionGroupsTable&#40;config, isDefault, addLine&#41;;
 
     &#47;&#47; Pattern exclusions with diff
-    addLine&#40;&#39;\n🚫 Ignore Patterns:&#39;, chalk.cyan&#40;&#39;\n🚫 Ignore Patterns:&#39;&#41;&#41;;
+    addLine&#40;&#39;\nIgnore Patterns:&#39;, chalk.cyan&#40;&#39;\nIgnore Patterns:&#39;&#41;&#41;;
     displayIgnorePatternsWithDiff&#40;config, isDefault, addLine&#41;;
 
     &#47;&#47; Preview matching files using current configuration
-    addLine&#40;&#39;\n🔍 File Discovery Preview:&#39;, chalk.cyan&#40;&#39;\n🔍 File Discovery Preview:&#39;&#41;&#41;;
+    addLine&#40;&#39;\nFile Discovery Preview:&#39;, chalk.cyan&#40;&#39;\nFile Discovery Preview:&#39;&#41;&#41;;
     try &#123;
         const &#123; glob &#125; &#61; await import&#40;&#39;glob&#39;&#41;;
         const rootDir &#61; path.resolve&#40;config.rootDirectory&#41;;
@@ -2858,6 +2900,11 @@ export async function processFusion&#40;
     
     &#47;&#47; Configure progress granularity &#40;emit every N files or on phase change&#41;
     const PROGRESS_EMIT_INTERVAL &#61; 10; &#47;&#47; Emit progress every 10 files
+    
+    &#47;&#47; Pre-compute frequently used values
+    const rootDir &#61; path.resolve&#40;config.rootDirectory&#41;;
+    const maxFileSizeKB &#61; config.maxFileSizeKB;
+    const maxTotalSizeBytes &#61; config.maxTotalSizeMB * 1024 * 1024;
 
     &#47;&#47; Helper function to write logs using the FileSystemAdapter
     const writeLogWithFs &#61; async &#40;logFilePath: string, content: string, append &#61; false, consoleOutput &#61; false&#41;: Promise&lt;void&gt; &#61;&gt; &#123;
@@ -2891,7 +2938,6 @@ export async function processFusion&#40;
     &#41;: void &#61;&gt; &#123;
         if &#40;&#33;options.onProgress&#41; &#123; return; &#125;
         
-        &#47;&#47; Check if we should emit &#40;phase change, forced, or interval reached&#41;
         const phaseChanged &#61; step &#33;&#61;&#61; progressState.currentPhase;
         progressState.filesProcessedSinceLastEmit&#43;&#43;;
         
@@ -2927,7 +2973,6 @@ export async function processFusion&#40;
             etaSeconds &#61; Math.round&#40;averageTimePerFile * remainingFiles&#41;;
         &#125;
         
-        &#47;&#47; Get current metrics from benchmark
         const metrics &#61; benchmark.getMetrics&#40;&#41;;
         const mbProcessed &#61; metrics.totalSizeMB;
         const throughputMBps &#61; metrics.throughputMBps;
@@ -3057,7 +3102,6 @@ export async function processFusion&#40;
         &#125;
 
         const ig &#61; ignoreLib&#40;&#41;;
-        const rootDir &#61; path.resolve&#40;config.rootDirectory&#41;;
 
         if &#40;config.useGitIgnoreForExcludes&#41; &#123;
             const gitIgnorePath &#61; path.join&#40;rootDir, &#39;.gitignore&#39;&#41;;
@@ -3160,8 +3204,6 @@ export async function processFusion&#40;
             &#125;;
         &#125;
 
-        const maxFileSizeKB &#61; config.maxFileSizeKB;
-        const maxTotalSizeBytes &#61; config.maxTotalSizeMB * 1024 * 1024;
         const filesToProcess: FileInfo&#91;&#93; &#61; &#91;&#93;;
         const skippedFiles: string&#91;&#93; &#61; &#91;&#93;;
         let skippedCount &#61; 0;
@@ -3171,18 +3213,18 @@ export async function processFusion&#40;
         
         for &#40;let i &#61; 0; i &lt; filePaths.length; i&#43;&#43;&#41; &#123;
             const filePath &#61; filePaths&#91;i&#93;;
-            if &#40;&#33;filePath&#41; &#123; continue; &#125; &#47;&#47; Skip if undefined &#40;shouldn&#39;t happen&#41;
+            if &#40;&#33;filePath&#41; &#123; continue; &#125;
             const relativePath &#61; path.relative&#40;rootDir, filePath&#41;;
 
             checkCancellation&#40;&#41;;
             
-            &#47;&#47; Update bytes processed for accurate throughput
-            if &#40;i &gt; 0&#41; &#123;
-                const lastFile &#61; filesToProcess.at&#40;-1&#41;;
-                if &#40;lastFile&#41; &#123;
-                    progressState.totalBytesProcessed &#43;&#61; lastFile.size;
-                    benchmark.markFileProcessed&#40;lastFile.size&#41;;
-                &#125;
+            &#47;&#47; Batch update bytes processed for better throughput calculation
+            if &#40;i &gt; 0 &amp;&amp; i &#37; 5 &#61;&#61;&#61; 0&#41; &#123;
+                &#47;&#47; Update every 5 files for better performance
+                const lastFiles &#61; filesToProcess.slice&#40;-5&#41;;
+                const batchSize &#61; lastFiles.reduce&#40;&#40;sum, file&#41; &#61;&gt; sum &#43; file.size, 0&#41;;
+                progressState.totalBytesProcessed &#43;&#61; batchSize;
+                benchmark.markFileProcessed&#40;batchSize&#41;;
             &#125;
             
             reportProgress&#40;&#39;processing&#39;, &#96;Processing &#36;&#123;relativePath&#125;&#96;, i &#43; 1, filePaths.length, relativePath&#41;;
@@ -3191,7 +3233,6 @@ export async function processFusion&#40;
                 const stats &#61; await fs.stat&#40;filePath&#41;;
                 const sizeKB &#61; stats.size &#47; 1024;
                 
-                &#47;&#47; Check if adding this file would exceed total size limit
                 if &#40;totalSizeBytes &#43; stats.size &gt; maxTotalSizeBytes&#41; &#123;
                     const totalSizeMB &#61; &#40;totalSizeBytes &#43; stats.size&#41; &#47; &#40;1024 * 1024&#41;;
                     const message &#61; &#96;Total size limit exceeded &#40;&#36;&#123;totalSizeMB.toFixed&#40;2&#41;&#125; MB &gt; &#36;&#123;config.maxTotalSizeMB&#125; MB&#41;. &#96; &#43;
@@ -3216,40 +3257,42 @@ export async function processFusion&#40;
                 if &#40;sizeKB &gt; maxFileSizeKB&#41; &#123;
                     skippedCount&#43;&#43;;
                     skippedFiles.push&#40;relativePath&#41;;
-                    const warningMsg &#61; &#96;⚠️ Large file skipped: &#36;&#123;relativePath&#125; &#40;&#36;&#123;sizeKB.toFixed&#40;2&#41;&#125; KB &gt; &#36;&#123;maxFileSizeKB&#125; KB&#41;&#96;;
+                    const warningMsg &#61; &#96;Large file skipped: &#36;&#123;relativePath&#125; &#40;&#36;&#123;sizeKB.toFixed&#40;2&#41;&#125; KB &gt; &#36;&#123;maxFileSizeKB&#125; KB&#41;&#96;;
                     logger.consoleWarn&#40;warningMsg&#41;;
                     await writeLogWithFs&#40;logFilePath, &#96;Skipped large file: &#36;&#123;relativePath&#125; &#40;&#36;&#123;sizeKB.toFixed&#40;2&#41;&#125; KB&#41;&#96;, true&#41;;
                 &#125; else &#123;
                     const safePath &#61; validateSecurePath&#40;filePath, config.rootDirectory&#41;;
                     await validateNoSymlinks&#40;createFilePath&#40;safePath&#41;, config.allowSymlinks, config&#41;;
                     
-                    checkCancellation&#40;&#41;;
-                    if &#40;await isBinaryFile&#40;safePath&#41;&#41; &#123;
+                    &#47;&#47; Batch operations to reduce async overhead
+                    const &#91;isBinary, rawFileContent&#93; &#61; await Promise.all&#40;&#91;
+                        isBinaryFile&#40;safePath&#41;,
+                        fs.readFile&#40;createFilePath&#40;safePath&#41;&#41;
+                    &#93;&#41;;
+                    
+                    if &#40;isBinary&#41; &#123;
                         await writeLogWithFs&#40;logFilePath, &#96;Skipping binary file: &#36;&#123;relativePath&#125;&#96;, true&#41;;
-                        logger.consoleWarn&#40;&#96;⚠️ Binary file skipped: &#36;&#123;relativePath&#125;&#96;&#41;;
+                        logger.consoleWarn&#40;&#96;Binary file skipped: &#36;&#123;relativePath&#125;&#96;&#41;;
                         continue;
                     &#125;
                     
                     checkCancellation&#40;&#41;;
-                    let content &#61; await fs.readFile&#40;createFilePath&#40;safePath&#41;&#41;;
+                    let content &#61; rawFileContent;
                     
                     &#47;&#47; Redact secrets if enabled
                     if &#40;config.excludeSecrets&#41; &#123;
-                        checkCancellation&#40;&#41;;
                         const &#123; redactedContent, detectedSecrets &#125; &#61; redactSecrets&#40;content&#41;;
                         if &#40;detectedSecrets.length &gt; 0&#41; &#123;
                             content &#61; redactedContent;
                         &#125;
                     &#125;
                     
-                    &#47;&#47; Validate content according to content validation rules
-                    checkCancellation&#40;&#41;;
                     const validationResult &#61; validateFileContent&#40;content, relativePath, config&#41;;
                     
                     &#47;&#47; Log warnings and errors
                     for &#40;const warning of validationResult.warnings&#41; &#123;
                         await writeLogWithFs&#40;logFilePath, &#96;Content validation warning: &#36;&#123;warning&#125;&#96;, true&#41;;
-                        logger.consoleWarn&#40;&#96;⚠️ &#36;&#123;warning&#125;&#96;&#41;;
+                        logger.consoleWarn&#40;warning&#41;;
                     &#125;
                     
                     for &#40;const error of validationResult.errors&#41; &#123;
@@ -3274,7 +3317,7 @@ export async function processFusion&#40;
                     
                     &#47;&#47; If validation failed, create error placeholder
                     &#47;&#47; BUT: don&#39;t create placeholders for minified content that we want to skip
-                    let fileContent &#61; content;
+                    let processedFileContent &#61; content;
                     let isErrorPlaceholder &#61; false;
                     
                     if &#40;&#33;validationResult.valid&#41; &#123;
@@ -3287,13 +3330,13 @@ export async function processFusion&#40;
                         if &#40;&#33;isMinified || &#33;hasOnlyLongLineIssues&#41; &#123;
                             await writeLogWithFs&#40;logFilePath, &#96;Content validation failed for: &#36;&#123;relativePath&#125;&#96;, true&#41;;
                             const errorDetails &#61; validationResult.errors.join&#40;&#39;\n&#39;&#41;;
-                            fileContent &#61; createErrorPlaceholder&#40;relativePath, errorDetails&#41;;
+                            processedFileContent &#61; createErrorPlaceholder&#40;relativePath, errorDetails&#41;;
                             isErrorPlaceholder &#61; true;
                         &#125;
                     &#125;
                     
                     let fileInfo: FileInfo &#61; &#123;
-                        content: fileContent,
+                        content: processedFileContent,
                         relativePath,
                         path: filePath,
                         size: stats.size,
@@ -3321,7 +3364,6 @@ export async function processFusion&#40;
         const finalConfig &#61; beforeFusionResult.config;
         const finalFilesToProcess &#61; beforeFusionResult.filesToProcess;
 
-        &#47;&#47; Handle preview mode - show files and exit without generating output
         if &#40;options.previewMode&#41; &#123;
             const endTime &#61; new Date&#40;&#41;;
             const duration &#61; &#40;&#40;endTime.getTime&#40;&#41; - startTime.getTime&#40;&#41;&#41; &#47; 1000&#41;.toFixed&#40;2&#41;;
@@ -3372,7 +3414,6 @@ export async function processFusion&#40;
             &#125;;
         &#125;
 
-        &#47;&#47; Check if no files to process and provide helpful message
         if &#40;finalFilesToProcess.length &#61;&#61;&#61; 0&#41; &#123;
             const endTime &#61; new Date&#40;&#41;;
             const duration &#61; &#40;&#40;endTime.getTime&#40;&#41; - startTime.getTime&#40;&#41;&#41; &#47; 1000&#41;.toFixed&#40;2&#41;;
@@ -3468,16 +3509,21 @@ export async function processFusion&#40;
         await writeLogWithFs&#40;logFilePath, &#96;Duration: &#36;&#123;duration&#125;s&#96;, true&#41;;
         await writeLogWithFs&#40;logFilePath, &#96;Total data processed: &#36;&#123;totalSizeMB&#125; MB&#96;, true&#41;;
         
-        &#47;&#47; File type statistics
-        const fileTypeStats: Record&lt;string, &#123; count: number; sizeKB: number &#125;&gt; &#61; &#123;&#125;;
+        &#47;&#47; File type statistics - optimized with Map for better performance
+        const fileTypeStats &#61; new Map&lt;string, &#123; count: number; sizeKB: number &#125;&gt;&#40;&#41;;
+        const BYTES_TO_KB &#61; 1 &#47; 1024;
         
         for &#40;const fileInfo of finalFilesToProcess&#41; &#123;
             const ext &#61; path.extname&#40;fileInfo.path&#41;.toLowerCase&#40;&#41;;
             const displayExt &#61; ext || &#39;no extension&#39;;
             
-            fileTypeStats&#91;displayExt&#93; ??&#61; &#123; count: 0, sizeKB: 0 &#125;;
-            fileTypeStats&#91;displayExt&#93;.count&#43;&#43;;
-            fileTypeStats&#91;displayExt&#93;.sizeKB &#43;&#61; fileInfo.size &#47; 1024;
+            const existing &#61; fileTypeStats.get&#40;displayExt&#41;;
+            if &#40;existing&#41; &#123;
+                existing.count&#43;&#43;;
+                existing.sizeKB &#43;&#61; fileInfo.size * BYTES_TO_KB;
+            &#125; else &#123;
+                fileTypeStats.set&#40;displayExt, &#123; count: 1, sizeKB: fileInfo.size * BYTES_TO_KB &#125;&#41;;
+            &#125;
         &#125;
         
         await writeLogWithFs&#40;logFilePath, &#96;\n--- FILE TYPE STATISTICS ---&#96;, true&#41;;
@@ -3486,9 +3532,9 @@ export async function processFusion&#40;
         await writeLogWithFs&#40;logFilePath, &#96;Files skipped &#40;too large&#41;: &#36;&#123;skippedCount&#125;&#96;, true&#41;;
         await writeLogWithFs&#40;logFilePath, &#96;Files filtered out: &#36;&#123;originalFileCount - filePaths.length&#125;&#96;, true&#41;;
         
-        if &#40;Object.keys&#40;fileTypeStats&#41;.length &gt; 0&#41; &#123;
+        if &#40;fileTypeStats.size &gt; 0&#41; &#123;
             await writeLogWithFs&#40;logFilePath, &#96;\nFile types processed:&#96;, true&#41;;
-            const sortedStats &#61; Object.entries&#40;fileTypeStats&#41;
+            const sortedStats &#61; &#91;...fileTypeStats.entries&#40;&#41;&#93;
                 .sort&#40;&#40;&#91;,a&#93;, &#91;,b&#93;&#41; &#61;&gt; b.count - a.count&#41;;
                 
             for &#40;const &#91;ext, stats&#93; of sortedStats&#41; &#123;
@@ -3591,15 +3637,15 @@ export async function processFusion&#40;
 &#47;&#47; Architecture exports &#40;alphabetical&#41;
 export &#123; DefaultFileSystemAdapter, MemoryFileSystemAdapter &#125; from &#39;.&#47;adapters&#47;file-system.js&#39;;
 export type &#123; FileSystemAdapter &#125; from &#39;.&#47;adapters&#47;file-system.js&#39;;
-export &#123; PluginManager, BasePlugin, createPlugin &#125; from &#39;.&#47;plugins&#47;plugin-system.js&#39;;
+export &#123; BasePlugin, createPlugin, PluginManager &#125; from &#39;.&#47;plugins&#47;plugin-system.js&#39;;
 export type &#123; Plugin, PluginHooks, PluginMetadata &#125; from &#39;.&#47;plugins&#47;plugin-system.js&#39;;
 export &#123; 
-    OutputStrategyManager, 
-    TextOutputStrategy, 
+    HtmlOutputStrategy,
     MarkdownOutputStrategy, 
-    HtmlOutputStrategy 
+    OutputStrategyManager, 
+    TextOutputStrategy
 &#125; from &#39;.&#47;strategies&#47;output-strategy.js&#39;;
-export type &#123; OutputStrategy, OutputContext &#125; from &#39;.&#47;strategies&#47;output-strategy.js&#39;;
+export type &#123; OutputContext, OutputStrategy &#125; from &#39;.&#47;strategies&#47;output-strategy.js&#39;;
 
 &#47;&#47; Core API &#40;alphabetical&#41;
 export &#123; 
@@ -3613,8 +3659,8 @@ export &#123;
 &#125; from &#39;.&#47;api.js&#39;;
 export &#123; BenchmarkTracker, type BenchmarkMetrics &#125; from &#39;.&#47;benchmark.js&#39;;
 export &#123; 
-    projectFusion,
-    ProjectFusionBuilder 
+    ProjectFusionBuilder,
+    projectFusion
 &#125; from &#39;.&#47;fluent.js&#39;;
 export &#123; processFusion &#125; from &#39;.&#47;fusion.js&#39;;
 
@@ -3685,12 +3731,10 @@ export class PluginManager &#123;
         const resolvedPluginPath &#61; path.resolve&#40;pluginPath&#41;;
         const resolvedRootDir &#61; path.resolve&#40;config.rootDirectory&#41;;
         
-        &#47;&#47; Check if plugin path is within root directory
         const relativePath &#61; path.relative&#40;resolvedRootDir, resolvedPluginPath&#41;;
         const isExternalPlugin &#61; relativePath.startsWith&#40;&#39;..&#39;&#41; || path.isAbsolute&#40;relativePath&#41;;
         
         if &#40;isExternalPlugin&#41; &#123;
-            &#47;&#47; Check if path is in allowedExternalPluginPaths
             if &#40;config.allowedExternalPluginPaths &amp;&amp; config.allowedExternalPluginPaths.length &gt; 0&#41; &#123;
                 const isAllowed &#61; config.allowedExternalPluginPaths.some&#40;allowedPath &#61;&gt; &#123;
                     const resolvedAllowedPath &#61; path.resolve&#40;allowedPath&#41;;
@@ -3700,7 +3744,7 @@ export class PluginManager &#123;
                 
                 if &#40;isAllowed&#41; &#123;
                     &#47;&#47; Log warning banner for external plugin usage
-                    logger.warn&#40;&#96;🚨 SECURITY WARNING: Loading external plugin from &#39;&#36;&#123;pluginPath&#125;&#39;. &#96; &#43;
+                    logger.warn&#40;&#96;SECURITY WARNING: Loading external plugin from &#39;&#36;&#123;pluginPath&#125;&#39;. &#96; &#43;
                                &#96;Ensure this plugin is from a trusted source.&#96;, &#123; pluginPath &#125;&#41;;
                     return;
                 &#125;
@@ -3719,7 +3763,6 @@ export class PluginManager &#123;
 
     async loadPlugin&#40;pluginPath: string, config?: Config&#41;: Promise&lt;void&gt; &#123;
         try &#123;
-            &#47;&#47; Validate plugin path if config is provided
             if &#40;config&#41; &#123;
                 this.validatePluginPath&#40;pluginPath, config&#41;;
             &#125;
@@ -3732,6 +3775,7 @@ export class PluginManager &#123;
             &#125;
             
             this.plugins.set&#40;plugin.metadata.name, plugin&#41;;
+            this.invalidateCache&#40;&#41;;
             logger.info&#40;&#96;Loaded plugin: &#36;&#123;plugin.metadata.name&#125; v&#36;&#123;plugin.metadata.version&#125;&#96;, &#123; pluginPath &#125;&#41;;
         &#125; catch &#40;error&#41; &#123;
             logger.error&#40;&#96;Failed to load plugin from &#36;&#123;pluginPath&#125;&#96;, &#123; error, pluginPath &#125;&#41;;
@@ -3761,26 +3805,42 @@ export class PluginManager &#123;
 
     registerPlugin&#40;plugin: Plugin&#41;: void &#123;
         this.plugins.set&#40;plugin.metadata.name, plugin&#41;;
+        this.invalidateCache&#40;&#41;;
     &#125;
 
     unregisterPlugin&#40;name: string&#41;: void &#123;
         this.plugins.delete&#40;name&#41;;
         this.pluginConfigs.delete&#40;name&#41;;
+        this.invalidateCache&#40;&#41;;
     &#125;
 
     configurePlugin&#40;name: string, config: PluginConfig&#41;: void &#123;
         this.pluginConfigs.set&#40;name, config&#41;;
+        this.invalidateCache&#40;&#41;;
     &#125;
 
     getPlugin&#40;name: string&#41;: Plugin | undefined &#123;
         return this.plugins.get&#40;name&#41;;
     &#125;
 
+    &#47;&#47; Cache enabled plugins to avoid repeated filtering
+    private _enabledPluginsCache: Plugin&#91;&#93; | null &#61; null;
+    private _cacheInvalidated &#61; true;
+    
     getEnabledPlugins&#40;&#41;: Plugin&#91;&#93; &#123;
-        return &#91;...this.plugins.values&#40;&#41;&#93;.filter&#40;plugin &#61;&gt; &#123;
-            const config &#61; this.pluginConfigs.get&#40;plugin.metadata.name&#41;;
-            return config?.enabled &#33;&#61;&#61; false;
-        &#125;&#41;;
+        if &#40;this._cacheInvalidated || this._enabledPluginsCache &#61;&#61;&#61; null&#41; &#123;
+            this._enabledPluginsCache &#61; &#91;...this.plugins.values&#40;&#41;&#93;.filter&#40;plugin &#61;&gt; &#123;
+                const config &#61; this.pluginConfigs.get&#40;plugin.metadata.name&#41;;
+                return config?.enabled &#33;&#61;&#61; false;
+            &#125;&#41;;
+            this._cacheInvalidated &#61; false;
+        &#125;
+        return this._enabledPluginsCache;
+    &#125;
+    
+    private invalidateCache&#40;&#41;: void &#123;
+        this._cacheInvalidated &#61; true;
+        this._enabledPluginsCache &#61; null;
     &#125;
 
     async initializePlugins&#40;config: Config&#41;: Promise&lt;void&gt; &#123;
@@ -3906,8 +3966,9 @@ export class PluginManager &#123;
 
     getAdditionalOutputStrategies&#40;&#41;: OutputStrategy&#91;&#93; &#123;
         const strategies: OutputStrategy&#91;&#93; &#61; &#91;&#93;;
+        const enabledPlugins &#61; this.getEnabledPlugins&#40;&#41;; &#47;&#47; Cache the result
         
-        for &#40;const plugin of this.getEnabledPlugins&#40;&#41;&#41; &#123;
+        for &#40;const plugin of enabledPlugins&#41; &#123;
             if &#40;plugin.registerOutputStrategies&#41; &#123;
                 try &#123;
                     const pluginStrategies &#61; plugin.registerOutputStrategies&#40;&#41;;
@@ -3923,8 +3984,9 @@ export class PluginManager &#123;
 
     getAdditionalFileExtensions&#40;&#41;: Record&lt;string, string&#91;&#93;&gt; &#123;
         const extensions: Record&lt;string, string&#91;&#93;&gt; &#61; &#123;&#125;;
+        const enabledPlugins &#61; this.getEnabledPlugins&#40;&#41;; &#47;&#47; Cache the result
         
-        for &#40;const plugin of this.getEnabledPlugins&#40;&#41;&#41; &#123;
+        for &#40;const plugin of enabledPlugins&#41; &#123;
             if &#40;plugin.registerFileExtensions&#41; &#123;
                 try &#123;
                     const pluginExtensions &#61; plugin.registerFileExtensions&#40;&#41;;
@@ -4000,8 +4062,8 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
         &quot;*.7z&quot;,
         &quot;*.a&quot;,
         &quot;*.avi&quot;,
-        &quot;*.bmp&quot;,
         &quot;*.blend&quot;,
+        &quot;*.bmp&quot;,
         &quot;*.class&quot;,
         &quot;*.dll&quot;,
         &quot;*.doc&quot;,
@@ -4131,29 +4193,35 @@ export interface OutputStrategy &#123;
     createStream&#40;outputPath: FilePath&#41;: WriteStream;
 &#125;
 
+&#47;&#47; Pre-create replacement map for better performance
+const HTML_ESCAPE_MAP &#61; new Map&#40;&#91;
+    &#91;&#39;&amp;&#39;, &#39;&amp;amp;&#39;&#93;,   &#47;&#47; Must be first to avoid double-escaping
+    &#91;&#39;&lt;&#39;, &#39;&amp;lt;&#39;&#93;,
+    &#91;&#39;&gt;&#39;, &#39;&amp;gt;&#39;&#93;,
+    &#91;&#39;&quot;&#39;, &#39;&amp;quot;&#39;&#93;,
+    &#91;&quot;&#39;&quot;, &#39;&amp;#39;&#39;&#93;,
+    &#91;&#39;&#47;&#39;, &#39;&amp;#47;&#39;&#93;,    &#47;&#47; Prevent closing tags in attributes
+    &#91;&#39;&#96;&#39;, &#39;&amp;#96;&#39;&#93;,    &#47;&#47; Prevent JS template literals
+    &#91;&#39;&#61;&#39;, &#39;&amp;#61;&#39;&#93;,    &#47;&#47; Prevent attribute injection
+    &#91;&#39;&#33;&#39;, &#39;&amp;#33;&#39;&#93;,    &#47;&#47; Prevent comment injection
+    &#91;&#39;&#64;&#39;, &#39;&amp;#64;&#39;&#93;,    &#47;&#47; Prevent CSS injection
+    &#91;&#39;&#36;&#39;, &#39;&amp;#36;&#39;&#93;,    &#47;&#47; Prevent template variable injection
+    &#91;&#39;&#37;&#39;, &#39;&amp;#37;&#39;&#93;,    &#47;&#47; Prevent URL encoding issues
+    &#91;&#39;&#40;&#39;, &#39;&amp;#40;&#39;&#93;,    &#47;&#47; Prevent JS execution
+    &#91;&#39;&#41;&#39;, &#39;&amp;#41;&#39;&#93;,    &#47;&#47; Prevent JS execution
+    &#91;&#39;&#43;&#39;, &#39;&amp;#43;&#39;&#93;,    &#47;&#47; Prevent URL encoding issues
+    &#91;&#39;&#123;&#39;, &#39;&amp;#123;&#39;&#93;,   &#47;&#47; Prevent template injection
+    &#91;&#39;&#125;&#39;, &#39;&amp;#125;&#39;&#93;,   &#47;&#47; Prevent template injection
+    &#91;&#39;&#91;&#39;, &#39;&amp;#91;&#39;&#93;,    &#47;&#47; Prevent array notation
+    &#91;&#39;&#93;&#39;, &#39;&amp;#93;&#39;&#93;     &#47;&#47; Prevent array notation
+&#93;&#41;;
+
+&#47;&#47; Pre-compile regex for better performance
+const HTML_ESCAPE_REGEX &#61; &#47;&#91;&#33;&quot;&#36;&#37;&amp;&#39;&#40;&#41;&#43;&#47;&lt;&#61;&gt;&#64;&#91;\&#93;&#96;&#123;&#125;&#93;&#47;g;
+
 function escapeHtml&#40;text: string&#41;: string &#123;
-    &#47;&#47; Enhanced HTML escaping for maximum security
-    &#47;&#47; Escape all potentially dangerous characters
-    return text
-        .replaceAll&#40;&#39;&amp;&#39;, &#39;&amp;amp;&#39;&#41;   &#47;&#47; Must be first to avoid double-escaping
-        .replaceAll&#40;&#39;&lt;&#39;, &#39;&amp;lt;&#39;&#41;
-        .replaceAll&#40;&#39;&gt;&#39;, &#39;&amp;gt;&#39;&#41;
-        .replaceAll&#40;&#39;&quot;&#39;, &#39;&amp;quot;&#39;&#41;
-        .replaceAll&#40;&quot;&#39;&quot;, &#39;&amp;#39;&#39;&#41;
-        .replaceAll&#40;&#39;&#47;&#39;, &#39;&amp;#47;&#39;&#41;    &#47;&#47; Prevent closing tags in attributes
-        .replaceAll&#40;&#39;&#96;&#39;, &#39;&amp;#96;&#39;&#41;    &#47;&#47; Prevent JS template literals
-        .replaceAll&#40;&#39;&#61;&#39;, &#39;&amp;#61;&#39;&#41;    &#47;&#47; Prevent attribute injection
-        .replaceAll&#40;&#39;&#33;&#39;, &#39;&amp;#33;&#39;&#41;    &#47;&#47; Prevent comment injection
-        .replaceAll&#40;&#39;&#64;&#39;, &#39;&amp;#64;&#39;&#41;    &#47;&#47; Prevent CSS injection
-        .replaceAll&#40;&#39;&#36;&#39;, &#39;&amp;#36;&#39;&#41;    &#47;&#47; Prevent template variable injection
-        .replaceAll&#40;&#39;&#37;&#39;, &#39;&amp;#37;&#39;&#41;    &#47;&#47; Prevent URL encoding issues
-        .replaceAll&#40;&#39;&#40;&#39;, &#39;&amp;#40;&#39;&#41;    &#47;&#47; Prevent JS execution
-        .replaceAll&#40;&#39;&#41;&#39;, &#39;&amp;#41;&#39;&#41;    &#47;&#47; Prevent JS execution
-        .replaceAll&#40;&#39;&#43;&#39;, &#39;&amp;#43;&#39;&#41;    &#47;&#47; Prevent URL encoding issues
-        .replaceAll&#40;&#39;&#123;&#39;, &#39;&amp;#123;&#39;&#41;   &#47;&#47; Prevent template injection
-        .replaceAll&#40;&#39;&#125;&#39;, &#39;&amp;#125;&#39;&#41;   &#47;&#47; Prevent template injection
-        .replaceAll&#40;&#39;&#91;&#39;, &#39;&amp;#91;&#39;&#41;    &#47;&#47; Prevent array notation
-        .replaceAll&#40;&#39;&#93;&#39;, &#39;&amp;#93;&#39;&#41;;   &#47;&#47; Prevent array notation
+    &#47;&#47; Enhanced HTML escaping for maximum security using optimized regex replacement
+    return text.replaceAll&#40;HTML_ESCAPE_REGEX, &#40;char&#41; &#61;&gt; HTML_ESCAPE_MAP.get&#40;char&#41; ?? char&#41;;
 &#125;
 
 export class TextOutputStrategy implements OutputStrategy &#123;
@@ -4177,7 +4245,6 @@ export class TextOutputStrategy implements OutputStrategy &#123;
         
         let processedContent &#61; fileInfo.content;
         
-        &#47;&#47; Apply aggressive sanitization if enabled
         if &#40;context.config.aggressiveContentSanitization&#41; &#123;
             processedContent &#61; aggressiveContentSanitization&#40;processedContent&#41;;
         &#125;
@@ -4195,15 +4262,20 @@ export class TextOutputStrategy implements OutputStrategy &#123;
     &#125;
 &#125;
 
+&#47;&#47; Pre-compile markdown escape regex for better performance
+const MARKDOWN_ESCAPE_REGEX &#61; &#47;&#91;&#40;&#41;&#91;\\\&#93;&#96;&#93;&#47;g;
+const MARKDOWN_ESCAPE_MAP &#61; new Map&#40;&#91;
+    &#91;&#39;&#91;&#39;, &#39;\\&#91;&#39;&#93;,
+    &#91;&#39;&#93;&#39;, &#39;\\&#93;&#39;&#93;,
+    &#91;&#39;&#40;&#39;, &#39;\\&#40;&#39;&#93;,
+    &#91;&#39;&#41;&#39;, &#39;\\&#41;&#39;&#93;,
+    &#91;&#39;&#96;&#39;, &#39;\\&#96;&#39;&#93;
+&#93;&#41;;
+
 function escapeMarkdown&#40;text: string&#41;: string &#123;
     &#47;&#47; Escape special Markdown characters that could create malicious links
     &#47;&#47; Focus on filename context - these characters could be used for link injection
-    return text
-        .replaceAll&#40;&#39;&#91;&#39;, &#39;\\&#91;&#39;&#41;      &#47;&#47; Prevent link start
-        .replaceAll&#40;&#39;&#93;&#39;, &#39;\\&#93;&#39;&#41;      &#47;&#47; Prevent link end
-        .replaceAll&#40;&#39;&#40;&#39;, &#39;\\&#40;&#39;&#41;      &#47;&#47; Prevent URL start
-        .replaceAll&#40;&#39;&#41;&#39;, &#39;\\&#41;&#39;&#41;      &#47;&#47; Prevent URL end
-        .replaceAll&#40;&#39;&#96;&#39;, &#39;\\&#96;&#39;&#41;;     &#47;&#47; Prevent code injection
+    return text.replaceAll&#40;MARKDOWN_ESCAPE_REGEX, &#40;char&#41; &#61;&gt; MARKDOWN_ESCAPE_MAP.get&#40;char&#41; ?? char&#41;;
 &#125;
 
 function sanitizeMarkdownContent&#40;content: string&#41;: string &#123;
@@ -4320,7 +4392,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 &#36;&#123;tocEntries&#125;
 
@@ -4333,17 +4405,15 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         const anchor &#61; this.slugger.slug&#40;fileInfo.relativePath&#41;;
         let processedContent &#61; fileInfo.content;
         
-        &#47;&#47; Apply aggressive sanitization if enabled
         if &#40;context.config.aggressiveContentSanitization&#41; &#123;
             processedContent &#61; aggressiveContentSanitization&#40;processedContent&#41;;
         &#125;
         
-        &#47;&#47; Always apply basic markdown sanitization
         processedContent &#61; sanitizeMarkdownContent&#40;processedContent&#41;;
         
         if &#40;fileInfo.isErrorPlaceholder&#41; &#123;
             &#47;&#47; For error placeholders, display without code block
-            return &#96;## ⚠️ &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
+            return &#96;## Error: &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 &gt; **Content Validation Error**
 
@@ -4356,7 +4426,7 @@ export class MarkdownOutputStrategy implements OutputStrategy &#123;
         const basename &#61; path.basename&#40;fileInfo.path&#41;;
         const language &#61; getMarkdownLanguage&#40;fileExt || basename&#41;;
 
-        return &#96;## 📄 &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
+        return &#96;## &#36;&#123;escapeMarkdown&#40;fileInfo.relativePath&#41;&#125; &#123;#&#36;&#123;anchor&#125;&#125;
 
 \&#96;\&#96;\&#96;&#36;&#123;language&#125;
 &#36;&#123;processedContent&#125;
@@ -4430,12 +4500,10 @@ a&#123;color:#00e;text-decoration:underline&#125;
         
         let processedContent &#61; fileInfo.content;
         
-        &#47;&#47; Apply aggressive sanitization if enabled
         if &#40;context.config.aggressiveContentSanitization&#41; &#123;
             processedContent &#61; aggressiveContentSanitization&#40;processedContent&#41;;
         &#125;
         
-        &#47;&#47; Always apply HTML escaping
         const escapedContent &#61; escapeHtml&#40;processedContent&#41;;
         
         if &#40;fileInfo.isErrorPlaceholder&#41; &#123;
@@ -4515,7 +4583,6 @@ export class OutputStrategyManager &#123;
         
         await fs.ensureDir&#40;path.dirname&#40;outputPath&#41;&#41;;
         
-        &#47;&#47; Check if we&#39;re using a memory file system &#40;for testing&#41;
         const isMemoryFS &#61; fs.constructor.name &#61;&#61;&#61; &#39;MemoryFileSystemAdapter&#39;;
         
         if &#40;isMemoryFS&#41; &#123;
@@ -4588,13 +4655,11 @@ export class OutputStrategyManager &#123;
         return new Promise&lt;FilePath&gt;&#40;&#40;resolve, reject&#41; &#61;&gt; &#123;
             let filesWritten &#61; 0;
             
-            &#47;&#47; Handle stream errors
             outputStream.on&#40;&#39;error&#39;, &#40;err&#41; &#61;&gt; &#123;
                 closeStream&#40;&#41;;
                 reject&#40;err&#41;;
             &#125;&#41;;
             
-            &#47;&#47; Handle stream finish
             outputStream.on&#40;&#39;finish&#39;, &#40;&#41; &#61;&gt; &#123;
                 streamClosed &#61; true;
                 resolve&#40;outputPath&#41;;
@@ -4685,10 +4750,13 @@ export class OutputStrategyManager &#123;
                 
                 filesWritten&#43;&#43;;
                 
-                &#47;&#47; Write file content with backpressure handling
-                if &#40;fileContent.length &gt; 65_536&#41; &#123;
-                    &#47;&#47; For large content, write in chunks
-                    const chunkSize &#61; 65_536; &#47;&#47; 64KB chunks
+                &#47;&#47; Write file content with backpressure handling - optimized chunking
+                const CHUNK_SIZE &#61; 65_536; &#47;&#47; 64KB chunks
+                const contentByteLength &#61; Buffer.byteLength&#40;fileContent, &#39;utf8&#39;&#41;;
+                totalBytesWritten &#43;&#61; contentByteLength;
+                
+                if &#40;fileContent.length &gt; CHUNK_SIZE&#41; &#123;
+                    &#47;&#47; For large content, write in chunks with optimized slicing
                     let offset &#61; 0;
                     
                     const writeNextChunk &#61; &#40;&#41;: void &#61;&gt; &#123;
@@ -4705,31 +4773,28 @@ export class OutputStrategyManager &#123;
                             return;
                         &#125;
                         
-                        const chunk &#61; fileContent.slice&#40;offset, offset &#43; chunkSize&#41;;
-                        offset &#43;&#61; chunkSize;
-                        
-                        totalBytesWritten &#43;&#61; Buffer.byteLength&#40;chunk, &#39;utf8&#39;&#41;;
+                        const nextOffset &#61; Math.min&#40;offset &#43; CHUNK_SIZE, fileContent.length&#41;;
+                        const chunk &#61; fileContent.slice&#40;offset, nextOffset&#41;;
+                        offset &#61; nextOffset;
                         
                         if &#40;&#33;outputStream.write&#40;chunk&#41;&#41; &#123;
                             &#47;&#47; Wait for drain event before continuing
                             outputStream.once&#40;&#39;drain&#39;, writeNextChunk&#41;;
+                        &#125; else if &#40;offset &lt; fileContent.length&#41; &#123;
+                            &#47;&#47; Continue immediately - use setTimeout for better performance than setImmediate
+                            setTimeout&#40;writeNextChunk, 0&#41;;
                         &#125; else &#123;
-                            &#47;&#47; Continue immediately
-                            setImmediate&#40;writeNextChunk&#41;;
+                            processNextFile&#40;&#41;;
                         &#125;
                     &#125;;
                     
                     writeNextChunk&#40;&#41;;
+                &#125; else if &#40;&#33;outputStream.write&#40;fileContent&#41;&#41; &#123;
+                    &#47;&#47; Wait for drain event before continuing
+                    outputStream.once&#40;&#39;drain&#39;, processNextFile&#41;;
                 &#125; else &#123;
-                    totalBytesWritten &#43;&#61; Buffer.byteLength&#40;fileContent, &#39;utf8&#39;&#41;;
-                    
-                    if &#40;&#33;outputStream.write&#40;fileContent&#41;&#41; &#123;
-                        &#47;&#47; Wait for drain event before continuing
-                        outputStream.once&#40;&#39;drain&#39;, processNextFile&#41;;
-                    &#125; else &#123;
-                        &#47;&#47; Continue with next file
-                        setImmediate&#40;processNextFile&#41;;
-                    &#125;
+                    &#47;&#47; Continue with next file
+                    setImmediate&#40;processNextFile&#41;;
                 &#125;
             &#125;;
             
@@ -4933,8 +4998,8 @@ export const defaultConfig &#61; &#123;
         &quot;*.7z&quot;,
         &quot;*.a&quot;,
         &quot;*.avi&quot;,
-        &quot;*.bmp&quot;,
         &quot;*.blend&quot;,
+        &quot;*.bmp&quot;,
         &quot;*.class&quot;,
         &quot;*.dll&quot;,
         &quot;*.doc&quot;,
@@ -4951,6 +5016,7 @@ export const defaultConfig &#61; &#123;
         &quot;*.jpeg&quot;,
         &quot;*.jpg&quot;,
         &quot;*.key&quot;,
+        &quot;*.keystore&quot;,
         &quot;*.log&quot;,
         &quot;*.min.css&quot;,
         &quot;*.min.js&quot;,
@@ -4959,6 +5025,7 @@ export const defaultConfig &#61; &#123;
         &quot;*.mp4&quot;,
         &quot;*.o&quot;,
         &quot;*.obj&quot;,
+        &quot;*.p12&quot;,
         &quot;*.pdf&quot;,
         &quot;*.pem&quot;,
         &quot;*.png&quot;,
@@ -4984,19 +5051,17 @@ export const defaultConfig &#61; &#123;
         &quot;*.zip&quot;,
         &quot;**&#47;credentials&#47;*&quot;,
         &quot;**&#47;secrets&#47;*&quot;,
+        &quot;.*history&quot;,
+        &quot;.aws&#47;&quot;,
+        &quot;.azure&#47;&quot;,
         &quot;.DS_Store&quot;,
         &quot;.env&quot;,
         &quot;.env.*&quot;,
-        &quot;.idea&#47;&quot;,
-        &quot;.vscode&#47;&quot;,
-        &quot;.ssh&#47;&quot;,
-        &quot;.aws&#47;&quot;,
-        &quot;.azure&#47;&quot;,
         &quot;.gcloud&#47;&quot;,
-        &quot;*.p12&quot;,
-        &quot;*.keystore&quot;,
-        &quot;.*history&quot;,
+        &quot;.idea&#47;&quot;,
         &quot;.npmrc&quot;,
+        &quot;.ssh&#47;&quot;,
+        &quot;.vscode&#47;&quot;,
         &quot;build&#47;&quot;,
         &quot;dist&#47;&quot;,
         &quot;dist&#47;**&#47;*.map&quot;,
@@ -5143,7 +5208,7 @@ export function formatTimestamp&#40;date?: Date&#41;: string &#123;
  * Generate a helpful message when no files match the criteria
  *&#47;
 export function generateHelpfulEmptyMessage&#40;extensions: string&#91;&#93;, config: Config&#41;: string &#123;
-    const messages &#61; &#91;&#39;💡 Suggestions to find files:&#39;&#93;;
+    const messages &#61; &#91;&#39;Suggestions to find files:&#39;&#93;;
     
     &#47;&#47; Suggest different extension groups
     const availableGroups &#61; Object.keys&#40;config.parsedFileExtensions&#41;;
@@ -5256,7 +5321,7 @@ export function validateSecurePath&#40;filePath: string, rootDirectory: string&#
         
         &#47;&#47; If relative path starts with &#39;..&#39; or is absolute, the file escapes the root
         if &#40;relativePath.startsWith&#40;&#39;..&#39;&#41; || path.isAbsolute&#40;relativePath&#41;&#41; &#123;
-            const warningMsg &#61; &#96;🚨 SECURITY: Path traversal detected: &#39;&#36;&#123;filePath&#125;&#39; escapes root directory &#39;&#36;&#123;rootDirectory&#125;&#39;&#96;;
+            const warningMsg &#61; &#96;SECURITY: Path traversal detected: &#39;&#36;&#123;filePath&#125;&#39; escapes root directory &#39;&#36;&#123;rootDirectory&#125;&#39;&#96;;
             logger.consoleWarn&#40;warningMsg&#41;;
             throw new FusionError&#40;
                 &#96;Path traversal detected: &#39;&#36;&#123;filePath&#125;&#39; escapes root directory &#39;&#36;&#123;rootDirectory&#125;&#39;&#96;,
@@ -5293,7 +5358,7 @@ export async function validateNoSymlinks&#40;filePath: string, allowSymlinks &#6
         
         if &#40;stats.isSymbolicLink&#40;&#41;&#41; &#123;
             if &#40;&#33;allowSymlinks&#41; &#123;
-                const warningMsg &#61; &#96;🚨 SECURITY: Symbolic link not allowed: &#39;&#36;&#123;filePath&#125;&#39;&#96;;
+                const warningMsg &#61; &#96;SECURITY: Symbolic link not allowed: &#39;&#36;&#123;filePath&#125;&#39;&#96;;
                 logger.consoleWarn&#40;warningMsg&#41;;
                 throw new FusionError&#40;
                     &#96;Symbolic link not allowed: &#39;&#36;&#123;filePath&#125;&#39;&#96;,
@@ -5383,7 +5448,7 @@ async function auditSymlink&#40;symlinkPath: string, config?: Config&#41;: Promi
             tracker.entries.push&#40;auditEntry&#41;;
             
             &#47;&#47; Log with security warning banner
-            logger.warn&#40;&#96;🔗 SYMLINK AUDIT &#91;&#36;&#123;tracker.count&#125;&#93;: &#39;&#36;&#123;symlinkPath&#125;&#39; → &#39;&#36;&#123;resolvedTarget&#125;&#39;&#96;, &#123;
+            logger.warn&#40;&#96;SYMLINK AUDIT &#91;&#36;&#123;tracker.count&#125;&#93;: &#39;&#36;&#123;symlinkPath&#125;&#39; → &#39;&#36;&#123;resolvedTarget&#125;&#39;&#96;, &#123;
                 symlink: symlinkPath,
                 target: resolvedTarget,
                 targetExists,
@@ -5394,7 +5459,7 @@ async function auditSymlink&#40;symlinkPath: string, config?: Config&#41;: Promi
             &#125;&#41;;
         &#125; else if &#40;tracker.entries.length &#61;&#61;&#61; maxEntries&#41; &#123;
             &#47;&#47; Log limit reached message once
-            logger.warn&#40;&#96;🔗 SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged &#40;limit: &#36;&#123;maxEntries&#125;&#41;&#96;, &#123;
+            logger.warn&#40;&#96;SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged &#40;limit: &#36;&#123;maxEntries&#125;&#41;&#96;, &#123;
                 totalSymlinks: tracker.count,
                 maxEntries,
                 sessionKey
@@ -5403,7 +5468,7 @@ async function auditSymlink&#40;symlinkPath: string, config?: Config&#41;: Promi
         
     &#125; catch &#40;error&#41; &#123;
         &#47;&#47; Log symlink resolution failure
-        logger.error&#40;&#96;🔗 SYMLINK AUDIT ERROR: Failed to resolve &#39;&#36;&#123;symlinkPath&#125;&#39;&#96;, &#123;
+        logger.error&#40;&#96;SYMLINK AUDIT ERROR: Failed to resolve &#39;&#36;&#123;symlinkPath&#125;&#39;&#96;, &#123;
             symlink: symlinkPath,
             error: error instanceof Error ? error.message : String&#40;error&#41;,
             auditCount: tracker.count
@@ -5460,31 +5525,36 @@ export async function isBinaryFile&#40;filePath: string, sampleSize &#61; 1024&#
         const buffer &#61; await fs.readFile&#40;filePath, &#123; encoding: null &#125;&#41;;
         const actualBytesToCheck &#61; Math.min&#40;buffer.length, bytesToRead&#41;;
         
-        &#47;&#47; Check for null bytes which indicate binary content
-        for &#40;let i &#61; 0; i &lt; actualBytesToCheck; i&#43;&#43;&#41; &#123;
-            if &#40;buffer&#91;i&#93; &#61;&#61;&#61; 0&#41; &#123;
-                binaryFileCache.set&#40;filePath, true&#41;;
-                return true;
-            &#125;
+        &#47;&#47; Early exit for null bytes - most efficient binary detection
+        const nullByteIndex &#61; buffer.subarray&#40;0, actualBytesToCheck&#41;.indexOf&#40;0&#41;;
+        if &#40;nullByteIndex &#33;&#61;&#61; -1&#41; &#123;
+            binaryFileCache.set&#40;filePath, true&#41;;
+            return true;
         &#125;
         
-        &#47;&#47; Check for high ratio of non-printable characters
+        &#47;&#47; Optimized non-printable character check using bit operations
         let nonPrintable &#61; 0;
+        const threshold &#61; Math.floor&#40;actualBytesToCheck * 0.3&#41;; &#47;&#47; Pre-calculate 30&#37; threshold
+        
         for &#40;let i &#61; 0; i &lt; actualBytesToCheck; i&#43;&#43;&#41; &#123;
             const byte &#61; buffer&#91;i&#93;;
-            if &#40;byte &#61;&#61;&#61; undefined&#41; &#123; continue; &#125; &#47;&#47; Skip undefined bytes
-            &#47;&#47; Allow common whitespace chars: space&#40;32&#41;, tab&#40;9&#41;, newline&#40;10&#41;, carriage return&#40;13&#41;
-            if &#40;byte &lt; 32 &amp;&amp; byte &#33;&#61;&#61; 9 &amp;&amp; byte &#33;&#61;&#61; 10 &amp;&amp; byte &#33;&#61;&#61; 13&#41; &#123;
+            if &#40;byte &#61;&#61;&#61; undefined&#41; &#123; continue; &#125;
+            
+            &#47;&#47; Use bit operations for faster range checks
+            &#47;&#47; Allow common whitespace: tab&#40;9&#41;, newline&#40;10&#41;, carriage return&#40;13&#41;, space&#40;32&#41;
+            if &#40;&#40;byte &lt; 32 &amp;&amp; byte &#33;&#61;&#61; 9 &amp;&amp; byte &#33;&#61;&#61; 10 &amp;&amp; byte &#33;&#61;&#61; 13&#41; || byte &gt; 126&#41; &#123;
                 nonPrintable&#43;&#43;;
-            &#125; else if &#40;byte &gt; 126&#41; &#123;
-                nonPrintable&#43;&#43;;
+                &#47;&#47; Early exit if threshold already exceeded
+                if &#40;nonPrintable &gt; threshold&#41; &#123;
+                    binaryFileCache.set&#40;filePath, true&#41;;
+                    return true;
+                &#125;
             &#125;
         &#125;
         
-        &#47;&#47; If more than 30&#37; non-printable, consider it binary
-        const isBinary &#61; &#40;nonPrintable &#47; actualBytesToCheck&#41; &gt; 0.3;
-        binaryFileCache.set&#40;filePath, isBinary&#41;;
-        return isBinary;
+        &#47;&#47; File is text-based
+        binaryFileCache.set&#40;filePath, false&#41;;
+        return false;
     &#125; catch &#123;
         &#47;&#47; If we can&#39;t read the file, assume it&#39;s not binary
         binaryFileCache.set&#40;filePath, false&#41;;
@@ -5737,6 +5807,13 @@ export const SECRET_PATTERNS &#61; &#91;
     &#123; name: &#39;Password Field&#39;, regex: &#47;&#40;password&#91;_-&#93;?&#91;:&#61;&#93;\s*&#91;&quot;&#39;&#93;?&#91;^\s&quot;&#39;&#93;&#123;8,&#125;&#91;&quot;&#39;&#93;?&#41;&#47;i &#125;
 &#93;;
 
+&#47;&#47; Pre-compile global regexes for better performance
+const GLOBAL_SECRET_PATTERNS &#61; SECRET_PATTERNS.map&#40;pattern &#61;&gt; &#40;&#123;
+    name: pattern.name,
+    &#47;&#47; eslint-disable-next-line security&#47;detect-non-literal-regexp
+    regex: new RegExp&#40;pattern.regex.source, pattern.regex.global ? pattern.regex.flags : &#96;&#36;&#123;pattern.regex.flags&#125;g&#96;&#41;
+&#125;&#41;&#41;;
+
 &#47;**
  * Redact secrets from content by replacing them with &#91;REDACTED&#93;
  * &#64;param content File content to redact
@@ -5747,20 +5824,18 @@ export function redactSecrets&#40;content: string&#41;: &#123; redactedContent: 
     const detectedSecrets: string&#91;&#93; &#61; &#91;&#93;;
     const seenTypes &#61; new Set&lt;string&gt;&#40;&#41;;
     
-    for &#40;const pattern of SECRET_PATTERNS&#41; &#123;
+    &#47;&#47; Use pre-compiled global regexes for better performance
+    for &#40;const pattern of GLOBAL_SECRET_PATTERNS&#41; &#123;
         if &#40;pattern.regex.test&#40;redactedContent&#41;&#41; &#123;
             if &#40;&#33;seenTypes.has&#40;pattern.name&#41;&#41; &#123;
                 detectedSecrets.push&#40;pattern.name&#41;;
                 seenTypes.add&#40;pattern.name&#41;;
             &#125;
-            &#47;&#47; Replace all matches with &#91;REDACTED&#93;
-            &#47;&#47; Create a global version of the regex if not already global
-            const globalFlags &#61; pattern.regex.global ? pattern.regex.flags : &#96;&#36;&#123;pattern.regex.flags&#125;g&#96;;
-            redactedContent &#61; redactedContent.replace&#40;
-                &#47;&#47; eslint-disable-next-line security&#47;detect-non-literal-regexp
-                new RegExp&#40;pattern.regex.source, globalFlags&#41;,
-                &#39;&#91;REDACTED&#93;&#39;
-            &#41;;
+            &#47;&#47; Reset regex lastIndex since we&#39;re reusing compiled regexes
+            pattern.regex.lastIndex &#61; 0;
+            redactedContent &#61; redactedContent.replace&#40;pattern.regex, &#39;&#91;REDACTED&#93;&#39;&#41;;
+            &#47;&#47; Reset again for next potential use
+            pattern.regex.lastIndex &#61; 0;
         &#125;
     &#125;
     
@@ -5803,9 +5878,24 @@ export function validateFileContent&#40;
         &#125;
     &#125;
 
-    &#47;&#47; Check for long lines
-    const lines &#61; content.split&#40;&#39;\n&#39;&#41;;
-    const maxLineLength &#61; Math.max&#40;...lines.map&#40;line &#61;&gt; line.length&#41;&#41;;
+    &#47;&#47; Check for long lines - optimized to avoid creating line array if not needed
+    let maxLineLength &#61; 0;
+    let currentLineLength &#61; 0;
+    
+    for &#40;let i &#61; 0; i &lt; content.length; i&#43;&#43;&#41; &#123;
+        if &#40;content&#91;i&#93; &#61;&#61;&#61; &#39;\n&#39;&#41; &#123;
+            maxLineLength &#61; Math.max&#40;maxLineLength, currentLineLength&#41;;
+            currentLineLength &#61; 0;
+            &#47;&#47; Early exit if already over limit
+            if &#40;maxLineLength &gt; config.maxLineLength&#41; &#123;
+                break;
+            &#125;
+        &#125; else &#123;
+            currentLineLength&#43;&#43;;
+        &#125;
+    &#125;
+    maxLineLength &#61; Math.max&#40;maxLineLength, currentLineLength&#41;; &#47;&#47; Handle last line
+    
     if &#40;maxLineLength &gt; config.maxLineLength&#41; &#123;
         result.issues.hasLongLines &#61; true;
         result.issues.maxLineLength &#61; maxLineLength;
@@ -6170,7 +6260,6 @@ function initializeVersion&#40;&#41;: string &#123;
     &#125;
 
     try &#123;
-        &#47;&#47; Try to get current directory and package.json path
         const __filename &#61; fileURLToPath&#40;import.meta.url&#41;;
         const __dirname &#61; path.dirname&#40;__filename&#41;;
         const packagePath &#61; path.resolve&#40;__dirname, &#39;..&#39;, &#39;package.json&#39;&#41;;
@@ -6185,7 +6274,6 @@ function initializeVersion&#40;&#41;: string &#123;
         cachedVersion &#61; packageJson.version;
         return cachedVersion;
     &#125; catch &#123;
-        &#47;&#47; Fallback version
         cachedVersion &#61; &#39;1.0.0-unknown&#39;;
         return cachedVersion;
     &#125;
@@ -6201,12 +6289,10 @@ export async function getVersion&#40;&#41;: Promise&lt;string&gt; &#123;
     &#125;
 
     try &#123;
-        &#47;&#47; Try modern JSON import syntax &#40;Node 20&#43;&#41;
         const pkg &#61; await import&#40;&#39;..&#47;package.json&#39;, &#123; with: &#123; type: &#39;json&#39; &#125; &#125;&#41;;
         cachedVersion &#61; pkg.default.version;
         return cachedVersion;
     &#125; catch &#123;
-        &#47;&#47; Use the synchronous fallback
         return initializeVersion&#40;&#41;;
     &#125;
 &#125;
@@ -9307,6 +9393,17 @@ import &#123; processFusion &#125; from &#39;..&#47;src&#47;fusion.js&#39;;
 import &#123; createFilePath, type Config &#125; from &#39;..&#47;src&#47;types.js&#39;;
 import &#123; validateFileContent, isMinifiedContent, defaultConfig &#125; from &#39;..&#47;src&#47;utils.js&#39;;
 
+&#47;&#47; Shared test configuration factory for better consistency
+const createTestConfig &#61; &#40;overrides: Partial&lt;Config&gt; &#61; &#123;&#125;&#41;: Config &#61;&gt; &#40;&#123;
+    ...defaultConfig,
+    generateHtml: false,
+    generateMarkdown: false,
+    generateText: true,
+    rootDirectory: &#39;.&#39;,
+    parsedFileExtensions: &#123; web: &#91;&#39;.js&#39;&#93; &#125;,
+    ...overrides
+&#125;&#41;;
+
 describe&#40;&#39;Content Validation Tests&#39;, &#40;&#41; &#61;&gt; &#123;
     describe&#40;&#39;Base64 Block Detection&#39;, &#40;&#41; &#61;&gt; &#123;
         const validationConfig: Config &#61; &#123;
@@ -9467,16 +9564,7 @@ describe&#40;&#39;Content Validation Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             memFS.addFile&#40;&#39;problem.js&#39;, &#96;const data&#61;&quot;&#36;&#123;largeBase64&#125;&quot;;&#96;&#41;;
             memFS.addFile&#40;&#39;normal.js&#39;, &#39;console.log&#40;&quot;hello&quot;&#41;;&#39;&#41;;
             
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
+            const config &#61; createTestConfig&#40;&#41;;
 
             await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
             
@@ -9499,16 +9587,7 @@ describe&#40;&#39;Content Validation Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             memFS.addFile&#40;&#39;minified.js&#39;, minifiedContent&#41;;
             memFS.addFile&#40;&#39;normal.js&#39;, &#39;console.log&#40;&quot;hello&quot;&#41;;&#39;&#41;;
             
-            const config: Config &#61; &#123;
-                ...defaultConfig,
-                rootDirectory: &#39;.&#39;,
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: &#123;
-                    web: &#91;&#39;.js&#39;&#93;
-                &#125;
-            &#125;;
+            const config &#61; createTestConfig&#40;&#41;;
 
             const result &#61; await processFusion&#40;config, &#123; fs: memFS &#125;&#41;;
             
@@ -12191,9 +12270,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape brackets in the header
-            expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;## test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
             &#47;&#47; Should not contain unescaped brackets
-            expect&#40;result&#41;.not.toContain&#40;&#39;## 📄 test&#91;malicious&#93;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;## test&#91;malicious&#93;.js &#123;#&#39;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should escape parentheses in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
@@ -12203,9 +12282,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape parentheses in the header
-            expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#40;malicious\\&#41;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;## test\\&#40;malicious\\&#41;.js &#123;#&#39;&#41;;
             &#47;&#47; Should not contain unescaped parentheses
-            expect&#40;result&#41;.not.toContain&#40;&#39;## 📄 test&#40;malicious&#41;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;## test&#40;malicious&#41;.js &#123;#&#39;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should escape backticks in file headers&#39;, &#40;&#41; &#61;&gt; &#123;
@@ -12215,9 +12294,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape backticks in the header
-            expect&#40;result&#41;.toContain&#40;&#39;## 📄 test\\&#96;malicious\\&#96;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;## test\\&#96;malicious\\&#96;.js &#123;#&#39;&#41;;
             &#47;&#47; Should not contain unescaped backticks
-            expect&#40;result&#41;.not.toContain&#40;&#39;## 📄 test&#96;malicious&#96;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;## test&#96;malicious&#96;.js &#123;#&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 
@@ -12234,9 +12313,9 @@ describe&#40;&#39;Markdown Escaping&#39;, &#40;&#41; &#61;&gt; &#123;
             const result &#61; strategy.processFile&#40;fileInfo, context&#41;;
             
             &#47;&#47; Should escape brackets in error placeholder header
-            expect&#40;result&#41;.toContain&#40;&#39;## ⚠️ test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.toContain&#40;&#39;## Error: test\\&#91;malicious\\&#93;.js &#123;#&#39;&#41;;
             &#47;&#47; Should not contain unescaped brackets
-            expect&#40;result&#41;.not.toContain&#40;&#39;## ⚠️ test&#91;malicious&#93;.js &#123;#&#39;&#41;;
+            expect&#40;result&#41;.not.toContain&#40;&#39;## Error: test&#91;malicious&#93;.js &#123;#&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
 
@@ -13121,27 +13200,27 @@ const performanceConfig &#61; &#123;
 &#125;;
 
 &#47;**
- * Generate normal file content without problematic patterns - optimized
+ * Pre-generate content to avoid repeated generation during tests - optimized for memory
  *&#47;
 const BASE_CONTENT_TEMPLATE &#61; &#39;function test&#40;&#41; &#123; return 42; &#125;&#39;;
-function generateNormalContent&#40;sizeKB: number&#41;: string &#123;
-    const repetitions &#61; Math.max&#40;1, Math.floor&#40;&#40;sizeKB * 1024&#41; &#47; BASE_CONTENT_TEMPLATE.length&#41;&#41;;
-    return BASE_CONTENT_TEMPLATE.repeat&#40;repetitions&#41;;
-&#125;
-
-&#47;**
- * Pre-generate content to avoid repeated generation during tests
- *&#47;
 const PREGENERATED_CONTENT &#61; &#123;
     small: &#39;console.log&#40;&quot;small&quot;&#41;;&#39;,
-    medium: generateNormalContent&#40;10&#41;,
-    large: generateNormalContent&#40;50&#41;
+    medium: BASE_CONTENT_TEMPLATE.repeat&#40;Math.floor&#40;&#40;10 * 1024&#41; &#47; BASE_CONTENT_TEMPLATE.length&#41;&#41;,
+    large: BASE_CONTENT_TEMPLATE.repeat&#40;Math.floor&#40;&#40;50 * 1024&#41; &#47; BASE_CONTENT_TEMPLATE.length&#41;&#41;
 &#125;;
+
+&#47;&#47; Utility for generating dynamic content when needed &#40;unused but may be needed for future tests&#41;
+&#47;&#47; const generateContent &#61; &#40;sizeKB: number&#41;: string &#61;&gt; &#123;
+&#47;&#47;     const repetitions &#61; Math.max&#40;1, Math.floor&#40;&#40;sizeKB * 1024&#41; &#47; BASE_CONTENT_TEMPLATE.length&#41;&#41;;
+&#47;&#47;     return BASE_CONTENT_TEMPLATE.repeat&#40;repetitions&#41;;
+&#47;&#47; &#125;;
 
 describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123;
     const testDir &#61; join&#40;process.cwd&#40;&#41;, &#39;temp&#39;, &#39;performance-test&#39;&#41;;
+    let originalCwd: string;
 
     beforeEach&#40;async &#40;&#41; &#61;&gt; &#123;
+        originalCwd &#61; process.cwd&#40;&#41;;
         if &#40;existsSync&#40;testDir&#41;&#41; &#123;
             await rm&#40;testDir, &#123; recursive: true, force: true &#125;&#41;;
         &#125;
@@ -13150,7 +13229,7 @@ describe&#40;&#39;Performance Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
     &#125;&#41;;
 
     afterEach&#40;async &#40;&#41; &#61;&gt; &#123;
-        process.chdir&#40;join&#40;testDir, &#39;..&#39;, &#39;..&#39;&#41;&#41;;
+        process.chdir&#40;originalCwd&#41;;
         if &#40;existsSync&#40;testDir&#41;&#41; &#123;
             await rm&#40;testDir, &#123; recursive: true, force: true &#125;&#41;;
         &#125;
@@ -18680,7 +18759,7 @@ export class ApiClient &#123;
             expect&#40;htmlContent&#41;.toContain&#40;&#39;example.ts&#39;&#41;;
             
             &#47;&#47; Both should have proper structure
-            expect&#40;mdContent&#41;.toContain&#40;&#39;## 📄 example.ts&#39;&#41;;
+            expect&#40;mdContent&#41;.toContain&#40;&#39;## example.ts&#39;&#41;;
             expect&#40;htmlContent&#41;.toContain&#40;&#39;&lt;h2 id&#61;&quot;examplets&quot;&gt;example.ts&lt;&#47;h2&gt;&#39;&#41;;
         &#125;&#41;;
     &#125;&#41;;
@@ -19859,8 +19938,10 @@ describe&#40;&#39;utils&#39;, &#40;&#41; &#61;&gt; &#123;
   describe&#40;&#39;loadConfig&#39;, &#40;&#41; &#61;&gt; &#123;
     const testDir &#61; path.resolve&#40;&#39;.&#47;temp&#47;test-config&#39;&#41;;
     const configFile &#61; path.join&#40;testDir, &#39;project-fusion.json&#39;&#41;;
+    let originalCwd: string;
 
     beforeEach&#40;async &#40;&#41; &#61;&gt; &#123;
+      originalCwd &#61; process.cwd&#40;&#41;;
       await fs.ensureDir&#40;testDir&#41;;
       &#47;&#47; Set working directory to test directory
       process.chdir&#40;testDir&#41;;
@@ -19868,7 +19949,7 @@ describe&#40;&#39;utils&#39;, &#40;&#41; &#61;&gt; &#123;
 
     afterEach&#40;async &#40;&#41; &#61;&gt; &#123;
       &#47;&#47; Restore original working directory
-      process.chdir&#40;path.resolve&#40;&#39;.&#47;..&#47;..&#47;&#39;&#41;&#41;;
+      process.chdir&#40;originalCwd&#41;;
       await fs.remove&#40;testDir&#41;;
     &#125;&#41;;
 

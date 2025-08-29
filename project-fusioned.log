@@ -1,6 +1,6 @@
 === PROJECT FUSION SESSION START ===
-Session ID: mex8jhz8-dgjy7p5rt
-Start time: 2025-08-29T19:38:13.313Z
+Session ID: mexa3coi-6tubliv8i
+Start time: 2025-08-29T20:21:39.183Z
 Working directory: .
 Generated file name: project-fusioned
 
@@ -17,16 +17,16 @@ Directory scanning:
   - Parse subdirectories: true
   - Use .gitignore: true
   - Allow symlinks: false
-Ignore patterns: *.7z, *.a, *.avi, *.bmp, *.blend, *.class, *.dll, *.doc, *.docx, *.dylib, *.exe, *.fbx, *.flac, *.flv, *.gif, *.gz, *.ico, *.jar, *.jpeg, *.jpg, *.key, *.log, *.min.css, *.min.js, *.mov, *.mp3, *.mp4, *.o, *.obj, *.pdf, *.pem, *.png, *.ppt, *.pptx, *.pyc, *.pyo, *.rar, *.so, *.svg, *.swo, *.swp, *.tar, *.tgz, *.uasset, *.unitypackage, *.war, *.wav, *.webp, *.wmv, *.xls, *.xlsx, *.zip, **/credentials/*, **/secrets/*, .DS_Store, .env, .env.*, .idea/, .vscode/, .ssh/, .aws/, .azure/, .gcloud/, *.p12, *.keystore, .*history, .npmrc, build/, dist/, dist/**/*.map, logs/, node_modules/, package-lock.json, pnpm-lock.yaml, project-fusion.json, project-fusion.log, project-fusioned.*, Thumbs.db, yarn.lock
+Ignore patterns: *.7z, *.a, *.avi, *.blend, *.bmp, *.class, *.dll, *.doc, *.docx, *.dylib, *.exe, *.fbx, *.flac, *.flv, *.gif, *.gz, *.ico, *.jar, *.jpeg, *.jpg, *.key, *.keystore, *.log, *.min.css, *.min.js, *.mov, *.mp3, *.mp4, *.o, *.obj, *.p12, *.pdf, *.pem, *.png, *.ppt, *.pptx, *.pyc, *.pyo, *.rar, *.so, *.svg, *.swo, *.swp, *.tar, *.tgz, *.uasset, *.unitypackage, *.war, *.wav, *.webp, *.wmv, *.xls, *.xlsx, *.zip, **/credentials/*, **/secrets/*, .*history, .aws/, .azure/, .DS_Store, .env, .env.*, .gcloud/, .idea/, .npmrc, .ssh/, .vscode/, build/, dist/, dist/**/*.map, logs/, node_modules/, package-lock.json, pnpm-lock.yaml, project-fusion.json, project-fusion.log, project-fusioned.*, Thumbs.db, yarn.lock
 Auto-ignoring generated files: project-fusioned.txt, project-fusioned.md, project-fusioned.html, project-fusioned.log, performance-report.json
 
 --- PROCESSING ---
 File extensions to process: 38
 Available extension categories: 7
 Status: Fusion completed successfully
-Start time: 2025-08-29T19:38:13.313Z
-End time: 2025-08-29T19:38:13.716Z
-Duration: 0.40s
+Start time: 2025-08-29T20:21:39.183Z
+End time: 2025-08-29T20:21:39.384Z
+Duration: 0.20s
 Total data processed: 0.76 MB
 
 --- FILE TYPE STATISTICS ---
@@ -36,22 +36,22 @@ Files skipped (too large): 0
 Files filtered out: 11138
 
 File types processed:
-  .ts: 66 files (738.47 KB)
-  .md: 5 files (25.80 KB)
+  .ts: 66 files (738.36 KB)
+  .md: 5 files (28.97 KB)
   .json: 3 files (3.92 KB)
   .js: 1 files (9.15 KB)
 
 --- PERFORMANCE METRICS ---
 Duration breakdown:
-  Total execution: 0.40s
-  File discovery: 101.7% of total
+  Total execution: 0.20s
+  File discovery: 101.0% of total
 Memory usage:
-  Peak memory: 23.56 MB
-  Memory per file: 321.66 KB
+  Peak memory: 9.54 MB
+  Memory per file: 130.32 KB
 Processing speed:
-  Data throughput: 1.87 MB/s
-  File processing rate: 189.66 files/s
-  Average file size: 10.36 KB
+  Data throughput: 3.69 MB/s
+  File processing rate: 84.16 files/s
+  Average file size: 10.41 KB
 Output generation:
   Generated formats: text, markdown, html
   Number of output files: 3

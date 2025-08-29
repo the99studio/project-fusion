@@ -59,12 +59,10 @@ export class PluginManager {
         const resolvedPluginPath = path.resolve(pluginPath);
         const resolvedRootDir = path.resolve(config.rootDirectory);
         
-        // Check if plugin path is within root directory
         const relativePath = path.relative(resolvedRootDir, resolvedPluginPath);
         const isExternalPlugin = relativePath.startsWith('..') || path.isAbsolute(relativePath);
         
         if (isExternalPlugin) {
-            // Check if path is in allowedExternalPluginPaths
             if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
                 const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
                     const resolvedAllowedPath = path.resolve(allowedPath);
@@ -74,7 +72,7 @@ export class PluginManager {
                 
                 if (isAllowed) {
                     // Log warning banner for external plugin usage
-                    logger.warn(`🚨 SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
+                    logger.warn(`SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
                                `Ensure this plugin is from a trusted source.`, { pluginPath });
                     return;
                 }
@@ -93,7 +91,6 @@ export class PluginManager {
 
     async loadPlugin(pluginPath: string, config?: Config): Promise<void> {
         try {
-            // Validate plugin path if config is provided
             if (config) {
                 this.validatePluginPath(pluginPath, config);
             }
@@ -106,6 +103,7 @@ export class PluginManager {
             }
             
             this.plugins.set(plugin.metadata.name, plugin);
+            this.invalidateCache();
             logger.info(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`, { pluginPath });
         } catch (error) {
             logger.error(`Failed to load plugin from ${pluginPath}`, { error, pluginPath });
@@ -135,26 +133,42 @@ export class PluginManager {
 
     registerPlugin(plugin: Plugin): void {
         this.plugins.set(plugin.metadata.name, plugin);
+        this.invalidateCache();
     }
 
     unregisterPlugin(name: string): void {
         this.plugins.delete(name);
         this.pluginConfigs.delete(name);
+        this.invalidateCache();
     }
 
     configurePlugin(name: string, config: PluginConfig): void {
         this.pluginConfigs.set(name, config);
+        this.invalidateCache();
     }
 
     getPlugin(name: string): Plugin | undefined {
         return this.plugins.get(name);
     }
 
+    // Cache enabled plugins to avoid repeated filtering
+    private _enabledPluginsCache: Plugin[] | null = null;
+    private _cacheInvalidated = true;
+    
     getEnabledPlugins(): Plugin[] {
-        return [...this.plugins.values()].filter(plugin => {
-            const config = this.pluginConfigs.get(plugin.metadata.name);
-            return config?.enabled !== false;
-        });
+        if (this._cacheInvalidated || this._enabledPluginsCache === null) {
+            this._enabledPluginsCache = [...this.plugins.values()].filter(plugin => {
+                const config = this.pluginConfigs.get(plugin.metadata.name);
+                return config?.enabled !== false;
+            });
+            this._cacheInvalidated = false;
+        }
+        return this._enabledPluginsCache;
+    }
+    
+    private invalidateCache(): void {
+        this._cacheInvalidated = true;
+        this._enabledPluginsCache = null;
     }
 
     async initializePlugins(config: Config): Promise<void> {
@@ -280,8 +294,9 @@ export class PluginManager {
 
     getAdditionalOutputStrategies(): OutputStrategy[] {
         const strategies: OutputStrategy[] = [];
+        const enabledPlugins = this.getEnabledPlugins(); // Cache the result
         
-        for (const plugin of this.getEnabledPlugins()) {
+        for (const plugin of enabledPlugins) {
             if (plugin.registerOutputStrategies) {
                 try {
                     const pluginStrategies = plugin.registerOutputStrategies();
@@ -297,8 +312,9 @@ export class PluginManager {
 
     getAdditionalFileExtensions(): Record<string, string[]> {
         const extensions: Record<string, string[]> = {};
+        const enabledPlugins = this.getEnabledPlugins(); // Cache the result
         
-        for (const plugin of this.getEnabledPlugins()) {
+        for (const plugin of enabledPlugins) {
             if (plugin.registerFileExtensions) {
                 try {
                     const pluginExtensions = plugin.registerFileExtensions();

@@ -287,14 +287,14 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 - [index.js](#indexjs)
 - [utils.js](#utilsjs)
 
 ---
 
-## 📄 index.js {#indexjs}
+## index.js {#indexjs}
 
 \`\`\`javascript
 // Main application entry point
@@ -310,7 +310,7 @@ app.listen(3000, () => {
 });
 \`\`\`
 
-## 📄 utils.js {#utilsjs}
+## utils.js {#utilsjs}
 
 \`\`\`javascript
 // Utility functions
@@ -341,14 +341,14 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 - [service.ts](#servicets)
 - [types.ts](#typests)
 
 ---
 
-## 📄 service.ts {#servicets}
+## service.ts {#servicets}
 
 \`\`\`typescript
 // User service
@@ -376,7 +376,7 @@ export class UserService {
 }
 \`\`\`
 
-## 📄 types.ts {#typests}
+## types.ts {#typests}
 
 \`\`\`typescript
 // Type definitions
@@ -412,7 +412,7 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 - [config.json](#configjson)
 - [README.md](#readmemd)
@@ -420,7 +420,7 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 
 ---
 
-## 📄 config.json {#configjson}
+## config.json {#configjson}
 
 \`\`\`json
 {
@@ -437,7 +437,7 @@ exports[`Format Snapshot Tests > Markdown Format Snapshots > should generate con
 }
 \`\`\`
 
-## 📄 README.md {#readmemd}
+## README.md {#readmemd}
 
 \`\`\`markdown
 # Test Project
@@ -462,7 +462,7 @@ npm start
 MIT License
 \`\`\`
 
-## 📄 script.sh {#scriptsh}
+## script.sh {#scriptsh}
 
 \`\`\`bash
 #!/bin/bash

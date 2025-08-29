@@ -66,6 +66,11 @@ export async function processFusion(
     
     // Configure progress granularity (emit every N files or on phase change)
     const PROGRESS_EMIT_INTERVAL = 10; // Emit progress every 10 files
+    
+    // Pre-compute frequently used values
+    const rootDir = path.resolve(config.rootDirectory);
+    const maxFileSizeKB = config.maxFileSizeKB;
+    const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
 
     // Helper function to write logs using the FileSystemAdapter
     const writeLogWithFs = async (logFilePath: string, content: string, append = false, consoleOutput = false): Promise<void> => {
@@ -99,7 +104,6 @@ export async function processFusion(
     ): void => {
         if (!options.onProgress) { return; }
         
-        // Check if we should emit (phase change, forced, or interval reached)
         const phaseChanged = step !== progressState.currentPhase;
         progressState.filesProcessedSinceLastEmit++;
         
@@ -135,7 +139,6 @@ export async function processFusion(
             etaSeconds = Math.round(averageTimePerFile * remainingFiles);
         }
         
-        // Get current metrics from benchmark
         const metrics = benchmark.getMetrics();
         const mbProcessed = metrics.totalSizeMB;
         const throughputMBps = metrics.throughputMBps;
@@ -265,7 +268,6 @@ export async function processFusion(
         }
 
         const ig = ignoreLib();
-        const rootDir = path.resolve(config.rootDirectory);
 
         if (config.useGitIgnoreForExcludes) {
             const gitIgnorePath = path.join(rootDir, '.gitignore');
@@ -368,8 +370,6 @@ export async function processFusion(
             };
         }
 
-        const maxFileSizeKB = config.maxFileSizeKB;
-        const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
         const filesToProcess: FileInfo[] = [];
         const skippedFiles: string[] = [];
         let skippedCount = 0;
@@ -379,18 +379,18 @@ export async function processFusion(
         
         for (let i = 0; i < filePaths.length; i++) {
             const filePath = filePaths[i];
-            if (!filePath) { continue; } // Skip if undefined (shouldn't happen)
+            if (!filePath) { continue; }
             const relativePath = path.relative(rootDir, filePath);
 
             checkCancellation();
             
-            // Update bytes processed for accurate throughput
-            if (i > 0) {
-                const lastFile = filesToProcess.at(-1);
-                if (lastFile) {
-                    progressState.totalBytesProcessed += lastFile.size;
-                    benchmark.markFileProcessed(lastFile.size);
-                }
+            // Batch update bytes processed for better throughput calculation
+            if (i > 0 && i % 5 === 0) {
+                // Update every 5 files for better performance
+                const lastFiles = filesToProcess.slice(-5);
+                const batchSize = lastFiles.reduce((sum, file) => sum + file.size, 0);
+                progressState.totalBytesProcessed += batchSize;
+                benchmark.markFileProcessed(batchSize);
             }
             
             reportProgress('processing', `Processing ${relativePath}`, i + 1, filePaths.length, relativePath);
@@ -399,7 +399,6 @@ export async function processFusion(
                 const stats = await fs.stat(filePath);
                 const sizeKB = stats.size / 1024;
                 
-                // Check if adding this file would exceed total size limit
                 if (totalSizeBytes + stats.size > maxTotalSizeBytes) {
                     const totalSizeMB = (totalSizeBytes + stats.size) / (1024 * 1024);
                     const message = `Total size limit exceeded (${totalSizeMB.toFixed(2)} MB > ${config.maxTotalSizeMB} MB). ` +
@@ -424,40 +423,42 @@ export async function processFusion(
                 if (sizeKB > maxFileSizeKB) {
                     skippedCount++;
                     skippedFiles.push(relativePath);
-                    const warningMsg = `⚠️ Large file skipped: ${relativePath} (${sizeKB.toFixed(2)} KB > ${maxFileSizeKB} KB)`;
+                    const warningMsg = `Large file skipped: ${relativePath} (${sizeKB.toFixed(2)} KB > ${maxFileSizeKB} KB)`;
                     logger.consoleWarn(warningMsg);
                     await writeLogWithFs(logFilePath, `Skipped large file: ${relativePath} (${sizeKB.toFixed(2)} KB)`, true);
                 } else {
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
                     await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks, config);
                     
-                    checkCancellation();
-                    if (await isBinaryFile(safePath)) {
+                    // Batch operations to reduce async overhead
+                    const [isBinary, rawFileContent] = await Promise.all([
+                        isBinaryFile(safePath),
+                        fs.readFile(createFilePath(safePath))
+                    ]);
+                    
+                    if (isBinary) {
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
-                        logger.consoleWarn(`⚠️ Binary file skipped: ${relativePath}`);
+                        logger.consoleWarn(`Binary file skipped: ${relativePath}`);
                         continue;
                     }
                     
                     checkCancellation();
-                    let content = await fs.readFile(createFilePath(safePath));
+                    let content = rawFileContent;
                     
                     // Redact secrets if enabled
                     if (config.excludeSecrets) {
-                        checkCancellation();
                         const { redactedContent, detectedSecrets } = redactSecrets(content);
                         if (detectedSecrets.length > 0) {
                             content = redactedContent;
                         }
                     }
                     
-                    // Validate content according to content validation rules
-                    checkCancellation();
                     const validationResult = validateFileContent(content, relativePath, config);
                     
                     // Log warnings and errors
                     for (const warning of validationResult.warnings) {
                         await writeLogWithFs(logFilePath, `Content validation warning: ${warning}`, true);
-                        logger.consoleWarn(`⚠️ ${warning}`);
+                        logger.consoleWarn(warning);
                     }
                     
                     for (const error of validationResult.errors) {
@@ -482,7 +483,7 @@ export async function processFusion(
                     
                     // If validation failed, create error placeholder
                     // BUT: don't create placeholders for minified content that we want to skip
-                    let fileContent = content;
+                    let processedFileContent = content;
                     let isErrorPlaceholder = false;
                     
                     if (!validationResult.valid) {
@@ -495,13 +496,13 @@ export async function processFusion(
                         if (!isMinified || !hasOnlyLongLineIssues) {
                             await writeLogWithFs(logFilePath, `Content validation failed for: ${relativePath}`, true);
                             const errorDetails = validationResult.errors.join('\n');
-                            fileContent = createErrorPlaceholder(relativePath, errorDetails);
+                            processedFileContent = createErrorPlaceholder(relativePath, errorDetails);
                             isErrorPlaceholder = true;
                         }
                     }
                     
                     let fileInfo: FileInfo = {
-                        content: fileContent,
+                        content: processedFileContent,
                         relativePath,
                         path: filePath,
                         size: stats.size,
@@ -529,7 +530,6 @@ export async function processFusion(
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
 
-        // Handle preview mode - show files and exit without generating output
         if (options.previewMode) {
             const endTime = new Date();
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -580,7 +580,6 @@ export async function processFusion(
             };
         }
 
-        // Check if no files to process and provide helpful message
         if (finalFilesToProcess.length === 0) {
             const endTime = new Date();
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -676,16 +675,21 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `Duration: ${duration}s`, true);
         await writeLogWithFs(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        // File type statistics
-        const fileTypeStats: Record<string, { count: number; sizeKB: number }> = {};
+        // File type statistics - optimized with Map for better performance
+        const fileTypeStats = new Map<string, { count: number; sizeKB: number }>();
+        const BYTES_TO_KB = 1 / 1024;
         
         for (const fileInfo of finalFilesToProcess) {
             const ext = path.extname(fileInfo.path).toLowerCase();
             const displayExt = ext || 'no extension';
             
-            fileTypeStats[displayExt] ??= { count: 0, sizeKB: 0 };
-            fileTypeStats[displayExt].count++;
-            fileTypeStats[displayExt].sizeKB += fileInfo.size / 1024;
+            const existing = fileTypeStats.get(displayExt);
+            if (existing) {
+                existing.count++;
+                existing.sizeKB += fileInfo.size * BYTES_TO_KB;
+            } else {
+                fileTypeStats.set(displayExt, { count: 1, sizeKB: fileInfo.size * BYTES_TO_KB });
+            }
         }
         
         await writeLogWithFs(logFilePath, `\n--- FILE TYPE STATISTICS ---`, true);
@@ -694,9 +698,9 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLogWithFs(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        if (Object.keys(fileTypeStats).length > 0) {
+        if (fileTypeStats.size > 0) {
             await writeLogWithFs(logFilePath, `\nFile types processed:`, true);
-            const sortedStats = Object.entries(fileTypeStats)
+            const sortedStats = [...fileTypeStats.entries()]
                 .sort(([,a], [,b]) => b.count - a.count);
                 
             for (const [ext, stats] of sortedStats) {

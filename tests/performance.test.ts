@@ -21,27 +21,27 @@ const performanceConfig = {
 };
 
 /**
- * Generate normal file content without problematic patterns - optimized
+ * Pre-generate content to avoid repeated generation during tests - optimized for memory
  */
 const BASE_CONTENT_TEMPLATE = 'function test() { return 42; }';
-function generateNormalContent(sizeKB: number): string {
-    const repetitions = Math.max(1, Math.floor((sizeKB * 1024) / BASE_CONTENT_TEMPLATE.length));
-    return BASE_CONTENT_TEMPLATE.repeat(repetitions);
-}
-
-/**
- * Pre-generate content to avoid repeated generation during tests
- */
 const PREGENERATED_CONTENT = {
     small: 'console.log("small");',
-    medium: generateNormalContent(10),
-    large: generateNormalContent(50)
+    medium: BASE_CONTENT_TEMPLATE.repeat(Math.floor((10 * 1024) / BASE_CONTENT_TEMPLATE.length)),
+    large: BASE_CONTENT_TEMPLATE.repeat(Math.floor((50 * 1024) / BASE_CONTENT_TEMPLATE.length))
 };
+
+// Utility for generating dynamic content when needed (unused but may be needed for future tests)
+// const generateContent = (sizeKB: number): string => {
+//     const repetitions = Math.max(1, Math.floor((sizeKB * 1024) / BASE_CONTENT_TEMPLATE.length));
+//     return BASE_CONTENT_TEMPLATE.repeat(repetitions);
+// };
 
 describe('Performance Tests - Optimized', () => {
     const testDir = join(process.cwd(), 'temp', 'performance-test');
+    let originalCwd: string;
 
     beforeEach(async () => {
+        originalCwd = process.cwd();
         if (existsSync(testDir)) {
             await rm(testDir, { recursive: true, force: true });
         }
@@ -50,7 +50,7 @@ describe('Performance Tests - Optimized', () => {
     });
 
     afterEach(async () => {
-        process.chdir(join(testDir, '..', '..'));
+        process.chdir(originalCwd);
         if (existsSync(testDir)) {
             await rm(testDir, { recursive: true, force: true });
         }

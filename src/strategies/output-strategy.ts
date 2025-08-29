@@ -36,29 +36,35 @@ export interface OutputStrategy {
     createStream(outputPath: FilePath): WriteStream;
 }
 
+// Pre-create replacement map for better performance
+const HTML_ESCAPE_MAP = new Map([
+    ['&', '&amp;'],   // Must be first to avoid double-escaping
+    ['<', '&lt;'],
+    ['>', '&gt;'],
+    ['"', '&quot;'],
+    ["'", '&#39;'],
+    ['/', '&#47;'],    // Prevent closing tags in attributes
+    ['`', '&#96;'],    // Prevent JS template literals
+    ['=', '&#61;'],    // Prevent attribute injection
+    ['!', '&#33;'],    // Prevent comment injection
+    ['@', '&#64;'],    // Prevent CSS injection
+    ['$', '&#36;'],    // Prevent template variable injection
+    ['%', '&#37;'],    // Prevent URL encoding issues
+    ['(', '&#40;'],    // Prevent JS execution
+    [')', '&#41;'],    // Prevent JS execution
+    ['+', '&#43;'],    // Prevent URL encoding issues
+    ['{', '&#123;'],   // Prevent template injection
+    ['}', '&#125;'],   // Prevent template injection
+    ['[', '&#91;'],    // Prevent array notation
+    [']', '&#93;']     // Prevent array notation
+]);
+
+// Pre-compile regex for better performance
+const HTML_ESCAPE_REGEX = /[!"$%&'()+/<=>@[\]`{}]/g;
+
 function escapeHtml(text: string): string {
-    // Enhanced HTML escaping for maximum security
-    // Escape all potentially dangerous characters
-    return text
-        .replaceAll('&', '&amp;')   // Must be first to avoid double-escaping
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;')
-        .replaceAll('/', '&#47;')    // Prevent closing tags in attributes
-        .replaceAll('`', '&#96;')    // Prevent JS template literals
-        .replaceAll('=', '&#61;')    // Prevent attribute injection
-        .replaceAll('!', '&#33;')    // Prevent comment injection
-        .replaceAll('@', '&#64;')    // Prevent CSS injection
-        .replaceAll('$', '&#36;')    // Prevent template variable injection
-        .replaceAll('%', '&#37;')    // Prevent URL encoding issues
-        .replaceAll('(', '&#40;')    // Prevent JS execution
-        .replaceAll(')', '&#41;')    // Prevent JS execution
-        .replaceAll('+', '&#43;')    // Prevent URL encoding issues
-        .replaceAll('{', '&#123;')   // Prevent template injection
-        .replaceAll('}', '&#125;')   // Prevent template injection
-        .replaceAll('[', '&#91;')    // Prevent array notation
-        .replaceAll(']', '&#93;');   // Prevent array notation
+    // Enhanced HTML escaping for maximum security using optimized regex replacement
+    return text.replaceAll(HTML_ESCAPE_REGEX, (char) => HTML_ESCAPE_MAP.get(char) ?? char);
 }
 
 export class TextOutputStrategy implements OutputStrategy {
@@ -82,7 +88,6 @@ export class TextOutputStrategy implements OutputStrategy {
         
         let processedContent = fileInfo.content;
         
-        // Apply aggressive sanitization if enabled
         if (context.config.aggressiveContentSanitization) {
             processedContent = aggressiveContentSanitization(processedContent);
         }
@@ -100,15 +105,20 @@ ${processedContent}
     }
 }
 
+// Pre-compile markdown escape regex for better performance
+const MARKDOWN_ESCAPE_REGEX = /[()[\\\]`]/g;
+const MARKDOWN_ESCAPE_MAP = new Map([
+    ['[', '\\['],
+    [']', '\\]'],
+    ['(', '\\('],
+    [')', '\\)'],
+    ['`', '\\`']
+]);
+
 function escapeMarkdown(text: string): string {
     // Escape special Markdown characters that could create malicious links
     // Focus on filename context - these characters could be used for link injection
-    return text
-        .replaceAll('[', '\\[')      // Prevent link start
-        .replaceAll(']', '\\]')      // Prevent link end
-        .replaceAll('(', '\\(')      // Prevent URL start
-        .replaceAll(')', '\\)')      // Prevent URL end
-        .replaceAll('`', '\\`');     // Prevent code injection
+    return text.replaceAll(MARKDOWN_ESCAPE_REGEX, (char) => MARKDOWN_ESCAPE_MAP.get(char) ?? char);
 }
 
 function sanitizeMarkdownContent(content: string): string {
@@ -225,7 +235,7 @@ export class MarkdownOutputStrategy implements OutputStrategy {
 
 ---
 
-## 📁 Table of Contents
+## Table of Contents
 
 ${tocEntries}
 
@@ -238,17 +248,15 @@ ${tocEntries}
         const anchor = this.slugger.slug(fileInfo.relativePath);
         let processedContent = fileInfo.content;
         
-        // Apply aggressive sanitization if enabled
         if (context.config.aggressiveContentSanitization) {
             processedContent = aggressiveContentSanitization(processedContent);
         }
         
-        // Always apply basic markdown sanitization
         processedContent = sanitizeMarkdownContent(processedContent);
         
         if (fileInfo.isErrorPlaceholder) {
             // For error placeholders, display without code block
-            return `## ⚠️ ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
+            return `## Error: ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 > **Content Validation Error**
 
@@ -261,7 +269,7 @@ ${processedContent}
         const basename = path.basename(fileInfo.path);
         const language = getMarkdownLanguage(fileExt || basename);
 
-        return `## 📄 ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
+        return `## ${escapeMarkdown(fileInfo.relativePath)} {#${anchor}}
 
 \`\`\`${language}
 ${processedContent}
@@ -335,12 +343,10 @@ ${tocEntries}
         
         let processedContent = fileInfo.content;
         
-        // Apply aggressive sanitization if enabled
         if (context.config.aggressiveContentSanitization) {
             processedContent = aggressiveContentSanitization(processedContent);
         }
         
-        // Always apply HTML escaping
         const escapedContent = escapeHtml(processedContent);
         
         if (fileInfo.isErrorPlaceholder) {
@@ -420,7 +426,6 @@ export class OutputStrategyManager {
         
         await fs.ensureDir(path.dirname(outputPath));
         
-        // Check if we're using a memory file system (for testing)
         const isMemoryFS = fs.constructor.name === 'MemoryFileSystemAdapter';
         
         if (isMemoryFS) {
@@ -493,13 +498,11 @@ export class OutputStrategyManager {
         return new Promise<FilePath>((resolve, reject) => {
             let filesWritten = 0;
             
-            // Handle stream errors
             outputStream.on('error', (err) => {
                 closeStream();
                 reject(err);
             });
             
-            // Handle stream finish
             outputStream.on('finish', () => {
                 streamClosed = true;
                 resolve(outputPath);
@@ -590,10 +593,13 @@ export class OutputStrategyManager {
                 
                 filesWritten++;
                 
-                // Write file content with backpressure handling
-                if (fileContent.length > 65_536) {
-                    // For large content, write in chunks
-                    const chunkSize = 65_536; // 64KB chunks
+                // Write file content with backpressure handling - optimized chunking
+                const CHUNK_SIZE = 65_536; // 64KB chunks
+                const contentByteLength = Buffer.byteLength(fileContent, 'utf8');
+                totalBytesWritten += contentByteLength;
+                
+                if (fileContent.length > CHUNK_SIZE) {
+                    // For large content, write in chunks with optimized slicing
                     let offset = 0;
                     
                     const writeNextChunk = (): void => {
@@ -610,31 +616,28 @@ export class OutputStrategyManager {
                             return;
                         }
                         
-                        const chunk = fileContent.slice(offset, offset + chunkSize);
-                        offset += chunkSize;
-                        
-                        totalBytesWritten += Buffer.byteLength(chunk, 'utf8');
+                        const nextOffset = Math.min(offset + CHUNK_SIZE, fileContent.length);
+                        const chunk = fileContent.slice(offset, nextOffset);
+                        offset = nextOffset;
                         
                         if (!outputStream.write(chunk)) {
                             // Wait for drain event before continuing
                             outputStream.once('drain', writeNextChunk);
+                        } else if (offset < fileContent.length) {
+                            // Continue immediately - use setTimeout for better performance than setImmediate
+                            setTimeout(writeNextChunk, 0);
                         } else {
-                            // Continue immediately
-                            setImmediate(writeNextChunk);
+                            processNextFile();
                         }
                     };
                     
                     writeNextChunk();
+                } else if (!outputStream.write(fileContent)) {
+                    // Wait for drain event before continuing
+                    outputStream.once('drain', processNextFile);
                 } else {
-                    totalBytesWritten += Buffer.byteLength(fileContent, 'utf8');
-                    
-                    if (!outputStream.write(fileContent)) {
-                        // Wait for drain event before continuing
-                        outputStream.once('drain', processNextFile);
-                    } else {
-                        // Continue with next file
-                        setImmediate(processNextFile);
-                    }
+                    // Continue with next file
+                    setImmediate(processNextFile);
                 }
             };
             

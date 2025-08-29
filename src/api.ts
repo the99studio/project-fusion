@@ -146,7 +146,6 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
 export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promise<ProgrammaticFusionResult> {
     const cwd = options.cwd ?? process.cwd();
     
-    // Extract fusion options and callbacks
     const { 
         extensionGroups,
         rootDirectory,

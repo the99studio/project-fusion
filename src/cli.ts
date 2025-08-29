@@ -106,5 +106,4 @@ program
         void runConfigCheckCommand();
     });
 
-// Parse arguments with Commander.js
 program.parse(process.argv);
