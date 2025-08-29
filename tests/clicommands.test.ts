@@ -249,7 +249,7 @@ describe('CLI Commands', () => {
 
             await runFusionCommand({});
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📋 Fusion content copied to clipboard'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Fusion content copied to clipboard'));
 
             // Restore
             process.stdout.isTTY = originalTTY;
@@ -280,7 +280,7 @@ describe('CLI Commands', () => {
 
             await runFusionCommand({});
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📋 Clipboard copy skipped (non-interactive environment)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Clipboard copy skipped (non-interactive environment)'));
         });
 
         it('should handle clipboard error gracefully', async () => {
@@ -379,9 +379,9 @@ describe('CLI Commands', () => {
                 maxTotalSize: '50.5' 
             });
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum file size set to: 2048 KB'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum files set to: 500'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('ℹ️ Maximum total size set to: 50.5 MB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum file size set to: 2048 KB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum files set to: 500'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum total size set to: 50.5 MB'));
             expect(mockExit).not.toHaveBeenCalledWith(1);
         });
 
@@ -503,18 +503,18 @@ describe('CLI Commands', () => {
 
             await runConfigCheckCommand();
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔧 Basic Settings'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📄 Output Generation'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🚫 Ignore Patterns'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔍 File Discovery Preview'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Basic Settings'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Output Generation'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Extension Groups'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Ignore Patterns'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Discovery Preview'));
         });
 
         it('should display structured table for extension groups', async () => {
             await runConfigCheckCommand();
 
             // Check for structured table elements
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups (Structured View)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Extension Groups (Structured View)'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('┌─────────────┬─────────┬────────────────────────────────────────────┐'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('│ Group       │ Count   │ Extensions                                 │'));
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('└─────────────┴─────────┴────────────────────────────────────────────┘'));

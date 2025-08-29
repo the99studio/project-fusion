@@ -63,8 +63,8 @@ describe('CLI E2E Tests', () => {
             
             // Check content of markdown file
             const mdContent = await readFile('project-fusioned.md', 'utf8');
-            expect(mdContent).toContain('## 📄 test.js');
-            expect(mdContent).toContain('## 📄 test.ts');
+            expect(mdContent).toContain('## test.js');
+            expect(mdContent).toContain('## test.ts');
             expect(mdContent).toContain('```javascript');
             expect(mdContent).toContain('```typescript');
             
@@ -305,7 +305,7 @@ describe('CLI E2E Tests', () => {
             });
             
             expect(output).toContain('✅');
-            expect(output).toContain('📋 Clipboard copy skipped (non-interactive environment)');
+            expect(output).toContain('Clipboard copy skipped (non-interactive environment)');
         });
 
         it('should handle non-TTY environment', async () => {
