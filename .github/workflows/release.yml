@@ -56,6 +56,9 @@ jobs:
           cache: 'npm'
           always-auth: false
       
+      - name: Update npm to latest
+        run: npm install -g npm@latest
+      
       - name: Install and build
         run: |
           npm ci
