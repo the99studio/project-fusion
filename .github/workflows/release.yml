@@ -54,6 +54,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@the99studio'
           cache: 'npm'
+          always-auth: false
       
       - name: Install and build
         run: |
@@ -63,14 +64,15 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level=high || echo "::warning::Security vulnerabilities found"
       
-      - name: Inspect npm config (diagnostic)
+      - name: Inspect npm auth (diagnostic)
         run: |
-          echo "=== NPM Config ==="
+          echo "NODE_AUTH_TOKEN? ${NODE_AUTH_TOKEN:-<empty>}"
           npm config list
-          echo "=== .npmrc files ==="
-          cat ~/.npmrc 2>/dev/null || echo "No ~/.npmrc found"
-          test -f .npmrc && cat .npmrc || echo "No .npmrc in repo"
-          echo "=== Environment check ==="
+          echo "---- ~/.npmrc ----"
+          cat ~/.npmrc 2>/dev/null || true
+          echo "---- ./ .npmrc ----"
+          test -f .npmrc && cat .npmrc || true
+          echo "---- Environment check ----"
           env | grep -i npm || echo "No NPM env vars"
           env | grep -i token || echo "No TOKEN env vars"
       
@@ -81,10 +83,10 @@ jobs:
           # Publish with appropriate tag
           if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Publishing stable version $VERSION"
-            npm publish --tag latest --provenance --access public
+            npm publish --tag latest --provenance --access public --loglevel verbose
           elif [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
             echo "Publishing pre-release version $VERSION"
-            npm publish --tag next --provenance --access public
+            npm publish --tag next --provenance --access public --loglevel verbose
           else
             echo "::error::Invalid version format: $VERSION"
             exit 1
