@@ -58,7 +58,6 @@ updates:
           - "patch"
           - "minor"
     # Security updates are always separate PRs
-    security-updates: true
     rebase-strategy: "auto"
     versioning-strategy: "increase-if-necessary"
     ignore:
