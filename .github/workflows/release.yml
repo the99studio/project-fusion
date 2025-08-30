@@ -63,6 +63,17 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level=high || echo "::warning::Security vulnerabilities found"
       
+      - name: Inspect npm config (diagnostic)
+        run: |
+          echo "=== NPM Config ==="
+          npm config list
+          echo "=== .npmrc files ==="
+          cat ~/.npmrc 2>/dev/null || echo "No ~/.npmrc found"
+          test -f .npmrc && cat .npmrc || echo "No .npmrc in repo"
+          echo "=== Environment check ==="
+          env | grep -i npm || echo "No NPM env vars"
+          env | grep -i token || echo "No TOKEN env vars"
+      
       - name: Publish to NPM
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
