@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.0.0
 
-**Generated:** 29/08/2025 18:50:31 UTC−4
+**Generated:** 29/08/2025 21:48:04 UTC−4
 
 **Files:** 75
 
@@ -1454,9 +1454,13 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         }
         
         // Handle extension matching for processFusion patterns like "/path/**/*@(.js|.ts)"
-        const extensionMatch = pattern.match(/@\(([^)]+)\)/);
-        if (extensionMatch?.[1]) {
-            const extensions = extensionMatch[1].split('|').map(ext => ext.trim());
+        // Use indexOf/substring instead of regex to avoid ReDoS vulnerability
+        const atIndex = pattern.indexOf('@(');
+        const closeIndex = atIndex >= 0 ? pattern.indexOf(')', atIndex) : -1;
+        
+        if (atIndex >= 0 && closeIndex > atIndex + 2) {
+            const extensionsStr = pattern.slice(atIndex + 2, closeIndex);
+            const extensions = extensionsStr.split('|').map(ext => ext.trim());
             filteredPaths = filteredPaths.filter(filePath => {
                 return extensions.some(ext => filePath.endsWith(ext));
             });
@@ -2313,14 +2317,13 @@ export async function runFusionCommand(options: {
                 const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
                 if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
                     try {
-                        // Check file size before reading (skip if > 5 MB)
-                        const fileStats = await fs.stat(result.fusionFilePath);
-                        const fileSizeMB = fileStats.size / (1024 * 1024);
+                        // Read file and check size atomically to prevent race condition
+                        const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+                        const fileSizeMB = Buffer.byteLength(fusionContent, 'utf8') / (1024 * 1024);
                         
                         if (fileSizeMB > 5) {
                             console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
-                            const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                             await clipboardy.write(fusionContent);
                             console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }
@@ -18643,7 +18646,7 @@ export class UserService {
             
             // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]');
                 
             const pathNormalizedMd = normalizeFilePaths(normalizedMd);
             expect(pathNormalizedMd).toMatchSnapshot('typescript-files.md');
@@ -18722,7 +18725,7 @@ echo "Deployment complete!"`);
             
             // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]');
                 
             const pathNormalizedMd = normalizeFilePaths(normalizedMd);
             expect(pathNormalizedMd).toMatchSnapshot('mixed-files.md');
@@ -18968,7 +18971,7 @@ body {
             
             // Normalize timestamps and paths for consistent snapshots
             const normalizedHtml = htmlContent
-                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>')
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
             const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
             expect(pathNormalizedHtml).toMatchSnapshot('html-with-toc.html');

@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 18:50:31 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 21:48:04 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
@@ -1437,9 +1437,13 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter &#123;
         &#125;
         
         &#47;&#47; Handle extension matching for processFusion patterns like &quot;&#47;path&#47;**&#47;*&#64;&#40;.js|.ts&#41;&quot;
-        const extensionMatch &#61; pattern.match&#40;&#47;&#64;\&#40;&#40;&#91;^&#41;&#93;&#43;&#41;\&#41;&#47;&#41;;
-        if &#40;extensionMatch?.&#91;1&#93;&#41; &#123;
-            const extensions &#61; extensionMatch&#91;1&#93;.split&#40;&#39;|&#39;&#41;.map&#40;ext &#61;&gt; ext.trim&#40;&#41;&#41;;
+        &#47;&#47; Use indexOf&#47;substring instead of regex to avoid ReDoS vulnerability
+        const atIndex &#61; pattern.indexOf&#40;&#39;&#64;&#40;&#39;&#41;;
+        const closeIndex &#61; atIndex &gt;&#61; 0 ? pattern.indexOf&#40;&#39;&#41;&#39;, atIndex&#41; : -1;
+        
+        if &#40;atIndex &gt;&#61; 0 &amp;&amp; closeIndex &gt; atIndex &#43; 2&#41; &#123;
+            const extensionsStr &#61; pattern.slice&#40;atIndex &#43; 2, closeIndex&#41;;
+            const extensions &#61; extensionsStr.split&#40;&#39;|&#39;&#41;.map&#40;ext &#61;&gt; ext.trim&#40;&#41;&#41;;
             filteredPaths &#61; filteredPaths.filter&#40;filePath &#61;&gt; &#123;
                 return extensions.some&#40;ext &#61;&gt; filePath.endsWith&#40;ext&#41;&#41;;
             &#125;&#41;;
@@ -2280,14 +2284,13 @@ export async function runFusionCommand&#40;options: &#123;
                 const isNonInteractive &#61; process.env&#91;&#39;CI&#39;&#93; &#61;&#61;&#61; &#39;true&#39; || &#33;process.stdout.isTTY;
                 if &#40;config.copyToClipboard &#61;&#61;&#61; true &amp;&amp; result.fusionFilePath &amp;&amp; &#33;isNonInteractive&#41; &#123;
                     try &#123;
-                        &#47;&#47; Check file size before reading &#40;skip if &gt; 5 MB&#41;
-                        const fileStats &#61; await fs.stat&#40;result.fusionFilePath&#41;;
-                        const fileSizeMB &#61; fileStats.size &#47; &#40;1024 * 1024&#41;;
+                        &#47;&#47; Read file and check size atomically to prevent race condition
+                        const fusionContent &#61; await fs.readFile&#40;result.fusionFilePath, &#39;utf8&#39;&#41;;
+                        const fileSizeMB &#61; Buffer.byteLength&#40;fusionContent, &#39;utf8&#39;&#41; &#47; &#40;1024 * 1024&#41;;
                         
                         if &#40;fileSizeMB &gt; 5&#41; &#123;
                             console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;file size: &#36;&#123;fileSizeMB.toFixed&#40;1&#41;&#125; MB &gt; 5 MB limit&#41;&#96;&#41;&#41;;
                         &#125; else &#123;
-                            const fusionContent &#61; await fs.readFile&#40;result.fusionFilePath, &#39;utf8&#39;&#41;;
                             await clipboardy.write&#40;fusionContent&#41;;
                             console.log&#40;chalk.blue&#40;&#96;Fusion content copied to clipboard&#96;&#41;&#41;;
                         &#125;
@@ -18398,7 +18401,7 @@ export class UserService &#123;
             
             &#47;&#47; Normalize timestamps and paths for consistent snapshots
             const normalizedMd &#61; mdContent
-                .replaceAll&#40;&#47;\*\*Generated:\*\* &#91;^\n&#93;&#43;&#47;g, &#39;**Generated:** &#91;TIMESTAMP&#93;&#39;&#41;
+                .replaceAll&#40;&#47;\*\*Generated:\*\* &#91;^\n&#93;&#43;&#47;g, &#39;**Generated:** &#91;TIMESTAMP&#93;&#39;&#41;;
                 
             const pathNormalizedMd &#61; normalizeFilePaths&#40;normalizedMd&#41;;
             expect&#40;pathNormalizedMd&#41;.toMatchSnapshot&#40;&#39;typescript-files.md&#39;&#41;;
@@ -18477,7 +18480,7 @@ echo &quot;Deployment complete&#33;&quot;&#96;&#41;;
             
             &#47;&#47; Normalize timestamps and paths for consistent snapshots
             const normalizedMd &#61; mdContent
-                .replaceAll&#40;&#47;\*\*Generated:\*\* &#91;^\n&#93;&#43;&#47;g, &#39;**Generated:** &#91;TIMESTAMP&#93;&#39;&#41;
+                .replaceAll&#40;&#47;\*\*Generated:\*\* &#91;^\n&#93;&#43;&#47;g, &#39;**Generated:** &#91;TIMESTAMP&#93;&#39;&#41;;
                 
             const pathNormalizedMd &#61; normalizeFilePaths&#40;normalizedMd&#41;;
             expect&#40;pathNormalizedMd&#41;.toMatchSnapshot&#40;&#39;mixed-files.md&#39;&#41;;
@@ -18723,7 +18726,7 @@ body &#123;
             
             &#47;&#47; Normalize timestamps and paths for consistent snapshots
             const normalizedHtml &#61; htmlContent
-                .replaceAll&#40;&#47;&lt;p&gt;&lt;strong&gt;Generated:&lt;\&#47;strong&gt; &#91;^&lt;&#93;&#43;&lt;\&#47;p&gt;&#47;g, &#39;&lt;p&gt;&lt;strong&gt;Generated:&lt;&#47;strong&gt; TIMESTAMP&lt;&#47;p&gt;&#39;&#41;
+                .replaceAll&#40;&#47;&lt;p&gt;&lt;strong&gt;Generated:&lt;\&#47;strong&gt; &#91;^&lt;&#93;&#43;&lt;\&#47;p&gt;&#47;g, &#39;&lt;p&gt;&lt;strong&gt;Generated:&lt;&#47;strong&gt; TIMESTAMP&lt;&#47;p&gt;&#39;&#41;;
             
             const pathNormalizedHtml &#61; normalizeFilePaths&#40;normalizedHtml&#41;;
             expect&#40;pathNormalizedHtml&#41;.toMatchSnapshot&#40;&#39;html-with-toc.html&#39;&#41;;

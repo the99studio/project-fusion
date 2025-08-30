@@ -236,9 +236,13 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         }
         
         // Handle extension matching for processFusion patterns like "/path/**/*@(.js|.ts)"
-        const extensionMatch = pattern.match(/@\(([^)]+)\)/);
-        if (extensionMatch?.[1]) {
-            const extensions = extensionMatch[1].split('|').map(ext => ext.trim());
+        // Use indexOf/substring instead of regex to avoid ReDoS vulnerability
+        const atIndex = pattern.indexOf('@(');
+        const closeIndex = atIndex >= 0 ? pattern.indexOf(')', atIndex) : -1;
+        
+        if (atIndex >= 0 && closeIndex > atIndex + 2) {
+            const extensionsStr = pattern.slice(atIndex + 2, closeIndex);
+            const extensions = extensionsStr.split('|').map(ext => ext.trim());
             filteredPaths = filteredPaths.filter(filePath => {
                 return extensions.some(ext => filePath.endsWith(ext));
             });
