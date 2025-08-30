@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 21:48:04 UTC−4</p>
+<p><strong>Generated:</strong> 29&#47;08&#47;2025 22:47:58 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
 <hr>
@@ -4993,6 +4993,7 @@ export type FusionResult &#61;
 &#47;**
  * Utilities for Project Fusion
  *&#47;
+import &#123; open &#125; from &#39;node:fs&#47;promises&#39;;
 import path from &#39;node:path&#39;;
 import process from &#39;node:process&#39;;
 import fs from &#39;fs-extra&#39;;
@@ -5539,47 +5540,54 @@ export async function isBinaryFile&#40;filePath: string, sampleSize &#61; 1024&#
     &#125;
     
     try &#123;
-        const stats &#61; await fs.stat&#40;filePath&#41;;
-        if &#40;stats.size &#61;&#61;&#61; 0&#41; &#123;
-            binaryFileCache.set&#40;filePath, false&#41;;
-            return false; &#47;&#47; Empty file is not binary
-        &#125;
-        
-        &#47;&#47; Read only the first part of the file for analysis
-        const bytesToRead &#61; Math.min&#40;stats.size, sampleSize&#41;;
-        const buffer &#61; await fs.readFile&#40;filePath, &#123; encoding: null &#125;&#41;;
-        const actualBytesToCheck &#61; Math.min&#40;buffer.length, bytesToRead&#41;;
-        
-        &#47;&#47; Early exit for null bytes - most efficient binary detection
-        const nullByteIndex &#61; buffer.subarray&#40;0, actualBytesToCheck&#41;.indexOf&#40;0&#41;;
-        if &#40;nullByteIndex &#33;&#61;&#61; -1&#41; &#123;
-            binaryFileCache.set&#40;filePath, true&#41;;
-            return true;
-        &#125;
-        
-        &#47;&#47; Optimized non-printable character check using bit operations
-        let nonPrintable &#61; 0;
-        const threshold &#61; Math.floor&#40;actualBytesToCheck * 0.3&#41;; &#47;&#47; Pre-calculate 30&#37; threshold
-        
-        for &#40;let i &#61; 0; i &lt; actualBytesToCheck; i&#43;&#43;&#41; &#123;
-            const byte &#61; buffer&#91;i&#93;;
-            if &#40;byte &#61;&#61;&#61; undefined&#41; &#123; continue; &#125;
+        &#47;&#47; Open file handle to avoid TOCTOU race condition
+        const fileHandle &#61; await open&#40;filePath, &#39;r&#39;&#41;;
+        try &#123;
+            const stats &#61; await fileHandle.stat&#40;&#41;;
+            if &#40;stats.size &#61;&#61;&#61; 0&#41; &#123;
+                binaryFileCache.set&#40;filePath, false&#41;;
+                return false; &#47;&#47; Empty file is not binary
+            &#125;
             
-            &#47;&#47; Use bit operations for faster range checks
-            &#47;&#47; Allow common whitespace: tab&#40;9&#41;, newline&#40;10&#41;, carriage return&#40;13&#41;, space&#40;32&#41;
-            if &#40;&#40;byte &lt; 32 &amp;&amp; byte &#33;&#61;&#61; 9 &amp;&amp; byte &#33;&#61;&#61; 10 &amp;&amp; byte &#33;&#61;&#61; 13&#41; || byte &gt; 126&#41; &#123;
-                nonPrintable&#43;&#43;;
-                &#47;&#47; Early exit if threshold already exceeded
-                if &#40;nonPrintable &gt; threshold&#41; &#123;
-                    binaryFileCache.set&#40;filePath, true&#41;;
-                    return true;
+            &#47;&#47; Read only the first part of the file for analysis
+            const bytesToRead &#61; Math.min&#40;stats.size, sampleSize&#41;;
+            const buffer &#61; Buffer.alloc&#40;bytesToRead&#41;;
+            const &#123; bytesRead &#125; &#61; await fileHandle.read&#40;buffer, 0, bytesToRead, 0&#41;;
+            const actualBytesToCheck &#61; bytesRead;
+            
+            &#47;&#47; Early exit for null bytes - most efficient binary detection
+            const nullByteIndex &#61; buffer.subarray&#40;0, actualBytesToCheck&#41;.indexOf&#40;0&#41;;
+            if &#40;nullByteIndex &#33;&#61;&#61; -1&#41; &#123;
+                binaryFileCache.set&#40;filePath, true&#41;;
+                return true;
+            &#125;
+            
+            &#47;&#47; Optimized non-printable character check using bit operations
+            let nonPrintable &#61; 0;
+            const threshold &#61; Math.floor&#40;actualBytesToCheck * 0.3&#41;; &#47;&#47; Pre-calculate 30&#37; threshold
+            
+            for &#40;let i &#61; 0; i &lt; actualBytesToCheck; i&#43;&#43;&#41; &#123;
+                const byte &#61; buffer&#91;i&#93;;
+                if &#40;byte &#61;&#61;&#61; undefined&#41; &#123; continue; &#125;
+                
+                &#47;&#47; Use bit operations for faster range checks
+                &#47;&#47; Allow common whitespace: tab&#40;9&#41;, newline&#40;10&#41;, carriage return&#40;13&#41;, space&#40;32&#41;
+                if &#40;&#40;byte &lt; 32 &amp;&amp; byte &#33;&#61;&#61; 9 &amp;&amp; byte &#33;&#61;&#61; 10 &amp;&amp; byte &#33;&#61;&#61; 13&#41; || byte &gt; 126&#41; &#123;
+                    nonPrintable&#43;&#43;;
+                    &#47;&#47; Early exit if threshold already exceeded
+                    if &#40;nonPrintable &gt; threshold&#41; &#123;
+                        binaryFileCache.set&#40;filePath, true&#41;;
+                        return true;
+                    &#125;
                 &#125;
             &#125;
+            
+            &#47;&#47; File is text-based
+            binaryFileCache.set&#40;filePath, false&#41;;
+            return false;
+        &#125; finally &#123;
+            await fileHandle.close&#40;&#41;;
         &#125;
-        
-        &#47;&#47; File is text-based
-        binaryFileCache.set&#40;filePath, false&#41;;
-        return false;
     &#125; catch &#123;
         &#47;&#47; If we can&#39;t read the file, assume it&#39;s not binary
         binaryFileCache.set&#40;filePath, false&#41;;
