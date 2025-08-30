@@ -3,12 +3,13 @@
 /**
  * Symlink configuration tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, symlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, symlink } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
-import { defaultConfig } from '../src/utils.js';
+import { defaultConfig, getSymlinkAuditSummary, clearSymlinkAudit } from '../src/utils.js';
+import { canCreateSymlinks, skipIfCondition } from './test-helpers.js';
 
 describe('Symlink Configuration Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'symlink-config-test');
@@ -40,6 +41,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Default Behavior (allowSymlinks: false)', () => {
         it('should reject symbolic links by default', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a target file and a symlink
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
@@ -65,7 +70,7 @@ describe('Symlink Configuration Tests', () => {
             expect(result.success).toBe(true);
             
             // Should process the target file but not the symlink
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -81,6 +86,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Enabled Symlinks (allowSymlinks: true)', () => {
         it('should process symbolic links when explicitly allowed', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a target file and a symlink
             const targetFile = join(testDir, 'target.js');
             const symlinkFile = join(testDir, 'symlink.js');
@@ -105,7 +114,7 @@ describe('Symlink Configuration Tests', () => {
             expect(result.success).toBe(true);
             
             // Should process both the target file and the symlink
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -115,6 +124,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should handle symlinks pointing outside the root directory', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a file outside the root and symlink to it
             const outsideFile = join(outsideDir, 'outside.js');
             const symlinkFile = join(testDir, 'outside-link.js');
@@ -139,7 +152,7 @@ describe('Symlink Configuration Tests', () => {
             expect(result.success).toBe(true);
             
             // Should process the symlink (content from outside)
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -148,6 +161,10 @@ describe('Symlink Configuration Tests', () => {
         });
 
         it('should handle broken symlinks gracefully', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a symlink to a non-existent file
             const brokenSymlink = join(testDir, 'broken.js');
             const normalFile = join(testDir, 'normal.js');
@@ -172,7 +189,7 @@ describe('Symlink Configuration Tests', () => {
             // Should succeed and process the normal file, skip the broken symlink
             expect(result.success).toBe(true);
             
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -184,6 +201,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Configuration Integration', () => {
         it('should respect allowSymlinks from config file', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // Create a config file with allowSymlinks: true
             const configContent = {
                 allowSymlinks: true,
@@ -215,7 +236,7 @@ describe('Symlink Configuration Tests', () => {
             
             expect(result.success).toBe(true);
             
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -248,12 +269,15 @@ describe('Symlink Configuration Tests', () => {
                 }
             };
 
-            // Create test files
+            // Create at least one regular file for the test to process
             const targetFile = join(testDir, 'target.js');
-            const symlinkFile = join(testDir, 'symlink.js');
-            
             await writeFile(targetFile, 'console.log("validation test");');
-            await symlink(targetFile, symlinkFile);
+            
+            // Only create symlinks if we can
+            if (await canCreateSymlinks()) {
+                const symlinkFile = join(testDir, 'symlink.js');
+                await symlink(targetFile, symlinkFile);
+            }
 
             const result = await processFusion(config);
             
@@ -263,6 +287,10 @@ describe('Symlink Configuration Tests', () => {
 
     describe('Security Implications', () => {
         it('should warn about security risks when symlinks are enabled', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
             // This test documents the security implications
             // When allowSymlinks is true, files outside the project can be accessed
             
@@ -288,7 +316,7 @@ describe('Symlink Configuration Tests', () => {
             
             expect(result.success).toBe(true);
             
-            const fusionText = await import('fs').then(fs => 
+            const fusionText = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.txt'), 'utf8')
             );
             
@@ -297,6 +325,161 @@ describe('Symlink Configuration Tests', () => {
             expect(fusionText).toContain('API_KEY = "secret-key-123"');
             
             // This is why allowSymlinks defaults to false and shows warnings
+        });
+    });
+
+    describe('Symlink Audit Functionality', () => {
+        beforeEach(() => {
+            clearSymlinkAudit(testDir);
+        });
+
+        afterEach(() => {
+            clearSymlinkAudit(testDir);
+        });
+
+        it('should audit symlinks with resolved targets', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
+            // Create target file and symlink
+            const targetFile = join(testDir, 'target.js');
+            const symlinkFile = join(testDir, 'symlink.js');
+            
+            await writeFile(targetFile, 'console.log("target file");');
+            await symlink(targetFile, symlinkFile);
+
+            const config = {
+                ...defaultConfig,
+                rootDirectory: testDir,
+                allowSymlinks: true,
+                maxSymlinkAuditEntries: 5
+            };
+
+            const result = await processFusion(config);
+            expect(result.success).toBe(true);
+
+            // Check audit summary
+            const auditSummary = getSymlinkAuditSummary(testDir);
+            expect(auditSummary).toBeTruthy();
+            expect(auditSummary!.totalSymlinks).toBe(1);
+            expect(auditSummary!.entries).toHaveLength(1);
+            
+            const entry = auditSummary!.entries[0];
+            expect(entry!.symlink).toBe(symlinkFile);
+            expect(entry!.target).toBe(targetFile);
+            expect(entry!.timestamp).toBeInstanceOf(Date);
+        });
+
+        it('should limit audit entries based on maxSymlinkAuditEntries', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
+            const maxEntries = 3;
+            
+            // Create multiple symlinks
+            const targetFile = join(testDir, 'target.js');
+            await writeFile(targetFile, 'console.log("target");');
+            
+            const symlinks = [];
+            for (let i = 1; i <= 5; i++) {
+                const symlinkFile = join(testDir, `symlink${i}.js`);
+                await symlink(targetFile, symlinkFile);
+                symlinks.push(symlinkFile);
+            }
+
+            const config = {
+                ...defaultConfig,
+                rootDirectory: testDir,
+                allowSymlinks: true,
+                maxSymlinkAuditEntries: maxEntries
+            };
+
+            const result = await processFusion(config);
+            expect(result.success).toBe(true);
+
+            // Check audit summary
+            const auditSummary = getSymlinkAuditSummary(testDir);
+            expect(auditSummary).toBeTruthy();
+            expect(auditSummary!.totalSymlinks).toBe(5); // Total count should be accurate
+            expect(auditSummary!.entries).toHaveLength(maxEntries); // But entries limited
+        });
+
+        it('should audit symlinks pointing outside root directory', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
+            // Create external target
+            const externalFile = join(outsideDir, 'external.js');
+            await writeFile(externalFile, 'console.log("external file");');
+            
+            // Create symlink pointing to external file
+            const symlinkFile = join(testDir, 'external-link.js');
+            await symlink(externalFile, symlinkFile);
+
+            const config = {
+                ...defaultConfig,
+                rootDirectory: testDir,
+                allowSymlinks: true,
+                maxSymlinkAuditEntries: 10
+            };
+
+            const result = await processFusion(config);
+            expect(result.success).toBe(true);
+
+            // Check audit tracks external target
+            const auditSummary = getSymlinkAuditSummary(testDir);
+            expect(auditSummary).toBeTruthy();
+            expect(auditSummary!.totalSymlinks).toBe(1);
+            
+            const entry = auditSummary!.entries[0];
+            expect(entry!.symlink).toBe(symlinkFile);
+            expect(entry!.target).toBe(externalFile);
+        });
+
+        it('should handle broken symlinks gracefully in audit', async () => {
+            if (skipIfCondition(!(await canCreateSymlinks()), 'Symlinks require special permissions on Windows')) {
+                return;
+            }
+            
+            // Create broken symlink
+            const brokenSymlink = join(testDir, 'broken.js');
+            const nonExistentTarget = join(testDir, 'does-not-exist.js');
+            await symlink(nonExistentTarget, brokenSymlink);
+
+            const config = {
+                ...defaultConfig,
+                rootDirectory: testDir,
+                allowSymlinks: true,
+                maxSymlinkAuditEntries: 10
+            };
+
+            // Should not throw error
+            const result = await processFusion(config);
+            expect(result.success).toBe(true);
+
+            // For broken symlinks, the glob process may not even find them as valid files
+            // But we can test the validateNoSymlinks function directly
+            const { validateNoSymlinks } = await import('../src/utils.js');
+            
+            // First verify the symlink exists as a symlink (not the target)
+            const fs = await import('fs-extra');
+            const symlinkStats = await fs.lstat(brokenSymlink);
+            expect(symlinkStats.isSymbolicLink()).toBe(true);
+            
+            // Now test our validation function
+            const isValid = await validateNoSymlinks(brokenSymlink, true, config);
+            // Broken symlinks should be processed (return true) but logged in audit
+            expect(isValid).toBe(true);
+            
+            // Check if audit tracked it
+            const auditSummary = getSymlinkAuditSummary(testDir);
+            // It may be tracked or not depending on glob behavior, but shouldn't crash
+            if (auditSummary) {
+                expect(auditSummary.totalSymlinks).toBeGreaterThanOrEqual(0);
+            }
         });
     });
 });

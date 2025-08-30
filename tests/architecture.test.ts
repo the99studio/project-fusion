@@ -1,13 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import fs from 'fs-extra';
 import path from 'node:path';
+import fs from 'fs-extra';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { 
     DefaultFileSystemAdapter, 
     MemoryFileSystemAdapter,
     OutputStrategyManager,
-    TextOutputStrategy,
-    MarkdownOutputStrategy,
-    HtmlOutputStrategy,
     PluginManager,
     createPlugin,
     processFusion
@@ -93,7 +90,7 @@ describe('Architecture Tests', () => {
 
                 expect(textContent).toContain('console.log("hello");');
                 expect(mdContent).toContain('console.log("hello");');
-                expect(htmlContent).toContain('console.log(&quot;hello&quot;);');
+                expect(htmlContent).toContain('console.log&#40;&quot;hello&quot;&#41;;');
             }
         });
     });
@@ -115,11 +112,11 @@ describe('Architecture Tests', () => {
                 {
                     beforeFileProcessing: async (fileInfo) => {
                         beforeCalled = true;
-                        return fileInfo;
+                        return Promise.resolve(fileInfo);
                     },
                     afterFileProcessing: async (fileInfo, content) => {
                         afterCalled = true;
-                        return content + '\n// Plugin processed';
+                        return Promise.resolve(`${content  }\n// Plugin processed`);
                     }
                 }
             );
@@ -157,12 +154,14 @@ describe('Architecture Tests', () => {
             const config: Config = {
                 schemaVersion: 1,
                 copyToClipboard: false,
+                excludeSecrets: true,
+                maxSymlinkAuditEntries: 100,
                 generatedFileName: 'test-fusion',
                 generateHtml: true,
                 generateMarkdown: true,
                 generateText: true,
                 maxFileSizeKB: 1024,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100,
                 parseSubDirectories: false,
                 parsedFileExtensions: {
@@ -170,12 +169,13 @@ describe('Architecture Tests', () => {
                 },
                 ignorePatterns: [],
                 rootDirectory: testDir,
+                outputDirectory: testDir,
                 useGitIgnoreForExcludes: false,
                 allowSymlinks: false,
-                allowExternalPlugins: false,
+                
                 maxBase64BlockKB: 100,
-                maxLineLength: 50000,
-                maxTokenLength: 20000
+                maxLineLength: 50_000,
+                maxTokenLength: 20_000
             };
 
             const result = await processFusion(config, {

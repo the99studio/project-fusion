@@ -4,10 +4,10 @@
  * Security permission tests for Project Fusion
  * Tests behavior with cross-platform permission scenarios
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -52,7 +52,7 @@ describe('Security Permission Tests', () => {
             expect(result.success).toBe(true);
             
             // Output file should contain both
-            const output = await import('fs').then(fs => 
+            const output = await import('node:fs').then(fs => 
                 fs.promises.readFile('project-fusioned.txt', 'utf8')
             );
             expect(output).toContain('normal');
@@ -105,7 +105,7 @@ describe('Security Permission Tests', () => {
             
             expect(result.success).toBe(true);
             
-            const output = await import('fs').then(fs => 
+            const output = await import('node:fs').then(fs => 
                 fs.promises.readFile('project-fusioned.txt', 'utf8')
             );
             expect(output).toContain('file1');
@@ -136,7 +136,7 @@ describe('Security Permission Tests', () => {
             
             expect(result.success).toBe(true);
             
-            const output = await import('fs').then(fs => 
+            const output = await import('node:fs').then(fs => 
                 fs.promises.readFile('project-fusioned.txt', 'utf8')
             );
             expect(output).toContain('CamelCase');
@@ -156,7 +156,7 @@ describe('Security Permission Tests', () => {
             for (const fileName of specialFiles) {
                 try {
                     await writeFile(fileName, `console.log("${fileName}");`);
-                } catch (error) {
+                } catch {
                     // Skip files that can't be created on this filesystem
                     console.log(`Skipped: ${fileName}`);
                 }

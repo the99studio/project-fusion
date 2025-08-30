@@ -1,0 +1,57 @@
+=== PROJECT FUSION SESSION START ===
+Session ID: mexfesq0-fzma5dyyf
+Start time: 2025-08-29T22:50:31.269Z
+Working directory: .
+Generated file name: project-fusioned
+
+--- CONFIGURATION ---
+Output formats:
+  - Text (.txt): true
+  - Markdown (.md): true
+  - HTML (.html): true
+Processing limits:
+  - Max file size: 1024 KB
+  - Max files: 10000
+  - Max total size: 100 MB
+Directory scanning:
+  - Parse subdirectories: true
+  - Use .gitignore: true
+  - Allow symlinks: false
+Ignore patterns: *.7z, *.a, *.avi, *.blend, *.bmp, *.class, *.dll, *.doc, *.docx, *.dylib, *.exe, *.fbx, *.flac, *.flv, *.gif, *.gz, *.ico, *.jar, *.jpeg, *.jpg, *.key, *.keystore, *.log, *.min.css, *.min.js, *.mov, *.mp3, *.mp4, *.o, *.obj, *.p12, *.pdf, *.pem, *.png, *.ppt, *.pptx, *.pyc, *.pyo, *.rar, *.so, *.svg, *.swo, *.swp, *.tar, *.tgz, *.uasset, *.unitypackage, *.war, *.wav, *.webp, *.wmv, *.xls, *.xlsx, *.zip, **/credentials/*, **/secrets/*, .*history, .aws/, .azure/, .DS_Store, .env, .env.*, .gcloud/, .idea/, .npmrc, .ssh/, .vscode/, build/, dist/, dist/**/*.map, logs/, node_modules/, package-lock.json, pnpm-lock.yaml, project-fusion.json, project-fusion.log, project-fusioned.*, Thumbs.db, yarn.lock
+Auto-ignoring generated files: project-fusioned.txt, project-fusioned.md, project-fusioned.html, project-fusioned.log, performance-report.json
+
+--- PROCESSING ---
+File extensions to process: 38
+Available extension categories: 7
+Status: Fusion completed successfully
+Start time: 2025-08-29T22:50:31.269Z
+End time: 2025-08-29T22:50:31.693Z
+Duration: 0.42s
+Total data processed: 0.76 MB
+
+--- FILE TYPE STATISTICS ---
+Files found: 11243
+Files processed successfully: 75
+Files skipped (too large): 0
+Files filtered out: 11168
+
+File types processed:
+  .ts: 66 files (739.96 KB)
+  .md: 5 files (29.22 KB)
+  .json: 3 files (3.92 KB)
+  .js: 1 files (9.15 KB)
+
+--- PERFORMANCE METRICS ---
+Duration breakdown:
+  Total execution: 0.42s
+  File discovery: 101.9% of total
+Memory usage:
+  Peak memory: 27.00 MB
+  Memory per file: 368.67 KB
+Processing speed:
+  Data throughput: 1.74 MB/s
+  File processing rate: 39.72 files/s
+  Average file size: 10.43 KB
+Output generation:
+  Generated formats: text, markdown, html
+  Number of output files: 3

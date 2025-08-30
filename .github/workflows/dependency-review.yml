@@ -1,0 +1,35 @@
+name: 'Dependency Review'
+
+on:
+  pull_request:
+    branches: ['main']
+
+concurrency:
+  group: dependency-review-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Check for vulnerable dependencies
+          vulnerability-check: true
+          # Check for license issues
+          license-check: true
+          # Fail on any vulnerabilities
+          fail-on-severity: moderate
+          # Comment on PR with results
+          comment-summary-in-pr: always
+          # Additional configuration
+          config-file: './.github/dependency-review-config.yml'

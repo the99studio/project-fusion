@@ -149,7 +149,10 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
     stat(filePath: FilePath): Promise<FileSystemStats> {
         // Try exact match first
         if (this.files.has(filePath)) {
-            const content = this.files.get(filePath)!;
+            const content = this.files.get(filePath);
+            if (!content) {
+                throw new Error(`File content not found: ${filePath}`);
+            }
             return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
@@ -161,7 +164,10 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         // Try resolved absolute path
         const resolved = path.resolve(filePath);
         if (this.files.has(resolved)) {
-            const content = this.files.get(resolved)!;
+            const content = this.files.get(resolved);
+            if (!content) {
+                throw new Error(`File content not found: ${resolved}`);
+            }
             return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
@@ -173,7 +179,10 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         // Try basename match for MemoryFS compatibility
         const basename = path.basename(filePath);
         if (this.files.has(basename)) {
-            const content = this.files.get(basename)!;
+            const content = this.files.get(basename);
+            if (!content) {
+                throw new Error(`File content not found: ${basename}`);
+            }
             return Promise.resolve({
                 size: Buffer.byteLength(content, 'utf8'),
                 isDirectory: false,
@@ -199,7 +208,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
 
     exists(filePath: FilePath): Promise<boolean> {
         const hasExact = this.files.has(filePath) || this.directories.has(filePath);
-        if (hasExact) return Promise.resolve(true);
+        if (hasExact) { return Promise.resolve(true); }
         
         // Try resolved absolute path
         const resolved = path.resolve(filePath);
@@ -271,7 +280,30 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
     }
 
     getFiles(): Map<string, string> {
-        return new Map(this.files);
+        // Return only unique files, avoiding duplicates from resolved paths
+        const uniqueFiles = new Map<string, string>();
+        const seenContent = new Map<string, string>(); // content -> first path seen
+        
+        for (const [filePath, content] of this.files) {
+            const contentKey = `${content}:::SIZE:::${content.length}`;
+            
+            if (!seenContent.has(contentKey)) {
+                // First time we see this content, keep it
+                seenContent.set(contentKey, filePath);
+                uniqueFiles.set(filePath, content);
+            } else {
+                // We've seen this content before, prefer shorter/original path
+                const existingPath = seenContent.get(contentKey);
+                if (existingPath && (filePath.length < existingPath.length || filePath.startsWith('/'))) {
+                    // Replace with shorter or relative path
+                    uniqueFiles.delete(existingPath);
+                    uniqueFiles.set(filePath, content);
+                    seenContent.set(contentKey, filePath);
+                }
+            }
+        }
+        
+        return uniqueFiles;
     }
 
     clear(): void {

@@ -3,12 +3,13 @@
 /**
  * Snapshot tests for verifying MD/HTML format output
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
+import { normalizeFilePaths } from './test-helpers.js';
 
 describe('Format Snapshot Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'snapshot-test');
@@ -73,13 +74,14 @@ module.exports = { formatDate, capitalize };`);
 
             const mdContent = await readFile('test-fusion.md', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replace(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replace(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
+            
+            const pathNormalizedMd = normalizeFilePaths(normalizedMd);
             
             // Test structure and content
-            expect(normalizedMd).toMatchSnapshot('javascript-files.md');
+            expect(pathNormalizedMd).toMatchSnapshot('javascript-files.md');
         });
 
         it('should generate consistent markdown format for TypeScript files', async () => {
@@ -140,12 +142,12 @@ export class UserService {
 
             const mdContent = await readFile('typescript-fusion.md', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replace(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replace(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]');
                 
-            expect(normalizedMd).toMatchSnapshot('typescript-files.md');
+            const pathNormalizedMd = normalizeFilePaths(normalizedMd);
+            expect(pathNormalizedMd).toMatchSnapshot('typescript-files.md');
         });
 
         it('should generate consistent markdown format for mixed file types', async () => {
@@ -219,12 +221,12 @@ echo "Deployment complete!"`);
 
             const mdContent = await readFile('mixed-fusion.md', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedMd = mdContent
-                .replace(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]')
-                .replace(/\*\*UTC:\*\* [^\n]+/g, '**UTC:** [UTC_TIMESTAMP]');
+                .replaceAll(/\*\*Generated:\*\* [^\n]+/g, '**Generated:** [TIMESTAMP]');
                 
-            expect(normalizedMd).toMatchSnapshot('mixed-files.md');
+            const pathNormalizedMd = normalizeFilePaths(normalizedMd);
+            expect(pathNormalizedMd).toMatchSnapshot('mixed-files.md');
         });
     });
 
@@ -273,7 +275,7 @@ function generateId(length = 8) {
  * @returns {boolean} True if valid
  */
 function isValidEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
     return regex.test(email);
 }
 
@@ -299,11 +301,12 @@ module.exports = {
 
             const htmlContent = await readFile('html-test.html', 'utf8');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedHtml = htmlContent
-                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
-            expect(normalizedHtml).toMatchSnapshot('javascript-files.html');
+            const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
+            expect(pathNormalizedHtml).toMatchSnapshot('javascript-files.html');
         });
 
         it('should generate consistent HTML format with proper escaping', async () => {
@@ -422,11 +425,12 @@ body {
 
             const htmlContent = await readFile('html-escape-test.html', 'utf8');
             
-            // Normalize timestamps
+            // Normalize timestamps and paths
             const normalizedHtml = htmlContent
-                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>');
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
-            expect(normalizedHtml).toMatchSnapshot('html-with-escaping.html');
+            const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
+            expect(pathNormalizedHtml).toMatchSnapshot('html-with-escaping.html');
         });
 
         it('should generate HTML with proper table of contents structure', async () => {
@@ -457,17 +461,18 @@ body {
 
             const htmlContent = await readFile('toc-test.html', 'utf8');
             
-            // Check TOC structure
-            expect(htmlContent).toContain('<nav class="toc"');
-            expect(htmlContent).toContain('<h2 id="toc-heading">📁 Table of Contents</h2>');
-            expect(htmlContent).toContain('href="#api-users-js"');
-            expect(htmlContent).toContain('href="#components-header-js"');
+            // Check TOC structure with simplified HTML format
+            expect(htmlContent).toContain('<h2>Table of Contents</h2>');
+            expect(htmlContent).toContain('<ul>');
+            expect(htmlContent).toContain('href="#apiusersjs"');
+            expect(htmlContent).toContain('href="#componentsheaderjs"');
             
-            // Normalize timestamps for consistent snapshots
+            // Normalize timestamps and paths for consistent snapshots
             const normalizedHtml = htmlContent
-                .replace(/<time datetime="[^"]*">[^<]+<\/time>/g, '<time datetime="TIMESTAMP">TIMESTAMP</time>')
+                .replaceAll(/<p><strong>Generated:<\/strong> [^<]+<\/p>/g, '<p><strong>Generated:</strong> TIMESTAMP</p>');
             
-            expect(normalizedHtml).toMatchSnapshot('html-with-toc.html');
+            const pathNormalizedHtml = normalizeFilePaths(normalizedHtml);
+            expect(pathNormalizedHtml).toMatchSnapshot('html-with-toc.html');
         });
     });
 
@@ -522,8 +527,8 @@ export class ApiClient {
             expect(htmlContent).toContain('example.ts');
             
             // Both should have proper structure
-            expect(mdContent).toContain('## 📄 example.ts');
-            expect(htmlContent).toContain('📄 example.ts');
+            expect(mdContent).toContain('## example.ts');
+            expect(htmlContent).toContain('<h2 id="examplets">example.ts</h2>');
         });
     });
 });

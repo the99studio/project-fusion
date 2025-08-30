@@ -3,67 +3,73 @@
 /**
  * Advanced path traversal tests for the new path.relative validation
  */
-import { describe, it, expect } from 'vitest';
-import { validateSecurePath } from '../src/utils.js';
-import { FusionError } from '../src/types.js';
 import path from 'node:path';
-import os from 'node:os';
+import { describe, it, expect } from 'vitest';
+import { FusionError } from '../src/types.js';
+import { validateSecurePath } from '../src/utils.js';
+import { isWindows } from './test-helpers.js';
 
 describe('Path Traversal Edge Cases', () => {
     describe('Windows Path Prefix Collision', () => {
         // These tests validate the fix for Windows path prefix collision cases
         it('should prevent C:\\foo vs C:\\foobar confusion', () => {
-            // Skip on non-Windows for path format consistency
-            if (os.platform() !== 'win32') {
-                // Simulate Windows-style paths for testing
-                const mockRoot = 'C:\\foo';
-                const maliciousPath = 'C:\\foobar\\evil.txt';
-                
-                // Mock path.resolve to simulate Windows behavior
-                const originalResolve = path.resolve;
-                const originalRelative = path.relative;
-                
-                // Test with actual path.relative (the fix)
-                try {
-                    const rel = path.relative(mockRoot, maliciousPath);
-                    expect(rel.startsWith('..')).toBe(true);
-                    
-                    // This should throw with the new validation
-                    expect(() => {
-                        // Simulate the new validation logic
-                        if (rel.startsWith('..') || path.isAbsolute(rel)) {
-                            throw new FusionError(
-                                `Path traversal detected`,
-                                'PATH_TRAVERSAL',
-                                'error',
-                                { relativePath: rel }
-                            );
-                        }
-                    }).toThrow(FusionError);
-                } finally {
-                    // Restore original functions
-                }
-            } else {
+            if (isWindows()) {
                 // Real Windows test
                 const mockRoot = 'C:\\foo';
                 const maliciousPath = 'C:\\foobar\\evil.txt';
                 
                 expect(() => validateSecurePath(maliciousPath, mockRoot)).toThrow(FusionError);
+            } else {
+                // Test Unix-style equivalent paths
+                const mockRoot = '/foo';
+                const maliciousPath = '/foobar/evil.txt';
+                
+                expect(() => validateSecurePath(maliciousPath, mockRoot)).toThrow(FusionError);
+                
+                // Also test with the logic directly
+                const rel = path.relative(mockRoot, path.resolve(maliciousPath));
+                expect(rel.startsWith('..')).toBe(true);
             }
         });
 
         it('should handle case-insensitive filesystem confusion', () => {
-            // Test case variations that could confuse startsWith but not path.relative
-            const root = '/Users/test';
-            const variations = [
+            // On Windows, paths are case-insensitive so these may not throw
+            // On Unix systems, they should throw due to path traversal
+            const isWindows = process.platform === 'win32';
+            const root = isWindows ? 'C:\\Users\\test' : '/Users/test';
+            
+            const variations = isWindows ? [
+                'C:\\users\\test\\..\\secrets.txt', // Different case
+                'C:\\Users\\Test\\..\\secrets.txt', // Different case  
+                'C:\\Users\\test\\..\\Test\\secrets.txt' // Case variation in escape
+            ] : [
                 '/users/test/../secrets.txt', // Different case
                 '/Users/Test/../secrets.txt', // Different case
                 '/Users/test/../Test/secrets.txt' // Case variation in escape
             ];
 
-            variations.forEach(maliciousPath => {
-                expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-            });
+            for (const maliciousPath of variations) {
+                try {
+                    validateSecurePath(maliciousPath, root);
+                    // On Windows with case-insensitive fs, some paths may be valid
+                    // Check if the resolved path actually escapes the root
+                    const resolved = path.resolve(maliciousPath);
+                    const relative = path.relative(root, resolved);
+                    const isEscaping = relative.startsWith('..') || path.isAbsolute(relative);
+                    
+                    if (isEscaping) {
+                        // Should have thrown but didn't
+                        throw new Error(`Expected path to be rejected: ${maliciousPath}`);
+                    }
+                } catch (error) {
+                    // If it throws, verify it's the right error
+                    if (error instanceof FusionError) {
+                        expect(error.code).toBe('PATH_TRAVERSAL');
+                    } else if ((error as Error).message?.includes('Expected path to be rejected')) {
+                        throw error; // Re-throw test assertion errors
+                    }
+                }
+            }
         });
     });
 
@@ -73,13 +79,13 @@ describe('Path Traversal Edge Cases', () => {
             
             // Unicode characters that could normalize to path separators
             const unicodePaths = [
-                '/safe/directory\u002e\u002e/evil.txt', // Unicode dots
-                '/safe/directory\uff0e\uff0e/evil.txt', // Fullwidth dots
+                '/safe/directory\u002E\u002E/evil.txt', // Unicode dots
+                '/safe/directory\uFF0E\uFF0E/evil.txt', // Fullwidth dots
                 '/safe/directory\u2024\u2024/evil.txt', // One dot leader
                 '/safe/directory\u2025\u2025/evil.txt', // Two dot leader
             ];
 
-            unicodePaths.forEach(maliciousPath => {
+            for (const maliciousPath of unicodePaths) {
                 try {
                     validateSecurePath(maliciousPath, root);
                     // If it doesn't throw, verify it's actually safe
@@ -89,7 +95,7 @@ describe('Path Traversal Edge Cases', () => {
                     expect(error).toBeInstanceOf(FusionError);
                     expect((error as FusionError).code).toBe('PATH_TRAVERSAL');
                 }
-            });
+            }
         });
 
         it('should handle mixed normalization forms', () => {
@@ -103,9 +109,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/evil/directory/file.txt' // Different root entirely
             ];
 
-            normalizedPaths.forEach(maliciousPath => {
+            for (const maliciousPath of normalizedPaths) {
                 expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-            });
+            }
             
             // Verify that Unicode directory names within safe bounds are allowed
             const safePaths = [
@@ -113,9 +119,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/safe/directory/\u00E9/file.txt' // é as single character
             ];
             
-            safePaths.forEach(safePath => {
+            for (const safePath of safePaths) {
                 expect(() => validateSecurePath(safePath, root)).not.toThrow();
-            });
+            }
         });
     });
 
@@ -131,9 +137,9 @@ describe('Path Traversal Edge Cases', () => {
                 '/safe/directory/.///../evil.txt'
             ];
 
-            tricky.forEach(maliciousPath => {
+            for (const maliciousPath of tricky) {
                 expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-            });
+            }
         });
 
         it('should handle long path segments', () => {
@@ -146,7 +152,7 @@ describe('Path Traversal Edge Cases', () => {
                 `/${longSegment}/../safe/directory/evil.txt`
             ];
 
-            longPaths.forEach(maliciousPath => {
+            for (const maliciousPath of longPaths) {
                 try {
                     validateSecurePath(maliciousPath, root);
                     // If it passes, make sure it's actually safe
@@ -155,13 +161,13 @@ describe('Path Traversal Edge Cases', () => {
                 } catch (error) {
                     expect(error).toBeInstanceOf(FusionError);
                 }
-            });
+            }
         });
     });
 
     describe('Platform-Specific Edge Cases', () => {
         it('should handle Windows UNC paths', () => {
-            if (os.platform() === 'win32') {
+            if (isWindows()) {
                 const root = 'C:\\safe\\directory';
                 const uncPaths = [
                     '\\\\server\\share\\evil.txt',
@@ -169,9 +175,12 @@ describe('Path Traversal Edge Cases', () => {
                     '\\\\?\\UNC\\server\\share\\evil.txt'
                 ];
 
-                uncPaths.forEach(maliciousPath => {
+                for (const maliciousPath of uncPaths) {
                     expect(() => validateSecurePath(maliciousPath, root)).toThrow(FusionError);
-                });
+                }
+            } else {
+                // Skip on non-Windows platforms
+                console.log('⏭️  Skipping Windows UNC path test on non-Windows platform');
             }
         });
 
@@ -183,7 +192,7 @@ describe('Path Traversal Edge Cases', () => {
                 '\\safe\\directory\\..\\evil.txt'
             ];
 
-            mixedPaths.forEach(maliciousPath => {
+            for (const maliciousPath of mixedPaths) {
                 try {
                     validateSecurePath(maliciousPath, root);
                     // If it doesn't throw, verify safety
@@ -192,7 +201,7 @@ describe('Path Traversal Edge Cases', () => {
                 } catch (error) {
                     expect(error).toBeInstanceOf(FusionError);
                 }
-            });
+            }
         });
     });
 
@@ -210,20 +219,20 @@ describe('Path Traversal Edge Cases', () => {
                     description: 'hyphenated confusion'
                 },
                 {
-                    root: 'C:\\Users\\test',
-                    malicious: 'C:\\Users\\test-backup\\evil.txt',
-                    description: 'Windows prefix with suffix'
+                    root: isWindows() ? 'C:\\Users\\test' : '/Users/test',
+                    malicious: isWindows() ? 'C:\\Users\\test-backup\\evil.txt' : '/Users/test-backup/evil.txt',
+                    description: 'Platform-specific prefix with suffix'
                 }
             ];
 
-            testCases.forEach(({ root, malicious, description }) => {
+            for (const { root, malicious } of testCases) {
                 // The new method should catch these
                 expect(() => validateSecurePath(malicious, root)).toThrow(FusionError);
                 
                 // Verify with direct path.relative check
                 const rel = path.relative(root, path.resolve(malicious));
                 expect(rel.startsWith('..') || path.isAbsolute(rel)).toBe(true);
-            });
+            }
         });
 
         it('should still allow legitimate paths', () => {
@@ -235,7 +244,7 @@ describe('Path Traversal Edge Cases', () => {
                 '/safe/directory/.hidden/file.txt'
             ];
 
-            legitimatePaths.forEach(safePath => {
+            for (const safePath of legitimatePaths) {
                 expect(() => validateSecurePath(safePath, root)).not.toThrow();
                 
                 const result = validateSecurePath(safePath, root);
@@ -245,7 +254,7 @@ describe('Path Traversal Edge Cases', () => {
                 const rel = path.relative(root, result);
                 expect(rel.startsWith('..')).toBe(false);
                 expect(path.isAbsolute(rel)).toBe(false);
-            });
+            }
         });
     });
 
@@ -261,7 +270,7 @@ describe('Path Traversal Edge Cases', () => {
                 expect(error).toBeInstanceOf(FusionError);
                 const fusionError = error as FusionError;
                 expect(fusionError.context).toHaveProperty('relativePath');
-                expect(fusionError.context.relativePath).toBeDefined();
+                expect(fusionError.context?.['relativePath']).toBeDefined();
             }
         });
     });

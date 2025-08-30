@@ -4,8 +4,8 @@
  * Tests for VS Code extension API enhancements
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryFileSystemAdapter, type FileSystemAdapter } from '../src/adapters/file-system.js';
 import { fusionAPI, type CancellationToken, type FusionProgress, type ProgrammaticFusionOptions } from '../src/index.js';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 
 describe('VS Code API enhancements', () => {
     let memoryFs: MemoryFileSystemAdapter;
@@ -78,12 +78,12 @@ describe('VS Code API enhancements', () => {
             const mockFs = {
                 ...memoryFs,
                 glob: vi.fn().mockRejectedValue(new Error('Test error'))
-            } as any;
+            };
             
             const options: ProgrammaticFusionOptions = {
                 rootDirectory: '/test',
                 generateText: true,
-                fs: mockFs,
+                fs: mockFs as unknown as FileSystemAdapter,
                 onDidFinish
             };
 
@@ -248,7 +248,7 @@ describe('VS Code API enhancements', () => {
             // Trigger cancellation immediately using setImmediate to ensure it happens in the next event loop tick
             setImmediate(() => {
                 isCancelled = true;
-                cancellationListeners.forEach(listener => listener());
+                for (const listener of cancellationListeners) { listener(); }
             });
             
             const result = await fusionPromise;

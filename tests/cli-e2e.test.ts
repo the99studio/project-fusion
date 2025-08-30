@@ -3,11 +3,11 @@
 /**
  * End-to-end CLI tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync } from 'node:child_process';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, readFile, access } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('CLI E2E Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'cli-e2e-test');
@@ -63,21 +63,21 @@ describe('CLI E2E Tests', () => {
             
             // Check content of markdown file
             const mdContent = await readFile('project-fusioned.md', 'utf8');
-            expect(mdContent).toContain('## 📄 test.js');
-            expect(mdContent).toContain('## 📄 test.ts');
+            expect(mdContent).toContain('## test.js');
+            expect(mdContent).toContain('## test.ts');
             expect(mdContent).toContain('```javascript');
             expect(mdContent).toContain('```typescript');
             
             // Check content of HTML file
             const htmlContent = await readFile('project-fusioned.html', 'utf8');
             expect(htmlContent).toContain('<!DOCTYPE html>');
-            expect(htmlContent).toContain('📄 test.js');
-            expect(htmlContent).toContain('📄 test.ts');
-            expect(htmlContent).toContain('<code class="language-javascript" lang="javascript">');
-            expect(htmlContent).toContain('<code class="language-typescript" lang="typescript">');
+            expect(htmlContent).toContain('<h2 id="testjs">test.js</h2>');
+            expect(htmlContent).toContain('<h2 id="testts">test.ts</h2>');
+            expect(htmlContent).toContain('console.log&#40;&quot;Hello, World&#33;&quot;&#41;;');
+            expect(htmlContent).toContain('const message: string &#61; &quot;TypeScript&quot;;');
         });
 
-        it('should handle empty directory gracefully', async () => {
+        it('should handle empty directory gracefully', () => {
             // Run CLI in empty directory
             const output = execSync(`node "${cliBin}"`, { 
                 encoding: 'utf8',
@@ -127,7 +127,11 @@ describe('CLI E2E Tests', () => {
             expect(existsSync('project-fusion.json')).toBe(true);
             
             // Validate config content
-            const config = JSON.parse(await readFile('project-fusion.json', 'utf8'));
+            const config = JSON.parse(await readFile('project-fusion.json', 'utf8')) as {
+                schemaVersion: number;
+                generatedFileName: string;
+                parsedFileExtensions: { web?: string[]; backend?: string[] };
+            };
             expect(config).toHaveProperty('schemaVersion', 1);
             expect(config).toHaveProperty('generatedFileName', 'project-fusioned');
             expect(config).toHaveProperty('parsedFileExtensions');
@@ -146,10 +150,11 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
-                expect(error.stdout).toContain('already exists');
-                expect(error.stdout).toContain('Use --force to override');
+            } catch (error) {
+                const execError = error as { status: number; stdout: string };
+                expect(execError.status).toBe(1);
+                expect(execError.stdout).toContain('already exists');
+                expect(execError.stdout).toContain('Use --force to override');
             }
             
             // Config should be unchanged
@@ -171,7 +176,10 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Overriding existing configuration');
             
             // Config should be replaced with default
-            const config = JSON.parse(await readFile('project-fusion.json', 'utf8'));
+            const config = JSON.parse(await readFile('project-fusion.json', 'utf8')) as {
+                custom?: unknown;
+                schemaVersion: number;
+            };
             expect(config).not.toHaveProperty('custom');
             expect(config).toHaveProperty('schemaVersion', 1);
         });
@@ -209,8 +217,8 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Configuration Summary:');
             expect(output).toContain('Schema Version: 1');
             expect(output).toContain('Generated File Name: test-fusion');
-            expect(output).toContain('web: 2 extensions (.js, .ts)');
-            expect(output).toContain('backend: 1 extensions (.py)');
+            expect(output).toContain('│ web         │ 2       │ .js, .ts');
+            expect(output).toContain('│ backend     │ 1       │ .py');
         });
 
         it('should handle invalid configuration', async () => {
@@ -229,15 +237,16 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
-                expect(error.stdout).toContain('❌ Configuration validation failed:');
-                expect(error.stdout).toContain('schemaVersion');
-                expect(error.stdout).toContain('expected 1');
+            } catch (error) {
+                const execError = error as { status: number; stdout: string };
+                expect(execError.status).toBe(1);
+                expect(execError.stdout).toContain('❌ Configuration validation failed:');
+                expect(execError.stdout).toContain('schemaVersion');
+                expect(execError.stdout).toContain('expected 1');
             }
         });
 
-        it('should handle missing configuration file', async () => {
+        it('should handle missing configuration file', () => {
             const output = execSync(`node "${cliBin}" config-check`, { 
                 encoding: 'utf8',
                 env: { ...process.env, CI: 'true' }
@@ -259,9 +268,10 @@ describe('CLI E2E Tests', () => {
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
-                expect(error.stdout).toContain('❌ Invalid JSON in configuration file:');
+            } catch (error) {
+                const execError = error as { status: number; stdout: string };
+                expect(execError.status).toBe(1);
+                expect(execError.stdout).toContain('❌ Invalid JSON in configuration file:');
             }
         });
     });
@@ -295,7 +305,7 @@ describe('CLI E2E Tests', () => {
             });
             
             expect(output).toContain('✅');
-            expect(output).toContain('📋 Clipboard copy skipped (non-interactive environment)');
+            expect(output).toContain('Clipboard copy skipped (non-interactive environment)');
         });
 
         it('should handle non-TTY environment', async () => {
@@ -314,21 +324,23 @@ describe('CLI E2E Tests', () => {
     });
 
     describe('Error Handling', () => {
-        it('should handle invalid command line options', async () => {
+        it('should handle invalid command line options', () => {
             try {
                 execSync(`node "${cliBin}" --unknown-option`, { 
                     encoding: 'utf8',
                     env: { ...process.env, CI: 'true' }
                 });
                 expect.fail('Should have thrown an error');
-            } catch (error: any) {
-                expect(error.status).toBe(1);
+            } catch (error) {
+                const execError = error as { status: number; stdout: string; stderr: string; message: string };
+                expect(execError.status).toBe(1);
                 // Commander.js should show help after error
-                expect(error.stdout || error.stderr).toContain('Usage:');
+                const errorOutput = execError.stderr || execError.stdout || execError.message;
+                expect(errorOutput).toContain('Usage:');
             }
         });
 
-        it('should show help information', async () => {
+        it('should show help information', () => {
             const output = execSync(`node "${cliBin}" --help`, { 
                 encoding: 'utf8',
                 env: { ...process.env, CI: 'true' }
@@ -341,7 +353,7 @@ describe('CLI E2E Tests', () => {
             expect(output).toContain('Options:');
         });
 
-        it('should show version information', async () => {
+        it('should show version information', () => {
             const output = execSync(`node "${cliBin}" --version`, { 
                 encoding: 'utf8',
                 env: { ...process.env, CI: 'true' }

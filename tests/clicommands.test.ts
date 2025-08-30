@@ -3,15 +3,16 @@
 /**
  * Tests for CLI commands
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFile, mkdir, rm, readFile, pathExists } from 'fs-extra';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { 
     runFusionCommand, 
     runInitCommand, 
     runConfigCheckCommand 
 } from '../src/clicommands.js';
+import { logger } from '../src/utils/logger.js';
 
 // Mock external dependencies
 vi.mock('chalk', () => ({
@@ -124,7 +125,7 @@ describe('CLI Commands', () => {
                 ignorePatterns: [],
                 allowSymlinks: false,
                 copyToClipboard: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             await writeFile('project-fusion.json', JSON.stringify(config));
@@ -160,7 +161,7 @@ describe('CLI Commands', () => {
                 ignorePatterns: [],
                 allowSymlinks: false,
                 copyToClipboard: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             await writeFile('project-fusion.json', JSON.stringify(config));
@@ -199,7 +200,7 @@ describe('CLI Commands', () => {
                 ignorePatterns: [],
                 allowSymlinks: false,
                 copyToClipboard: false,
-                maxFiles: 10000,
+                maxFiles: 10_000,
                 maxTotalSizeMB: 100
             };
             await writeFile('project-fusion.json', JSON.stringify(config));
@@ -248,7 +249,7 @@ describe('CLI Commands', () => {
 
             await runFusionCommand({});
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📋 Fusion content copied to clipboard'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Fusion content copied to clipboard'));
 
             // Restore
             process.stdout.isTTY = originalTTY;
@@ -279,7 +280,7 @@ describe('CLI Commands', () => {
 
             await runFusionCommand({});
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📋 Clipboard copy skipped (non-interactive environment)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Clipboard copy skipped (non-interactive environment)'));
         });
 
         it('should handle clipboard error gracefully', async () => {
@@ -322,6 +323,66 @@ describe('CLI Commands', () => {
             await runFusionCommand({});
 
             expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌'));
+        });
+
+        it('should validate numeric flags and show error for invalid maxFileSize', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFileSize: 'abc' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-file-size: "abc". Expected a positive number (KB).'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for invalid maxFiles', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFiles: 'invalid' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-files: "invalid". Expected a positive integer.'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for invalid maxTotalSize', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxTotalSize: 'xyz' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-total-size: "xyz". Expected a positive number (MB).'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for zero values', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFileSize: '0' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-file-size: "0". Expected a positive number (KB).'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should validate numeric flags and show error for negative values', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ maxFiles: '-5' });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('❌ Invalid value for --max-files: "-5". Expected a positive integer.'));
+            expect(mockExit).toHaveBeenCalledWith(1);
+        });
+
+        it('should accept valid numeric values', async () => {
+            await writeFile('test.js', 'console.log("Test");');
+
+            await runFusionCommand({ 
+                maxFileSize: '2048', 
+                maxFiles: '500', 
+                maxTotalSize: '50.5' 
+            });
+
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum file size set to: 2048 KB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum files set to: 500'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Maximum total size set to: 50.5 MB'));
+            expect(mockExit).not.toHaveBeenCalledWith(1);
         });
 
     });
@@ -442,11 +503,104 @@ describe('CLI Commands', () => {
 
             await runConfigCheckCommand();
 
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔧 Basic Settings'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📄 Output Generation'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('📁 File Extension Groups'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🚫 Ignore Patterns'));
-            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('🔍 File Discovery Preview'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Basic Settings'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Output Generation'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Extension Groups'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Ignore Patterns'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Discovery Preview'));
+        });
+
+        it('should display structured table for extension groups', async () => {
+            await runConfigCheckCommand();
+
+            // Check for structured table elements
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('File Extension Groups (Structured View)'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('┌─────────────┬─────────┬────────────────────────────────────────────┐'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('│ Group       │ Count   │ Extensions                                 │'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('└─────────────┴─────────┴────────────────────────────────────────────┘'));
+        });
+
+        it('should highlight differences from default config', async () => {
+            // Create a modified config
+            const modifiedConfig = {
+                schemaVersion: 1,
+                generatedFileName: "custom-fusion", // Modified
+                generateHtml: true,
+                generateMarkdown: true,
+                generateText: true,
+                maxFileSizeKB: 2048, // Modified
+                parseSubDirectories: true,
+                parsedFileExtensions: {
+                    web: [".js", ".ts"], // Modified - fewer extensions
+                    backend: [".py"]
+                },
+                rootDirectory: ".",
+                useGitIgnoreForExcludes: true,
+                copyToClipboard: false,
+                ignorePatterns: ["custom-pattern"], // Modified
+                allowSymlinks: false,
+                maxFiles: 10_000,
+                maxTotalSizeMB: 100
+            };
+            
+            await writeFile('project-fusion.json', JSON.stringify(modifiedConfig, null, 2));
+
+            await runConfigCheckCommand();
+
+            // Should show modifications in the output
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('custom-fusion'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('2048 KB'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Legend'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Green: Default values'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Yellow: Modified from defaults'));
+        });
+
+        it('should log config check details', async () => {
+            // Mock the logger to capture calls
+            const loggerSpy = vi.spyOn(logger, 'info');
+
+            await runConfigCheckCommand();
+
+            // Should log the config check details
+            expect(loggerSpy).toHaveBeenCalledWith('Config check details logged', expect.objectContaining({
+                configCheckOutput: expect.any(String),
+                isDefault: true,
+                timestamp: expect.any(String)
+            }));
+
+            loggerSpy.mockRestore();
+        });
+
+        it('should show pattern changes for modified ignore patterns', async () => {
+            // Create config with modified ignore patterns
+            const configWithModifiedPatterns = {
+                schemaVersion: 1,
+                generatedFileName: "project-fusioned",
+                generateHtml: true,
+                generateMarkdown: true,
+                generateText: true,
+                maxFileSizeKB: 1024,
+                parseSubDirectories: true,
+                parsedFileExtensions: {
+                    web: [".js", ".ts"],
+                    backend: [".py"]
+                },
+                rootDirectory: ".",
+                useGitIgnoreForExcludes: true,
+                copyToClipboard: false,
+                ignorePatterns: ["*.custom", "new-pattern"], // Different from defaults
+                allowSymlinks: false,
+                maxFiles: 10_000,
+                maxTotalSizeMB: 100
+            };
+            
+            await writeFile('project-fusion.json', JSON.stringify(configWithModifiedPatterns, null, 2));
+
+            await runConfigCheckCommand();
+
+            // Should show pattern changes summary
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Pattern Changes'));
+            expect(mockConsole.log).toHaveBeenCalledWith(expect.stringContaining('Added:'));
         });
     });
 });

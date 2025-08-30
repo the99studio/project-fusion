@@ -1,11 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import path from 'node:path';
 import fs from 'fs-extra';
-import path from 'path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
+import type { Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
-import { Config } from '../src/types.js';
 
-describe('integration', () => {
+describe('Integration Tests - Optimized', () => {
+  // Pre-define test content to avoid runtime generation
+  const TEST_CONTENT = {
+    js: 'console.log("Hello World");',
+    ts: 'const message: string = "TypeScript";',
+    dockerfile: 'FROM node:18\\nCOPY . .\\nRUN npm install',
+    json: JSON.stringify({ name: 'test', version: '1.0.0' }, null, 2)
+  };
+  
   const testDir = path.join(process.cwd(), 'temp', 'test-integration');
   const originalCwd = process.cwd();
 
@@ -47,19 +55,22 @@ describe('integration', () => {
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('2 files processed');
-      expect(result.fusionFilePath).toBeDefined();
       
-      // Check if fusion files were created
-      expect(await fs.pathExists(result.fusionFilePath!)).toBe(true);
-      expect(await fs.pathExists(result.fusionFilePath!.replace('.txt', '.md'))).toBe(true);
-      
-      // Check content of fusion file
-      const fusionContent = await fs.readFile(result.fusionFilePath!, 'utf8');
-      expect(fusionContent).toContain('test.js');
-      expect(fusionContent).toContain('test.ts');
-      expect(fusionContent).toContain('console.log("Hello World");');
-      expect(fusionContent).toContain('const message: string = "TypeScript";');
-      expect(fusionContent).not.toContain('Dockerfile'); // Not in web extensions
+      if (result.success) {
+        expect(result.fusionFilePath).toBeDefined();
+        
+        // Check if fusion files were created
+        expect(await fs.pathExists(result.fusionFilePath as string)).toBe(true);
+        expect(await fs.pathExists((result.fusionFilePath as string).replace('.txt', '.md'))).toBe(true);
+        
+        // Check content of fusion file
+        const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
+        expect(fusionContent).toContain('test.js');
+        expect(fusionContent).toContain('test.ts');
+        expect(fusionContent).toContain('console.log("Hello World");');
+        expect(fusionContent).toContain('const message: string = "TypeScript";');
+        expect(fusionContent).not.toContain('Dockerfile'); // Not in web extensions
+      }
     });
 
     it('should handle empty directory gracefully', async () => {
@@ -75,10 +86,12 @@ describe('integration', () => {
       expect(result.message).toContain('No files found to process');
     });
 
-    it('should respect ignore patterns', async () => {
-      // Create test files
-      await fs.writeFile('test.js', 'console.log("Hello World");');
-      await fs.writeFile('ignored.js', 'console.log("Should be ignored");');
+    it('should respect ignore patterns with batch file creation', async () => {
+      // Create test files in parallel
+      await Promise.all([
+        fs.writeFile('test.js', TEST_CONTENT.js),
+        fs.writeFile('ignored.js', 'console.log("Should be ignored");')
+      ]);
       
       const testConfig: Config = {
         ...defaultConfig,
@@ -95,17 +108,21 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only test.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath!, 'utf8');
-      expect(fusionContent).toContain('test.js');
-      expect(fusionContent).not.toContain('ignored.js');
+      if (result.success) {
+        const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
+        expect(fusionContent).toContain('test.js');
+        expect(fusionContent).not.toContain('ignored.js');
+      }
     });
 
-    it('should filter files by extensions correctly', async () => {
-      // Create test files with different extensions
-      await fs.writeFile('app.js', 'console.log("JavaScript");');
-      await fs.writeFile('app.ts', 'const app: string = "TypeScript";');
-      await fs.writeFile('app.py', 'print("Python")');
-      await fs.writeFile('config.json', '{"test": true}');
+    it('should filter files by extensions correctly using parallel creation', async () => {
+      // Create test files with different extensions in parallel
+      await Promise.all([
+        fs.writeFile('app.js', 'console.log("JavaScript");'),
+        fs.writeFile('app.ts', 'const app: string = "TypeScript";'),
+        fs.writeFile('app.py', 'print("Python")'),
+        fs.writeFile('config.json', TEST_CONTENT.json)
+      ]);
       
       // Test web extensions only
       const webConfig: Config = {
@@ -121,11 +138,13 @@ describe('integration', () => {
       expect(webResult.success).toBe(true);
       expect(webResult.message).toContain('2 files processed');
       
-      const webContent = await fs.readFile(webResult.fusionFilePath!, 'utf8');
-      expect(webContent).toContain('app.js');
-      expect(webContent).toContain('app.ts');
-      expect(webContent).not.toContain('app.py');
-      expect(webContent).not.toContain('config.json');
+      if (webResult.success) {
+        const webContent = await fs.readFile(webResult.fusionFilePath, 'utf8');
+        expect(webContent).toContain('app.js');
+        expect(webContent).toContain('app.ts');
+        expect(webContent).not.toContain('app.py');
+        expect(webContent).not.toContain('config.json');
+      }
 
       // Test backend extensions only
       const backendConfig: Config = {
@@ -141,10 +160,12 @@ describe('integration', () => {
       expect(backendResult.success).toBe(true);
       expect(backendResult.message).toContain('1 files processed');
       
-      const backendContent = await fs.readFile(backendResult.fusionFilePath!, 'utf8');
-      expect(backendContent).toContain('app.py');
-      expect(backendContent).not.toContain('app.js');
-      expect(backendContent).not.toContain('app.ts');
+      if (backendResult.success) {
+        const backendContent = await fs.readFile(backendResult.fusionFilePath, 'utf8');
+        expect(backendContent).toContain('app.py');
+        expect(backendContent).not.toContain('app.js');
+        expect(backendContent).not.toContain('app.ts');
+      }
     });
 
     it('should respect .gitignore patterns', async () => {
@@ -173,11 +194,13 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only app.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath!, 'utf8');
-      expect(fusionContent).toContain('app.js');
-      expect(fusionContent).not.toContain('build.js');
-      expect(fusionContent).not.toContain('node_modules');
-      expect(fusionContent).not.toContain('dist');
+      if (result.success) {
+        const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
+        expect(fusionContent).toContain('app.js');
+        expect(fusionContent).not.toContain('build.js');
+        expect(fusionContent).not.toContain('node_modules');
+        expect(fusionContent).not.toContain('dist');
+      }
     });
 
     it('should skip files larger than maxFileSizeKB', async () => {
@@ -185,7 +208,7 @@ describe('integration', () => {
       await fs.writeFile('small.js', 'console.log("small");');
       
       // Create large file (2KB)
-      const largeContent = 'console.log("large");' + 'x'.repeat(2000);
+      const largeContent = `console.log("large");${  'x'.repeat(2000)}`;
       await fs.writeFile('large.js', largeContent);
       
       const testConfig: Config = {
@@ -202,9 +225,11 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only small.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath!, 'utf8');
-      expect(fusionContent).toContain('small.js');
-      expect(fusionContent).not.toContain('large.js');
+      if (result.success) {
+        const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
+        expect(fusionContent).toContain('small.js');
+        expect(fusionContent).not.toContain('large.js');
+      }
     });
 
     it('should respect non-recursive directory parsing', async () => {
@@ -228,9 +253,11 @@ describe('integration', () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain('1 files processed'); // Only root.js
       
-      const fusionContent = await fs.readFile(result.fusionFilePath!, 'utf8');
-      expect(fusionContent).toContain('root.js');
-      expect(fusionContent).not.toContain('nested.js');
+      if (result.success) {
+        const fusionContent = await fs.readFile(result.fusionFilePath as string, 'utf8');
+        expect(fusionContent).toContain('root.js');
+        expect(fusionContent).not.toContain('nested.js');
+      }
     });
 
     it('should generate HTML output when enabled', async () => {
@@ -250,15 +277,17 @@ describe('integration', () => {
       const result = await processFusion(testConfig);
       expect(result.success).toBe(true);
       
-      // Check HTML file was created
-      const htmlPath = result.fusionFilePath!.replace('.txt', '.html');
-      expect(await fs.pathExists(htmlPath)).toBe(true);
-      
-      const htmlContent = await fs.readFile(htmlPath, 'utf8');
-      expect(htmlContent).toContain('<!DOCTYPE html>');
-      expect(htmlContent).toContain('<html lang="en">');
-      expect(htmlContent).toContain('test.js');
-      expect(htmlContent).toContain('console.log(&quot;Hello HTML&quot;);');
+      if (result.success) {
+        // Check HTML file was created
+        const htmlPath = (result.fusionFilePath as string).replace('.txt', '.html');
+        expect(await fs.pathExists(htmlPath)).toBe(true);
+        
+        const htmlContent = await fs.readFile(htmlPath, 'utf8');
+        expect(htmlContent).toContain('<!DOCTYPE html>');
+        expect(htmlContent).toContain('<html lang="en">');
+        expect(htmlContent).toContain('test.js');
+        expect(htmlContent).toContain('console.log&#40;&quot;Hello HTML&quot;&#41;;');
+      }
     });
   });
 });

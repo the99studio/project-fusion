@@ -3,6 +3,7 @@
 /**
  * Type definitions for the fusion functionality
  */
+import type { FileSystemAdapter } from './adapters/file-system.js';
 
 export type FilePath = string & { readonly __brand: unique symbol };
 
@@ -51,6 +52,7 @@ export type FusionErrorCode =
     | 'EMPTY_ARRAY'
     | 'INVALID_PATH'
     | 'PATH_TRAVERSAL'
+    | 'PLUGIN_NOT_ALLOWED'
     | 'SYMLINK_NOT_ALLOWED'
     | 'UNKNOWN_EXTENSION_GROUP';
 
@@ -79,8 +81,10 @@ export class FusionError extends Error {
  * Main configuration interface (properties in alphabetical order)
  */
 export interface Config {
-    /** Allow loading plugins from outside rootDirectory (security risk) */
-    allowExternalPlugins?: boolean;
+    /** Enable aggressive content sanitization for highly sensitive environments */
+    aggressiveContentSanitization: boolean;
+    /** Explicit list of allowed external plugin paths for security */
+    allowedExternalPluginPaths?: string[];
     allowSymlinks: boolean;
     copyToClipboard: boolean;
     /** Whether to exclude files containing secrets (default: true) */
@@ -96,10 +100,14 @@ export interface Config {
     maxFiles: number;
     /** Maximum line length in characters before warning/rejection */
     maxLineLength: number;
+    /** Maximum number of symlink audit entries to log */
+    maxSymlinkAuditEntries: number;
     /** Maximum token length (for detecting minified content) */
     maxTokenLength: number;
     maxTotalSizeMB: number;
+    maxOutputSizeMB: number;
     outputDirectory?: string | undefined;
+    overwriteFiles: boolean;
     parsedFileExtensions: {
         backend?: readonly string[];
         config?: readonly string[];
@@ -123,7 +131,7 @@ export interface Config {
 export interface FusionOptions {
     enabledPlugins?: readonly string[];
     extensionGroups?: readonly string[];
-    fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    fs?: FileSystemAdapter;
     pluginsDir?: string;
     previewMode?: boolean;
 }

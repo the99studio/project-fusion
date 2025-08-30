@@ -4,10 +4,8 @@
  * Tests for secret detection and redaction functionality
  */
 import { describe, expect, it } from 'vitest';
-
-import { redactSecrets, SECRET_PATTERNS, validateFileContent } from '../src/utils.js';
-import { defaultConfig } from '../src/utils.js';
 import type { Config } from '../src/types.js';
+import { redactSecrets, SECRET_PATTERNS, validateFileContent , defaultConfig } from '../src/utils.js';
 
 describe('Secret Detection Tests', () => {
     describe('SECRET_PATTERNS', () => {
@@ -37,17 +35,17 @@ describe('Secret Detection Tests', () => {
                 'Password Field'
             ];
             
-            expectedPatterns.forEach(patternName => {
+            for (const patternName of expectedPatterns) {
                 expect(SECRET_PATTERNS.some(p => p.name === patternName)).toBe(true);
-            });
+            }
         });
 
         it('should have valid regex patterns', () => {
-            SECRET_PATTERNS.forEach(pattern => {
+            for (const pattern of SECRET_PATTERNS) {
                 expect(pattern.name).toBeTypeOf('string');
                 expect(pattern.regex).toBeInstanceOf(RegExp);
                 expect(pattern.name).toBeTruthy();
-            });
+            }
         });
     });
 
@@ -163,7 +161,7 @@ describe('Secret Detection Tests', () => {
             expect(result.detectedSecrets).toContain('JWT Token');
             
             // All secrets should be redacted
-            const redactedCount = (result.redactedContent.match(/\[REDACTED\]/g) || []).length;
+            const redactedCount = (result.redactedContent.match(/\[REDACTED]/g) ?? []).length;
             expect(redactedCount).toBe(4);
         });
 
@@ -203,7 +201,7 @@ describe('Secret Detection Tests', () => {
             expect(result.detectedSecrets).toContain('AWS Access Key');
             
             // All three keys should be redacted
-            const redactedCount = (result.redactedContent.match(/\[REDACTED\]/g) || []).length;
+            const redactedCount = (result.redactedContent.match(/\[REDACTED]/g) ?? []).length;
             expect(redactedCount).toBe(3);
         });
     });

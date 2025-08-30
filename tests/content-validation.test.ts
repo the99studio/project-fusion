@@ -3,16 +3,27 @@
 /**
  * Content validation tests for Project Fusion
  */
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { validateFileContent, isMinifiedContent, type ContentValidationResult } from '../src/utils.js';
-import { processFusion } from '../src/fusion.js';
+import { describe, expect, it } from 'vitest';
 import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
-import { defaultConfig } from '../src/utils.js';
+import { processFusion } from '../src/fusion.js';
 import { createFilePath, type Config } from '../src/types.js';
+import { validateFileContent, isMinifiedContent, defaultConfig } from '../src/utils.js';
+
+// Shared test configuration factory for better consistency
+const createTestConfig = (overrides: Partial<Config> = {}): Config => ({
+    ...defaultConfig,
+    generateHtml: false,
+    generateMarkdown: false,
+    generateText: true,
+    rootDirectory: '.',
+    parsedFileExtensions: { web: ['.js'] },
+    ...overrides
+});
 
 describe('Content Validation Tests', () => {
     describe('Base64 Block Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 5000,
             maxTokenLength: 2000,
@@ -20,7 +31,7 @@ describe('Content Validation Tests', () => {
 
         it('should reject large base64 blocks', () => {
             // Create a base64 string larger than 2KB
-            const largeBase64 = 'A'.repeat(3000) + '='; // ~3KB when decoded
+            const largeBase64 = `${'A'.repeat(3000)  }=`; // ~3KB when decoded
             const content = `const data = "${largeBase64}";`;
             
             const result = validateFileContent(content, 'test.js', validationConfig);
@@ -45,7 +56,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Long Line Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 100, // Very short for testing
             maxTokenLength: 2000,
@@ -76,7 +88,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Long Token Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 5000,
             maxTokenLength: 50, // Very short for testing
@@ -108,7 +121,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Multiple Issues Detection', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 1,
             maxLineLength: 50,
             maxTokenLength: 30,
@@ -143,7 +157,7 @@ describe('Content Validation Tests', () => {
         });
 
         it('should detect content with high average line length as minified', () => {
-            const longContent = Array(20).fill('a'.repeat(800)).join('\n');
+            const longContent = new Array(20).fill('a'.repeat(800)).join('\n');
             expect(isMinifiedContent(longContent, 'script.js')).toBe(true);
         });
 
@@ -166,18 +180,9 @@ describe('Content Validation Tests', () => {
             memFS.addFile('problem.js', `const data="${largeBase64}";`);
             memFS.addFile('normal.js', 'console.log("hello");');
             
-            const config: Config = {
-                ...defaultConfig,
-                rootDirectory: '.',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: {
-                    web: ['.js']
-                }
-            };
+            const config = createTestConfig();
 
-            const result = await processFusion(config, { fs: memFS });
+            await processFusion(config, { fs: memFS });
             
             const output = await memFS.readFile(createFilePath('project-fusioned.txt'));
             
@@ -194,20 +199,11 @@ describe('Content Validation Tests', () => {
         it('should handle minified content appropriately', async () => {
             const memFS = new MemoryFileSystemAdapter();
             
-            const minifiedContent = 'var a=' + 'x'.repeat(1600); // Long line
+            const minifiedContent = `var a=${  'x'.repeat(1600)}`; // Long line
             memFS.addFile('minified.js', minifiedContent);
             memFS.addFile('normal.js', 'console.log("hello");');
             
-            const config: Config = {
-                ...defaultConfig,
-                rootDirectory: '.',
-                generateHtml: false,
-                generateMarkdown: false,
-                generateText: true,
-                parsedFileExtensions: {
-                    web: ['.js']
-                }
-            };
+            const config = createTestConfig();
 
             const result = await processFusion(config, { fs: memFS });
             
@@ -217,7 +213,8 @@ describe('Content Validation Tests', () => {
     });
 
     describe('Edge Cases', () => {
-        const validationConfig = {
+        const validationConfig: Config = {
+            ...defaultConfig,
             maxBase64BlockKB: 2,
             maxLineLength: 100,
             maxTokenLength: 50,

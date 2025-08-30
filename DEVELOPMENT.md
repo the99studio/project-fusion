@@ -1,48 +1,49 @@
 # Development Guide
 
-> 📋 **For AI Context**: See [CLAUDE.md](./CLAUDE.md) | 📖 **For Users**: See [README.md](./README.md)
+> 📋 **For Claude Code Context**: See [CLAUDE.md](./CLAUDE.md) | 📖 **For Users**: See [README.md](./README.md)
 
 ## Project Setup
+
+Requires [Node.js 20.10.0+](https://nodejs.org/en/download)
 
 ```bash
 git clone https://github.com/the99studio/project-fusion.git
 cd project-fusion
 npm install
 npm run build
-npm run test
 ```
 
-### Requirements
-- Node.js 20.10.0+
-- TypeScript 5.9.2+
-- ESM modules
+## VS Code Debug
+[Launch configurations](./.vscode/launch.json) available (F5):
 
-## Development Workflow
+- **Config Check** - Validate configuration file
+- **Fusion** - Standard fusion with current directory
+- **Generate NPM Package Temp** - Build, pack and test the npm package locally
+- **Help** - Show help information
+- **Init (Force)** - Overwrite existing config file
+- **Init** - Create new config file
+- **Tests** - Run the full test suite
 
-### Commands
+## Architecture
+
+> See [CLAUDE.md](./CLAUDE.md#project-structure) for complete project structure and file organization.
+
+## Testing
+
 ```bash
-npm run build          # Compile TypeScript + lint
-npm run clean          # Remove dist directory
-npm run lint           # ESLint checks
-npm run test           # Run full test suite with coverage
-npm run typecheck      # Type validation only
+npm run test # Run full test suite with coverage
 ```
 
-### Testing
-- **Memory FS**: Isolated testing environment
-- **Property tests**: fast-check for edge cases
-- **Test files**: All `temp/` directory (gitignored)
-- **Unit tests**: Vitest with coverage reporting
+> See [CLAUDE.md](./CLAUDE.md#testing-requirements) for testing architecture and requirements.
 
-### VS Code Debug Configurations
-Launch with F5:
-- **Fusion (Default)** - Standard fusion
-- **Fusion (Preview)** - Preview mode
-- **Fusion (Web)** - Web files only
-- **Help** - Show help
-- **Init** - Create config
+
+## CI/CD
+
+> See [CLAUDE.md](./CLAUDE.md#project-structure) for CI/CD pipeline details.
 
 ## Local Package Testing
+
+Test your changes locally before publishing:
 
 ```bash
 # Build and pack
@@ -63,203 +64,90 @@ npm uninstall -g @the99studio/project-fusion
 
 ## Publishing
 
+Publishing is automated via GitHub Actions when you push a version tag using OpenID Connect (OIDC) for secure, token-free authentication.
+
 ```bash
-# Ensure tests pass
-npm test
+# 1. Ensure you're on main branch with latest changes
+git checkout main
+git pull origin main
 
-# Login to npm
-npm login
+# 2. Bump version (creates commit + tag automatically)
+npm version patch  # 1.0.0 → 1.0.1 (bug fixes)
+# or: npm version minor  # 1.0.0 → 1.1.0 (new features)
+# or: npm version major  # 1.0.0 → 2.0.0 (breaking changes)
 
-# Publish (runs prepublishOnly hook)
-npm publish
+# 3. Push everything (commits + tag)
+git push && git push --tags
 ```
+
+The [release.yml](./.github/workflows/release.yml) workflow automatically:
+- ✅ Verifies version consistency between tag and package.json
+- ✅ Runs all tests via build-test.yml
+- ✅ Builds the project
+- ✅ Publishes to npm (stable or pre-release)
+- ✅ Creates a GitHub release with auto-generated notes
 
 ## Plugin Development
 
 ### Plugin Interface
-```typescript
-import type { Plugin, PluginHooks } from '@the99studio/project-fusion/plugins';
+See [`src/plugins/plugin-system.ts`](./src/plugins/plugin-system.ts) for the complete Plugin interface.
 
-export const myPlugin: Plugin = {
-    metadata: {
-        name: 'my-plugin',
-        version: '1.0.0',
-        description: 'Custom plugin'
-    },
-    
-    // Lifecycle hooks
-    async initialize(config) {
-        // Setup code
-    },
-    
-    async beforeFileProcessing(fileInfo, config) {
-        // Return null to skip file
-        // Return modified fileInfo to process
-        return fileInfo;
-    },
-    
-    async afterFileProcessing(fileInfo, content, config) {
-        // Transform content
-        return modifiedContent;
-    },
-    
-    async beforeFusion(config, files) {
-        // Modify config or file list
-        return { config, filesToProcess: files };
-    },
-    
-    async afterFusion(result, config) {
-        // Post-process result
-        return result;
-    },
-    
-    // Registration methods
-    registerFileExtensions() {
-        return { 
-            custom: ['.xyz', '.abc']
-        };
-    },
-    
-    registerOutputStrategies() {
-        return [{
-            name: 'json',
-            extension: '.json',
-            generateHeader: (ctx) => '{\n',
-            processFile: (file, ctx) => JSON.stringify(file),
-            generateFooter: (ctx) => '\n}'
-        }];
-    },
-    
-    async cleanup() {
-        // Cleanup code
-    }
-};
-```
+Key plugin hooks:
+- `initialize` - Setup code
+- `beforeFileProcessing` - Filter/modify files before processing
+- `afterFileProcessing` - Transform file content
+- `beforeFusion` - Modify config or file list
+- `afterFusion` - Post-process result
+- `registerFileExtensions` - Add custom extensions
+- `registerOutputStrategies` - Add output formats
+- `cleanup` - Cleanup resources
 
 ### Loading Plugins
+Plugins can be loaded via the [API](./src/api.ts):
 ```javascript
 import { fusionAPI } from '@the99studio/project-fusion/api';
 
 await fusionAPI({
     pluginsDir: './plugins',
     enabledPlugins: ['my-plugin'],
-    allowExternalPlugins: true  // Required for external plugins
+    allowedExternalPluginPaths: ['./plugins']  // Required for external plugins
 });
 ```
 
-## Advanced API Usage
+## API Usage
 
 ### Programmatic API with Progress
+The [fusionAPI](./src/api.ts) supports progress tracking and cancellation:
 ```javascript
 import { fusionAPI } from '@the99studio/project-fusion/api';
 
 const result = await fusionAPI({
     rootDirectory: './src',
     extensionGroups: ['web', 'backend'],
-    outputDirectory: './output',
-    
-    // Progress callback
-    onProgress: (progress) => {
-        console.log(`${progress.step}: ${progress.percentage}%`);
-        console.log(progress.message);
-    },
-    
-    // Cancellation support
-    cancellationToken: {
-        isCancellationRequested: false,
-        onCancellationRequested: (cb) => {
-            process.on('SIGINT', cb);
-        }
-    },
-    
-    // Completion callback
-    onDidFinish: (result) => {
-        if (result.success) {
-            console.log('Files:', result.filesProcessed);
-        }
-    }
+    onProgress: (progress) => console.log(`${progress.percentage}%`),
+    cancellationToken: { /* ... */ }
 });
 ```
 
 ### Custom File System Adapter
+Use [MemoryFileSystemAdapter](./src/adapters/file-system.ts) for testing:
 ```javascript
 import { MemoryFileSystemAdapter } from '@the99studio/project-fusion/adapters';
 
 const memFs = new MemoryFileSystemAdapter();
 memFs.addFile('/src/app.js', 'console.log("Hello");');
-
-await fusionAPI({
-    fs: memFs,
-    rootDirectory: '/src'
-});
+await fusionAPI({ fs: memFs, rootDirectory: '/src' });
 ```
 
 ### Fluent API Builder
+The [Fluent API](./src/fluent.ts) provides a chainable interface:
 ```javascript
 import { projectFusion } from '@the99studio/project-fusion/fluent';
 
 await projectFusion()
     .root('./src')
     .include(['web', 'backend'])
-    .exclude(['*.test.js', '*.spec.ts'])
     .maxSize('5MB')
-    .maxFiles(500)
     .output(['md', 'html'])
-    .plugin('minify-plugin')
-    .clipboard()
     .generate();
 ```
-
-## Project Structure
-
-```
-project-fusion/
-├── dist/                   # Compiled output
-├── src/
-│   ├── adapters/
-│   │   └── file-system.ts  # FS abstraction
-│   ├── api.ts              # Programmatic API
-│   ├── benchmark.ts        # Performance tracking
-│   ├── cli.ts              # CLI entry point
-│   ├── clicommands.ts      # CLI commands
-│   ├── fluent.ts           # Fluent API builder
-│   ├── fusion.ts           # Core processing
-│   ├── plugins/
-│   │   └── plugin-system.ts    # Plugin manager
-│   ├── schema.ts           # Zod schemas
-│   ├── strategies/
-│   │   └── output-strategy.ts  # Output formats
-│   ├── types.ts            # TypeScript types
-│   └── utils.ts            # Utilities
-├── temp/                   # Test temp files (gitignored)
-└── tests/                  # Test suites
-```
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-## Debugging Tips
-
-1. **Check logs**: Generated `.log` file in output directory
-2. **Config validation**: Run `project-fusion config-check`
-3. **Enable verbose logging**: Set `DEBUG=project-fusion:*` environment variable
-4. **Memory issues**: Adjust `maxTotalSizeMB` and `maxFiles` limits
-5. **Preview mode**: Use `--preview` to see what files would be processed
-
-## Performance Optimization
-
-- Binary files automatically detected and skipped
-- Configurable limits prevent memory exhaustion
-- Content validation prevents processing malformed files
-- Files are processed in streaming mode for large projects
-- Progress reporting for long-running operations
-
-## Security Considerations
-
-- Content validation for suspicious patterns
-- External plugins require explicit flag
-- Path traversal protection enforced
-- Secret redaction in output files
-- Symlinks disabled by default
-- XSS prevention in HTML output

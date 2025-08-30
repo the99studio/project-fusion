@@ -5,20 +5,22 @@
  */
 import path from 'node:path';
 import process from 'node:process';
-
-import chalk from 'chalk';
 import fs from 'fs-extra';
 import { z } from 'zod';
-
 import { ConfigSchemaV1 } from './schema.js';
 import { type Config, FusionError, isNonEmptyArray, isValidExtensionGroup } from './types.js';
+import { logger } from './utils/logger.js';
+
+// Global symlink audit tracker
+const symlinkAuditTracker = new Map<string, { count: number; entries: Array<{ symlink: string; target: string; timestamp: Date }> }>();
 
 
 /**
  * Default configuration for Project Fusion
  */
 export const defaultConfig = {
-    allowExternalPlugins: false,
+    aggressiveContentSanitization: false,
+    allowedExternalPluginPaths: [],
     allowSymlinks: false,
     copyToClipboard: false,
     excludeSecrets: true,
@@ -31,8 +33,8 @@ export const defaultConfig = {
         "*.7z",
         "*.a",
         "*.avi",
-        "*.bmp",
         "*.blend",
+        "*.bmp",
         "*.class",
         "*.dll",
         "*.doc",
@@ -49,6 +51,7 @@ export const defaultConfig = {
         "*.jpeg",
         "*.jpg",
         "*.key",
+        "*.keystore",
         "*.log",
         "*.min.css",
         "*.min.js",
@@ -57,6 +60,7 @@ export const defaultConfig = {
         "*.mp4",
         "*.o",
         "*.obj",
+        "*.p12",
         "*.pdf",
         "*.pem",
         "*.png",
@@ -82,13 +86,20 @@ export const defaultConfig = {
         "*.zip",
         "**/credentials/*",
         "**/secrets/*",
+        ".*history",
+        ".aws/",
+        ".azure/",
         ".DS_Store",
         ".env",
         ".env.*",
+        ".gcloud/",
         ".idea/",
+        ".npmrc",
+        ".ssh/",
         ".vscode/",
         "build/",
         "dist/",
+        "dist/**/*.map",
         "logs/",
         "node_modules/",
         "package-lock.json",
@@ -101,10 +112,13 @@ export const defaultConfig = {
     ],
     maxBase64BlockKB: 2,
     maxFileSizeKB: 1024,
-    maxFiles: 10000,
+    maxFiles: 10_000,
     maxLineLength: 5000,
+    maxSymlinkAuditEntries: 10,
     maxTokenLength: 2000,
     maxTotalSizeMB: 100,
+    maxOutputSizeMB: 50,
+    overwriteFiles: false,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"] as const,
         config: [".json", ".toml", ".xml", ".yaml", ".yml"] as const,
@@ -215,17 +229,6 @@ export async function writeLog(
 }
 
 
-/**
- * Console logging utilities with consistent styling
- */
-export const logger = {
-    info: (message: string) => console.log(chalk.blue(message)),
-    success: (message: string) => console.log(chalk.green(message)),
-    warning: (message: string) => console.log(chalk.yellow(message)),
-    error: (message: string) => console.log(chalk.red(message)),
-    secondary: (message: string) => console.log(chalk.cyan(message)),
-    muted: (message: string) => console.log(chalk.gray(message))
-};
 
 /**
  * Format a timestamp
@@ -240,7 +243,7 @@ export function formatTimestamp(date?: Date): string {
  * Generate a helpful message when no files match the criteria
  */
 export function generateHelpfulEmptyMessage(extensions: string[], config: Config): string {
-    const messages = ['💡 Suggestions to find files:'];
+    const messages = ['Suggestions to find files:'];
     
     // Suggest different extension groups
     const availableGroups = Object.keys(config.parsedFileExtensions);
@@ -321,7 +324,7 @@ export function getExtensionsFromGroups(
     for (const group of groups) {
         // Type-safe group validation
         if (!isValidExtensionGroup(group)) {
-            console.warn(`Unknown extension group '${group}'. Valid groups: ${Object.keys(config.parsedFileExtensions).join(', ')}`);
+            logger.consoleWarn(`Unknown extension group '${group}'. Valid groups: ${Object.keys(config.parsedFileExtensions).join(', ')}`);
             continue;
         }
 
@@ -329,7 +332,7 @@ export function getExtensionsFromGroups(
         if (extensions && isNonEmptyArray(extensions)) {
             result.push(...extensions);
         } else {
-            console.warn(`Extension group '${group}' is empty or not found in configuration`);
+            logger.consoleWarn(`Extension group '${group}' is empty or not found in configuration`);
         }
     }
     return result;
@@ -353,6 +356,8 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
         
         // If relative path starts with '..' or is absolute, the file escapes the root
         if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+            const warningMsg = `SECURITY: Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`;
+            logger.consoleWarn(warningMsg);
             throw new FusionError(
                 `Path traversal detected: '${filePath}' escapes root directory '${rootDirectory}'`,
                 'PATH_TRAVERSAL',
@@ -382,12 +387,14 @@ export function validateSecurePath(filePath: string, rootDirectory: string): str
  * @returns True if the path is safe to process
  * @throws FusionError if symlink is found and not allowed
  */
-export async function validateNoSymlinks(filePath: string, allowSymlinks: boolean = false): Promise<boolean> {
+export async function validateNoSymlinks(filePath: string, allowSymlinks = false, config?: Config): Promise<boolean> {
     try {
         const stats = await fs.lstat(filePath);
         
         if (stats.isSymbolicLink()) {
             if (!allowSymlinks) {
+                const warningMsg = `SECURITY: Symbolic link not allowed: '${filePath}'`;
+                logger.consoleWarn(warningMsg);
                 throw new FusionError(
                     `Symbolic link not allowed: '${filePath}'`,
                     'SYMLINK_NOT_ALLOWED',
@@ -395,8 +402,9 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks: boolea
                     { filePath }
                 );
             }
-            // If symlinks are allowed, we still want to log them for transparency
-            console.warn(`Processing symbolic link: ${filePath}`);
+            
+            // If symlinks are allowed, perform audit logging
+            await auditSymlink(filePath, config);
         }
         
         return true;
@@ -404,9 +412,127 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks: boolea
         if (error instanceof FusionError) {
             throw error;
         }
+        
+        // Check if this is a broken symlink (lstat failed but readlink might work)
+        if (allowSymlinks) {
+            try {
+                await fs.readlink(filePath);
+                // It's a broken symlink, audit it
+                await auditSymlink(filePath, config);
+                return false; // File doesn't exist but symlink was processed
+            } catch {
+                // Not a symlink, just a missing file
+            }
+        }
+        
         // If lstat fails, the file doesn't exist or is inaccessible
         return false;
     }
+}
+
+/**
+ * Audit a symlink by resolving its target and logging for security tracking
+ * @param symlinkPath Path to the symbolic link
+ * @param config Configuration containing audit limits
+ */
+async function auditSymlink(symlinkPath: string, config?: Config): Promise<void> {
+    const maxEntries = config?.maxSymlinkAuditEntries ?? 10;
+    const sessionKey = config?.rootDirectory ?? 'default';
+    
+    // Get or create session tracker
+    if (!symlinkAuditTracker.has(sessionKey)) {
+        symlinkAuditTracker.set(sessionKey, { count: 0, entries: [] });
+    }
+    
+    const tracker = symlinkAuditTracker.get(sessionKey);
+    if (!tracker) {
+        throw new Error(`Symlink tracker not found for session: ${sessionKey}`);
+    };
+    tracker.count++;
+    
+    try {
+        // Resolve the symlink target
+        const resolvedTarget = await fs.realpath(symlinkPath);
+        const relativePath = path.relative(process.cwd(), resolvedTarget);
+        const isRelative = !path.isAbsolute(relativePath) && !relativePath.startsWith('..');
+        
+        // Check if target exists and get additional info
+        let targetExists = true;
+        let targetType = 'unknown';
+        try {
+            const targetStats = await fs.stat(resolvedTarget);
+            if (targetStats.isDirectory()) {
+                targetType = 'directory';
+            } else if (targetStats.isFile()) {
+                targetType = 'file';
+            } else {
+                targetType = 'other';
+            }
+        } catch {
+            targetExists = false;
+        }
+        
+        // Log within limit
+        if (tracker.entries.length < maxEntries) {
+            const auditEntry = {
+                symlink: symlinkPath,
+                target: resolvedTarget,
+                timestamp: new Date()
+            };
+            
+            tracker.entries.push(auditEntry);
+            
+            // Log with security warning banner
+            logger.warn(`SYMLINK AUDIT [${tracker.count}]: '${symlinkPath}' → '${resolvedTarget}'`, {
+                symlink: symlinkPath,
+                target: resolvedTarget,
+                targetExists,
+                targetType,
+                isExternalTarget: !isRelative,
+                auditCount: tracker.count,
+                sessionKey
+            });
+        } else if (tracker.entries.length === maxEntries) {
+            // Log limit reached message once
+            logger.warn(`SYMLINK AUDIT LIMIT REACHED: Further symlinks will be processed but not logged (limit: ${maxEntries})`, {
+                totalSymlinks: tracker.count,
+                maxEntries,
+                sessionKey
+            });
+        }
+        
+    } catch (error) {
+        // Log symlink resolution failure
+        logger.error(`SYMLINK AUDIT ERROR: Failed to resolve '${symlinkPath}'`, {
+            symlink: symlinkPath,
+            error: error instanceof Error ? error.message : String(error),
+            auditCount: tracker.count
+        });
+    }
+}
+
+/**
+ * Get symlink audit summary for the current session
+ * @param sessionKey Session identifier (typically rootDirectory)
+ * @returns Audit summary or null if no symlinks processed
+ */
+export function getSymlinkAuditSummary(sessionKey = 'default'): { 
+    totalSymlinks: number; 
+    entries: Array<{ symlink: string; target: string; timestamp: Date }> 
+} | null {
+    const tracker = symlinkAuditTracker.get(sessionKey);
+    return tracker ? { 
+        totalSymlinks: tracker.count, 
+        entries: [...tracker.entries] 
+    } : null;
+}
+
+/**
+ * Clear symlink audit data for a session
+ * @param sessionKey Session identifier (typically rootDirectory)
+ */
+export function clearSymlinkAudit(sessionKey = 'default'): void {
+    symlinkAuditTracker.delete(sessionKey);
 }
 
 /**
@@ -415,7 +541,7 @@ export async function validateNoSymlinks(filePath: string, allowSymlinks: boolea
  * @param sampleSize Number of bytes to sample (default: 1024)
  * @returns True if the file appears to be binary
  */
-export async function isBinaryFile(filePath: string, sampleSize: number = 1024): Promise<boolean> {
+export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise<boolean> {
     // Check cache first
     const cached = binaryFileCache.get(filePath);
     if (cached !== undefined) {
@@ -434,31 +560,36 @@ export async function isBinaryFile(filePath: string, sampleSize: number = 1024):
         const buffer = await fs.readFile(filePath, { encoding: null });
         const actualBytesToCheck = Math.min(buffer.length, bytesToRead);
         
-        // Check for null bytes which indicate binary content
-        for (let i = 0; i < actualBytesToCheck; i++) {
-            if (buffer[i] === 0) {
-                binaryFileCache.set(filePath, true);
-                return true;
-            }
+        // Early exit for null bytes - most efficient binary detection
+        const nullByteIndex = buffer.subarray(0, actualBytesToCheck).indexOf(0);
+        if (nullByteIndex !== -1) {
+            binaryFileCache.set(filePath, true);
+            return true;
         }
         
-        // Check for high ratio of non-printable characters
+        // Optimized non-printable character check using bit operations
         let nonPrintable = 0;
+        const threshold = Math.floor(actualBytesToCheck * 0.3); // Pre-calculate 30% threshold
+        
         for (let i = 0; i < actualBytesToCheck; i++) {
             const byte = buffer[i];
-            if (byte === undefined) continue; // Skip undefined bytes
-            // Allow common whitespace chars: space(32), tab(9), newline(10), carriage return(13)
-            if (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) {
+            if (byte === undefined) { continue; }
+            
+            // Use bit operations for faster range checks
+            // Allow common whitespace: tab(9), newline(10), carriage return(13), space(32)
+            if ((byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) || byte > 126) {
                 nonPrintable++;
-            } else if (byte > 126) {
-                nonPrintable++;
+                // Early exit if threshold already exceeded
+                if (nonPrintable > threshold) {
+                    binaryFileCache.set(filePath, true);
+                    return true;
+                }
             }
         }
         
-        // If more than 30% non-printable, consider it binary
-        const isBinary = (nonPrintable / actualBytesToCheck) > 0.3;
-        binaryFileCache.set(filePath, isBinary);
-        return isBinary;
+        // File is text-based
+        binaryFileCache.set(filePath, false);
+        return false;
     } catch {
         // If we can't read the file, assume it's not binary
         binaryFileCache.set(filePath, false);
@@ -609,8 +740,8 @@ export function getMemoryUsage(): MemoryUsage {
  * @returns Warning/error information if thresholds exceeded
  */
 export function checkMemoryUsage(
-    warnThresholdPercent: number = 80,
-    errorThresholdPercent: number = 90
+    warnThresholdPercent = 80,
+    errorThresholdPercent = 90
 ): { level: 'ok' | 'warn' | 'error'; usage: MemoryUsage; message?: string } {
     const usage = getMemoryUsage();
     
@@ -645,9 +776,9 @@ export function checkMemoryUsage(
  */
 export async function logMemoryUsageIfNeeded(
     logPath: string,
-    prefix: string = '',
-    warnThreshold: number = 80,
-    errorThreshold: number = 90
+    prefix = '',
+    warnThreshold = 80,
+    errorThreshold = 90
 ): Promise<void> {
     const memCheck = checkMemoryUsage(warnThreshold, errorThreshold);
     
@@ -658,7 +789,7 @@ export async function logMemoryUsageIfNeeded(
         if (memCheck.level === 'error') {
             console.error(logMessage);
         } else {
-            console.warn(logMessage);
+            logger.consoleWarn(logMessage);
         }
     }
 }
@@ -689,27 +820,34 @@ export interface ContentValidationResult {
  * Secret detection patterns for common API keys and sensitive data
  */
 export const SECRET_PATTERNS = [
-    { name: 'AWS Access Key', regex: /(AKIA[0-9A-Z]{16})/ },
-    { name: 'AWS Secret Key', regex: /([A-Za-z0-9/+=]{40})(?=.*aws|.*secret|.*key)/i },
+    { name: 'AWS Access Key', regex: /(AKIA[\dA-Z]{16})/ },
+    { name: 'AWS Secret Key', regex: /([\d+/=a-z]{40})(?=.*aws|.*secret|.*key)/i },
     { name: 'RSA Private Key', regex: /-----BEGIN (?:RSA|EC|DSA|OPENSSH) PRIVATE KEY-----/ },
     { name: 'SSH Private Key', regex: /-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----/ },
     { name: 'PGP Private Key', regex: /-----BEGIN PGP PRIVATE KEY BLOCK-----/ },
-    { name: 'Slack Token', regex: /(xox[abpr]-[0-9A-Za-z-]{10,100})/ },
-    { name: 'Google API Key', regex: /(AIza[0-9A-Za-z-_]{20,})/ },
-    { name: 'GitHub Token', regex: /(gh[ps]_[A-Za-z0-9]{36,})/ },
-    { name: 'Stripe Key', regex: /(sk_(?:test_|live_)[0-9a-zA-Z]{24,})/ },
-    { name: 'PayPal/Braintree Token', regex: /(access_token\$production\$[0-9a-z]{16}\$[0-9a-f]{32})/ },
-    { name: 'Square Token', regex: /(sq0[a-z]{3}-[0-9A-Za-z-_]{22,43})/ },
-    { name: 'Twilio Key', regex: /(SK[0-9a-fA-F]{32})/ },
-    { name: 'MailChimp Key', regex: /([0-9a-f]{32}-us[0-9]{1,2})/ },
-    { name: 'SendGrid Key', regex: /(SG\.[0-9A-Za-z-_]{22}\.[0-9A-Za-z-_]{43})/ },
-    { name: 'Heroku API Key', regex: /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?=.*heroku)/i },
-    { name: 'JWT Token', regex: /(ey[A-Za-z0-9-_]+\.ey[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/=]*)/ },
-    { name: 'npm Token', regex: /(npm_[A-Za-z0-9]{36})/ },
-    { name: 'Generic API Key', regex: /(api[_-]?key[_-]?[=:]\s*["']?[A-Za-z0-9-_]{32,}["']?)/i },
-    { name: 'Generic Secret', regex: /(secret[_-]?[=:]\s*["']?[A-Za-z0-9-_]{16,}["']?)/i },
-    { name: 'Password Field', regex: /(password[_-]?[=:]\s*["']?[^\s"']{8,}["']?)/i }
+    { name: 'Slack Token', regex: /(xox[abpr]-[\dA-Za-z-]{10,100})/ },
+    { name: 'Google API Key', regex: /(AIza[\w-]{20,})/ },
+    { name: 'GitHub Token', regex: /(gh[ps]_[\dA-Za-z]{36,})/ },
+    { name: 'Stripe Key', regex: /(sk_(?:test_|live_)[\dA-Za-z]{24,})/ },
+    { name: 'PayPal/Braintree Token', regex: /(access_token\$production\$[\da-z]{16}\$[\da-f]{32})/ },
+    { name: 'Square Token', regex: /(sq0[a-z]{3}-[\w-]{22,43})/ },
+    { name: 'Twilio Key', regex: /(SK[\dA-Fa-f]{32})/ },
+    { name: 'MailChimp Key', regex: /([\da-f]{32}-us\d{1,2})/ },
+    { name: 'SendGrid Key', regex: /(SG\.[\w-]{22}\.[\w-]{43})/ },
+    { name: 'Heroku API Key', regex: /[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}(?=.*heroku)/i },
+    { name: 'JWT Token', regex: /((?:ey[\w-]+\.){2}[\w+./=-]*)/ },
+    { name: 'npm Token', regex: /(npm_[\dA-Za-z]{36})/ },
+    { name: 'Generic API Key', regex: /(api[_-]?key[_-]?[:=]\s*["']?[\w-]{32,}["']?)/i },
+    { name: 'Generic Secret', regex: /(secret[_-]?[:=]\s*["']?[\w-]{16,}["']?)/i },
+    { name: 'Password Field', regex: /(password[_-]?[:=]\s*["']?[^\s"']{8,}["']?)/i }
 ];
+
+// Pre-compile global regexes for better performance
+const GLOBAL_SECRET_PATTERNS = SECRET_PATTERNS.map(pattern => ({
+    name: pattern.name,
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    regex: new RegExp(pattern.regex.source, pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`)
+}));
 
 /**
  * Redact secrets from content by replacing them with [REDACTED]
@@ -721,17 +859,18 @@ export function redactSecrets(content: string): { redactedContent: string; detec
     const detectedSecrets: string[] = [];
     const seenTypes = new Set<string>();
     
-    for (const pattern of SECRET_PATTERNS) {
+    // Use pre-compiled global regexes for better performance
+    for (const pattern of GLOBAL_SECRET_PATTERNS) {
         if (pattern.regex.test(redactedContent)) {
             if (!seenTypes.has(pattern.name)) {
                 detectedSecrets.push(pattern.name);
                 seenTypes.add(pattern.name);
             }
-            // Replace all matches with [REDACTED]
-            redactedContent = redactedContent.replace(
-                new RegExp(pattern.regex.source, pattern.regex.flags + (pattern.regex.global ? '' : 'g')),
-                '[REDACTED]'
-            );
+            // Reset regex lastIndex since we're reusing compiled regexes
+            pattern.regex.lastIndex = 0;
+            redactedContent = redactedContent.replace(pattern.regex, '[REDACTED]');
+            // Reset again for next potential use
+            pattern.regex.lastIndex = 0;
         }
     }
     
@@ -758,7 +897,7 @@ export function validateFileContent(
     };
 
     // Check for large base64 blocks
-    const base64Regex = /[A-Za-z0-9+/]{100,}={0,2}/g;
+    const base64Regex = /[\d+/A-Za-z]{100,}={0,2}/g;
     const base64Matches = content.match(base64Regex);
     if (base64Matches) {
         const largestBase64 = Math.max(...base64Matches.map(match => match.length));
@@ -774,9 +913,24 @@ export function validateFileContent(
         }
     }
 
-    // Check for long lines
-    const lines = content.split('\n');
-    const maxLineLength = Math.max(...lines.map(line => line.length));
+    // Check for long lines - optimized to avoid creating line array if not needed
+    let maxLineLength = 0;
+    let currentLineLength = 0;
+    
+    for (let i = 0; i < content.length; i++) {
+        if (content[i] === '\n') {
+            maxLineLength = Math.max(maxLineLength, currentLineLength);
+            currentLineLength = 0;
+            // Early exit if already over limit
+            if (maxLineLength > config.maxLineLength) {
+                break;
+            }
+        } else {
+            currentLineLength++;
+        }
+    }
+    maxLineLength = Math.max(maxLineLength, currentLineLength); // Handle last line
+    
     if (maxLineLength > config.maxLineLength) {
         result.issues.hasLongLines = true;
         result.issues.maxLineLength = maxLineLength;
@@ -799,7 +953,7 @@ export function validateFileContent(
             continue;
         }
         
-        const base64Chars = token.match(/[A-Za-z0-9+/=]/g);
+        const base64Chars = token.match(/[\d+/=A-Za-z]/g);
         const base64Ratio = base64Chars ? base64Chars.length / token.length : 0;
         
         // Check if it's actually base64-like:
@@ -808,7 +962,7 @@ export function validateFileContent(
         // 3. Proper base64 ending pattern (handles quotes around base64 strings)
         const hasUnderscores = token.includes('_');
         // Check for base64 ending pattern, accounting for quotes and semicolons
-        const hasProperBase64Ending = /[A-Za-z0-9+/]={0,2}[";]*$/.test(token);
+        const hasProperBase64Ending = /[\d+/A-Za-z]={0,2}[";]*$/.test(token);
         const isLikelyBase64 = base64Ratio > 0.95 && !hasUnderscores && hasProperBase64Ending;
         
         if (!isLikelyBase64) {
@@ -860,7 +1014,7 @@ export function isMinifiedContent(content: string, filePath: string): boolean {
     const lines = content.split('\n');
     const nonEmptyLines = lines.filter(line => line.trim().length > 0);
     
-    if (nonEmptyLines.length === 0) return false;
+    if (nonEmptyLines.length === 0) { return false; }
 
     // Calculate average line length
     const totalLength = nonEmptyLines.reduce((sum, line) => sum + line.length, 0);

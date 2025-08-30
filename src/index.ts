@@ -7,15 +7,15 @@
 // Architecture exports (alphabetical)
 export { DefaultFileSystemAdapter, MemoryFileSystemAdapter } from './adapters/file-system.js';
 export type { FileSystemAdapter } from './adapters/file-system.js';
-export { PluginManager, BasePlugin, createPlugin } from './plugins/plugin-system.js';
+export { BasePlugin, createPlugin, PluginManager } from './plugins/plugin-system.js';
 export type { Plugin, PluginHooks, PluginMetadata } from './plugins/plugin-system.js';
 export { 
-    OutputStrategyManager, 
-    TextOutputStrategy, 
+    HtmlOutputStrategy,
     MarkdownOutputStrategy, 
-    HtmlOutputStrategy 
+    OutputStrategyManager, 
+    TextOutputStrategy
 } from './strategies/output-strategy.js';
-export type { OutputStrategy, OutputContext } from './strategies/output-strategy.js';
+export type { OutputContext, OutputStrategy } from './strategies/output-strategy.js';
 
 // Core API (alphabetical)
 export { 
@@ -29,8 +29,8 @@ export {
 } from './api.js';
 export { BenchmarkTracker, type BenchmarkMetrics } from './benchmark.js';
 export { 
-    projectFusion,
-    ProjectFusionBuilder 
+    ProjectFusionBuilder,
+    projectFusion
 } from './fluent.js';
 export { processFusion } from './fusion.js';
 

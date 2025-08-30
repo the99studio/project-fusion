@@ -3,10 +3,10 @@
 /**
  * Security tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -56,14 +56,14 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Read generated HTML
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 
             // Verify all dangerous HTML is escaped
-            expect(htmlContent).toContain('&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;');
-            expect(htmlContent).toContain('&lt;img src=&quot;x&quot; onerror=&quot;alert(&#39;XSS&#39;)&quot;&gt;');
-            expect(htmlContent).toContain('&amp;lt;div&amp;gt;Already escaped&amp;lt;/div&amp;gt;');
+            expect(htmlContent).toContain('&lt;script&gt;alert&#40;&#39;XSS&#39;&#41;&lt;&#47;script&gt;');
+            expect(htmlContent).toContain('&lt;img src&#61;&quot;x&quot; onerror&#61;&quot;alert&#40;&#39;XSS&#39;&#41;&quot;&gt;');
+            expect(htmlContent).toContain('&amp;lt;div&amp;gt;Already escaped&amp;lt;&#47;div&amp;gt;');
             expect(htmlContent).toContain('&quot;quotes&quot; &amp; &#39;apostrophes&#39;');
 
             // Verify no unescaped dangerous content
@@ -74,7 +74,6 @@ console.log("test");
 
         it('should escape HTML in file paths', async () => {
             // Create files with dangerous names
-            const dangerousFileName = '<script>alert("path").js';
             const safeFileName = 'safe-file.js';
 
             await writeFile(safeFileName, 'console.log("safe");');
@@ -97,7 +96,7 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Read generated HTML
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 
@@ -105,18 +104,18 @@ console.log("test");
             expect(htmlContent).toContain('safe-file.js');
             
             // Verify no unescaped angle brackets that could be dangerous
-            const tocSection = htmlContent.split('<nav class="toc"')[1]?.split('</nav>')[0];
-            const titleSections = htmlContent.split('>📄 ');
+            const tocSection = htmlContent.split('<h2>Table of Contents</h2>')[1]?.split('<hr>')[0];
+            const titleSections = htmlContent.split('<h2 id="');
             
             expect(tocSection).toBeDefined();
             expect(titleSections.length).toBeGreaterThan(1);
             
             // All file references should not contain unescaped HTML
-            titleSections.slice(1).forEach(section => {
+            for (const section of titleSections.slice(1)) {
                 const title = section.split('</h2>')[0];
                 expect(title).not.toContain('<script');
                 expect(title).not.toContain('onerror=');
-            });
+            }
         });
 
         it('should escape HTML in project title and version', async () => {
@@ -145,22 +144,22 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Read generated HTML
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 
             // Project title should be escaped
-            expect(htmlContent).toContain('&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt;');
-            expect(htmlContent).toContain('1.0.0&lt;img src=x onerror=alert(&quot;version&quot;)&gt;');
+            expect(htmlContent).toContain('&lt;script&gt;alert&#40;&quot;name&quot;&#41;&lt;&#47;script&gt;');
+            expect(htmlContent).toContain('1.0.0&lt;img src&#61;x onerror&#61;alert&#40;&quot;version&quot;&#41;&gt;');
             
-            // Verify no unescaped dangerous content in header
-            const headerSection = htmlContent.split('<header class="header"')[1]?.split('</header>')[0];
-            expect(headerSection).toBeDefined();
-            expect(headerSection).not.toContain('<script>alert(');
-            expect(headerSection).not.toContain('<img src=x');
+            // Verify no unescaped dangerous content in body
+            const bodySection = htmlContent.split('<body>')[1]?.split('</body>')[0];
+            expect(bodySection).toBeDefined();
+            expect(bodySection).not.toContain('<script>alert(');
+            expect(bodySection).not.toContain('<img src=x');
             // The dangerous tags are escaped, making them safe
-            expect(headerSection).not.toContain('<script>');
-            expect(headerSection).not.toContain('<img ');
+            expect(bodySection).not.toContain('<script>');
+            expect(bodySection).not.toContain('<img ');
         });
     });
 
@@ -182,7 +181,7 @@ console.log("test");
             expect(result.success).toBe(true);
 
             // Should only process files within the root directory
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(join(testDir, 'project-fusioned.html'), 'utf8')
             );
 

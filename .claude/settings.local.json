@@ -3,7 +3,7 @@
         "allow": [
             "Bash(./dist/cli.js *)",
             "Bash(cat *)",
-            "Bash(chmod +x *)",
+            "Bash(cat:*)",
             "Bash(cp * temp/*)",
             "Bash(cp *)",
             "Bash(eslint *)",
@@ -13,6 +13,7 @@
             "Bash(find:*)",
             "Bash(git *)",
             "Bash(grep *)",
+            "Bash(grep:*)",
             "Bash(head *)",
             "Bash(jest *)",
             "Bash(ls *)",
@@ -35,11 +36,12 @@
             "Bash(npm run test)",
             "Bash(npm run typecheck)",
             "Bash(npm run typecheck:*)",
-            "Bash(npm run:*)"
+            "Bash(npm run:*)",
             "Bash(npm test)",
             "Bash(npm test:*)",
             "Bash(npm uninstall:*)",
             "Bash(npm version *)",
+            "Bash(npm view:*)",
             "Bash(npx *)",
             "Bash(npx npm-check-updates:*)",
             "Bash(npx tsc:*)",
@@ -54,7 +56,7 @@
             "Bash(tree *)",
             "Bash(tsc *)",
             "Bash(vitest *)",
-            "Bash(wc -l *)",
+            "Bash(wc -l *)"
         ],
         "deny": [
             "Bash(chmod 777 *)",

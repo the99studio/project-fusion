@@ -4,14 +4,14 @@
  * Security fuzzing tests for Project Fusion
  * Tests with malformed inputs, special characters, and edge cases
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, chmod, access, constants } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { processFusion } from '../src/fusion.js';
-import { defaultConfig } from '../src/utils.js';
-import { ConfigSchemaV1 } from '../src/schema.js';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
 import * as fc from 'fast-check';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { processFusion } from '../src/fusion.js';
+import { ConfigSchemaV1 } from '../src/schema.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('Security Fuzzing Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'fuzzing-test');
@@ -51,7 +51,7 @@ describe('Security Fuzzing Tests', () => {
             for (const name of specialNames) {
                 try {
                     await writeFile(name, `// Content of ${name}\nconsole.log('test');`);
-                } catch (error) {
+                } catch {
                     // Some characters may not be allowed on certain file systems
                     console.log(`Skipping invalid filename: ${name}`);
                 }
@@ -86,16 +86,16 @@ describe('Security Fuzzing Tests', () => {
                 'const greek = "Γεια σου κόσμε";', // Greek
                 'const zalgo = "H̸̡̪̯ͨ͊̽̅̾̎Ȩ̬̩̾͛ͪ̈́̀́͘ ̶̧̨̱̹̭̯ͧ̾ͬC̷̙̲̝͖ͭ̏ͥͮ͟Oͮ͏̮̪̝͍M̲̖͊̒ͪͩͬ̚̚͜Ȇ̴̟̟͙̞ͩ͌͝S̨̥̫͎̭ͯ̿̔̀ͅ";', // Zalgo text
                 'const mixed = "αβγ ABC 123 !@# 中文 🎯";', // Mixed content
-                'const longLine = "' + 'A'.repeat(10000) + '";', // Very long line
+                `const longLine = "${  'A'.repeat(10_000)  }";`, // Very long line
                 'const binary = "\\x00\\xFF\\xDE\\xAD\\xBE\\xEF";', // Binary-like content
-                'const quotes = "\\"\'`${}`\'\\\"";', // Mixed quotes
+                'const quotes = "\\"\'`${}`\'";', // Mixed quotes
                 'const escapes = "\\n\\r\\t\\v\\f\\b\\a\\\\";', // Escape sequences
                 'const null_bytes = "before\\x00after";', // Null bytes
                 'const ansi = "\\x1b[31mRed\\x1b[0m Normal";' // ANSI escape codes
             ];
 
             for (let i = 0; i < specialContents.length; i++) {
-                await writeFile(`special${i}.js`, specialContents[i]);
+                await writeFile(`special${i}.js`, specialContents[i]!);
             }
 
             const config = {
@@ -125,7 +125,7 @@ describe('Security Fuzzing Tests', () => {
                 { rootDirectory: 'C:\\Windows\\System32' }, // Windows system
                 { maxFileSizeKB: -1 }, // Negative size
                 { maxFileSizeKB: Infinity }, // Infinite size
-                { maxFileSizeKB: NaN }, // Not a number
+                { maxFileSizeKB: Number.NaN }, // Not a number
                 { maxFiles: -100 }, // Negative count
                 { maxTotalSizeMB: 0 }, // Zero size
                 { ignorePatterns: ['../../../*'] }, // Traversal in patterns
@@ -250,10 +250,10 @@ describe('Security Fuzzing Tests', () => {
 
                         // Create files with arbitrary names
                         for (const name of filenames) {
-                            const safeName = name.replace(/[<>:"|?*\\]/g, '_').substring(0, 100) + '.js';
+                            const safeName = `${name.replaceAll(/["*:<>?\\|]/g, '_').slice(0, 100)  }.js`;
                             try {
                                 await writeFile(join(propTestDir, safeName), `// File: ${safeName}`);
-                            } catch (error) {
+                            } catch {
                                 // Some names might still be invalid
                                 console.log(`Skipping: ${safeName}`);
                             }
@@ -293,7 +293,7 @@ describe('Security Fuzzing Tests', () => {
 
                         // Create files with arbitrary content
                         for (let i = 0; i < contents.length; i++) {
-                            await writeFile(join(propTestDir, `file${i}.js`), contents[i]);
+                            await writeFile(join(propTestDir, `file${i}.js`), contents[i]!);
                         }
 
                         const config = {
@@ -330,12 +330,12 @@ describe('Security Fuzzing Tests', () => {
                 fc.asyncProperty(
                     fc.record({
                         maxFileSizeKB: fc.oneof(
-                            fc.integer({ min: -1000, max: 10000 }),
+                            fc.integer({ min: -1000, max: 10_000 }),
                             fc.constant(null),
                             fc.constant(undefined),
                             fc.constant(Infinity),
                             fc.constant(-Infinity),
-                            fc.constant(NaN)
+                            fc.constant(Number.NaN)
                         ),
                         maxFiles: fc.oneof(
                             fc.integer({ min: -100, max: 1000 }),
@@ -367,7 +367,7 @@ describe('Security Fuzzing Tests', () => {
                             const validationResult = ConfigSchemaV1.safeParse(config);
                             
                             if (validationResult.success) {
-                                const result = await processFusion(config);
+                                const result = await processFusion(validationResult.data);
                                 expect(result).toHaveProperty('success');
                             } else {
                                 // Validation correctly rejected invalid config
@@ -462,7 +462,7 @@ describe('Security Fuzzing Tests', () => {
             expect(result.success).toBe(true);
 
             // Check HTML output for XSS
-            const htmlContent = await import('fs').then(fs => 
+            const htmlContent = await import('node:fs').then(fs => 
                 fs.promises.readFile('project-fusioned.html', 'utf8')
             );
 
@@ -494,10 +494,10 @@ describe('Security Fuzzing Tests', () => {
 
             for (const filename of commandInjectionAttempts) {
                 // Sanitize filename for filesystem
-                const safeName = filename.replace(/[<>:"|?*\\$`;&|]/g, '_');
+                const safeName = filename.replaceAll(/["$&*:;<>?\\`|]/g, '_');
                 try {
                     await writeFile(safeName, `// Content of ${safeName}`);
-                } catch (error) {
+                } catch {
                     console.log(`Skipping invalid filename: ${safeName}`);
                 }
             }
@@ -527,7 +527,7 @@ describe('Security Fuzzing Tests', () => {
         it('should handle zip bomb-like structures', async () => {
             // Create a much smaller structure to avoid timeouts
             const createNestedStructure = async (dir: string, depth: number, branching: number) => {
-                if (depth <= 0) return;
+                if (depth <= 0) { return; }
                 
                 for (let i = 0; i < branching; i++) {
                     const subDir = join(dir, `level${depth}_branch${i}`);
@@ -570,7 +570,7 @@ describe('Security Fuzzing Tests', () => {
                 // Should fail due to limits, not crashes
                 expect(result.code).toMatch(/TOO_MANY_FILES|SIZE_LIMIT_EXCEEDED/);
             }
-        }, 15000);
+        }, 15_000);
 
         it('should handle circular references gracefully', async () => {
             // Note: Real symlink circular references are tested in symlink tests
@@ -583,10 +583,17 @@ describe('Security Fuzzing Tests', () => {
             ];
 
             for (const name of circularNames) {
-                const nextFile = name.replace(/file[ABC]/, (match) => {
+                const nextFile = name.replace(/file[A-C]/, (match) => {
                     const current = match.charAt(4);
-                    const next = current === 'A' ? 'B' : current === 'B' ? 'C' : 'A';
-                    return 'file' + next;
+                    let next: string;
+                    if (current === 'A') {
+                        next = 'B';
+                    } else if (current === 'B') {
+                        next = 'C';
+                    } else {
+                        next = 'A';
+                    }
+                    return `file${  next}`;
                 });
                 await writeFile(name, `// References ${nextFile}\nrequire('./${nextFile}');`);
             }
@@ -613,11 +620,11 @@ describe('Security Fuzzing Tests', () => {
             const lineLengths = [
                 1000,      // 1KB line
                 5000,      // 5KB line (reduced from 10KB)
-                10000,     // 10KB line (reduced from 100KB)
+                10_000,     // 10KB line (reduced from 100KB)
             ];
 
             for (let i = 0; i < lineLengths.length; i++) {
-                const longLine = 'A'.repeat(lineLengths[i]);
+                const longLine = 'A'.repeat(lineLengths[i]!);
                 await writeFile(`longline${i}.js`, `// Long line test\nconst data = "${longLine}";`);
             }
 
@@ -637,6 +644,6 @@ describe('Security Fuzzing Tests', () => {
             
             // Should handle long lines or reject due to size limits
             expect(result).toHaveProperty('success');
-        }, 15000);
+        }, 15_000);
     });
 });

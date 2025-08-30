@@ -3,14 +3,14 @@
 /**
  * Tests for plugin security validation
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { writeFileSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { PluginManager } from '../src/plugins/plugin-system.js';
 import { DefaultFileSystemAdapter } from '../src/adapters/file-system.js';
-import { FusionError } from '../src/types.js';
-import type { Config } from '../src/types.js';
+import { PluginManager } from '../src/plugins/plugin-system.js';
+import { FusionError, type Config } from '../src/types.js';
+import { defaultConfig } from '../src/utils.js';
 
 describe('Plugin Security Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'test-plugin-security');
@@ -51,22 +51,11 @@ export default {
     describe('Plugin Path Validation', () => {
         it('should allow loading plugins from within root directory', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Should not throw
@@ -77,22 +66,11 @@ export default {
 
         it('should reject loading plugins from outside root directory by default', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Should throw FusionError with PATH_TRAVERSAL code
@@ -107,55 +85,50 @@ export default {
                 if (error instanceof FusionError) {
                     expect(error.code).toBe('PATH_TRAVERSAL');
                     expect(error.message).toContain('outside root directory');
-                    expect(error.message).toContain('--allow-external-plugins');
+                    expect(error.message).toContain('allowedExternalPluginPaths');
                 }
             }
         });
 
-        it('should allow external plugins when explicitly allowed', async () => {
+        it('should allow external plugins when in allowedExternalPluginPaths', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                allowExternalPlugins: true, // Explicitly allow external plugins
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
+                allowedExternalPluginPaths: [join(externalDir, 'external.js')],
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
-            // Should not throw when external plugins are allowed
+            // Should not throw when external plugins are in allowlist
             await expect(
                 pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
             ).resolves.not.toThrow();
         });
 
-        it('should validate plugins when loading from directory', async () => {
+        it('should reject external plugins not in allowedExternalPluginPaths', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: projectDir,
-                allowExternalPlugins: false,
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
+                allowedExternalPluginPaths: ['/some/other/path'], // Different path
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
+            };
+
+            await expect(
+                pluginManager.loadPlugin(join(externalDir, 'external.js'), config)
+            ).rejects.toThrow('outside root directory');
+        });
+
+
+        it('should validate plugins when loading from directory', async () => {
+            const config: Config = {
+                ...defaultConfig,
+                rootDirectory: projectDir,
+                generateHtml: false,
+                generateMarkdown: false,
+                generateText: true
             };
 
             // Should load plugins from internal directory without error
@@ -171,22 +144,11 @@ export default {
 
         it('should handle relative paths correctly', async () => {
             const config: Config = {
+                ...defaultConfig,
                 rootDirectory: '.',
-                allowExternalPlugins: false,
-                allowSymlinks: false,
-                copyToClipboard: false,
-                generatedFileName: 'test',
                 generateHtml: false,
                 generateMarkdown: false,
-                generateText: true,
-                ignorePatterns: [],
-                maxFileSizeKB: 1000,
-                maxFiles: 100,
-                maxTotalSizeMB: 10,
-                parsedFileExtensions: {},
-                parseSubDirectories: true,
-                schemaVersion: 1,
-                useGitIgnoreForExcludes: false
+                generateText: true
             };
 
             // Create a plugin in current directory

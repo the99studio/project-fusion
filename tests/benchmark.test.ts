@@ -7,11 +7,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { BenchmarkTracker } from '../src/benchmark.js';
 
 describe('BenchmarkTracker', () => {
-    let originalMemoryUsage: NodeJS.MemoryUsage;
     
     beforeEach(() => {
         // Mock process.memoryUsage
-        originalMemoryUsage = process.memoryUsage();
         vi.spyOn(process, 'memoryUsage').mockReturnValue({
             rss: 100 * 1024 * 1024, // 100MB
             heapTotal: 80 * 1024 * 1024,
@@ -99,17 +97,19 @@ describe('BenchmarkTracker', () => {
         });
         
         it('should handle zero processing time', () => {
-            const tracker = new BenchmarkTracker();
-            
-            // Mock Date.now to return same value
+            // Mock Date.now to return same value BEFORE creating the tracker
             const now = Date.now();
-            vi.spyOn(Date, 'now').mockReturnValue(now);
+            const mockDateNow = vi.spyOn(Date, 'now').mockReturnValue(now);
             
+            const tracker = new BenchmarkTracker();
             tracker.markFileProcessed(1024);
             const metrics = tracker.getMetrics();
             
             expect(metrics.processingTimeMs).toBe(0);
             expect(metrics.throughputBytesPerSec).toBe(0);
+            
+            // Restore the mock
+            mockDateNow.mockRestore();
         });
         
         it('should report memory usage', () => {
@@ -132,7 +132,7 @@ describe('BenchmarkTracker', () => {
             
             const metrics = tracker.getMetrics();
             expect(metrics.filesProcessed).toBe(1000);
-            expect(metrics.totalBytesProcessed).toBe(499500); // Sum of 0 to 999
+            expect(metrics.totalBytesProcessed).toBe(499_500); // Sum of 0 to 999
         });
         
         it('should handle special characters in filenames', () => {

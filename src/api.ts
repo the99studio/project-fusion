@@ -5,7 +5,7 @@
  * Allows external packages to use fusion functionality without config files
  */
 import path from 'node:path';
-
+import type { FileSystemAdapter } from './adapters/file-system.js';
 import { processFusion } from './fusion.js';
 import type { Config, FilePath, FusionOptions, FusionResult } from './types.js';
 import { defaultConfig } from './utils.js';
@@ -26,6 +26,12 @@ export interface FusionProgress {
     percentage: number;
     /** Human-readable message */
     message: string;
+    /** Estimated time remaining in seconds (if calculable) */
+    etaSeconds?: number;
+    /** Total MB processed so far */
+    mbProcessed?: number;
+    /** Processing speed in MB/s */
+    throughputMBps?: number;
 }
 
 /**
@@ -51,7 +57,7 @@ export interface ProgrammaticFusionOptions extends Partial<Config> {
     /** Root directory override */
     rootDirectory?: string;
     /** FileSystem adapter to use */
-    fs?: import('./adapters/file-system.js').FileSystemAdapter;
+    fs?: FileSystemAdapter;
     /** Callback fired when fusion completes (success or failure) */
     onDidFinish?: (result: ProgrammaticFusionResult) => void;
     /** Callback fired during processing to report progress */
@@ -88,7 +94,8 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
     const rootDirectory = partialConfig.rootDirectory ?? cwd;
     
     return {
-        allowExternalPlugins: partialConfig.allowExternalPlugins ?? defaultConfig.allowExternalPlugins,
+        aggressiveContentSanitization: partialConfig.aggressiveContentSanitization ?? defaultConfig.aggressiveContentSanitization,
+        allowedExternalPluginPaths: partialConfig.allowedExternalPluginPaths ?? defaultConfig.allowedExternalPluginPaths,
         allowSymlinks: partialConfig.allowSymlinks ?? defaultConfig.allowSymlinks,
         copyToClipboard: partialConfig.copyToClipboard ?? defaultConfig.copyToClipboard,
         excludeSecrets: partialConfig.excludeSecrets ?? defaultConfig.excludeSecrets,
@@ -101,9 +108,12 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         maxFileSizeKB: partialConfig.maxFileSizeKB ?? defaultConfig.maxFileSizeKB,
         maxFiles: partialConfig.maxFiles ?? defaultConfig.maxFiles,
         maxLineLength: partialConfig.maxLineLength ?? defaultConfig.maxLineLength,
+        maxSymlinkAuditEntries: partialConfig.maxSymlinkAuditEntries ?? defaultConfig.maxSymlinkAuditEntries,
         maxTokenLength: partialConfig.maxTokenLength ?? defaultConfig.maxTokenLength,
         maxTotalSizeMB: partialConfig.maxTotalSizeMB ?? defaultConfig.maxTotalSizeMB,
+        maxOutputSizeMB: partialConfig.maxOutputSizeMB ?? defaultConfig.maxOutputSizeMB,
         outputDirectory: partialConfig.outputDirectory,
+        overwriteFiles: partialConfig.overwriteFiles ?? defaultConfig.overwriteFiles,
         parsedFileExtensions: partialConfig.parsedFileExtensions ?? defaultConfig.parsedFileExtensions,
         parseSubDirectories: partialConfig.parseSubDirectories ?? defaultConfig.parseSubDirectories,
         rootDirectory,
@@ -136,7 +146,6 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
 export async function fusionAPI(options: ProgrammaticFusionOptions = {}): Promise<ProgrammaticFusionResult> {
     const cwd = options.cwd ?? process.cwd();
     
-    // Extract fusion options and callbacks
     const { 
         extensionGroups,
         rootDirectory,

@@ -23,7 +23,8 @@ const ParsedFileExtensionsSchema = z.object({
  * All properties organized alphabetically with contentValidation moved to top level
  */
 export const ConfigSchemaV1 = z.object({
-    allowExternalPlugins: z.boolean().default(false),
+    aggressiveContentSanitization: z.boolean().default(false),
+    allowedExternalPluginPaths: z.array(z.string()).default([]),
     allowSymlinks: z.boolean().default(false),
     copyToClipboard: z.boolean().default(false),
     excludeSecrets: z.boolean().default(true),
@@ -35,8 +36,8 @@ export const ConfigSchemaV1 = z.object({
         "*.7z",
         "*.a",
         "*.avi",
-        "*.bmp",
         "*.blend",
+        "*.bmp",
         "*.class",
         "*.dll",
         "*.doc",
@@ -104,12 +105,15 @@ export const ConfigSchemaV1 = z.object({
         "yarn.lock"
     ]),
     maxBase64BlockKB: z.number().min(0.5).max(10).default(2),
-    maxFileSizeKB: z.number().default(1024),
-    maxFiles: z.number().min(1).default(10000),
-    maxLineLength: z.number().min(1000).max(50000).default(5000),
-    maxTokenLength: z.number().min(500).max(20000).default(2000),
-    maxTotalSizeMB: z.number().min(0.001).default(100),
+    maxFileSizeKB: z.number().min(1).max(1_048_576).default(1024),
+    maxFiles: z.number().min(1).max(100_000).default(10_000),
+    maxLineLength: z.number().min(1000).max(50_000).default(5000),
+    maxSymlinkAuditEntries: z.number().min(1).max(100).default(10),
+    maxTokenLength: z.number().min(500).max(20_000).default(2000),
+    maxTotalSizeMB: z.number().min(1).max(10_240).default(100),
+    maxOutputSizeMB: z.number().min(1).max(1024).default(50),
     outputDirectory: z.string().optional(),
+    overwriteFiles: z.boolean().default(false),
     parsedFileExtensions: ParsedFileExtensionsSchema.default({
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
         config: [".json", ".toml", ".xml", ".yaml", ".yml"],

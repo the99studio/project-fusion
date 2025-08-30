@@ -4,8 +4,7 @@
  * Tests for type definitions and branded types
  */
 import { describe, expect, it } from 'vitest';
-import { createFilePath, FusionError } from '../src/types.js';
-import type { FilePath, FusionErrorCode, FusionErrorSeverity } from '../src/types.js';
+import { createFilePath, FusionError, type FilePath, type FusionErrorCode, type FusionErrorSeverity } from '../src/types.js';
 
 describe('Branded Types', () => {
     describe('createFilePath', () => {
@@ -40,10 +39,10 @@ describe('Branded Types', () => {
                 '../parent/path/file.txt'
             ];
             
-            specialPaths.forEach(p => {
+            for (const p of specialPaths) {
                 const filePath = createFilePath(p);
                 expect(filePath).toBe(p);
-            });
+            }
         });
         
         it('should maintain type safety', () => {
@@ -113,10 +112,10 @@ describe('FusionError', () => {
                 'UNKNOWN_EXTENSION_GROUP'
             ];
             
-            validCodes.forEach(code => {
+            for (const code of validCodes) {
                 const error = new FusionError('Test', code);
                 expect(error.code).toBe(code);
-            });
+            }
         });
         
         it('should maintain type safety for error codes', () => {
@@ -129,7 +128,7 @@ describe('FusionError', () => {
             
             // TypeScript should prevent invalid codes at compile time
             // @ts-expect-error Invalid error code
-            const invalidError = new FusionError('Test', 'INVALID_CODE');
+            new FusionError('Test', 'INVALID_CODE');
         });
     });
     
@@ -141,10 +140,10 @@ describe('FusionError', () => {
                 'info'
             ];
             
-            validSeverities.forEach(severity => {
+            for (const severity of validSeverities) {
                 const error = new FusionError('Test', 'INVALID_PATH', severity);
                 expect(error.severity).toBe(severity);
-            });
+            }
         });
         
         it('should maintain type safety for severity', () => {
@@ -159,7 +158,7 @@ describe('FusionError', () => {
             
             // TypeScript should prevent invalid severity at compile time
             // @ts-expect-error Invalid severity
-            const invalidError = new FusionError('Test', 'INVALID_PATH', 'critical');
+            new FusionError('Test', 'INVALID_PATH', 'critical');
         });
     });
     
@@ -191,7 +190,7 @@ describe('FusionError', () => {
             const originalError = new Error('Original error');
             
             const fusionError = new FusionError(
-                'Wrapped error: ' + originalError.message,
+                `Wrapped error: ${  originalError.message}`,
                 'INVALID_PATH',
                 'error',
                 { originalError: originalError.message, timestamp: Date.now() }
@@ -199,7 +198,7 @@ describe('FusionError', () => {
             
             expect(fusionError.message).toContain('Original error');
             expect(fusionError.context).toHaveProperty('originalError');
-            expect(fusionError.context?.originalError).toBe('Original error');
+            expect(fusionError.context?.['originalError']).toBe('Original error');
         });
         
         it('should be serializable', () => {
@@ -217,7 +216,7 @@ describe('FusionError', () => {
                 context: error.context
             });
             
-            const deserialized = JSON.parse(serialized);
+            const deserialized = JSON.parse(serialized) as { message: string; code: string; severity: string; context: { data: string } };
             
             expect(deserialized.message).toBe('Serializable error');
             expect(deserialized.code).toBe('INVALID_PATH');

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import path from 'node:path';
 import fs from 'fs-extra';
-import path from 'path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { 
   getMarkdownLanguage, 
   getExtensionsFromGroups, 
@@ -9,8 +9,7 @@ import {
   loadConfig,
   writeLog,
   ensureDirectoryExists
-} from '../src/utils.js';
-import { defaultConfig } from '../src/utils.js';
+, defaultConfig } from '../src/utils.js';
 
 describe('utils', () => {
   describe('getMarkdownLanguage', () => {
@@ -35,6 +34,12 @@ describe('utils', () => {
     it('should handle case insensitive extensions', () => {
       expect(getMarkdownLanguage('.TS')).toBe('typescript');
       expect(getMarkdownLanguage('.JS')).toBe('javascript');
+    });
+
+    it('should handle Godot extensions correctly', () => {
+      expect(getMarkdownLanguage('.gd')).toBe('gdscript');
+      expect(getMarkdownLanguage('.tres')).toBe('gdscript');
+      expect(getMarkdownLanguage('.tscn')).toBe('gdscript');
     });
   });
 
@@ -97,7 +102,6 @@ describe('utils', () => {
 
   describe('file operations', () => {
     const testDir = path.resolve('./temp/test-utils');
-    const testFile = path.join(testDir, 'test.txt');
 
     beforeEach(async () => {
       await fs.ensureDir(testDir);
@@ -133,7 +137,7 @@ describe('utils', () => {
         await writeLog(logFile, logContent);
         expect(await fs.pathExists(logFile)).toBe(true);
         const content = await fs.readFile(logFile, 'utf8');
-        expect(content).toBe(logContent + '\n');
+        expect(content).toBe(`${logContent  }\n`);
       });
 
       it('should append log content when append is true', async () => {
@@ -145,7 +149,7 @@ describe('utils', () => {
         await writeLog(logFile, secondEntry, true);
         
         const content = await fs.readFile(logFile, 'utf8');
-        expect(content).toBe(firstEntry + '\n' + secondEntry + '\n');
+        expect(content).toBe(`${firstEntry  }\n${  secondEntry  }\n`);
       });
 
       it('should overwrite log content when append is false', async () => {
@@ -157,7 +161,7 @@ describe('utils', () => {
         await writeLog(logFile, secondEntry, false);
         
         const content = await fs.readFile(logFile, 'utf8');
-        expect(content).toBe(secondEntry + '\n');
+        expect(content).toBe(`${secondEntry  }\n`);
       });
     });
   });
@@ -165,8 +169,10 @@ describe('utils', () => {
   describe('loadConfig', () => {
     const testDir = path.resolve('./temp/test-config');
     const configFile = path.join(testDir, 'project-fusion.json');
+    let originalCwd: string;
 
     beforeEach(async () => {
+      originalCwd = process.cwd();
       await fs.ensureDir(testDir);
       // Set working directory to test directory
       process.chdir(testDir);
@@ -174,7 +180,7 @@ describe('utils', () => {
 
     afterEach(async () => {
       // Restore original working directory
-      process.chdir(path.resolve('./../../'));
+      process.chdir(originalCwd);
       await fs.remove(testDir);
     });
 

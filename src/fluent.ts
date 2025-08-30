@@ -68,16 +68,16 @@ export class ProjectFusionBuilder {
      */
     maxSize(size: string | number): this {
         if (typeof size === 'string') {
-            const match = size.match(/^(\d+(?:\.\d+)?)\s*(KB|MB|GB)?$/i);
+            const match = size.match(/^(\d+(?:\.\d+)?)\s*([gkm]b)?$/i);
             if (!match) {
                 throw new Error(`Invalid size format: ${size}. Use format like "1MB", "512KB", or number in KB`);
             }
             
-            const value = parseFloat(match[1] || '0');
-            const unit = (match[2] || 'KB').toUpperCase();
+            const value = Number.parseFloat(match[1] ?? '0');
+            const unit = (match[2] ?? 'KB').toUpperCase();
             
             const multipliers = { KB: 1, MB: 1024, GB: 1024 * 1024 };
-            this.options.maxFileSizeKB = value * (multipliers[unit as keyof typeof multipliers] || 1);
+            this.options.maxFileSizeKB = value * (multipliers[unit as keyof typeof multipliers] ?? 1);
         } else {
             this.options.maxFileSizeKB = size;
         }
@@ -108,7 +108,7 @@ export class ProjectFusionBuilder {
      * Enable or disable subdirectory parsing
      * @param enabled Whether to parse subdirectories
      */
-    subdirectories(enabled: boolean = true): this {
+    subdirectories(enabled = true): this {
         this.options.parseSubDirectories = enabled;
         return this;
     }
@@ -117,7 +117,7 @@ export class ProjectFusionBuilder {
      * Enable or disable clipboard copying
      * @param enabled Whether to copy result to clipboard
      */
-    clipboard(enabled: boolean = true): this {
+    clipboard(enabled = true): this {
         this.options.copyToClipboard = enabled;
         return this;
     }
@@ -126,7 +126,7 @@ export class ProjectFusionBuilder {
      * Enable or disable .gitignore usage
      * @param enabled Whether to use .gitignore for exclusions
      */
-    gitignore(enabled: boolean = true): this {
+    gitignore(enabled = true): this {
         this.options.useGitIgnoreForExcludes = enabled;
         return this;
     }
@@ -137,9 +137,7 @@ export class ProjectFusionBuilder {
      * @param extensions Array of extensions (e.g., ['.ts', '.tsx'])
      */
     extensions(group: string, extensions: string[]): this {
-        if (!this.options.parsedFileExtensions) {
-            this.options.parsedFileExtensions = { ...defaultConfig.parsedFileExtensions };
-        }
+        this.options.parsedFileExtensions ??= { ...defaultConfig.parsedFileExtensions };
         this.options.parsedFileExtensions[group] = extensions;
         return this;
     }

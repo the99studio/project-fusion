@@ -3,10 +3,10 @@
 /**
  * Tests for Fluent API
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeFile, mkdir, rm } from 'fs-extra';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { projectFusion, ProjectFusionBuilder } from '../src/fluent.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -157,7 +157,7 @@ describe('Fluent API', () => {
             it('should add custom extensions for a group', () => {
                 const builder = projectFusion().extensions('custom', ['.custom', '.ext']);
                 const config = builder.getConfig();
-                expect(config.parsedFileExtensions?.custom).toEqual(['.custom', '.ext']);
+                expect(config.parsedFileExtensions?.['custom']).toEqual(['.custom', '.ext']);
             });
 
             it('should set all extensions', () => {
@@ -328,8 +328,8 @@ describe('Fluent API', () => {
                     .extensions('custom2', ['.ext2']);
                 
                 const config = builder.getConfig();
-                expect(config.parsedFileExtensions?.custom1).toEqual(['.ext1']);
-                expect(config.parsedFileExtensions?.custom2).toEqual(['.ext2']);
+                expect(config.parsedFileExtensions?.['custom1']).toEqual(['.ext1']);
+                expect(config.parsedFileExtensions?.['custom2']).toEqual(['.ext2']);
                 expect(config.parsedFileExtensions?.web).toEqual(defaultConfig.parsedFileExtensions.web);
             });
 

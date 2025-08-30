@@ -2,16 +2,14 @@
  * Tests for Plugin System
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { join } from 'node:path';
+import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
 import { 
     PluginManager, 
     BasePlugin, 
     createPlugin,
-    type Plugin,
-    type PluginMetadata,
-    type OutputStrategy
+    type PluginMetadata
 } from '../src/plugins/plugin-system.js';
-import { MemoryFileSystemAdapter } from '../src/adapters/file-system.js';
+import type { OutputStrategy } from '../src/strategies/output-strategy.js';
 import { createFilePath, type Config } from '../src/types.js';
 import { defaultConfig } from '../src/utils.js';
 
@@ -89,8 +87,8 @@ describe('Plugin System', () => {
 
                 const metadata = pluginManager.listPlugins();
                 expect(metadata).toHaveLength(2);
-                expect(metadata[0].name).toBe('plugin1');
-                expect(metadata[1].name).toBe('plugin2');
+                expect(metadata[0]?.name).toBe('plugin1');
+                expect(metadata[1]?.name).toBe('plugin2');
             });
         });
 
@@ -128,9 +126,8 @@ describe('Plugin System', () => {
                     name: 'test-plugin',
                     version: '1.0.0',
                     description: 'Test plugin'
-                }, {
-                    initialize: initSpy
-                });
+                }, {});
+                plugin.initialize = initSpy;
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.initializePlugins(config);
@@ -144,9 +141,8 @@ describe('Plugin System', () => {
                     name: 'test-plugin',
                     version: '1.0.0',
                     description: 'Test plugin'
-                }, {
-                    cleanup: cleanupSpy
-                });
+                }, {});
+                plugin.cleanup = cleanupSpy;
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.cleanupPlugins();
@@ -160,9 +156,8 @@ describe('Plugin System', () => {
                     name: 'failing-plugin',
                     version: '1.0.0',
                     description: 'Failing plugin'
-                }, {
-                    initialize: async () => { throw new Error('Init failed'); }
-                });
+                }, {});
+                plugin.initialize = () => { throw new Error('Init failed'); };
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.initializePlugins(config);
@@ -177,9 +172,8 @@ describe('Plugin System', () => {
                     name: 'failing-plugin',
                     version: '1.0.0',
                     description: 'Failing plugin'
-                }, {
-                    cleanup: async () => { throw new Error('Cleanup failed'); }
-                });
+                }, {});
+                plugin.cleanup = () => { throw new Error('Cleanup failed'); };
 
                 pluginManager.registerPlugin(plugin);
                 await pluginManager.cleanupPlugins();
@@ -227,7 +221,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Filter plugin'
                 }, {
-                    beforeFileProcessing: async () => null
+                    beforeFileProcessing: () => Promise.resolve(null)
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -307,7 +301,7 @@ describe('Plugin System', () => {
                 const result = await pluginManager.executeAfterFusion({ original: true }, config);
 
                 expect(hookSpy).toHaveBeenCalledWith({ original: true }, config);
-                expect(result.modified).toBe(true);
+                expect((result as any).modified).toBe(true);
             });
 
             it('should handle hook errors gracefully', async () => {
@@ -318,7 +312,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Failing plugin'
                 }, {
-                    beforeFileProcessing: async () => { throw new Error('Hook failed'); }
+                    beforeFileProcessing: () => { throw new Error('Hook failed'); }
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -344,7 +338,8 @@ describe('Plugin System', () => {
                     name: 'custom',
                     extension: '.custom',
                     generateHeader: () => 'header',
-                    processFile: () => 'processed'
+                    processFile: () => 'processed',
+                    createStream: () => ({} as any)
                 };
 
                 const plugin = createPlugin({
@@ -352,7 +347,7 @@ describe('Plugin System', () => {
                     version: '1.0.0',
                     description: 'Strategy plugin'
                 }, {
-                    registerOutputStrategies: () => [strategy]
+                    registerOutputStrategies(): OutputStrategy[] { return [strategy]; }
                 });
 
                 pluginManager.registerPlugin(plugin);
@@ -449,17 +444,19 @@ describe('Plugin System', () => {
 
                 async initialize() {
                     this.initCalled = true;
+                    return Promise.resolve();
                 }
 
                 async cleanup() {
                     this.cleanupCalled = true;
+                    return Promise.resolve();
                 }
             }
 
             const plugin = new TestPlugin();
             
-            if (plugin.initialize) await plugin.initialize(config);
-            if (plugin.cleanup) await plugin.cleanup();
+            if (plugin.initialize) { await plugin.initialize(); }
+            if (plugin.cleanup) { await plugin.cleanup(); }
 
             expect(plugin.initCalled).toBe(true);
             expect(plugin.cleanupCalled).toBe(true);

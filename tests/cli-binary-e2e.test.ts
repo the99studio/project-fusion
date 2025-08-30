@@ -4,11 +4,11 @@
  * Comprehensive End-to-End CLI Binary Tests
  * Tests the actual CLI executable with real process spawning, exit codes, and file generation
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { execSync, spawn } from 'node:child_process';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm, readFile, access, chmod } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('CLI Binary E2E Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'cli-binary-e2e-test');
@@ -49,17 +49,17 @@ describe('CLI Binary E2E Tests', () => {
             let stdout = '';
             let stderr = '';
 
-            child.stdout?.on('data', (data) => {
+            child.stdout?.on('data', (data: Buffer) => {
                 stdout += data.toString();
             });
 
-            child.stderr?.on('data', (data) => {
+            child.stderr?.on('data', (data: Buffer) => {
                 stderr += data.toString();
             });
 
             child.on('close', (code) => {
                 resolve({
-                    exitCode: code || 0,
+                    exitCode: code ?? 0,
                     stdout,
                     stderr
                 });
@@ -93,7 +93,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
 
         it('should exit with code 1 on invalid options', async () => {
@@ -292,7 +292,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
     });
 
@@ -407,7 +407,7 @@ describe('CLI Binary E2E Tests', () => {
 
             expect(result.exitCode).toBe(0);
             expect(result.stdout).toContain('No files found to process');
-            expect(result.stdout).toContain('💡 Suggestions to find files');
+            expect(result.stdout).toContain('Suggestions to find files');
         });
 
         it('should handle non-existent extension groups', async () => {

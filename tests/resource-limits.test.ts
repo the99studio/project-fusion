@@ -3,13 +3,12 @@
 /**
  * Resource limits tests for Project Fusion
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { join } from 'node:path';
-import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { processFusion } from '../src/fusion.js';
-import { defaultConfig } from '../src/utils.js';
-import { getMemoryUsage, checkMemoryUsage, logMemoryUsageIfNeeded } from '../src/utils.js';
+import { defaultConfig , getMemoryUsage, checkMemoryUsage, logMemoryUsageIfNeeded } from '../src/utils.js';
 
 describe('Resource Limits Tests', () => {
     const testDir = join(process.cwd(), 'temp', 'resource-limits-test');
@@ -54,13 +53,15 @@ describe('Resource Limits Tests', () => {
             const result = await processFusion(config);
             
             expect(result.success).toBe(false);
-            expect(result.code).toBe('TOO_MANY_FILES');
-            expect(result.error).toContain(`Too many files found (${numFiles} > ${maxFiles})`);
-            expect(result.details).toEqual({
-                filesFound: numFiles,
-                maxFiles,
-                suggestion: 'Use --include patterns to filter files or increase maxFiles limit'
-            });
+            if (!result.success) {
+                expect(result.code).toBe('TOO_MANY_FILES');
+                expect(result.error).toContain(`Too many files found (${numFiles} > ${maxFiles})`);
+                expect(result.details).toEqual({
+                    filesFound: numFiles,
+                    maxFiles,
+                    suggestion: 'Use --include patterns to filter files or increase maxFiles limit'
+                });
+            }
         });
 
         it('should pass when file count is within limit', async () => {
@@ -115,10 +116,12 @@ describe('Resource Limits Tests', () => {
             const result = await processFusion(config);
             
             expect(result.success).toBe(false);
-            expect(result.code).toBe('SIZE_LIMIT_EXCEEDED');
-            expect(result.error).toContain('Total size limit exceeded');
-            expect(result.details?.maxTotalSizeMB).toBe(maxTotalSizeMB);
-            expect(result.details?.suggestion).toContain('Use --include patterns to filter files');
+            if (!result.success) {
+                expect(result.code).toBe('SIZE_LIMIT_EXCEEDED');
+                expect(result.error).toContain('Total size limit exceeded');
+            }
+            expect((result as { details?: { maxTotalSizeMB: number; suggestion: string } }).details?.maxTotalSizeMB).toBe(maxTotalSizeMB);
+            expect((result as { details?: { maxTotalSizeMB: number; suggestion: string } }).details?.suggestion).toContain('Use --include patterns to filter files');
         });
 
         it('should pass when total size is within limit', async () => {
@@ -173,13 +176,15 @@ describe('Resource Limits Tests', () => {
             
             // Should fail on file count, not size
             expect(result.success).toBe(false);
-            expect(result.code).toBe('TOO_MANY_FILES');
+            if (!result.success) {
+                expect(result.code).toBe('TOO_MANY_FILES');
+            }
         });
     });
 
     describe('Default Values', () => {
         it('should have sensible default limits', () => {
-            expect(defaultConfig.maxFiles).toBe(10000);
+            expect(defaultConfig.maxFiles).toBe(10_000);
             expect(defaultConfig.maxTotalSizeMB).toBe(100);
         });
 
@@ -198,8 +203,8 @@ describe('Resource Limits Tests', () => {
             };
 
             // Remove the limit properties to test defaults
-            delete (configWithoutLimits as any).maxFiles;
-            delete (configWithoutLimits as any).maxTotalSizeMB;
+            delete (configWithoutLimits as { maxFiles?: number }).maxFiles;
+            delete (configWithoutLimits as { maxTotalSizeMB?: number }).maxTotalSizeMB;
 
             const result = await processFusion(configWithoutLimits);
             
@@ -307,7 +312,7 @@ describe('Memory Monitoring', () => {
             // Log file should exist and contain memory info
             expect(existsSync(logFile)).toBe(true);
             
-            const logContent = await import('fs').then(fs => 
+            const logContent = await import('node:fs').then(fs => 
                 fs.promises.readFile(logFile, 'utf8')
             );
             expect(logContent).toContain('Test:');

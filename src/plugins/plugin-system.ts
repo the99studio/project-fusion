@@ -5,8 +5,10 @@
  */
 import path from 'node:path';
 import type { FileSystemAdapter } from '../adapters/file-system.js';
+import type { CancellationToken } from '../api.js';
 import type { FileInfo, OutputStrategy } from '../strategies/output-strategy.js';
 import { type Config, createFilePath, FusionError } from '../types.js';
+import { logger } from '../utils/logger.js';
 
 export interface PluginMetadata {
     name: string;
@@ -53,23 +55,33 @@ export class PluginManager {
      * @throws FusionError if the path is not allowed
      */
     private validatePluginPath(pluginPath: string, config: Config): void {
-        // Skip validation if external plugins are explicitly allowed
-        if (config.allowExternalPlugins) {
-            return;
-        }
-
         // Resolve paths for comparison
         const resolvedPluginPath = path.resolve(pluginPath);
         const resolvedRootDir = path.resolve(config.rootDirectory);
         
-        // Check if plugin path is within root directory
         const relativePath = path.relative(resolvedRootDir, resolvedPluginPath);
+        const isExternalPlugin = relativePath.startsWith('..') || path.isAbsolute(relativePath);
         
-        // If relative path starts with '..' or is absolute, it's outside root
-        if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+        if (isExternalPlugin) {
+            if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
+                const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
+                    const resolvedAllowedPath = path.resolve(allowedPath);
+                    return resolvedPluginPath === resolvedAllowedPath || 
+                           resolvedPluginPath.startsWith(resolvedAllowedPath + path.sep);
+                });
+                
+                if (isAllowed) {
+                    // Log warning banner for external plugin usage
+                    logger.warn(`SECURITY WARNING: Loading external plugin from '${pluginPath}'. ` +
+                               `Ensure this plugin is from a trusted source.`, { pluginPath });
+                    return;
+                }
+            }
+            
+            // Path is outside root directory and not in allowlist - deny
             throw new FusionError(
                 `Plugin path '${pluginPath}' is outside root directory. ` +
-                `Use --allow-external-plugins to load plugins from external directories.`,
+                `Add it to allowedExternalPluginPaths in your configuration.`,
                 'PATH_TRAVERSAL',
                 'error',
                 { pluginPath, rootDirectory: config.rootDirectory }
@@ -79,7 +91,6 @@ export class PluginManager {
 
     async loadPlugin(pluginPath: string, config?: Config): Promise<void> {
         try {
-            // Validate plugin path if config is provided
             if (config) {
                 this.validatePluginPath(pluginPath, config);
             }
@@ -92,9 +103,10 @@ export class PluginManager {
             }
             
             this.plugins.set(plugin.metadata.name, plugin);
-            console.log(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`);
+            this.invalidateCache();
+            logger.info(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`, { pluginPath });
         } catch (error) {
-            console.error(`Failed to load plugin from ${pluginPath}:`, error);
+            logger.error(`Failed to load plugin from ${pluginPath}`, { error, pluginPath });
             throw error;
         }
     }
@@ -111,36 +123,52 @@ export class PluginManager {
                 try {
                     await this.loadPlugin(pluginFile, config);
                 } catch (error) {
-                    console.warn(`Skipping plugin ${pluginFile} due to error:`, error);
+                    logger.warn(`Skipping plugin ${pluginFile} due to error`, { error, pluginFile });
                 }
             }
         } catch (error) {
-            console.error(`Error loading plugins from directory ${pluginsDir}:`, error);
+            logger.error(`Error loading plugins from directory ${pluginsDir}`, { error, pluginsDir });
         }
     }
 
     registerPlugin(plugin: Plugin): void {
         this.plugins.set(plugin.metadata.name, plugin);
+        this.invalidateCache();
     }
 
     unregisterPlugin(name: string): void {
         this.plugins.delete(name);
         this.pluginConfigs.delete(name);
+        this.invalidateCache();
     }
 
     configurePlugin(name: string, config: PluginConfig): void {
         this.pluginConfigs.set(name, config);
+        this.invalidateCache();
     }
 
     getPlugin(name: string): Plugin | undefined {
         return this.plugins.get(name);
     }
 
+    // Cache enabled plugins to avoid repeated filtering
+    private _enabledPluginsCache: Plugin[] | null = null;
+    private _cacheInvalidated = true;
+    
     getEnabledPlugins(): Plugin[] {
-        return [...this.plugins.values()].filter(plugin => {
-            const config = this.pluginConfigs.get(plugin.metadata.name);
-            return config?.enabled !== false;
-        });
+        if (this._cacheInvalidated || this._enabledPluginsCache === null) {
+            this._enabledPluginsCache = [...this.plugins.values()].filter(plugin => {
+                const config = this.pluginConfigs.get(plugin.metadata.name);
+                return config?.enabled !== false;
+            });
+            this._cacheInvalidated = false;
+        }
+        return this._enabledPluginsCache;
+    }
+    
+    private invalidateCache(): void {
+        this._cacheInvalidated = true;
+        this._enabledPluginsCache = null;
     }
 
     async initializePlugins(config: Config): Promise<void> {
@@ -152,7 +180,7 @@ export class PluginManager {
                     await plugin.initialize(config);
                 }
             } catch (error) {
-                console.error(`Error initializing plugin ${plugin.metadata.name}:`, error);
+                logger.pluginError(plugin.metadata.name, 'Error during plugin initialization', error);
             }
         }
     }
@@ -166,15 +194,24 @@ export class PluginManager {
                     await plugin.cleanup();
                 }
             } catch (error) {
-                console.error(`Error cleaning up plugin ${plugin.metadata.name}:`, error);
+                logger.pluginError(plugin.metadata.name, 'Error during plugin cleanup', error);
             }
         }
     }
 
-    async executeBeforeFileProcessing(fileInfo: FileInfo, config: Config): Promise<FileInfo | null> {
+    async executeBeforeFileProcessing(
+        fileInfo: FileInfo, 
+        config: Config, 
+        cancellationToken?: CancellationToken
+    ): Promise<FileInfo | null> {
         let currentFileInfo = fileInfo;
         
         for (const plugin of this.getEnabledPlugins()) {
+            // Check for cancellation before each plugin execution
+            if (cancellationToken?.isCancellationRequested) {
+                throw new Error('Operation was cancelled');
+            }
+            
             if (plugin.beforeFileProcessing) {
                 try {
                     const result = await plugin.beforeFileProcessing(currentFileInfo, config);
@@ -183,7 +220,7 @@ export class PluginManager {
                     }
                     currentFileInfo = result;
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} beforeFileProcessing:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in beforeFileProcessing hook', error, { fileInfo: currentFileInfo });
                 }
             }
         }
@@ -203,7 +240,7 @@ export class PluginManager {
                 try {
                     currentContent = await plugin.afterFileProcessing(fileInfo, currentContent, config);
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} afterFileProcessing:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in afterFileProcessing hook', error, { fileInfo });
                 }
             }
         }
@@ -213,19 +250,25 @@ export class PluginManager {
 
     async executeBeforeFusion(
         config: Config, 
-        filesToProcess: FileInfo[]
+        filesToProcess: FileInfo[],
+        cancellationToken?: CancellationToken
     ): Promise<{ config: Config; filesToProcess: FileInfo[] }> {
         let currentConfig = config;
         let currentFiles = filesToProcess;
         
         for (const plugin of this.getEnabledPlugins()) {
+            // Check for cancellation before each plugin execution
+            if (cancellationToken?.isCancellationRequested) {
+                throw new Error('Operation was cancelled');
+            }
+            
             if (plugin.beforeFusion) {
                 try {
                     const result = await plugin.beforeFusion(currentConfig, currentFiles);
                     currentConfig = result.config;
                     currentFiles = result.filesToProcess;
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} beforeFusion:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in beforeFusion hook', error, { filesCount: currentFiles.length });
                 }
             }
         }
@@ -241,7 +284,7 @@ export class PluginManager {
                 try {
                     currentResult = await plugin.afterFusion(currentResult, config) as T;
                 } catch (error) {
-                    console.error(`Error in plugin ${plugin.metadata.name} afterFusion:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error in afterFusion hook', error);
                 }
             }
         }
@@ -251,14 +294,15 @@ export class PluginManager {
 
     getAdditionalOutputStrategies(): OutputStrategy[] {
         const strategies: OutputStrategy[] = [];
+        const enabledPlugins = this.getEnabledPlugins(); // Cache the result
         
-        for (const plugin of this.getEnabledPlugins()) {
+        for (const plugin of enabledPlugins) {
             if (plugin.registerOutputStrategies) {
                 try {
                     const pluginStrategies = plugin.registerOutputStrategies();
                     strategies.push(...pluginStrategies);
                 } catch (error) {
-                    console.error(`Error getting output strategies from plugin ${plugin.metadata.name}:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error getting output strategies', error);
                 }
             }
         }
@@ -268,14 +312,15 @@ export class PluginManager {
 
     getAdditionalFileExtensions(): Record<string, string[]> {
         const extensions: Record<string, string[]> = {};
+        const enabledPlugins = this.getEnabledPlugins(); // Cache the result
         
-        for (const plugin of this.getEnabledPlugins()) {
+        for (const plugin of enabledPlugins) {
             if (plugin.registerFileExtensions) {
                 try {
                     const pluginExtensions = plugin.registerFileExtensions();
                     Object.assign(extensions, pluginExtensions);
                 } catch (error) {
-                    console.error(`Error getting file extensions from plugin ${plugin.metadata.name}:`, error);
+                    logger.pluginError(plugin.metadata.name, 'Error getting file extensions', error);
                 }
             }
         }

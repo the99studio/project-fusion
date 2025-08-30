@@ -4,10 +4,9 @@
  * Fusion functionality - Refactored with new architecture patterns
  */
 import path from 'node:path';
-
 import ignoreLib from 'ignore';
-
-import { type FileSystemAdapter, DefaultFileSystemAdapter } from './adapters/file-system.js';
+import { DefaultFileSystemAdapter } from './adapters/file-system.js';
+import type { FusionProgress, CancellationToken } from './api.js';
 import { BenchmarkTracker } from './benchmark.js';
 import { PluginManager } from './plugins/plugin-system.js';
 import { 
@@ -16,8 +15,8 @@ import {
     OutputStrategyManager
 } from './strategies/output-strategy.js';
 import { type Config, type FilePath, type FusionOptions, type FusionResult, createFilePath } from './types.js';
+import { logger } from './utils/logger.js';
 import {
-    formatLocalTimestamp,
     formatTimestamp,
     generateHelpfulEmptyMessage,
     getExtensionsFromGroups,
@@ -28,6 +27,7 @@ import {
     validateNoSymlinks,
     validateSecurePath
 } from './utils.js';
+import { getVersionSync } from './version.js';
 
 /**
  * Create an error placeholder for rejected files
@@ -45,27 +45,41 @@ To include this file anyway, adjust validation limits in your config.
 export async function processFusion(
     config: Config,
     options: FusionOptions & {
-        onProgress?: (progress: import('./api.js').FusionProgress) => void;
-        cancellationToken?: import('./api.js').CancellationToken;
+        onProgress?: (progress: FusionProgress) => void;
+        cancellationToken?: CancellationToken;
     } = {}
 ): Promise<FusionResult> {
     const benchmark = new BenchmarkTracker();
-    const fs = options.fs || new DefaultFileSystemAdapter();
+    const fs = options.fs ?? new DefaultFileSystemAdapter();
     const outputManager = new OutputStrategyManager();
     const pluginManager = new PluginManager(fs);
+    
+    // Progress tracking state
+    const progressState = {
+        lastProgressEmit: 0,
+        filesProcessedSinceLastEmit: 0,
+        totalBytesProcessed: 0,
+        startTime: Date.now(),
+        phaseStartTime: Date.now(),
+        currentPhase: 'scanning' as FusionProgress['step']
+    };
+    
+    // Configure progress granularity (emit every N files or on phase change)
+    const PROGRESS_EMIT_INTERVAL = 10; // Emit progress every 10 files
+    
+    // Pre-compute frequently used values
+    const rootDir = path.resolve(config.rootDirectory);
+    const maxFileSizeKB = config.maxFileSizeKB;
+    const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
 
     // Helper function to write logs using the FileSystemAdapter
     const writeLogWithFs = async (logFilePath: string, content: string, append = false, consoleOutput = false): Promise<void> => {
         try {
             await fs.ensureDir(path.dirname(logFilePath));
             const filePath = createFilePath(logFilePath);
-            if (append) {
-                await fs.appendFile(filePath, content + '\n');
-            } else {
-                await fs.writeFile(filePath, content + '\n');
-            }
+            await (append ? fs.appendFile(filePath, `${content  }\n`) : fs.writeFile(filePath, `${content  }\n`));
             if (consoleOutput) {
-                console.log(content);
+                logger.info(content);
             }
         } catch (error) {
             console.error('Error writing log:', error);
@@ -73,30 +87,78 @@ export async function processFusion(
     };
 
     // Helper function to check cancellation
-    const checkCancellation = () => {
+    const checkCancellation = (): void => {
         if (options.cancellationToken?.isCancellationRequested) {
             throw new Error('Operation was cancelled');
         }
     };
 
-    // Helper function to report progress
-    const reportProgress = (step: import('./api.js').FusionProgress['step'], message: string, filesProcessed = 0, totalFiles = 0, currentFile?: string | undefined) => {
-        if (options.onProgress) {
-            const percentage = totalFiles > 0 ? Math.round((filesProcessed / totalFiles) * 100) : 0;
-            options.onProgress({
-                step,
-                message,
-                filesProcessed,
-                totalFiles,
-                percentage,
-                currentFile
-            });
+    // Helper function to report progress with ETA and throughput
+    const reportProgress = (
+        step: FusionProgress['step'], 
+        message: string, 
+        filesProcessed = 0, 
+        totalFiles = 0, 
+        currentFile?: string  ,
+        forceEmit = false
+    ): void => {
+        if (!options.onProgress) { return; }
+        
+        const phaseChanged = step !== progressState.currentPhase;
+        progressState.filesProcessedSinceLastEmit++;
+        
+        // Always emit for first file in processing, small file sets, or when forced
+        const isFirstFileInProcessing = step === 'processing' && filesProcessed === 1;
+        const isSmallFileSet = totalFiles <= PROGRESS_EMIT_INTERVAL;
+        
+        const shouldEmit = forceEmit || 
+                          phaseChanged || 
+                          isFirstFileInProcessing ||
+                          isSmallFileSet || // Always emit for small file sets
+                          progressState.filesProcessedSinceLastEmit >= PROGRESS_EMIT_INTERVAL ||
+                          filesProcessed === totalFiles; // Always emit on completion
+        
+        if (!shouldEmit && !phaseChanged) { return; }
+        
+        // Reset counter and update phase
+        if (phaseChanged) {
+            progressState.currentPhase = step;
+            progressState.phaseStartTime = Date.now();
         }
+        progressState.filesProcessedSinceLastEmit = 0;
+        progressState.lastProgressEmit = Date.now();
+        
+        const percentage = totalFiles > 0 ? Math.round((filesProcessed / totalFiles) * 100) : 0;
+        const elapsedSeconds = (Date.now() - progressState.startTime) / 1000;
+        
+        // Calculate ETA based on current progress
+        let etaSeconds: number | undefined;
+        if (filesProcessed > 0 && totalFiles > 0 && filesProcessed < totalFiles) {
+            const averageTimePerFile = elapsedSeconds / filesProcessed;
+            const remainingFiles = totalFiles - filesProcessed;
+            etaSeconds = Math.round(averageTimePerFile * remainingFiles);
+        }
+        
+        const metrics = benchmark.getMetrics();
+        const mbProcessed = metrics.totalSizeMB;
+        const throughputMBps = metrics.throughputMBps;
+        
+        options.onProgress({
+            step,
+            message,
+            filesProcessed,
+            totalFiles,
+            percentage,
+            currentFile,
+            ...(etaSeconds !== undefined && { etaSeconds }),
+            ...(mbProcessed !== undefined && { mbProcessed }),
+            ...(throughputMBps !== undefined && { throughputMBps })
+        });
     };
 
     try {
         checkCancellation();
-        reportProgress('scanning', 'Initializing fusion process...');
+        reportProgress('scanning', 'Initializing fusion process...', 0, 0, undefined, true);
         const outputDir = config.outputDirectory ?? config.rootDirectory;
         const logFilePath = createFilePath(path.resolve(outputDir, `${config.generatedFileName}.log`));
         const startTime = new Date();
@@ -106,7 +168,7 @@ export async function processFusion(
         
         // Log initial configuration and session info
         await writeLogWithFs(logFilePath, `=== PROJECT FUSION SESSION START ===`, true);
-        await writeLogWithFs(logFilePath, `Session ID: ${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`, true);
+        await writeLogWithFs(logFilePath, `Session ID: ${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`, true);
         await writeLogWithFs(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
         await writeLogWithFs(logFilePath, `Working directory: ${config.rootDirectory}`, true);
         await writeLogWithFs(logFilePath, `Generated file name: ${config.generatedFileName}`, true);
@@ -187,7 +249,7 @@ export async function processFusion(
         
         // Log processing information
         await writeLogWithFs(logFilePath, `\n--- PROCESSING ---`, true);
-        console.log(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
+        logger.info(`Processing ${extensions.length} file extensions from ${Object.keys(mergedConfig.parsedFileExtensions).length} categories`);
         await writeLogWithFs(logFilePath, `File extensions to process: ${extensions.length}`, true);
         await writeLogWithFs(logFilePath, `Available extension categories: ${Object.keys(mergedConfig.parsedFileExtensions).length}`, true);
         
@@ -206,7 +268,6 @@ export async function processFusion(
         }
 
         const ig = ignoreLib();
-        const rootDir = path.resolve(config.rootDirectory);
 
         if (config.useGitIgnoreForExcludes) {
             const gitIgnorePath = path.join(rootDir, '.gitignore');
@@ -239,7 +300,7 @@ export async function processFusion(
             : `${rootDir}/*@(${allExtensionsPattern.join('|')})`;
 
         checkCancellation();
-        reportProgress('scanning', 'Scanning for files...');
+        reportProgress('scanning', 'Scanning for files...', 0, 0, undefined, true);
         
         let filePaths = await fs.glob(pattern, { 
             nodir: true,
@@ -252,8 +313,8 @@ export async function processFusion(
             return !ig.ignores(relativePath);
         });
 
-        reportProgress('scanning', `Found ${filePaths.length} files after filtering`, 0, filePaths.length);
-        console.log(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
+        reportProgress('scanning', `Found ${filePaths.length} files after filtering`, 0, filePaths.length, undefined, true);
+        logger.info(`Found ${originalFileCount} files, ${filePaths.length} after filtering (${((originalFileCount - filePaths.length) / originalFileCount * 100).toFixed(1)}% filtered)`);
 
         if (filePaths.length === 0) {
             const message = 'No files found to process.';
@@ -290,7 +351,6 @@ export async function processFusion(
 
         // Initial memory check
         // await logMemoryUsageIfNeeded(logFilePath, 'Initial memory check');
-        // TODO: Implement memory check inline if needed
 
         // Check resource limits early
         if (filePaths.length > config.maxFiles) {
@@ -310,27 +370,35 @@ export async function processFusion(
             };
         }
 
-        const maxFileSizeKB = config.maxFileSizeKB;
-        const maxTotalSizeBytes = config.maxTotalSizeMB * 1024 * 1024;
         const filesToProcess: FileInfo[] = [];
         const skippedFiles: string[] = [];
         let skippedCount = 0;
         let totalSizeBytes = 0;
 
-        reportProgress('processing', 'Processing files...', 0, filePaths.length);
+        reportProgress('processing', 'Processing files...', 0, filePaths.length, undefined, true);
         
         for (let i = 0; i < filePaths.length; i++) {
-            const filePath = filePaths[i]!; // filePaths array is never sparse
+            const filePath = filePaths[i];
+            if (!filePath) { continue; }
             const relativePath = path.relative(rootDir, filePath);
 
             checkCancellation();
-            reportProgress('processing', `Processing ${relativePath}`, i, filePaths.length, relativePath);
+            
+            // Batch update bytes processed for better throughput calculation
+            if (i > 0 && i % 5 === 0) {
+                // Update every 5 files for better performance
+                const lastFiles = filesToProcess.slice(-5);
+                const batchSize = lastFiles.reduce((sum, file) => sum + file.size, 0);
+                progressState.totalBytesProcessed += batchSize;
+                benchmark.markFileProcessed(batchSize);
+            }
+            
+            reportProgress('processing', `Processing ${relativePath}`, i + 1, filePaths.length, relativePath);
 
             try {
                 const stats = await fs.stat(filePath);
                 const sizeKB = stats.size / 1024;
                 
-                // Check if adding this file would exceed total size limit
                 if (totalSizeBytes + stats.size > maxTotalSizeBytes) {
                     const totalSizeMB = (totalSizeBytes + stats.size) / (1024 * 1024);
                     const message = `Total size limit exceeded (${totalSizeMB.toFixed(2)} MB > ${config.maxTotalSizeMB} MB). ` +
@@ -342,7 +410,7 @@ export async function processFusion(
                         message,
                         code: 'SIZE_LIMIT_EXCEEDED' as const,
                         details: {
-                            totalSizeMB: totalSizeMB,
+                            totalSizeMB,
                             maxTotalSizeMB: config.maxTotalSizeMB,
                             filesProcessed: filesToProcess.length,
                             suggestion: 'Use --include patterns to filter files or increase maxTotalSizeMB limit'
@@ -355,18 +423,27 @@ export async function processFusion(
                 if (sizeKB > maxFileSizeKB) {
                     skippedCount++;
                     skippedFiles.push(relativePath);
+                    const warningMsg = `Large file skipped: ${relativePath} (${sizeKB.toFixed(2)} KB > ${maxFileSizeKB} KB)`;
+                    logger.consoleWarn(warningMsg);
                     await writeLogWithFs(logFilePath, `Skipped large file: ${relativePath} (${sizeKB.toFixed(2)} KB)`, true);
                 } else {
                     const safePath = validateSecurePath(filePath, config.rootDirectory);
-                    await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks);
+                    await validateNoSymlinks(createFilePath(safePath), config.allowSymlinks, config);
                     
-                    if (await isBinaryFile(safePath)) {
+                    // Batch operations to reduce async overhead
+                    const [isBinary, rawFileContent] = await Promise.all([
+                        isBinaryFile(safePath),
+                        fs.readFile(createFilePath(safePath))
+                    ]);
+                    
+                    if (isBinary) {
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
-                        console.warn(`Skipping binary file: ${relativePath}`);
+                        logger.consoleWarn(`Binary file skipped: ${relativePath}`);
                         continue;
                     }
                     
-                    let content = await fs.readFile(createFilePath(safePath));
+                    checkCancellation();
+                    let content = rawFileContent;
                     
                     // Redact secrets if enabled
                     if (config.excludeSecrets) {
@@ -376,13 +453,12 @@ export async function processFusion(
                         }
                     }
                     
-                    // Validate content according to content validation rules
                     const validationResult = validateFileContent(content, relativePath, config);
                     
                     // Log warnings and errors
                     for (const warning of validationResult.warnings) {
                         await writeLogWithFs(logFilePath, `Content validation warning: ${warning}`, true);
-                        console.warn(`⚠️ ${warning}`);
+                        logger.consoleWarn(warning);
                     }
                     
                     for (const error of validationResult.errors) {
@@ -407,7 +483,7 @@ export async function processFusion(
                     
                     // If validation failed, create error placeholder
                     // BUT: don't create placeholders for minified content that we want to skip
-                    let fileContent = content;
+                    let processedFileContent = content;
                     let isErrorPlaceholder = false;
                     
                     if (!validationResult.valid) {
@@ -420,20 +496,21 @@ export async function processFusion(
                         if (!isMinified || !hasOnlyLongLineIssues) {
                             await writeLogWithFs(logFilePath, `Content validation failed for: ${relativePath}`, true);
                             const errorDetails = validationResult.errors.join('\n');
-                            fileContent = createErrorPlaceholder(relativePath, errorDetails);
+                            processedFileContent = createErrorPlaceholder(relativePath, errorDetails);
                             isErrorPlaceholder = true;
                         }
                     }
                     
                     let fileInfo: FileInfo = {
-                        content: fileContent,
+                        content: processedFileContent,
                         relativePath,
                         path: filePath,
                         size: stats.size,
                         isErrorPlaceholder // Track if this is an error placeholder
                     };
 
-                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config) || fileInfo;
+                    checkCancellation();
+                    fileInfo = await pluginManager.executeBeforeFileProcessing(fileInfo, config, options.cancellationToken) ?? fileInfo;
                     
                     if (fileInfo) {
                         filesToProcess.push(fileInfo);
@@ -447,13 +524,12 @@ export async function processFusion(
 
         // Memory check after file processing
         // await logMemoryUsageIfNeeded(logFilePath, 'After file processing');
-        // TODO: Implement memory check inline if needed
 
-        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess);
+        checkCancellation();
+        const beforeFusionResult = await pluginManager.executeBeforeFusion(mergedConfig, filesToProcess, options.cancellationToken);
         const finalConfig = beforeFusionResult.config;
         const finalFilesToProcess = beforeFusionResult.filesToProcess;
 
-        // Handle preview mode - show files and exit without generating output
         if (options.previewMode) {
             const endTime = new Date();
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -477,9 +553,7 @@ export async function processFusion(
             const filesByExtension: Record<string, string[]> = {};
             for (const file of finalFilesToProcess) {
                 const ext = path.extname(file.path).toLowerCase() || 'no extension';
-                if (!filesByExtension[ext]) {
-                    filesByExtension[ext] = [];
-                }
+                filesByExtension[ext] ??= [];
                 filesByExtension[ext].push(file.relativePath);
             }
             
@@ -506,7 +580,6 @@ export async function processFusion(
             };
         }
 
-        // Check if no files to process and provide helpful message
         if (finalFilesToProcess.length === 0) {
             const endTime = new Date();
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(2);
@@ -524,17 +597,16 @@ export async function processFusion(
                     fusionFilePath: logFilePath,
                     filesProcessed: 0
                 };
-            } else {
-                // No files found at all - this is a failure
-                const message = 'No files found matching your criteria.';
-                const helpMessage = generateHelpfulEmptyMessage(extensions, mergedConfig);
-                await writeLogWithFs(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${duration}s`, true);
-                return { 
-                    success: false, 
-                    message: `${message}\n\n${helpMessage}`, 
-                    logFilePath 
-                };
             }
+            // No files found at all - this is a failure
+            const message = 'No files found matching your criteria.';
+            const helpMessage = generateHelpfulEmptyMessage(extensions, mergedConfig);
+            await writeLogWithFs(logFilePath, `Status: Fusion failed\nReason: ${message}\nStart time: ${formatTimestamp(startTime)}\nEnd time: ${formatTimestamp(endTime)}\nDuration: ${duration}s`, true);
+            return { 
+                success: false, 
+                message: `${message}\n\n${helpMessage}`, 
+                logFilePath 
+            };
         }
 
         const projectTitle = packageName && packageName.toLowerCase() !== projectName.toLowerCase() 
@@ -546,21 +618,39 @@ export async function processFusion(
             projectTitle,
             versionInfo,
             filesToProcess: finalFilesToProcess,
-            config: finalConfig
+            config: finalConfig,
+            toolVersion: getVersionSync()
         };
 
         checkCancellation();
-        reportProgress('generating', 'Generating output files...', finalFilesToProcess.length, finalFilesToProcess.length);
+        reportProgress('generating', 'Generating output files...', finalFilesToProcess.length, finalFilesToProcess.length, undefined, true);
         
         const enabledStrategies = outputManager.getEnabledStrategies(finalConfig);
         const generatedPaths: FilePath[] = [];
 
         for (const strategy of enabledStrategies) {
             checkCancellation();
-            reportProgress('generating', `Generating ${strategy.name} output...`, finalFilesToProcess.length, finalFilesToProcess.length);
+            reportProgress('generating', `Generating ${strategy.name} output...`, 0, finalFilesToProcess.length, undefined, true);
             
             try {
-                const outputPath = await outputManager.generateOutput(strategy, outputContext, fs);
+                // Use the streaming version with progress callback
+                const outputPath = await outputManager.generateOutput(
+                    strategy, 
+                    outputContext, 
+                    fs,
+                    (fileInfo, index, total) => {
+                        checkCancellation();
+                        reportProgress(
+                            'generating', 
+                            `Generating ${strategy.name} output - processing ${fileInfo.relativePath}`,
+                            index + 1,
+                            total,
+                            fileInfo.relativePath,
+                            false // Use normal granularity
+                        );
+                    },
+                    options.cancellationToken
+                );
                 generatedPaths.push(outputPath);
                 benchmark.markFileProcessed(0);
             } catch (error) {
@@ -571,9 +661,8 @@ export async function processFusion(
 
         // Final memory check
         // await logMemoryUsageIfNeeded(logFilePath, 'Final memory check');
-        // TODO: Implement memory check inline if needed
 
-        reportProgress('writing', 'Finalizing...', finalFilesToProcess.length, finalFilesToProcess.length);
+        reportProgress('writing', 'Finalizing...', finalFilesToProcess.length, finalFilesToProcess.length, undefined, true);
         
         const message = `Fusion completed successfully. ${finalFilesToProcess.length} files processed${skippedCount > 0 ? `, ${skippedCount} skipped` : ''}.`;
         const endTime = new Date();
@@ -586,19 +675,21 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `Duration: ${duration}s`, true);
         await writeLogWithFs(logFilePath, `Total data processed: ${totalSizeMB} MB`, true);
         
-        // File type statistics
-        const fileTypeStats: Record<string, { count: number; sizeKB: number }> = {};
-        let binaryFilesCount = 0;
+        // File type statistics - optimized with Map for better performance
+        const fileTypeStats = new Map<string, { count: number; sizeKB: number }>();
+        const BYTES_TO_KB = 1 / 1024;
         
         for (const fileInfo of finalFilesToProcess) {
             const ext = path.extname(fileInfo.path).toLowerCase();
             const displayExt = ext || 'no extension';
             
-            if (!fileTypeStats[displayExt]) {
-                fileTypeStats[displayExt] = { count: 0, sizeKB: 0 };
+            const existing = fileTypeStats.get(displayExt);
+            if (existing) {
+                existing.count++;
+                existing.sizeKB += fileInfo.size * BYTES_TO_KB;
+            } else {
+                fileTypeStats.set(displayExt, { count: 1, sizeKB: fileInfo.size * BYTES_TO_KB });
             }
-            fileTypeStats[displayExt].count++;
-            fileTypeStats[displayExt].sizeKB += fileInfo.size / 1024;
         }
         
         await writeLogWithFs(logFilePath, `\n--- FILE TYPE STATISTICS ---`, true);
@@ -607,9 +698,9 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `Files skipped (too large): ${skippedCount}`, true);
         await writeLogWithFs(logFilePath, `Files filtered out: ${originalFileCount - filePaths.length}`, true);
         
-        if (Object.keys(fileTypeStats).length > 0) {
+        if (fileTypeStats.size > 0) {
             await writeLogWithFs(logFilePath, `\nFile types processed:`, true);
-            const sortedStats = Object.entries(fileTypeStats)
+            const sortedStats = [...fileTypeStats.entries()]
                 .sort(([,a], [,b]) => b.count - a.count);
                 
             for (const [ext, stats] of sortedStats) {
@@ -631,7 +722,7 @@ export async function processFusion(
         await writeLogWithFs(logFilePath, `\n--- PERFORMANCE METRICS ---`, true);
         await writeLogWithFs(logFilePath, `Duration breakdown:`, true);
         await writeLogWithFs(logFilePath, `  Total execution: ${duration}s`, true);
-        await writeLogWithFs(logFilePath, `  File discovery: ${((Date.now() - startTime.getTime()) / 1000 / parseFloat(duration) * 100).toFixed(1)}% of total`, true);
+        await writeLogWithFs(logFilePath, `  File discovery: ${((Date.now() - startTime.getTime()) / 1000 / Number.parseFloat(duration) * 100).toFixed(1)}% of total`, true);
         
         await writeLogWithFs(logFilePath, `Memory usage:`, true);
         await writeLogWithFs(logFilePath, `  Peak memory: ${metrics.memoryUsed.toFixed(2)} MB`, true);
@@ -652,7 +743,7 @@ export async function processFusion(
         const result = {
             success: true as const,
             message: `${message} Generated formats: ${generatedFormats.join(', ')}.`,
-            fusionFilePath: generatedPaths[0] || logFilePath,
+            fusionFilePath: generatedPaths[0] ?? logFilePath,
             logFilePath,
             filesProcessed: filesToProcess.length
         };
