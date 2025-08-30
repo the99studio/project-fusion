@@ -52,6 +52,7 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
+          scope: '@the99studio'
           cache: 'npm'
       
       - name: Install and build
