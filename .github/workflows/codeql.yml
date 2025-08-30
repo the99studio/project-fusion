@@ -14,9 +14,11 @@ on:
   schedule:
     - cron: '21 17 * * 5'
 
+# Concurrency group: only cancel for PR updates, not for main branch pushes
 concurrency:
-  group: codeql-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Only cancel in-progress runs for pull requests
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze:
