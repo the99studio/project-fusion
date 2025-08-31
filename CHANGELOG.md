@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2025-08-31
+
+### Security
+- Fixed path traversal vulnerability in `generatedFileName` configuration
+- Added validation to prevent directory traversal attacks in output file names
+
 ## [1.1.2] - 2025-08-30
 
 ### Changed
@@ -95,7 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Strengthened plugin security with external path validation
 - Updated secret patterns for broader coverage of sensitive files
 
-## [1.0.0] - 2025-01-22
+## [1.0.0] - 2025-08-23
 
 ### Initial Release
 

@@ -28,7 +28,10 @@ export const ConfigSchemaV1 = z.object({
     allowSymlinks: z.boolean().default(false),
     copyToClipboard: z.boolean().default(false),
     excludeSecrets: z.boolean().default(true),
-    generatedFileName: z.string().default("project-fusioned"),
+    generatedFileName: z.string().default("project-fusioned").refine(
+        (name) => !name.includes('..') && !name.includes('/') && !name.includes('\\'),
+        "generatedFileName cannot contain path traversal sequences (.. / \\)"
+    ),
     generateHtml: z.boolean().default(true),
     generateMarkdown: z.boolean().default(true),
     generateText: z.boolean().default(true),
