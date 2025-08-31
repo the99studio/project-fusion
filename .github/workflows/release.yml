@@ -67,18 +67,6 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level=high || echo "::warning::Security vulnerabilities found"
       
-      - name: Inspect npm auth (diagnostic)
-        run: |
-          echo "NODE_AUTH_TOKEN? ${NODE_AUTH_TOKEN:-<empty>}"
-          npm config list
-          echo "---- ~/.npmrc ----"
-          cat ~/.npmrc 2>/dev/null || true
-          echo "---- ./ .npmrc ----"
-          test -f .npmrc && cat .npmrc || true
-          echo "---- Environment check ----"
-          env | grep -i npm || echo "No NPM env vars"
-          env | grep -i token || echo "No TOKEN env vars"
-      
       - name: Publish to NPM
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
@@ -86,10 +74,10 @@ jobs:
           # Publish with appropriate tag
           if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Publishing stable version $VERSION"
-            npm publish --tag latest --provenance --access public --loglevel verbose
+            npm publish --tag latest --provenance --access public
           elif [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
             echo "Publishing pre-release version $VERSION"
-            npm publish --tag next --provenance --access public --loglevel verbose
+            npm publish --tag next --provenance --access public
           else
             echo "::error::Invalid version format: $VERSION"
             exit 1
