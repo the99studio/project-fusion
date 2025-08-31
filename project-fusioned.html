@@ -7,7 +7,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
-<title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0 - Project Fusion</title>
+<title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.2 - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
 pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
@@ -19,10 +19,10 @@ a{color:#00e;text-decoration:underline}
 </head>
 <body>
 <h1>Project Fusion Output</h1>
-<p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.0.0</p>
-<p><strong>Generated:</strong> 29&#47;08&#47;2025 22:47:58 UTC−4</p>
+<p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.2</p>
+<p><strong>Generated:</strong> 30&#47;08&#47;2025 22:14:25 UTC−4</p>
 <p><strong>Files:</strong> 75</p>
-<p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.0.0</a></p>
+<p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.2</a></p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
@@ -110,6 +110,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on &#91;Keep a Changelog&#93;&#40;https:&#47;&#47;keepachangelog.com&#47;en&#47;1.1.0&#47;&#41;,
 and this project adheres to &#91;Semantic Versioning&#93;&#40;https:&#47;&#47;semver.org&#47;spec&#47;v2.0.0.html&#41;.
+
+## &#91;1.1.2&#93; - 2025-08-30
+
+### Changed
+- Cleaned up release workflow by removing diagnostic debug steps
+- Production-ready OIDC publishing workflow
+
+### Fixed
+- Resolved npm OIDC authentication issues with Trusted Publishers
+
+## &#91;1.1.1&#93; - 2025-08-30
+
+### Fixed
+- Fixed npm OIDC publishing workflow by updating npm to latest version
+- Added diagnostic steps for troubleshooting authentication issues
+
+### Changed
+- Testing publishing workflow with strict 2FA settings
 
 ## &#91;1.1.0&#93; - 2025-08-29
 
@@ -891,7 +909,7 @@ export default &#91;
 <h2 id="packagejson">package.json</h2>
 <pre>&#123;
     &quot;name&quot;: &quot;&#64;the99studio&#47;project-fusion&quot;,
-    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;version&quot;: &quot;1.1.2&quot;,
     &quot;description&quot;: &quot;CLI tool for merging project files into a single file for easy sharing&quot;,
     &quot;main&quot;: &quot;dist&#47;index.js&quot;,
     &quot;types&quot;: &quot;dist&#47;index.d.ts&quot;,
