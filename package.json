@@ -1,6 +1,6 @@
 {
     "name": "@the99studio/project-fusion",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "CLI tool for merging project files into a single file for easy sharing",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
