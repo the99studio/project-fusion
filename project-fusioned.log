@@ -1,6 +1,6 @@
 === PROJECT FUSION SESSION START ===
-Session ID: mifmcmzy-y33bkm61i
-Start time: 2025-11-26T06:23:46.029Z
+Session ID: mifmz1j8-b2nu084b8
+Start time: 2025-11-26T06:41:11.299Z
 Working directory: .
 Generated file name: project-fusioned
 
@@ -24,9 +24,9 @@ Auto-ignoring generated files: project-fusioned.txt, project-fusioned.md, projec
 File extensions to process: 41
 Available extension categories: 7
 Status: Fusion completed successfully
-Start time: 2025-11-26T06:23:46.029Z
-End time: 2025-11-26T06:23:47.124Z
-Duration: 1.09s
+Start time: 2025-11-26T06:41:11.299Z
+End time: 2025-11-26T06:41:12.312Z
+Duration: 1.01s
 Total data processed: 0.82 MB
 
 --- FILE TYPE STATISTICS ---
@@ -36,10 +36,10 @@ Files skipped (too large): 0
 Files filtered out: 11329
 
 File types processed:
-  .ts: 67 files (757.35 KB)
-  .json: 7 files (14.20 KB)
+  .ts: 67 files (757.77 KB)
+  .json: 7 files (15.99 KB)
   .yml: 7 files (10.81 KB)
-  .md: 4 files (33.23 KB)
+  .md: 4 files (33.24 KB)
   no extension: 3 files (1.67 KB)
   .js: 1 files (9.15 KB)
   .snap: 1 files (13.15 KB)
@@ -72,22 +72,22 @@ Pattern "LICENSE": 331 file(s)
 Total special files matched: 333
 
 --- OUTPUT FILES ---
-  project-fusioned.txt (857.55 KB)
-  project-fusioned.md (850.49 KB)
+  project-fusioned.txt (859.77 KB)
+  project-fusioned.md (852.71 KB)
   project-fusioned.html (1.10 MB)
-Total output size: 2.77 MB
+Total output size: 2.78 MB
 
 --- PERFORMANCE METRICS ---
 Duration breakdown:
-  Total execution: 1.09s
+  Total execution: 1.01s
   File discovery: 101.1% of total
 Memory usage:
-  Peak memory: 18.26 MB
-  Memory per file: 207.78 KB
+  Peak memory: 25.65 MB
+  Memory per file: 291.80 KB
 Processing speed:
-  Data throughput: 0.73 MB/s
-  File processing rate: 18.15 files/s
-  Average file size: 9.33 KB
+  Data throughput: 0.79 MB/s
+  File processing rate: 19.59 files/s
+  Average file size: 9.35 KB
 Output generation:
   Generated formats: text, markdown, html
   Number of output files: 3

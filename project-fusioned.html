@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.4</p>
-<p><strong>Generated:</strong> 26&#47;11&#47;2025 01:23:47 UTC−5</p>
+<p><strong>Generated:</strong> 26&#47;11&#47;2025 01:41:12 UTC−5</p>
 <p><strong>Files:</strong> 90</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.4</a></p>
 <hr>
@@ -120,20 +120,77 @@ a{color:#00e;text-decoration:underline}
 <hr>
 <h2 id="claudesettingslocaljson">.claude&#47;settings.local.json</h2>
 <pre>&#123;
-  &quot;permissions&quot;: &#123;
-    &quot;allow&quot;: &#91;
-      &quot;Bash&#40;npm test:*&#41;&quot;,
-      &quot;WebFetch&#40;domain:github.com&#41;&quot;,
-      &quot;Bash&#40;npx vitest:*&#41;&quot;,
-      &quot;Bash&#40;npm run lint:*&#41;&quot;,
-      &quot;Bash&#40;npx ts-node:*&#41;&quot;,
-      &quot;Bash&#40;node dist&#47;cli.js:*&#41;&quot;
-    &#93;,
-    &quot;deny&quot;: &#91;&#93;,
-    &quot;ask&quot;: &#91;&#93;
-  &#125;
-&#125;
-</pre>
+    &quot;permissions&quot;: &#123;
+        &quot;allow&quot;: &#91;
+            &quot;Bash&#40;.&#47;dist&#47;cli.js *&#41;&quot;,
+            &quot;Bash&#40;cat *&#41;&quot;,
+            &quot;Bash&#40;cat:*&#41;&quot;,
+            &quot;Bash&#40;cp * temp&#47;*&#41;&quot;,
+            &quot;Bash&#40;cp *&#41;&quot;,
+            &quot;Bash&#40;eslint *&#41;&quot;,
+            &quot;Bash&#40;find . -name *&#41;&quot;,
+            &quot;Bash&#40;find src -name *&#41;&quot;,
+            &quot;Bash&#40;find temp -name *&#41;&quot;,
+            &quot;Bash&#40;find:*&#41;&quot;,
+            &quot;Bash&#40;git *&#41;&quot;,
+            &quot;Bash&#40;grep *&#41;&quot;,
+            &quot;Bash&#40;grep:*&#41;&quot;,
+            &quot;Bash&#40;head *&#41;&quot;,
+            &quot;Bash&#40;jest *&#41;&quot;,
+            &quot;Bash&#40;ls *&#41;&quot;,
+            &quot;Bash&#40;mkdir *&#41;&quot;,
+            &quot;Bash&#40;mkdir:*&#41;&quot;,
+            &quot;Bash&#40;mv *&#41;&quot;,
+            &quot;Bash&#40;mv:*&#41;&quot;,
+            &quot;Bash&#40;node *&#41;&quot;,
+            &quot;Bash&#40;node:*&#41;&quot;,
+            &quot;Bash&#40;npm *&#41;&quot;,
+            &quot;Bash&#40;npm install:*&#41;&quot;,
+            &quot;Bash&#40;npm pack:*&#41;&quot;,
+            &quot;Bash&#40;npm publish&#41;&quot;,
+            &quot;Bash&#40;npm run build&#41;&quot;,
+            &quot;Bash&#40;npm run build:*&#41;&quot;,
+            &quot;Bash&#40;npm run coverage&#41;&quot;,
+            &quot;Bash&#40;npm run dev&#41;&quot;,
+            &quot;Bash&#40;npm run lint&#41;&quot;,
+            &quot;Bash&#40;npm run lint:*&#41;&quot;,
+            &quot;Bash&#40;npm run test&#41;&quot;,
+            &quot;Bash&#40;npm run typecheck&#41;&quot;,
+            &quot;Bash&#40;npm run typecheck:*&#41;&quot;,
+            &quot;Bash&#40;npm run:*&#41;&quot;,
+            &quot;Bash&#40;npm test&#41;&quot;,
+            &quot;Bash&#40;npm test:*&#41;&quot;,
+            &quot;Bash&#40;npm uninstall:*&#41;&quot;,
+            &quot;Bash&#40;npm version *&#41;&quot;,
+            &quot;Bash&#40;npm view:*&#41;&quot;,
+            &quot;Bash&#40;npx *&#41;&quot;,
+            &quot;Bash&#40;npx npm-check-updates:*&#41;&quot;,
+            &quot;Bash&#40;npx tsc:*&#41;&quot;,
+            &quot;Bash&#40;npx tsx:*&#41;&quot;,
+            &quot;Bash&#40;project-fusion *&#41;&quot;,
+            &quot;Bash&#40;rg *&#41;&quot;,
+            &quot;Bash&#40;rm -rf temp&#47;*&#41;&quot;,
+            &quot;Bash&#40;rm temp&#47;*&#41;&quot;,
+            &quot;Bash&#40;rm:*&#41;&quot;,
+            &quot;Bash&#40;tail *&#41;&quot;,
+            &quot;Bash&#40;tar *&#41;&quot;,
+            &quot;Bash&#40;tree *&#41;&quot;,
+            &quot;Bash&#40;tsc *&#41;&quot;,
+            &quot;Bash&#40;vitest *&#41;&quot;,
+            &quot;Bash&#40;wc -l *&#41;&quot;
+        &#93;,
+        &quot;deny&quot;: &#91;
+            &quot;Bash&#40;chmod 777 *&#41;&quot;,
+            &quot;Bash&#40;curl * | sh&#41;&quot;,
+            &quot;Bash&#40;eval *&#41;&quot;,
+            &quot;Bash&#40;rm -rf ..&#41;&quot;,
+            &quot;Bash&#40;rm -rf &#47;&#41;&quot;,
+            &quot;Bash&#40;rm -rf ~&#41;&quot;,
+            &quot;Bash&#40;sudo *&#41;&quot;,
+            &quot;Bash&#40;wget * | sh&#41;&quot;
+        &#93;
+    &#125;
+&#125;</pre>
 <h2 id="githubcodeowners">.github&#47;CODEOWNERS</h2>
 <pre># Toute la base nécessite review
 * &#64;the99studio&#47;core
@@ -955,7 +1012,7 @@ and this project adheres to &#91;Semantic Versioning&#93;&#40;https:&#47;&#47;se
 - Standardized &#96;npm audit --audit-level&#61;high&#96; across all CI workflows
 
 ### Fixed
-- Fixed clipboard memory issue: now checks file size before reading content
+- Fixed clipboard TOCTOU vulnerability: use file handle for atomic stat&#43;read &#40;CodeQL&#41;
 - Fixed plugin security: validation now explicitly happens before dynamic import
 - Fixed Windows path comparison in plugin system using normalized separators
 - Fixed type casting in Zod error handling using proper typed properties
@@ -2930,6 +2987,7 @@ program.parse&#40;process.argv&#41;;</pre>
 &#47;**
  * CLI commands implementation
  *&#47;
+import type &#123; FileHandle &#125; from &#39;node:fs&#47;promises&#39;;
 import path from &#39;node:path&#39;;
 import chalk from &#39;chalk&#39;;
 import clipboardy from &#39;clipboardy&#39;;
@@ -3209,24 +3267,29 @@ export async function runFusionCommand&#40;options: &#123;
                 &#125;
 
                 &#47;&#47; Copy fusion content to clipboard if enabled &#40;skip in CI&#47;non-interactive environments and large files&#41;
-                &#47;&#47; SECURITY: File content is read into memory for clipboard - ensure size limits are respected
+                &#47;&#47; SECURITY: Use file handle to avoid TOCTOU race condition between stat and read
                 const isNonInteractive &#61; process.env&#91;&#39;CI&#39;&#93; &#61;&#61;&#61; &#39;true&#39; || &#33;process.stdout.isTTY;
                 if &#40;config.copyToClipboard &#61;&#61;&#61; true &amp;&amp; result.fusionFilePath &amp;&amp; &#33;isNonInteractive&#41; &#123;
+                    let fileHandle: FileHandle | null &#61; null;
                     try &#123;
-                        &#47;&#47; Check file size first before reading to prevent memory issues
-                        const fileStats &#61; await fs.stat&#40;result.fusionFilePath&#41;;
+                        &#47;&#47; Open file handle for atomic stat&#43;read &#40;prevents TOCTOU&#41;
+                        const fsPromises &#61; await import&#40;&#39;node:fs&#47;promises&#39;&#41;;
+                        fileHandle &#61; await fsPromises.open&#40;result.fusionFilePath, &#39;r&#39;&#41;;
+                        const fileStats &#61; await fileHandle.stat&#40;&#41;;
                         const fileSizeMB &#61; fileStats.size &#47; &#40;1024 * 1024&#41;;
 
                         if &#40;fileSizeMB &gt; 5&#41; &#123;
                             console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;file size: &#36;&#123;fileSizeMB.toFixed&#40;1&#41;&#125; MB &gt; 5 MB limit&#41;&#96;&#41;&#41;;
                         &#125; else &#123;
-                            &#47;&#47; Read file content for clipboard &#40;size already validated&#41;
-                            const fusionContent &#61; await fs.readFile&#40;result.fusionFilePath, &#39;utf8&#39;&#41;;
+                            &#47;&#47; Read from same file handle &#40;no race condition&#41;
+                            const fusionContent &#61; await fileHandle.readFile&#40;&#39;utf8&#39;&#41;;
                             await clipboardy.write&#40;fusionContent&#41;;
                             console.log&#40;chalk.blue&#40;&#96;Fusion content copied to clipboard&#96;&#41;&#41;;
                         &#125;
                     &#125; catch &#40;clipboardError&#41; &#123;
                         console.warn&#40;chalk.yellow&#40;&#96;⚠️ Could not copy to clipboard: &#36;&#123;String&#40;clipboardError&#41;&#125;&#96;&#41;&#41;;
+                    &#125; finally &#123;
+                        await fileHandle?.close&#40;&#41;;
                     &#125;
                 &#125; else if &#40;config.copyToClipboard &#61;&#61;&#61; true &amp;&amp; isNonInteractive&#41; &#123;
                     console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;non-interactive environment&#41;&#96;&#41;&#41;;
@@ -5052,9 +5115,10 @@ export class PluginManager &#123;
         if &#40;isExternalPlugin&#41; &#123;
             if &#40;config.allowedExternalPluginPaths &amp;&amp; config.allowedExternalPluginPaths.length &gt; 0&#41; &#123;
                 const isAllowed &#61; config.allowedExternalPluginPaths.some&#40;allowedPath &#61;&gt; &#123;
-                    const resolvedAllowedPath &#61; path.resolve&#40;allowedPath&#41;;
-                    return resolvedPluginPath &#61;&#61;&#61; resolvedAllowedPath || 
-                           resolvedPluginPath.startsWith&#40;resolvedAllowedPath &#43; path.sep&#41;;
+                    &#47;&#47; Normalize allowlist paths the same way as plugin path for cross-platform comparison
+                    const resolvedAllowedPath &#61; path.resolve&#40;allowedPath&#41;.split&#40;path.sep&#41;.join&#40;&#39;&#47;&#39;&#41;;
+                    return resolvedPluginPath &#61;&#61;&#61; resolvedAllowedPath ||
+                           resolvedPluginPath.startsWith&#40;&#96;&#36;&#123;resolvedAllowedPath&#125;&#47;&#96;&#41;;
                 &#125;&#41;;
                 
                 if &#40;isAllowed&#41; &#123;
