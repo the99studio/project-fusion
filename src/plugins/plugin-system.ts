@@ -107,9 +107,10 @@ export class PluginManager {
         if (isExternalPlugin) {
             if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
                 const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
-                    const resolvedAllowedPath = path.resolve(allowedPath);
-                    return resolvedPluginPath === resolvedAllowedPath || 
-                           resolvedPluginPath.startsWith(resolvedAllowedPath + path.sep);
+                    // Normalize allowlist paths the same way as plugin path for cross-platform comparison
+                    const resolvedAllowedPath = path.resolve(allowedPath).split(path.sep).join('/');
+                    return resolvedPluginPath === resolvedAllowedPath ||
+                           resolvedPluginPath.startsWith(`${resolvedAllowedPath}/`);
                 });
                 
                 if (isAllowed) {
