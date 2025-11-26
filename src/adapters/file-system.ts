@@ -24,7 +24,7 @@ export interface FileSystemAdapter {
     lstat(filePath: FilePath): Promise<FileSystemStats>;
     exists(filePath: FilePath): Promise<boolean>;
     ensureDir(dirPath: string): Promise<void>;
-    glob(pattern: string, options?: { nodir?: boolean; follow?: boolean }): Promise<FilePath[]>;
+    glob(pattern: string, options?: { nodir?: boolean; follow?: boolean; dot?: boolean }): Promise<FilePath[]>;
     readBuffer(filePath: FilePath, options?: { encoding: null }): Promise<Buffer>;
 }
 
@@ -69,11 +69,12 @@ export class DefaultFileSystemAdapter implements FileSystemAdapter {
         await fs.ensureDir(dirPath);
     }
 
-    async glob(pattern: string, options?: { nodir?: boolean; follow?: boolean }): Promise<FilePath[]> {
-        // Apply secure defaults: don't follow symlinks and only return files
+    async glob(pattern: string, options?: { nodir?: boolean; follow?: boolean; dot?: boolean }): Promise<FilePath[]> {
+        // Apply secure defaults: don't follow symlinks, only return files, include dotfiles
         const secureOptions = {
             nodir: true,
             follow: false,
+            dot: true, // Include hidden files/directories (e.g., .github/, .claude/)
             ...options
         };
         const filePaths = await glob(pattern, secureOptions);
@@ -226,7 +227,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
         return Promise.resolve();
     }
 
-    glob(pattern: string, options?: { nodir?: boolean; follow?: boolean }): Promise<FilePath[]> {
+    glob(pattern: string, options?: { nodir?: boolean; follow?: boolean; dot?: boolean }): Promise<FilePath[]> {
         const allPaths = [...this.files.keys(), ...this.directories.keys()];
         let filteredPaths = allPaths;
         
@@ -285,28 +286,31 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter {
 
     getFiles(): Map<string, string> {
         // Return only unique files, avoiding duplicates from resolved paths
+        // Optimized: Use path-based deduplication instead of content hashing
+        // This avoids memory overhead for large files
         const uniqueFiles = new Map<string, string>();
-        const seenContent = new Map<string, string>(); // content -> first path seen
-        
+        const normalizedPaths = new Map<string, string>(); // normalized path -> original path
+
         for (const [filePath, content] of this.files) {
-            const contentKey = `${content}:::SIZE:::${content.length}`;
-            
-            if (!seenContent.has(contentKey)) {
-                // First time we see this content, keep it
-                seenContent.set(contentKey, filePath);
+            // Normalize path for comparison (resolve and lowercase for case-insensitive FS)
+            const normalized = path.resolve(filePath).toLowerCase();
+
+            if (!normalizedPaths.has(normalized)) {
+                // First time we see this normalized path
+                normalizedPaths.set(normalized, filePath);
                 uniqueFiles.set(filePath, content);
             } else {
-                // We've seen this content before, prefer shorter/original path
-                const existingPath = seenContent.get(contentKey);
-                if (existingPath && (filePath.length < existingPath.length || filePath.startsWith('/'))) {
-                    // Replace with shorter or relative path
+                // We've seen this path before, prefer shorter/relative path
+                const existingPath = normalizedPaths.get(normalized);
+                if (existingPath && filePath.length < existingPath.length) {
+                    // Replace with shorter path
                     uniqueFiles.delete(existingPath);
                     uniqueFiles.set(filePath, content);
-                    seenContent.set(contentKey, filePath);
+                    normalizedPaths.set(normalized, filePath);
                 }
             }
         }
-        
+
         return uniqueFiles;
     }
 

@@ -103,13 +103,19 @@ Run `project-fusion init` to create `project-fusion.json` if you want to fine-tu
   // File extension groups
   "parsedFileExtensions": {
     "backend": [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"],
-    "config": [".json", ".toml", ".xml", ".yaml", ".yml"],
+    "config": [".json", ".snap", ".toml", ".xml", ".yaml", ".yml"],
     "cpp": [".c", ".cc", ".cpp", ".h", ".hpp"],
     "doc": [".adoc", ".md", ".rst"],
     "godot": [".cfg", ".cs", ".gd", ".import", ".tres", ".tscn"],
-    "scripts": [".bat", ".cmd", ".ps1", ".sh"],
+    "scripts": [".bash", ".bat", ".bats", ".cmd", ".ps1", ".sh"],
     "web": [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"]
-  }
+  },
+
+  // Files without extensions to include
+  "includeFilenames": [
+    ".gitignore", "CODEOWNERS", "Dockerfile", "Gemfile",
+    "Jenkinsfile", "LICENSE", "Makefile", "Rakefile", "Vagrantfile"
+  ]
 }
 ```
 

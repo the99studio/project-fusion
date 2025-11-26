@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2025-11-26
+
+### Added
+
+#### New Feature: `includeFilenames` Configuration
+- Added `includeFilenames` config option to include files without extensions
+- Default includes: `.gitignore`, `CODEOWNERS`, `Dockerfile`, `Dockerfile.*`, `Dockerfile-*`, `Gemfile`, `Jenkinsfile`, `LICENSE`, `Makefile`, `Rakefile`, `Vagrantfile`
+- Supports wildcard patterns for flexible matching
+
+#### Extended File Support
+- Added `.bash` and `.bats` extensions to the `scripts` extension group
+- Added `.snap` extension to the `config` extension group for Vitest snapshots
+
+#### Enhanced Logging
+- Added SECURITY section to log: shows files with secrets redacted and secret types detected
+- Added SPECIAL FILES section to log: shows `includeFilenames` pattern matches
+- Added OUTPUT FILES section to log: shows generated file names with sizes
+- Added CONTENT ANALYSIS section to log: shows binary files skipped, minified files detected, validation issues
+- Sections only appear when relevant information is present
+
+#### CI/CD Improvements
+- Added new `security-audit.yml` workflow for scheduled daily security audits with automatic GitHub issue creation
+- Added Node.js 20/22 matrix testing in `build-test.yml`
+- Added build artifact caching between CI jobs for faster releases
+
+### Changed
+- Removed `.vscode/` from default ignore patterns to allow IDE configuration sharing
+- Removed Dependabot configuration in favor of dedicated security-audit workflow
+- Enabled dotfile scanning by default (`dot: true` in glob) to include `.github/`, `.claude/`, etc.
+- Standardized `npm audit --audit-level=high` across all CI workflows
+
+### Fixed
+- Fixed clipboard TOCTOU vulnerability: use file handle for atomic stat+read (CodeQL)
+- Fixed plugin security: validation now explicitly happens before dynamic import
+- Fixed Windows path comparison in plugin system using normalized separators
+- Fixed type casting in Zod error handling using proper typed properties
+- Fixed regex state management: use fresh regex instances to avoid lastIndex pollution
+- Fixed unbounded binary file cache: added 10K entry limit with LRU-like eviction
+- Refactored minification detection logic to `determineMinifiedFileHandling()` for clarity
+- Optimized MemoryFS deduplication using path-based approach instead of content hashing
+
+### Dependencies
+- Updated `glob` from v11 to v13
+- Updated `vitest` from v3 to v4
+- Updated `clipboardy` from v4 to v5
+- Updated `typescript` to 5.9.3
+- Updated `zod` to 4.1.13
+- Updated `actions/checkout` from v5 to v6
+- Updated `actions/setup-node` from v4 to v6
+- Updated `github/codeql-action` from v3 to v4
+- Updated all ESLint-related packages to latest versions
+
 ## [1.1.3] - 2025-08-31
 
 ### Security
@@ -201,4 +253,9 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 
 ---
 
+[1.1.4]: https://github.com/the99studio/project-fusion/releases/tag/v1.1.4
+[1.1.3]: https://github.com/the99studio/project-fusion/releases/tag/v1.1.3
+[1.1.2]: https://github.com/the99studio/project-fusion/releases/tag/v1.1.2
+[1.1.1]: https://github.com/the99studio/project-fusion/releases/tag/v1.1.1
+[1.1.0]: https://github.com/the99studio/project-fusion/releases/tag/v1.1.0
 [1.0.0]: https://github.com/the99studio/project-fusion/releases/tag/v1.0.0

@@ -166,8 +166,9 @@ export default {
 
             try {
                 // Should allow loading from within current directory
+                // Use absolute path since dynamic import resolves relative to the importing file
                 await expect(
-                    pluginManager.loadPlugin('./temp-plugin.js', config)
+                    pluginManager.loadPlugin(localPluginPath, config)
                 ).resolves.not.toThrow();
             } finally {
                 // Clean up

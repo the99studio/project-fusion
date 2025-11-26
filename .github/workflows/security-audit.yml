@@ -1,0 +1,105 @@
+name: Security Audit
+
+on:
+  # Run daily at 8:00 UTC
+  schedule:
+    - cron: '0 8 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run on pushes to main
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        id: audit
+        continue-on-error: true
+        run: |
+          # Run audit and capture output
+          npm audit --audit-level=high 2>&1 | tee audit-results.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Create issue on vulnerability found
+        if: steps.audit.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const auditOutput = fs.readFileSync('audit-results.txt', 'utf8');
+
+            // Check if there's already an open security issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security'
+            });
+
+            const existingIssue = issues.data.find(i =>
+              i.title.includes('Security vulnerabilities detected')
+            );
+
+            const body = `## Security Audit Failed
+
+            \`npm audit\` has detected vulnerabilities in dependencies.
+
+            <details>
+            <summary>Audit Output</summary>
+
+            \`\`\`
+            ${auditOutput.slice(0, 60000)}
+            \`\`\`
+            </details>
+
+            ### Next Steps
+            1. Run \`npm audit\` locally to see details
+            2. Run \`npm audit fix\` to auto-fix if possible
+            3. For breaking changes: \`npm audit fix --force\` (review changes!)
+
+            ---
+            *This issue was automatically created by the security audit workflow.*`;
+
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: body
+              });
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🔒 Security vulnerabilities detected in dependencies',
+                body: body,
+                labels: ['security', 'dependencies']
+              });
+              console.log('Created new security issue');
+            }
+
+      - name: Fail workflow on vulnerabilities
+        if: steps.audit.outputs.exit_code != '0'
+        run: exit 1

@@ -3,6 +3,7 @@
 /**
  * CLI commands implementation
  */
+import type { FileHandle } from 'node:fs/promises';
 import path from 'node:path';
 import chalk from 'chalk';
 import clipboardy from 'clipboardy';
@@ -234,6 +235,9 @@ export async function runFusionCommand(options: {
             }
             
             // Check all files atomically to prevent race conditions
+            // NOTE: TOCTOU risk exists between this check and actual file generation.
+            // This is acceptable as it's a user-facing safety check, not a security boundary.
+            // If files are created between check and write, the write operation will handle it.
             const existingFiles = [];
             const fileChecks = await Promise.allSettled(
                 outputFiles.map(async (file) => {
@@ -279,21 +283,29 @@ export async function runFusionCommand(options: {
                 }
 
                 // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments and large files)
+                // SECURITY: Use file handle to avoid TOCTOU race condition between stat and read
                 const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
                 if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
+                    let fileHandle: FileHandle | null = null;
                     try {
-                        // Read file and check size atomically to prevent race condition
-                        const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
-                        const fileSizeMB = Buffer.byteLength(fusionContent, 'utf8') / (1024 * 1024);
-                        
+                        // Open file handle for atomic stat+read (prevents TOCTOU)
+                        const fsPromises = await import('node:fs/promises');
+                        fileHandle = await fsPromises.open(result.fusionFilePath, 'r');
+                        const fileStats = await fileHandle.stat();
+                        const fileSizeMB = fileStats.size / (1024 * 1024);
+
                         if (fileSizeMB > 5) {
                             console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
+                            // Read from same file handle (no race condition)
+                            const fusionContent = await fileHandle.readFile('utf8');
                             await clipboardy.write(fusionContent);
                             console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }
                     } catch (clipboardError) {
                         console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
+                    } finally {
+                        await fileHandle?.close();
                     }
                 } else if (config.copyToClipboard === true && isNonInteractive) {
                     console.log(chalk.gray(`Clipboard copy skipped (non-interactive environment)`));
@@ -402,8 +414,9 @@ export async function runConfigCheckCommand(): Promise<void> {
                 console.log(chalk.red(`      Error: ${issue.message}`));
                 console.log(chalk.red(`      Current value: ${chalk.cyan(JSON.stringify(value))}`));
                 if (issue.code === 'invalid_type') {
-                     
-                    console.log(chalk.red(`      Expected: ${chalk.green(String((issue as unknown as Record<string, unknown>)['expected']))}, received: ${chalk.magenta(String((issue as unknown as Record<string, unknown>)['received']))}`));
+                    // Use Zod's typed error properties safely
+                    const invalidTypeIssue = issue as { expected?: string; received?: string };
+                    console.log(chalk.red(`      Expected: ${chalk.green(String(invalidTypeIssue.expected ?? 'unknown'))}, received: ${chalk.magenta(String(invalidTypeIssue.received ?? 'unknown'))}`));
                 }
             }
             

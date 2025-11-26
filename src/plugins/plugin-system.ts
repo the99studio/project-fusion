@@ -10,6 +10,47 @@ import type { FileInfo, OutputStrategy } from '../strategies/output-strategy.js'
 import { type Config, createFilePath, FusionError } from '../types.js';
 import { logger } from '../utils/logger.js';
 
+/**
+ * Type guard to validate that an object conforms to the Plugin interface
+ */
+function isValidPlugin(obj: unknown): obj is Plugin {
+    if (typeof obj !== 'object' || obj === null) {
+        return false;
+    }
+
+    const candidate = obj as Record<string, unknown>;
+
+    // Check required metadata
+    if (typeof candidate['metadata'] !== 'object' || candidate['metadata'] === null) {
+        return false;
+    }
+
+    const metadata = candidate['metadata'] as Record<string, unknown>;
+    if (typeof metadata['name'] !== 'string' || metadata['name'].length === 0) {
+        return false;
+    }
+    if (typeof metadata['version'] !== 'string') {
+        return false;
+    }
+    if (typeof metadata['description'] !== 'string') {
+        return false;
+    }
+
+    // Validate optional hooks are functions if present
+    const optionalFunctions = [
+        'initialize', 'cleanup', 'beforeFileProcessing', 'afterFileProcessing',
+        'beforeFusion', 'afterFusion', 'registerOutputStrategies', 'registerFileExtensions'
+    ];
+
+    for (const fn of optionalFunctions) {
+        if (candidate[fn] !== undefined && typeof candidate[fn] !== 'function') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export interface PluginMetadata {
     name: string;
     version: string;
@@ -55,19 +96,21 @@ export class PluginManager {
      * @throws FusionError if the path is not allowed
      */
     private validatePluginPath(pluginPath: string, config: Config): void {
-        // Resolve paths for comparison
-        const resolvedPluginPath = path.resolve(pluginPath);
-        const resolvedRootDir = path.resolve(config.rootDirectory);
-        
-        const relativePath = path.relative(resolvedRootDir, resolvedPluginPath);
+        // Resolve paths for comparison and normalize separators for cross-platform compatibility
+        const resolvedPluginPath = path.resolve(pluginPath).split(path.sep).join('/');
+        const resolvedRootDir = path.resolve(config.rootDirectory).split(path.sep).join('/');
+
+        // Use normalized paths for relative path calculation
+        const relativePath = path.relative(resolvedRootDir, resolvedPluginPath).split(path.sep).join('/');
         const isExternalPlugin = relativePath.startsWith('..') || path.isAbsolute(relativePath);
         
         if (isExternalPlugin) {
             if (config.allowedExternalPluginPaths && config.allowedExternalPluginPaths.length > 0) {
                 const isAllowed = config.allowedExternalPluginPaths.some(allowedPath => {
-                    const resolvedAllowedPath = path.resolve(allowedPath);
-                    return resolvedPluginPath === resolvedAllowedPath || 
-                           resolvedPluginPath.startsWith(resolvedAllowedPath + path.sep);
+                    // Normalize allowlist paths the same way as plugin path for cross-platform comparison
+                    const resolvedAllowedPath = path.resolve(allowedPath).split(path.sep).join('/');
+                    return resolvedPluginPath === resolvedAllowedPath ||
+                           resolvedPluginPath.startsWith(`${resolvedAllowedPath}/`);
                 });
                 
                 if (isAllowed) {
@@ -91,16 +134,23 @@ export class PluginManager {
 
     async loadPlugin(pluginPath: string, config?: Config): Promise<void> {
         try {
+            // SECURITY: Validate plugin path BEFORE importing to prevent loading malicious code
             if (config) {
                 this.validatePluginPath(pluginPath, config);
             }
-            
-            const pluginModule = await import(pluginPath) as { default?: Plugin; plugin?: Plugin };
-            const plugin: Plugin = pluginModule.default ?? pluginModule.plugin ?? pluginModule as Plugin;
-            
-            if (!plugin.metadata) {
-                throw new Error(`Plugin at ${pluginPath} is missing metadata`);
+
+            // Only import after validation passes
+            const pluginModule = await import(pluginPath) as { default?: unknown; plugin?: unknown };
+            const candidate = pluginModule.default ?? pluginModule.plugin ?? pluginModule;
+
+            if (!isValidPlugin(candidate)) {
+                throw new Error(
+                    `Plugin at ${pluginPath} does not conform to Plugin interface. ` +
+                    `Required: metadata.name (string), metadata.version (string), metadata.description (string)`
+                );
             }
+
+            const plugin = candidate;
             
             this.plugins.set(plugin.metadata.name, plugin);
             this.invalidateCache();

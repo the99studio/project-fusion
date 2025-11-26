@@ -103,6 +103,7 @@ function mergeWithDefaults(partialConfig: Partial<Config>, cwd: string): Config 
         generateHtml: partialConfig.generateHtml ?? defaultConfig.generateHtml,
         generateMarkdown: partialConfig.generateMarkdown ?? defaultConfig.generateMarkdown,
         generateText: partialConfig.generateText ?? defaultConfig.generateText,
+        includeFilenames: partialConfig.includeFilenames ?? defaultConfig.includeFilenames,
         ignorePatterns: partialConfig.ignorePatterns ?? defaultConfig.ignorePatterns,
         maxBase64BlockKB: partialConfig.maxBase64BlockKB ?? defaultConfig.maxBase64BlockKB,
         maxFileSizeKB: partialConfig.maxFileSizeKB ?? defaultConfig.maxFileSizeKB,

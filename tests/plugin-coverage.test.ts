@@ -28,11 +28,11 @@ describe('Plugin System Coverage Tests', () => {
             const mockImport = vi.fn().mockResolvedValue({
                 default: { someProperty: "value" } // Missing metadata property
             });
-            
+
             // Mock the import function for this test
             vi.doMock('/mock/plugin.js', () => mockImport(), { virtual: true });
 
-            await expect(pluginManager.loadPlugin('/mock/plugin.js')).rejects.toThrow('missing metadata');
+            await expect(pluginManager.loadPlugin('/mock/plugin.js')).rejects.toThrow('does not conform to Plugin interface');
         });
 
         it('should handle loadPluginsFromDirectory errors', async () => {

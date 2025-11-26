@@ -48,7 +48,8 @@ describe('Integration Tests - Optimized', () => {
         parseSubDirectories: false,
         parsedFileExtensions: {
           web: ['.js', '.ts']
-        }
+        },
+        includeFilenames: [] // Disable Dockerfile matching for this test
       };
 
       const result = await processFusion(testConfig);
@@ -187,7 +188,8 @@ describe('Integration Tests - Optimized', () => {
         useGitIgnoreForExcludes: true,
         parsedFileExtensions: {
           web: ['.js']
-        }
+        },
+        includeFilenames: [] // Disable includeFilenames to test only .js files
       };
 
       const result = await processFusion(testConfig);

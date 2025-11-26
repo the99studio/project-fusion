@@ -4,7 +4,8 @@
 
 ## Quick Start
 CLI tool merging project files into single .txt/.md/.html for AI collaboration.
-- **Runtime**: Node 20.10+, TypeScript 5.9.2, ESM modules
+- **Runtime**: Node 20.10+, TypeScript 5.9.3, ESM modules
+- **Version**: 1.1.4
 - **Purpose**: Generate consolidated project snapshots for LLM context
 
 ## Project Structure
@@ -37,7 +38,7 @@ project-fusion/
 │   ├── utils.ts            # Security + validation utilities
 │   └── utils/
 │       └── logger.ts       # Centralized logging
-├── tests/                  # Test suites (30+ files)
+├── tests/                  # Test suites (49 files)
 │   ├── __snapshots__/      # Vitest snapshots
 │   └── *.test.ts           # Unit/integration tests
 ├── temp/                   # Temporary test files (gitignored)
@@ -134,12 +135,12 @@ project-fusion --help  # Show all CLI options
 ## File Extension Groups
 Located in `schema.ts:parsedFileExtensions`:
 - **backend**: .cs, .go, .java, .php, .py, .rb, .rs
-- **config**: .json, .toml, .xml, .yaml
-- **cpp**: .c, .cpp, .h, .hpp
+- **config**: .json, .snap, .toml, .xml, .yaml, .yml
+- **cpp**: .c, .cc, .cpp, .h, .hpp
 - **doc**: .adoc, .md, .rst
-- **godot**: .cfg, .gd, .import, .tres, .tscn
-- **scripts**: .bat, .cmd, .ps1, .sh
-- **web**: .js, .jsx, .svelte, .ts, .tsx, .vue
+- **godot**: .cfg, .cs, .gd, .import, .tres, .tscn
+- **scripts**: .bash, .bat, .bats, .cmd, .ps1, .sh
+- **web**: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
 
 ## Package.json Key Info
 - **Bin**: project-fusion -> dist/cli.js
@@ -148,7 +149,10 @@ Located in `schema.ts:parsedFileExtensions`:
 - **Exports**: main, /api, /fluent, /plugins
 - **Name**: @the99studio/project-fusion
 - **Type**: "module" (ESM only)
-- **Version**: 1.0.0 (semantic versioning)
+- **Version**: 1.1.4 (semantic versioning)
 
-## Default Ignore Patterns (utils.ts)
-node_modules/, dist/, build/, .git/, .idea/, .vscode/, .DS_Store, *.exe, *.dll, *.so, *.dylib, *.zip, *.tar, *.gz, *.rar, images, videos, audio files
+## Default Ignore Patterns (project-fusion.json)
+node_modules/, dist/, build/, .git/, .idea/, .DS_Store, package-lock.json, *.exe, *.dll, *.so, *.dylib, *.zip, *.tar, *.gz, *.rar, images, videos, audio files
+
+## Include Filenames (project-fusion.json)
+Files without extensions included by default: .gitignore, CODEOWNERS, Dockerfile, Dockerfile.*, Gemfile, Jenkinsfile, LICENSE, Makefile, Rakefile, Vagrantfile

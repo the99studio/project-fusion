@@ -7,7 +7,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
-<title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.3 - Project Fusion</title>
+<title>project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.4 - Project Fusion</title>
 <style>
 body{font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff}
 pre{background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre}
@@ -19,26 +19,40 @@ a{color:#00e;text-decoration:underline}
 </head>
 <body>
 <h1>Project Fusion Output</h1>
-<p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.3</p>
-<p><strong>Generated:</strong> 30&#47;08&#47;2025 22:44:35 UTC−4</p>
-<p><strong>Files:</strong> 75</p>
-<p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.3</a></p>
+<p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.4</p>
+<p><strong>Generated:</strong> 26&#47;11&#47;2025 01:41:12 UTC−5</p>
+<p><strong>Files:</strong> 90</p>
+<p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.4</a></p>
 <hr>
 <h2>Table of Contents</h2>
 <ul>
+<li><a href="#claudesettingslocaljson">.claude&#47;settings.local.json</a></li>
+<li><a href="#githubcodeowners">.github&#47;CODEOWNERS</a></li>
+<li><a href="#githubdependency-review-configyml">.github&#47;dependency-review-config.yml</a></li>
+<li><a href="#githubworkflowsbuild-testyml">.github&#47;workflows&#47;build-test.yml</a></li>
+<li><a href="#githubworkflowsciyml">.github&#47;workflows&#47;ci.yml</a></li>
+<li><a href="#githubworkflowscodeqlyml">.github&#47;workflows&#47;codeql.yml</a></li>
+<li><a href="#githubworkflowsdependency-reviewyml">.github&#47;workflows&#47;dependency-review.yml</a></li>
+<li><a href="#githubworkflowsreleaseyml">.github&#47;workflows&#47;release.yml</a></li>
+<li><a href="#githubworkflowssecurity-audityml">.github&#47;workflows&#47;security-audit.yml</a></li>
+<li><a href="#gitignore">.gitignore</a></li>
+<li><a href="#vscodelaunchjson">.vscode&#47;launch.json</a></li>
+<li><a href="#vscodesettingsjson">.vscode&#47;settings.json</a></li>
+<li><a href="#vscodetasksjson">.vscode&#47;tasks.json</a></li>
 <li><a href="#changelogmd">CHANGELOG.md</a></li>
 <li><a href="#claudemd">CLAUDE.md</a></li>
 <li><a href="#developmentmd">DEVELOPMENT.md</a></li>
 <li><a href="#eslintconfigjs">eslint.config.js</a></li>
+<li><a href="#license">LICENSE</a></li>
 <li><a href="#packagejson">package.json</a></li>
 <li><a href="#readmemd">README.md</a></li>
-<li><a href="#securitymd">SECURITY.md</a></li>
 <li><a href="#srcadaptersfile-systemts">src&#47;adapters&#47;file-system.ts</a></li>
 <li><a href="#srcapits">src&#47;api.ts</a></li>
 <li><a href="#srcbenchmarkts">src&#47;benchmark.ts</a></li>
 <li><a href="#srcclits">src&#47;cli.ts</a></li>
 <li><a href="#srcclicommandsts">src&#47;clicommands.ts</a></li>
 <li><a href="#srcfluentts">src&#47;fluent.ts</a></li>
+<li><a href="#srcfusion-loggingts">src&#47;fusion-logging.ts</a></li>
 <li><a href="#srcfusionts">src&#47;fusion.ts</a></li>
 <li><a href="#srcindexts">src&#47;index.ts</a></li>
 <li><a href="#srcpluginsplugin-systemts">src&#47;plugins&#47;plugin-system.ts</a></li>
@@ -48,6 +62,7 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#srcutilsts">src&#47;utils.ts</a></li>
 <li><a href="#srcutilsloggerts">src&#47;utils&#47;logger.ts</a></li>
 <li><a href="#srcversionts">src&#47;version.ts</a></li>
+<li><a href="#tests__snapshots__snapshotstesttssnap">tests&#47;__snapshots__&#47;snapshots.test.ts.snap</a></li>
 <li><a href="#testsaggressive-sanitizationtestts">tests&#47;aggressive-sanitization.test.ts</a></li>
 <li><a href="#testsanchor-generationtestts">tests&#47;anchor-generation.test.ts</a></li>
 <li><a href="#testsapi-integrationtestts">tests&#47;api-integration.test.ts</a></li>
@@ -103,6 +118,860 @@ a{color:#00e;text-decoration:underline}
 <li><a href="#vitestconfigts">vitest.config.ts</a></li>
 </ul>
 <hr>
+<h2 id="claudesettingslocaljson">.claude&#47;settings.local.json</h2>
+<pre>&#123;
+    &quot;permissions&quot;: &#123;
+        &quot;allow&quot;: &#91;
+            &quot;Bash&#40;.&#47;dist&#47;cli.js *&#41;&quot;,
+            &quot;Bash&#40;cat *&#41;&quot;,
+            &quot;Bash&#40;cat:*&#41;&quot;,
+            &quot;Bash&#40;cp * temp&#47;*&#41;&quot;,
+            &quot;Bash&#40;cp *&#41;&quot;,
+            &quot;Bash&#40;eslint *&#41;&quot;,
+            &quot;Bash&#40;find . -name *&#41;&quot;,
+            &quot;Bash&#40;find src -name *&#41;&quot;,
+            &quot;Bash&#40;find temp -name *&#41;&quot;,
+            &quot;Bash&#40;find:*&#41;&quot;,
+            &quot;Bash&#40;git *&#41;&quot;,
+            &quot;Bash&#40;grep *&#41;&quot;,
+            &quot;Bash&#40;grep:*&#41;&quot;,
+            &quot;Bash&#40;head *&#41;&quot;,
+            &quot;Bash&#40;jest *&#41;&quot;,
+            &quot;Bash&#40;ls *&#41;&quot;,
+            &quot;Bash&#40;mkdir *&#41;&quot;,
+            &quot;Bash&#40;mkdir:*&#41;&quot;,
+            &quot;Bash&#40;mv *&#41;&quot;,
+            &quot;Bash&#40;mv:*&#41;&quot;,
+            &quot;Bash&#40;node *&#41;&quot;,
+            &quot;Bash&#40;node:*&#41;&quot;,
+            &quot;Bash&#40;npm *&#41;&quot;,
+            &quot;Bash&#40;npm install:*&#41;&quot;,
+            &quot;Bash&#40;npm pack:*&#41;&quot;,
+            &quot;Bash&#40;npm publish&#41;&quot;,
+            &quot;Bash&#40;npm run build&#41;&quot;,
+            &quot;Bash&#40;npm run build:*&#41;&quot;,
+            &quot;Bash&#40;npm run coverage&#41;&quot;,
+            &quot;Bash&#40;npm run dev&#41;&quot;,
+            &quot;Bash&#40;npm run lint&#41;&quot;,
+            &quot;Bash&#40;npm run lint:*&#41;&quot;,
+            &quot;Bash&#40;npm run test&#41;&quot;,
+            &quot;Bash&#40;npm run typecheck&#41;&quot;,
+            &quot;Bash&#40;npm run typecheck:*&#41;&quot;,
+            &quot;Bash&#40;npm run:*&#41;&quot;,
+            &quot;Bash&#40;npm test&#41;&quot;,
+            &quot;Bash&#40;npm test:*&#41;&quot;,
+            &quot;Bash&#40;npm uninstall:*&#41;&quot;,
+            &quot;Bash&#40;npm version *&#41;&quot;,
+            &quot;Bash&#40;npm view:*&#41;&quot;,
+            &quot;Bash&#40;npx *&#41;&quot;,
+            &quot;Bash&#40;npx npm-check-updates:*&#41;&quot;,
+            &quot;Bash&#40;npx tsc:*&#41;&quot;,
+            &quot;Bash&#40;npx tsx:*&#41;&quot;,
+            &quot;Bash&#40;project-fusion *&#41;&quot;,
+            &quot;Bash&#40;rg *&#41;&quot;,
+            &quot;Bash&#40;rm -rf temp&#47;*&#41;&quot;,
+            &quot;Bash&#40;rm temp&#47;*&#41;&quot;,
+            &quot;Bash&#40;rm:*&#41;&quot;,
+            &quot;Bash&#40;tail *&#41;&quot;,
+            &quot;Bash&#40;tar *&#41;&quot;,
+            &quot;Bash&#40;tree *&#41;&quot;,
+            &quot;Bash&#40;tsc *&#41;&quot;,
+            &quot;Bash&#40;vitest *&#41;&quot;,
+            &quot;Bash&#40;wc -l *&#41;&quot;
+        &#93;,
+        &quot;deny&quot;: &#91;
+            &quot;Bash&#40;chmod 777 *&#41;&quot;,
+            &quot;Bash&#40;curl * | sh&#41;&quot;,
+            &quot;Bash&#40;eval *&#41;&quot;,
+            &quot;Bash&#40;rm -rf ..&#41;&quot;,
+            &quot;Bash&#40;rm -rf &#47;&#41;&quot;,
+            &quot;Bash&#40;rm -rf ~&#41;&quot;,
+            &quot;Bash&#40;sudo *&#41;&quot;,
+            &quot;Bash&#40;wget * | sh&#41;&quot;
+        &#93;
+    &#125;
+&#125;</pre>
+<h2 id="githubcodeowners">.github&#47;CODEOWNERS</h2>
+<pre># Toute la base nécessite review
+* &#64;the99studio&#47;core
+
+# Workflows protégés  
+.github&#47;workflows&#47;* &#64;the99studio&#47;secops</pre>
+<h2 id="githubdependency-review-configyml">.github&#47;dependency-review-config.yml</h2>
+<pre># Dependency Review Configuration
+# https:&#47;&#47;docs.github.com&#47;en&#47;code-security&#47;supply-chain-security&#47;understanding-your-software-supply-chain&#47;configuring-dependency-review
+
+# Vulnerability check configuration
+vulnerability-check: true
+fail-on-severity: &#39;moderate&#39;
+
+# License check configuration  
+license-check: true
+allowed-licenses:
+  - MIT
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - 0BSD
+  - Unlicense
+
+denied-licenses:
+  - GPL-2.0
+  - GPL-3.0
+  - AGPL-1.0
+  - AGPL-3.0
+  - LGPL-2.0
+  - LGPL-2.1
+  - LGPL-3.0
+  - CDDL-1.0
+  - CDDL-1.1
+  - EPL-1.0
+  - EPL-2.0
+  - EUPL-1.1
+  - EUPL-1.2
+
+# Additional configuration
+retry-on-snapshot-warnings: true
+warn-only: false
+comment-summary-in-pr: &#39;always&#39;
+
+# External dependencies configuration
+allow-ghsas: &#91;&#93;
+allow-dependencies-licenses: &#91;&#93;</pre>
+<h2 id="githubworkflowsbuild-testyml">.github&#47;workflows&#47;build-test.yml</h2>
+<pre>name: Build &amp; Test
+
+on:
+  workflow_call:
+    outputs:
+      build-success:
+        description: &#39;Whether build was successful&#39;
+        value: &#36;&#123;&#123; jobs.build-test.outputs.success &#125;&#125;
+
+jobs:
+  build-test:
+    name: Build &amp; Test &#40;Node &#36;&#123;&#123; matrix.node-version &#125;&#125;&#41;
+    runs-on: ubuntu-latest
+    outputs:
+      success: &#36;&#123;&#123; steps.test.outcome &#61;&#61; &#39;success&#39; &#125;&#125;
+
+    strategy:
+      matrix:
+        node-version: &#91;20, 22&#93;
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions&#47;checkout&#64;v6
+
+      - name: Setup Node.js &#36;&#123;&#123; matrix.node-version &#125;&#125;
+        uses: actions&#47;setup-node&#64;v6
+        with:
+          node-version: &#36;&#123;&#123; matrix.node-version &#125;&#125;
+          cache: &#39;npm&#39;
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests
+        id: test
+        run: npm test
+
+      - name: Security audit
+        run: npm audit --audit-level&#61;high
+
+      - name: Test CLI functionality
+        run: |
+          node dist&#47;cli.js --help
+          mkdir test-dir &amp;&amp; cd test-dir
+          echo &#39;console.log&#40;&quot;test&quot;&#41;;&#39; &gt; test.js
+          node ..&#47;dist&#47;cli.js --preview
+          node ..&#47;dist&#47;cli.js --txt --no-clipboard
+          test -f project-fusioned.txt &amp;&amp; echo &quot;CLI works&quot;
+
+      - name: Upload build artifacts
+        if: matrix.node-version &#61;&#61; 20 &amp;&amp; success&#40;&#41;
+        uses: actions&#47;upload-artifact&#64;v4
+        with:
+          name: dist
+          path: dist&#47;
+          retention-days: 1
+</pre>
+<h2 id="githubworkflowsciyml">.github&#47;workflows&#47;ci.yml</h2>
+<pre>name: CI
+
+on:
+  push:
+    branches: 
+      - &#39;**&#39;
+      - &#39;&#33;skip-ci&#47;**&#39;
+      - &#39;&#33;no-ci&#47;**&#39;
+      - &#39;&#33;wip&#47;**&#39;
+  pull_request:
+    branches: &#91; main, develop &#93;
+
+jobs:
+  test:
+    uses: .&#47;.github&#47;workflows&#47;build-test.yml</pre>
+<h2 id="githubworkflowscodeqlyml">.github&#47;workflows&#47;codeql.yml</h2>
+<pre>name: CodeQL
+
+on:
+  push:
+    branches: &#91;&#39;**&#39;, &#39;&#33;skip-ci&#47;**&#39;, &#39;&#33;no-ci&#47;**&#39;, &#39;&#33;wip&#47;**&#39;&#93;
+    paths-ignore:
+      - &#39;dist&#47;**&#39;
+      - &#39;project-fusioned.*&#39;
+  pull_request:
+    branches: &#91;&#39;**&#39;, &#39;&#33;skip-ci&#47;**&#39;, &#39;&#33;no-ci&#47;**&#39;, &#39;&#33;wip&#47;**&#39;&#93;
+    paths-ignore:
+      - &#39;dist&#47;**&#39;
+      - &#39;project-fusioned.*&#39;
+  schedule:
+    - cron: &#39;21 17 * * 5&#39;
+
+# Concurrency group: only cancel for PR updates, not for main branch pushes
+concurrency:
+  group: &#36;&#123;&#123; github.workflow &#125;&#125;-&#36;&#123;&#123; github.event.pull_request.number || github.ref &#125;&#125;
+  # Only cancel in-progress runs for pull requests
+  cancel-in-progress: &#36;&#123;&#123; github.event_name &#61;&#61; &#39;pull_request&#39; &#125;&#125;
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    if: &#36;&#123;&#123; &#33;startsWith&#40;github.head_ref, &#39;wip&#47;&#39;&#41; &amp;&amp; &#33;startsWith&#40;github.head_ref, &#39;skip-ci&#47;&#39;&#41; &amp;&amp; &#33;startsWith&#40;github.head_ref, &#39;no-ci&#47;&#39;&#41; &#125;&#125;
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: &#91; &#39;javascript-typescript&#39; &#93;
+
+    steps:
+    - name: Checkout repository
+      uses: actions&#47;checkout&#64;v6
+      with:
+        fetch-depth: 0
+
+    - name: Initialize CodeQL
+      uses: github&#47;codeql-action&#47;init&#64;v4
+      with:
+        languages: &#36;&#123;&#123; matrix.language &#125;&#125;
+        queries: security-extended,security-and-quality
+
+    - name: Setup Node.js
+      uses: actions&#47;setup-node&#64;v6
+      with:
+        node-version: &#39;20&#39;
+        cache: &#39;npm&#39;
+
+    - name: Install dependencies
+      run: npm ci --ignore-scripts
+
+    - name: Build
+      run: npm run -s build || echo &quot;build skipped&quot;
+
+    - name: Perform CodeQL Analysis
+      uses: github&#47;codeql-action&#47;analyze&#64;v4
+      with:
+        category: &quot;&#47;language:&#36;&#123;&#123;matrix.language&#125;&#125;&quot;</pre>
+<h2 id="githubworkflowsdependency-reviewyml">.github&#47;workflows&#47;dependency-review.yml</h2>
+<pre>name: &#39;Dependency Review&#39;
+
+on:
+  pull_request:
+    branches: &#91;&#39;main&#39;&#93;
+
+concurrency:
+  group: dependency-review-&#36;&#123;&#123; github.ref &#125;&#125;
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: &#36;&#123;&#123; github.event_name &#61;&#61; &#39;pull_request&#39; &#125;&#125;
+    steps:
+      - name: Checkout Repository
+        uses: actions&#47;checkout&#64;v6
+
+      - name: Dependency Review
+        uses: actions&#47;dependency-review-action&#64;v4
+        with:
+          # Check for vulnerable dependencies
+          vulnerability-check: true
+          # Check for license issues
+          license-check: true
+          # Fail on any vulnerabilities
+          fail-on-severity: moderate
+          # Comment on PR with results
+          comment-summary-in-pr: always
+          # Additional configuration
+          config-file: &#39;.&#47;.github&#47;dependency-review-config.yml&#39;</pre>
+<h2 id="githubworkflowsreleaseyml">.github&#47;workflows&#47;release.yml</h2>
+<pre>name: Release
+
+on:
+  push:
+    tags:
+      - &#39;v&#91;0-9&#93;&#43;.&#91;0-9&#93;&#43;.&#91;0-9&#93;&#43;&#39;
+      - &#39;v&#91;0-9&#93;&#43;.&#91;0-9&#93;&#43;.&#91;0-9&#93;&#43;-*&#39;  # beta&#47;rc&#47;alpha
+
+# Prevent concurrent releases
+concurrency:
+  group: release-&#36;&#123;&#123; github.ref &#125;&#125;
+  cancel-in-progress: true
+
+# Minimal permissions at workflow level
+permissions:
+  contents: write    # Create GitHub release
+  id-token: write    # NPM provenance
+  actions: read
+  packages: write    # Future GitHub Packages support
+
+jobs:
+  test:
+    uses: .&#47;.github&#47;workflows&#47;build-test.yml
+
+  release:
+    name: Create Release &amp; Publish
+    runs-on: ubuntu-latest
+    needs: test
+    # Only run on main repo, not forks
+    if: github.repository &#61;&#61; &#39;the99studio&#47;project-fusion&#39;
+
+    steps:
+      - name: Checkout code
+        uses: actions&#47;checkout&#64;v6
+
+      - name: Verify version consistency
+        run: |
+          TAG_VERSION&#61;&#36;&#123;GITHUB_REF#refs&#47;tags&#47;v&#125;
+          PACKAGE_VERSION&#61;&#36;&#40;node -p &quot;require&#40;&#39;.&#47;package.json&#39;&#41;.version&quot;&#41;
+
+          if &#91; &quot;&#36;PACKAGE_VERSION&quot; &#33;&#61; &quot;&#36;TAG_VERSION&quot; &#93;; then
+            echo &quot;❌ Version mismatch&#33;&quot;
+            echo &quot;   Tag: v&#36;TAG_VERSION&quot;
+            echo &quot;   Package.json: &#36;PACKAGE_VERSION&quot;
+            exit 1
+          fi
+
+          echo &quot;✅ Version &#36;PACKAGE_VERSION ready for release&quot;
+
+      - name: Setup Node.js
+        uses: actions&#47;setup-node&#64;v6
+        with:
+          node-version: 20
+          registry-url: &#39;https:&#47;&#47;registry.npmjs.org&#39;
+          scope: &#39;&#64;the99studio&#39;
+          cache: &#39;npm&#39;
+          always-auth: false
+
+      - name: Update npm to latest
+        run: npm install -g npm&#64;latest
+
+      - name: Download build artifacts
+        uses: actions&#47;download-artifact&#64;v4
+        with:
+          name: dist
+          path: dist&#47;
+
+      - name: Install production dependencies
+        run: npm ci --omit&#61;dev
+
+      - name: Security audit
+        run: npm audit --audit-level&#61;high --omit&#61;dev || echo &quot;::warning::Security vulnerabilities found&quot;
+
+      - name: Publish to NPM
+        run: |
+          VERSION&#61;&#36;&#123;GITHUB_REF#refs&#47;tags&#47;v&#125;
+
+          # Publish with appropriate tag
+          if &#91;&#91; &quot;&#36;VERSION&quot; &#61;~ ^&#91;0-9&#93;&#43;\.&#91;0-9&#93;&#43;\.&#91;0-9&#93;&#43;&#36; &#93;&#93;; then
+            echo &quot;Publishing stable version &#36;VERSION&quot;
+            npm publish --tag latest --provenance --access public
+          elif &#91;&#91; &quot;&#36;VERSION&quot; &#61;~ &#40;alpha|beta|rc&#41; &#93;&#93;; then
+            echo &quot;Publishing pre-release version &#36;VERSION&quot;
+            npm publish --tag next --provenance --access public
+          else
+            echo &quot;::error::Invalid version format: &#36;VERSION&quot;
+            exit 1
+          fi
+        env:
+          NODE_AUTH_TOKEN: &#36;&#123;&#123; secrets.NPM_TOKEN &#125;&#125;
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Create GitHub Release
+        uses: softprops&#47;action-gh-release&#64;v2
+        with:
+          generate_release_notes: true
+          prerelease: &#36;&#123;&#123; contains&#40;github.ref_name, &#39;-&#39;&#41; &#125;&#125;
+          name: Release &#36;&#123;&#123; github.ref_name &#125;&#125;
+</pre>
+<h2 id="githubworkflowssecurity-audityml">.github&#47;workflows&#47;security-audit.yml</h2>
+<pre>name: Security Audit
+
+on:
+  # Run daily at 8:00 UTC
+  schedule:
+    - cron: &#39;0 8 * * *&#39;
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run on pushes to main
+  push:
+    branches: &#91;main&#93;
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions&#47;checkout&#64;v6
+
+      - name: Setup Node.js
+        uses: actions&#47;setup-node&#64;v6
+        with:
+          node-version: 20
+          cache: &#39;npm&#39;
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        id: audit
+        continue-on-error: true
+        run: |
+          # Run audit and capture output
+          npm audit --audit-level&#61;high 2&gt;&amp;1 | tee audit-results.txt
+          echo &quot;exit_code&#61;&#36;&#123;PIPESTATUS&#91;0&#93;&#125;&quot; &gt;&gt; &#36;GITHUB_OUTPUT
+
+      - name: Create issue on vulnerability found
+        if: steps.audit.outputs.exit_code &#33;&#61; &#39;0&#39;
+        uses: actions&#47;github-script&#64;v7
+        with:
+          script: |
+            const fs &#61; require&#40;&#39;fs&#39;&#41;;
+            const auditOutput &#61; fs.readFileSync&#40;&#39;audit-results.txt&#39;, &#39;utf8&#39;&#41;;
+
+            &#47;&#47; Check if there&#39;s already an open security issue
+            const issues &#61; await github.rest.issues.listForRepo&#40;&#123;
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: &#39;open&#39;,
+              labels: &#39;security&#39;
+            &#125;&#41;;
+
+            const existingIssue &#61; issues.data.find&#40;i &#61;&gt;
+              i.title.includes&#40;&#39;Security vulnerabilities detected&#39;&#41;
+            &#41;;
+
+            const body &#61; &#96;## Security Audit Failed
+
+            \&#96;npm audit\&#96; has detected vulnerabilities in dependencies.
+
+            &lt;details&gt;
+            &lt;summary&gt;Audit Output&lt;&#47;summary&gt;
+
+            \&#96;\&#96;\&#96;
+            &#36;&#123;auditOutput.slice&#40;0, 60000&#41;&#125;
+            \&#96;\&#96;\&#96;
+            &lt;&#47;details&gt;
+
+            ### Next Steps
+            1. Run \&#96;npm audit\&#96; locally to see details
+            2. Run \&#96;npm audit fix\&#96; to auto-fix if possible
+            3. For breaking changes: \&#96;npm audit fix --force\&#96; &#40;review changes&#33;&#41;
+
+            ---
+            *This issue was automatically created by the security audit workflow.*&#96;;
+
+            if &#40;existingIssue&#41; &#123;
+              &#47;&#47; Update existing issue
+              await github.rest.issues.update&#40;&#123;
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: body
+              &#125;&#41;;
+              console.log&#40;&#96;Updated existing issue #&#36;&#123;existingIssue.number&#125;&#96;&#41;;
+            &#125; else &#123;
+              &#47;&#47; Create new issue
+              await github.rest.issues.create&#40;&#123;
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: &#39;🔒 Security vulnerabilities detected in dependencies&#39;,
+                body: body,
+                labels: &#91;&#39;security&#39;, &#39;dependencies&#39;&#93;
+              &#125;&#41;;
+              console.log&#40;&#39;Created new security issue&#39;&#41;;
+            &#125;
+
+      - name: Fail workflow on vulnerabilities
+        if: steps.audit.outputs.exit_code &#33;&#61; &#39;0&#39;
+        run: exit 1
+</pre>
+<h2 id="gitignore">.gitignore</h2>
+<pre># Dependencies
+node_modules&#47;
+.pnp&#47;
+.pnp.js
+
+# Build outputs
+dist&#47;
+build&#47;
+*.tsbuildinfo
+
+# Testing and temporary files
+temp&#47;
+*.tgz
+coverage&#47;
+
+# Logs
+logs&#47;
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache
+.npm&#47;
+.eslintcache
+.stylelintcache
+
+# Environment variables
+.env
+.env.*
+&#33;.env.example
+
+# IDE&#47;Editor specific
+.idea&#47;
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Project Fusion generated files
+&#33;project-fusioned.html
+&#33;project-fusioned.md
+&#33;project-fusioned.txt
+&#33;project-fusioned.log</pre>
+<h2 id="vscodelaunchjson">.vscode&#47;launch.json</h2>
+<pre>&#123;
+    &quot;version&quot;: &quot;0.2.0&quot;,
+    &quot;configurations&quot;: &#91;
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Config Check&quot;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&#47;dist&#47;cli.js&quot;,
+            &quot;args&quot;: &#91;
+                &quot;config-check&quot;
+            &#93;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;preLaunchTask&quot;: &quot;Build&quot;
+        &#125;,
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Fusion&quot;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&#47;dist&#47;cli.js&quot;,
+            &quot;args&quot;: &#91;
+                &quot;--overwrite&quot;
+            &#93;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;preLaunchTask&quot;: &quot;Build&quot;
+        &#125;,
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Generate NPM Package Temp&quot;,
+            &quot;runtimeExecutable&quot;: &quot;node&quot;,
+            &quot;runtimeArgs&quot;: &#91;
+                &quot;-e&quot;,
+                &quot;const fs &#61; require&#40;&#39;fs&#39;&#41;; const path &#61; require&#40;&#39;path&#39;&#41;; const &#123; execSync &#125; &#61; require&#40;&#39;child_process&#39;&#41;; console.log&#40;&#39;🔧 Building project...&#39;&#41;; execSync&#40;&#39;npm run build&#39;, &#123;stdio: &#39;inherit&#39;&#125;&#41;; console.log&#40;&#39;📦 Creating package...&#39;&#41;; execSync&#40;&#39;npm pack&#39;, &#123;stdio: &#39;inherit&#39;&#125;&#41;; const packageFile &#61; execSync&#40;&#39;ls project-fusion-*.tgz&#39;&#41;.toString&#40;&#41;.trim&#40;&#41;; console.log&#40;&#39;📂 Creating temp&#47;package&#47; directory...&#39;&#41;; fs.mkdirSync&#40;&#39;temp&#47;package&#39;, &#123;recursive: true&#125;&#41;; console.log&#40;&#39;📤 Extracting package...&#39;&#41;; execSync&#40;&#96;tar -xzf &#36;&#123;packageFile&#125; -C temp&#47;package --strip-components&#61;1&#96;, &#123;stdio: &#39;inherit&#39;&#125;&#41;; console.log&#40;&#39;📥 Installing dependencies...&#39;&#41;; execSync&#40;&#39;npm install --production&#39;, &#123;cwd: &#39;temp&#47;package&#39;, stdio: &#39;inherit&#39;&#125;&#41;; console.log&#40;&#39;✅ Testing CLI...&#39;&#41;; execSync&#40;&#39;node dist&#47;cli.js --help&#39;, &#123;cwd: &#39;temp&#47;package&#39;, stdio: &#39;inherit&#39;&#125;&#41;; console.log&#40;&#39;🧪 Testing fusion...&#39;&#41;; execSync&#40;&#39;node dist&#47;cli.js init --force&#39;, &#123;cwd: &#39;temp&#47;package&#39;, stdio: &#39;inherit&#39;&#125;&#41;; execSync&#40;&#39;node dist&#47;cli.js fusion&#39;, &#123;cwd: &#39;temp&#47;package&#39;, stdio: &#39;inherit&#39;&#125;&#41;; console.log&#40;&#39;🧹 Cleaning up...&#39;&#41;; fs.unlinkSync&#40;packageFile&#41;; console.log&#40;&#39;✨ Package test completed&#33; Check temp&#47;package&#47; for results.&#39;&#41;;&quot;
+            &#93;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+        &#125;,
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Help&quot;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&#47;dist&#47;cli.js&quot;,
+            &quot;args&quot;: &#91;
+                &quot;--help&quot;
+            &#93;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;preLaunchTask&quot;: &quot;Build&quot;
+        &#125;,
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Init&quot;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&#47;dist&#47;cli.js&quot;,
+            &quot;args&quot;: &#91;
+                &quot;init&quot;
+            &#93;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;preLaunchTask&quot;: &quot;Build&quot;
+        &#125;,
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Init &#40;Force&#41;&quot;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&#47;dist&#47;cli.js&quot;,
+            &quot;args&quot;: &#91;
+                &quot;init&quot;,
+                &quot;--force&quot;
+            &#93;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;preLaunchTask&quot;: &quot;Build&quot;
+        &#125;,
+        &#123;
+            &quot;type&quot;: &quot;node&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;name&quot;: &quot;Tests&quot;,
+            &quot;runtimeExecutable&quot;: &quot;npm&quot;,
+            &quot;runtimeArgs&quot;: &#91;
+                &quot;run&quot;,
+                &quot;test&quot;
+            &#93;,
+            &quot;program&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;,
+            &quot;console&quot;: &quot;integratedTerminal&quot;,
+            &quot;skipFiles&quot;: &#91;
+                &quot;&lt;node_internals&gt;&#47;**&quot;
+            &#93;,
+            &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+        &#125;
+    &#93;
+&#125;</pre>
+<h2 id="vscodesettingsjson">.vscode&#47;settings.json</h2>
+<pre>&#123;
+    &quot;editor.detectIndentation&quot;: false,
+    &quot;editor.formatOnPaste&quot;: true,
+    &quot;editor.formatOnSave&quot;: true,
+    &quot;editor.insertSpaces&quot;: true,
+    &quot;editor.tabSize&quot;: 4,
+    &quot;editor.wordWrap&quot;: &quot;off&quot;,
+    &quot;typescript.preferences.includePackageJsonAutoImports&quot;: &quot;auto&quot;,
+    &quot;typescript.suggest.autoImports&quot;: true,
+    &quot;typescript.suggest.paths&quot;: true,
+    &quot;typescript.updateImportsOnFileMove.enabled&quot;: &quot;always&quot;,
+    &quot;typescript.format.enable&quot;: true,
+    &quot;typescript.format.insertSpaceAfterCommaDelimiter&quot;: true,
+    &quot;typescript.format.insertSpaceAfterSemicolonInForStatements&quot;: true,
+    &quot;typescript.format.insertSpaceBeforeAndAfterBinaryOperators&quot;: true,
+    &quot;typescript.format.insertSpaceAfterKeywordsInControlFlowStatements&quot;: true,
+    &quot;typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions&quot;: false,
+    &quot;typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis&quot;: false,
+    &quot;typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets&quot;: false,
+    &quot;typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces&quot;: true,
+    &quot;typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces&quot;: true,
+    &quot;typescript.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces&quot;: false,
+    &quot;typescript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces&quot;: false,
+    &quot;typescript.format.placeOpenBraceOnNewLineForFunctions&quot;: false,
+    &quot;typescript.format.placeOpenBraceOnNewLineForControlBlocks&quot;: false,
+    &quot;typescript.inlayHints.enumMemberValues.enabled&quot;: true,
+    &quot;typescript.inlayHints.functionLikeReturnTypes.enabled&quot;: true,
+    &quot;typescript.inlayHints.parameterNames.enabled&quot;: &quot;all&quot;,
+    &quot;typescript.inlayHints.parameterTypes.enabled&quot;: true,
+    &quot;typescript.inlayHints.propertyDeclarationTypes.enabled&quot;: true,
+    &quot;typescript.inlayHints.variableTypes.enabled&quot;: true,
+    &quot;files.exclude&quot;: &#123;
+        &quot;**&#47;node_modules&quot;: true,
+        &quot;**&#47;dist&quot;: true,
+        &quot;**&#47;package-lock.json&quot;: true,
+        &quot;project-fusion.log&quot;: true,
+        &quot;project-fusioned.txt&quot;: true
+    &#125;,
+    &quot;search.exclude&quot;: &#123;
+        &quot;**&#47;node_modules&quot;: true,
+        &quot;**&#47;dist&quot;: true,
+        &quot;**&#47;package-lock.json&quot;: true,
+        &quot;project-fusion.log&quot;: true,
+        &quot;project-fusioned.txt&quot;: true
+    &#125;,
+    &quot;&#91;typescript&#93;&quot;: &#123;
+        &quot;editor.defaultFormatter&quot;: &quot;vscode.typescript-language-features&quot;,
+        &quot;editor.codeActionsOnSave&quot;: &#123;
+            &quot;source.organizeImports&quot;: &quot;explicit&quot;
+        &#125;
+    &#125;,
+    &quot;&#91;javascript&#93;&quot;: &#123;
+        &quot;editor.defaultFormatter&quot;: &quot;vscode.typescript-language-features&quot;,
+        &quot;editor.codeActionsOnSave&quot;: &#123;
+            &quot;source.organizeImports&quot;: &quot;explicit&quot;
+        &#125;
+    &#125;,
+    &quot;&#91;json&#93;&quot;: &#123;
+        &quot;editor.defaultFormatter&quot;: &quot;vscode.json-language-features&quot;
+    &#125;,
+    &quot;&#91;jsonc&#93;&quot;: &#123;
+        &quot;editor.defaultFormatter&quot;: &quot;vscode.json-language-features&quot;
+    &#125;
+&#125;</pre>
+<h2 id="vscodetasksjson">.vscode&#47;tasks.json</h2>
+<pre>&#123;
+    &quot;version&quot;: &quot;2.0.0&quot;,
+    &quot;tasks&quot;: &#91;
+        &#123;
+            &quot;label&quot;: &quot;Build&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;npm&quot;,
+            &quot;args&quot;: &#91;
+                &quot;run&quot;,
+                &quot;build&quot;
+            &#93;,
+            &quot;group&quot;: &#123;
+                &quot;kind&quot;: &quot;build&quot;,
+                &quot;isDefault&quot;: true
+            &#125;,
+            &quot;presentation&quot;: &#123;
+                &quot;echo&quot;: true,
+                &quot;reveal&quot;: &quot;always&quot;,
+                &quot;focus&quot;: false,
+                &quot;panel&quot;: &quot;shared&quot;,
+                &quot;showReuseMessage&quot;: true,
+                &quot;clear&quot;: false
+            &#125;,
+            &quot;problemMatcher&quot;: &quot;&#36;tsc&quot;,
+            &quot;options&quot;: &#123;
+                &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+            &#125;
+        &#125;,
+        &#123;
+            &quot;label&quot;: &quot;Clean&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;npm&quot;,
+            &quot;args&quot;: &#91;
+                &quot;run&quot;,
+                &quot;clean&quot;
+            &#93;,
+            &quot;group&quot;: &quot;build&quot;,
+            &quot;presentation&quot;: &#123;
+                &quot;echo&quot;: true,
+                &quot;reveal&quot;: &quot;always&quot;,
+                &quot;focus&quot;: false,
+                &quot;panel&quot;: &quot;shared&quot;,
+                &quot;showReuseMessage&quot;: true,
+                &quot;clear&quot;: false
+            &#125;,
+            &quot;options&quot;: &#123;
+                &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+            &#125;
+        &#125;,
+        &#123;
+            &quot;label&quot;: &quot;Install Dependencies&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;npm&quot;,
+            &quot;args&quot;: &#91;
+                &quot;install&quot;
+            &#93;,
+            &quot;group&quot;: &quot;build&quot;,
+            &quot;presentation&quot;: &#123;
+                &quot;echo&quot;: true,
+                &quot;reveal&quot;: &quot;always&quot;,
+                &quot;focus&quot;: false,
+                &quot;panel&quot;: &quot;shared&quot;,
+                &quot;showReuseMessage&quot;: true,
+                &quot;clear&quot;: false
+            &#125;,
+            &quot;options&quot;: &#123;
+                &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+            &#125;
+        &#125;,
+        &#123;
+            &quot;label&quot;: &quot;Type Check&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;npm&quot;,
+            &quot;args&quot;: &#91;
+                &quot;run&quot;,
+                &quot;typecheck&quot;
+            &#93;,
+            &quot;group&quot;: &quot;test&quot;,
+            &quot;presentation&quot;: &#123;
+                &quot;echo&quot;: true,
+                &quot;reveal&quot;: &quot;always&quot;,
+                &quot;focus&quot;: false,
+                &quot;panel&quot;: &quot;shared&quot;,
+                &quot;showReuseMessage&quot;: true,
+                &quot;clear&quot;: false
+            &#125;,
+            &quot;problemMatcher&quot;: &quot;&#36;tsc&quot;,
+            &quot;options&quot;: &#123;
+                &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+            &#125;
+        &#125;,
+        &#123;
+            &quot;label&quot;: &quot;Watch&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;npm&quot;,
+            &quot;args&quot;: &#91;
+                &quot;run&quot;,
+                &quot;dev&quot;
+            &#93;,
+            &quot;group&quot;: &quot;build&quot;,
+            &quot;presentation&quot;: &#123;
+                &quot;echo&quot;: true,
+                &quot;reveal&quot;: &quot;always&quot;,
+                &quot;focus&quot;: false,
+                &quot;panel&quot;: &quot;shared&quot;,
+                &quot;showReuseMessage&quot;: true,
+                &quot;clear&quot;: false
+            &#125;,
+            &quot;problemMatcher&quot;: &quot;&#36;tsc-watch&quot;,
+            &quot;isBackground&quot;: true,
+            &quot;options&quot;: &#123;
+                &quot;cwd&quot;: &quot;&#36;&#123;workspaceFolder&#125;&quot;
+            &#125;
+        &#125;
+    &#93;
+&#125;</pre>
 <h2 id="changelogmd">CHANGELOG.md</h2>
 <pre># Changelog
 
@@ -110,6 +979,58 @@ All notable changes to this project will be documented in this file.
 
 The format is based on &#91;Keep a Changelog&#93;&#40;https:&#47;&#47;keepachangelog.com&#47;en&#47;1.1.0&#47;&#41;,
 and this project adheres to &#91;Semantic Versioning&#93;&#40;https:&#47;&#47;semver.org&#47;spec&#47;v2.0.0.html&#41;.
+
+## &#91;1.1.4&#93; - 2025-11-26
+
+### Added
+
+#### New Feature: &#96;includeFilenames&#96; Configuration
+- Added &#96;includeFilenames&#96; config option to include files without extensions
+- Default includes: &#96;.gitignore&#96;, &#96;CODEOWNERS&#96;, &#96;Dockerfile&#96;, &#96;Dockerfile.*&#96;, &#96;Dockerfile-*&#96;, &#96;Gemfile&#96;, &#96;Jenkinsfile&#96;, &#96;LICENSE&#96;, &#96;Makefile&#96;, &#96;Rakefile&#96;, &#96;Vagrantfile&#96;
+- Supports wildcard patterns for flexible matching
+
+#### Extended File Support
+- Added &#96;.bash&#96; and &#96;.bats&#96; extensions to the &#96;scripts&#96; extension group
+- Added &#96;.snap&#96; extension to the &#96;config&#96; extension group for Vitest snapshots
+
+#### Enhanced Logging
+- Added SECURITY section to log: shows files with secrets redacted and secret types detected
+- Added SPECIAL FILES section to log: shows &#96;includeFilenames&#96; pattern matches
+- Added OUTPUT FILES section to log: shows generated file names with sizes
+- Added CONTENT ANALYSIS section to log: shows binary files skipped, minified files detected, validation issues
+- Sections only appear when relevant information is present
+
+#### CI&#47;CD Improvements
+- Added new &#96;security-audit.yml&#96; workflow for scheduled daily security audits with automatic GitHub issue creation
+- Added Node.js 20&#47;22 matrix testing in &#96;build-test.yml&#96;
+- Added build artifact caching between CI jobs for faster releases
+
+### Changed
+- Removed &#96;.vscode&#47;&#96; from default ignore patterns to allow IDE configuration sharing
+- Removed Dependabot configuration in favor of dedicated security-audit workflow
+- Enabled dotfile scanning by default &#40;&#96;dot: true&#96; in glob&#41; to include &#96;.github&#47;&#96;, &#96;.claude&#47;&#96;, etc.
+- Standardized &#96;npm audit --audit-level&#61;high&#96; across all CI workflows
+
+### Fixed
+- Fixed clipboard TOCTOU vulnerability: use file handle for atomic stat&#43;read &#40;CodeQL&#41;
+- Fixed plugin security: validation now explicitly happens before dynamic import
+- Fixed Windows path comparison in plugin system using normalized separators
+- Fixed type casting in Zod error handling using proper typed properties
+- Fixed regex state management: use fresh regex instances to avoid lastIndex pollution
+- Fixed unbounded binary file cache: added 10K entry limit with LRU-like eviction
+- Refactored minification detection logic to &#96;determineMinifiedFileHandling&#40;&#41;&#96; for clarity
+- Optimized MemoryFS deduplication using path-based approach instead of content hashing
+
+### Dependencies
+- Updated &#96;glob&#96; from v11 to v13
+- Updated &#96;vitest&#96; from v3 to v4
+- Updated &#96;clipboardy&#96; from v4 to v5
+- Updated &#96;typescript&#96; to 5.9.3
+- Updated &#96;zod&#96; to 4.1.13
+- Updated &#96;actions&#47;checkout&#96; from v5 to v6
+- Updated &#96;actions&#47;setup-node&#96; from v4 to v6
+- Updated &#96;github&#47;codeql-action&#96; from v3 to v4
+- Updated all ESLint-related packages to latest versions
 
 ## &#91;1.1.3&#93; - 2025-08-31
 
@@ -207,7 +1128,7 @@ and this project adheres to &#91;Semantic Versioning&#93;&#40;https:&#47;&#47;se
 - Strengthened plugin security with external path validation
 - Updated secret patterns for broader coverage of sensitive files
 
-## &#91;1.0.0&#93; - 2025-01-22
+## &#91;1.0.0&#93; - 2025-08-23
 
 ### Initial Release
 
@@ -307,6 +1228,11 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 
 ---
 
+&#91;1.1.4&#93;: https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;releases&#47;tag&#47;v1.1.4
+&#91;1.1.3&#93;: https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;releases&#47;tag&#47;v1.1.3
+&#91;1.1.2&#93;: https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;releases&#47;tag&#47;v1.1.2
+&#91;1.1.1&#93;: https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;releases&#47;tag&#47;v1.1.1
+&#91;1.1.0&#93;: https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;releases&#47;tag&#47;v1.1.0
 &#91;1.0.0&#93;: https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;releases&#47;tag&#47;v1.0.0</pre>
 <h2 id="claudemd">CLAUDE.md</h2>
 <pre># Project Fusion - AI Context
@@ -315,7 +1241,8 @@ Project Fusion is a CLI tool that merges multiple project files into a single fi
 
 ## Quick Start
 CLI tool merging project files into single .txt&#47;.md&#47;.html for AI collaboration.
-- **Runtime**: Node 20.10&#43;, TypeScript 5.9.2, ESM modules
+- **Runtime**: Node 20.10&#43;, TypeScript 5.9.3, ESM modules
+- **Version**: 1.1.4
 - **Purpose**: Generate consolidated project snapshots for LLM context
 
 ## Project Structure
@@ -348,7 +1275,7 @@ project-fusion&#47;
 │   ├── utils.ts            # Security &#43; validation utilities
 │   └── utils&#47;
 │       └── logger.ts       # Centralized logging
-├── tests&#47;                  # Test suites &#40;30&#43; files&#41;
+├── tests&#47;                  # Test suites &#40;49 files&#41;
 │   ├── __snapshots__&#47;      # Vitest snapshots
 │   └── *.test.ts           # Unit&#47;integration tests
 ├── temp&#47;                   # Temporary test files &#40;gitignored&#41;
@@ -445,12 +1372,12 @@ project-fusion --help  # Show all CLI options
 ## File Extension Groups
 Located in &#96;schema.ts:parsedFileExtensions&#96;:
 - **backend**: .cs, .go, .java, .php, .py, .rb, .rs
-- **config**: .json, .toml, .xml, .yaml
-- **cpp**: .c, .cpp, .h, .hpp
+- **config**: .json, .snap, .toml, .xml, .yaml, .yml
+- **cpp**: .c, .cc, .cpp, .h, .hpp
 - **doc**: .adoc, .md, .rst
-- **godot**: .cfg, .gd, .import, .tres, .tscn
-- **scripts**: .bat, .cmd, .ps1, .sh
-- **web**: .js, .jsx, .svelte, .ts, .tsx, .vue
+- **godot**: .cfg, .cs, .gd, .import, .tres, .tscn
+- **scripts**: .bash, .bat, .bats, .cmd, .ps1, .sh
+- **web**: .css, .html, .js, .jsx, .svelte, .ts, .tsx, .vue
 
 ## Package.json Key Info
 - **Bin**: project-fusion -&gt; dist&#47;cli.js
@@ -459,10 +1386,13 @@ Located in &#96;schema.ts:parsedFileExtensions&#96;:
 - **Exports**: main, &#47;api, &#47;fluent, &#47;plugins
 - **Name**: &#64;the99studio&#47;project-fusion
 - **Type**: &quot;module&quot; &#40;ESM only&#41;
-- **Version**: 1.0.0 &#40;semantic versioning&#41;
+- **Version**: 1.1.4 &#40;semantic versioning&#41;
 
-## Default Ignore Patterns &#40;utils.ts&#41;
-node_modules&#47;, dist&#47;, build&#47;, .git&#47;, .idea&#47;, .vscode&#47;, .DS_Store, *.exe, *.dll, *.so, *.dylib, *.zip, *.tar, *.gz, *.rar, images, videos, audio files</pre>
+## Default Ignore Patterns &#40;project-fusion.json&#41;
+node_modules&#47;, dist&#47;, build&#47;, .git&#47;, .idea&#47;, .DS_Store, package-lock.json, *.exe, *.dll, *.so, *.dylib, *.zip, *.tar, *.gz, *.rar, images, videos, audio files
+
+## Include Filenames &#40;project-fusion.json&#41;
+Files without extensions included by default: .gitignore, CODEOWNERS, Dockerfile, Dockerfile.*, Gemfile, Jenkinsfile, LICENSE, Makefile, Rakefile, Vagrantfile</pre>
 <h2 id="developmentmd">DEVELOPMENT.md</h2>
 <pre># Development Guide
 
@@ -488,7 +1418,7 @@ npm run build
 - **Help** - Show help information
 - **Init &#40;Force&#41;** - Overwrite existing config file
 - **Init** - Create new config file
-- **Tests** - Run the full test suite
+- **Tests** - Run the full test suite &#40;49 test files, 663 tests, 80&#37; coverage threshold&#41;
 
 ## Architecture
 
@@ -912,10 +1842,33 @@ export default &#91;
     &#125;
   &#125;
 &#93;;</pre>
+<h2 id="license">LICENSE</h2>
+<pre>MIT License
+
+Copyright &#40;c&#41; 2025 the99studio
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files &#40;the “Software”&#41;, to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and&#47;or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</pre>
 <h2 id="packagejson">package.json</h2>
 <pre>&#123;
     &quot;name&quot;: &quot;&#64;the99studio&#47;project-fusion&quot;,
-    &quot;version&quot;: &quot;1.1.3&quot;,
+    &quot;version&quot;: &quot;1.1.4&quot;,
     &quot;description&quot;: &quot;CLI tool for merging project files into a single file for easy sharing&quot;,
     &quot;main&quot;: &quot;dist&#47;index.js&quot;,
     &quot;types&quot;: &quot;dist&#47;index.d.ts&quot;,
@@ -988,33 +1941,33 @@ export default &#91;
         &quot;provenance&quot;: true
     &#125;,
     &quot;dependencies&quot;: &#123;
-        &quot;chalk&quot;: &quot;^5.6.0&quot;,
-        &quot;clipboardy&quot;: &quot;^4.0.0&quot;,
-        &quot;commander&quot;: &quot;^14.0.0&quot;,
-        &quot;fs-extra&quot;: &quot;^11.3.1&quot;,
+        &quot;chalk&quot;: &quot;^5.6.2&quot;,
+        &quot;clipboardy&quot;: &quot;^5.0.1&quot;,
+        &quot;commander&quot;: &quot;^14.0.2&quot;,
+        &quot;fs-extra&quot;: &quot;^11.3.2&quot;,
         &quot;github-slugger&quot;: &quot;^2.0.0&quot;,
-        &quot;glob&quot;: &quot;^11.0.3&quot;,
+        &quot;glob&quot;: &quot;^13.0.0&quot;,
         &quot;ignore&quot;: &quot;^7.0.5&quot;,
-        &quot;minimatch&quot;: &quot;^10.0.3&quot;,
-        &quot;zod&quot;: &quot;^4.1.5&quot;
+        &quot;minimatch&quot;: &quot;^10.1.1&quot;,
+        &quot;zod&quot;: &quot;^4.1.13&quot;
     &#125;,
     &quot;devDependencies&quot;: &#123;
         &quot;&#64;types&#47;fs-extra&quot;: &quot;^11.0.4&quot;,
-        &quot;&#64;types&#47;node&quot;: &quot;^24.3.0&quot;,
-        &quot;&#64;typescript-eslint&#47;eslint-plugin&quot;: &quot;^8.41.0&quot;,
-        &quot;&#64;typescript-eslint&#47;parser&quot;: &quot;^8.41.0&quot;,
-        &quot;&#64;vitest&#47;coverage-v8&quot;: &quot;^3.2.4&quot;,
-        &quot;eslint&quot;: &quot;^9.34.0&quot;,
+        &quot;&#64;types&#47;node&quot;: &quot;^24.10.1&quot;,
+        &quot;&#64;typescript-eslint&#47;eslint-plugin&quot;: &quot;^8.48.0&quot;,
+        &quot;&#64;typescript-eslint&#47;parser&quot;: &quot;^8.48.0&quot;,
+        &quot;&#64;vitest&#47;coverage-v8&quot;: &quot;^4.0.14&quot;,
+        &quot;eslint&quot;: &quot;^9.39.1&quot;,
         &quot;eslint-config-prettier&quot;: &quot;^10.1.8&quot;,
         &quot;eslint-import-resolver-typescript&quot;: &quot;^4.4.4&quot;,
         &quot;eslint-plugin-import&quot;: &quot;^2.32.0&quot;,
         &quot;eslint-plugin-node&quot;: &quot;^11.1.0&quot;,
         &quot;eslint-plugin-security&quot;: &quot;^3.0.1&quot;,
-        &quot;eslint-plugin-unicorn&quot;: &quot;^60.0.0&quot;,
-        &quot;fast-check&quot;: &quot;^4.2.0&quot;,
-        &quot;typescript&quot;: &quot;^5.9.2&quot;,
-        &quot;typescript-eslint&quot;: &quot;^8.41.0&quot;,
-        &quot;vitest&quot;: &quot;^3.2.4&quot;
+        &quot;eslint-plugin-unicorn&quot;: &quot;^62.0.0&quot;,
+        &quot;fast-check&quot;: &quot;^4.3.0&quot;,
+        &quot;typescript&quot;: &quot;^5.9.3&quot;,
+        &quot;typescript-eslint&quot;: &quot;^8.48.0&quot;,
+        &quot;vitest&quot;: &quot;^4.0.14&quot;
     &#125;
 &#125;
 </pre>
@@ -1124,13 +2077,19 @@ Run &#96;project-fusion init&#96; to create &#96;project-fusion.json&#96; if you
   &#47;&#47; File extension groups
   &quot;parsedFileExtensions&quot;: &#123;
     &quot;backend&quot;: &#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93;,
-    &quot;config&quot;: &#91;&quot;.json&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;,
+    &quot;config&quot;: &#91;&quot;.json&quot;, &quot;.snap&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;,
     &quot;cpp&quot;: &#91;&quot;.c&quot;, &quot;.cc&quot;, &quot;.cpp&quot;, &quot;.h&quot;, &quot;.hpp&quot;&#93;,
     &quot;doc&quot;: &#91;&quot;.adoc&quot;, &quot;.md&quot;, &quot;.rst&quot;&#93;,
     &quot;godot&quot;: &#91;&quot;.cfg&quot;, &quot;.cs&quot;, &quot;.gd&quot;, &quot;.import&quot;, &quot;.tres&quot;, &quot;.tscn&quot;&#93;,
-    &quot;scripts&quot;: &#91;&quot;.bat&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93;,
+    &quot;scripts&quot;: &#91;&quot;.bash&quot;, &quot;.bat&quot;, &quot;.bats&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93;,
     &quot;web&quot;: &#91;&quot;.css&quot;, &quot;.html&quot;, &quot;.js&quot;, &quot;.jsx&quot;, &quot;.svelte&quot;, &quot;.ts&quot;, &quot;.tsx&quot;, &quot;.vue&quot;&#93;
-  &#125;
+  &#125;,
+
+  &#47;&#47; Files without extensions to include
+  &quot;includeFilenames&quot;: &#91;
+    &quot;.gitignore&quot;, &quot;CODEOWNERS&quot;, &quot;Dockerfile&quot;, &quot;Gemfile&quot;,
+    &quot;Jenkinsfile&quot;, &quot;LICENSE&quot;, &quot;Makefile&quot;, &quot;Rakefile&quot;, &quot;Vagrantfile&quot;
+  &#93;
 &#125;
 &#96;&#96;&#96;
 
@@ -1216,12 +2175,6 @@ For reporting security vulnerabilities, see our &#91;Security Policy&#93;&#40;.&
 - &#91;GitHub Repository&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#41;
 - &#91;Issue Tracker&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#47;issues&#41;
 - &#91;NPM Package&#93;&#40;https:&#47;&#47;npmjs.com&#47;package&#47;&#64;the99studio&#47;project-fusion&#41;</pre>
-<h2 id="securitymd">SECURITY.md</h2>
-<pre># Security Policy
-
-## Reporting a Vulnerability
-Please report security vulnerabilities by creating a private issue on GitHub.
-We aim to respond within 7 days.</pre>
 <h2 id="srcadaptersfile-systemts">src&#47;adapters&#47;file-system.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -1249,7 +2202,7 @@ export interface FileSystemAdapter &#123;
     lstat&#40;filePath: FilePath&#41;: Promise&lt;FileSystemStats&gt;;
     exists&#40;filePath: FilePath&#41;: Promise&lt;boolean&gt;;
     ensureDir&#40;dirPath: string&#41;: Promise&lt;void&gt;;
-    glob&#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean &#125;&#41;: Promise&lt;FilePath&#91;&#93;&gt;;
+    glob&#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean; dot?: boolean &#125;&#41;: Promise&lt;FilePath&#91;&#93;&gt;;
     readBuffer&#40;filePath: FilePath, options?: &#123; encoding: null &#125;&#41;: Promise&lt;Buffer&gt;;
 &#125;
 
@@ -1294,11 +2247,12 @@ export class DefaultFileSystemAdapter implements FileSystemAdapter &#123;
         await fs.ensureDir&#40;dirPath&#41;;
     &#125;
 
-    async glob&#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean &#125;&#41;: Promise&lt;FilePath&#91;&#93;&gt; &#123;
-        &#47;&#47; Apply secure defaults: don&#39;t follow symlinks and only return files
+    async glob&#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean; dot?: boolean &#125;&#41;: Promise&lt;FilePath&#91;&#93;&gt; &#123;
+        &#47;&#47; Apply secure defaults: don&#39;t follow symlinks, only return files, include dotfiles
         const secureOptions &#61; &#123;
             nodir: true,
             follow: false,
+            dot: true, &#47;&#47; Include hidden files&#47;directories &#40;e.g., .github&#47;, .claude&#47;&#41;
             ...options
         &#125;;
         const filePaths &#61; await glob&#40;pattern, secureOptions&#41;;
@@ -1451,7 +2405,7 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter &#123;
         return Promise.resolve&#40;&#41;;
     &#125;
 
-    glob&#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean &#125;&#41;: Promise&lt;FilePath&#91;&#93;&gt; &#123;
+    glob&#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean; dot?: boolean &#125;&#41;: Promise&lt;FilePath&#91;&#93;&gt; &#123;
         const allPaths &#61; &#91;...this.files.keys&#40;&#41;, ...this.directories.keys&#40;&#41;&#93;;
         let filteredPaths &#61; allPaths;
         
@@ -1510,28 +2464,31 @@ export class MemoryFileSystemAdapter implements FileSystemAdapter &#123;
 
     getFiles&#40;&#41;: Map&lt;string, string&gt; &#123;
         &#47;&#47; Return only unique files, avoiding duplicates from resolved paths
+        &#47;&#47; Optimized: Use path-based deduplication instead of content hashing
+        &#47;&#47; This avoids memory overhead for large files
         const uniqueFiles &#61; new Map&lt;string, string&gt;&#40;&#41;;
-        const seenContent &#61; new Map&lt;string, string&gt;&#40;&#41;; &#47;&#47; content -&gt; first path seen
-        
+        const normalizedPaths &#61; new Map&lt;string, string&gt;&#40;&#41;; &#47;&#47; normalized path -&gt; original path
+
         for &#40;const &#91;filePath, content&#93; of this.files&#41; &#123;
-            const contentKey &#61; &#96;&#36;&#123;content&#125;:::SIZE:::&#36;&#123;content.length&#125;&#96;;
-            
-            if &#40;&#33;seenContent.has&#40;contentKey&#41;&#41; &#123;
-                &#47;&#47; First time we see this content, keep it
-                seenContent.set&#40;contentKey, filePath&#41;;
+            &#47;&#47; Normalize path for comparison &#40;resolve and lowercase for case-insensitive FS&#41;
+            const normalized &#61; path.resolve&#40;filePath&#41;.toLowerCase&#40;&#41;;
+
+            if &#40;&#33;normalizedPaths.has&#40;normalized&#41;&#41; &#123;
+                &#47;&#47; First time we see this normalized path
+                normalizedPaths.set&#40;normalized, filePath&#41;;
                 uniqueFiles.set&#40;filePath, content&#41;;
             &#125; else &#123;
-                &#47;&#47; We&#39;ve seen this content before, prefer shorter&#47;original path
-                const existingPath &#61; seenContent.get&#40;contentKey&#41;;
-                if &#40;existingPath &amp;&amp; &#40;filePath.length &lt; existingPath.length || filePath.startsWith&#40;&#39;&#47;&#39;&#41;&#41;&#41; &#123;
-                    &#47;&#47; Replace with shorter or relative path
+                &#47;&#47; We&#39;ve seen this path before, prefer shorter&#47;relative path
+                const existingPath &#61; normalizedPaths.get&#40;normalized&#41;;
+                if &#40;existingPath &amp;&amp; filePath.length &lt; existingPath.length&#41; &#123;
+                    &#47;&#47; Replace with shorter path
                     uniqueFiles.delete&#40;existingPath&#41;;
                     uniqueFiles.set&#40;filePath, content&#41;;
-                    seenContent.set&#40;contentKey, filePath&#41;;
+                    normalizedPaths.set&#40;normalized, filePath&#41;;
                 &#125;
             &#125;
         &#125;
-        
+
         return uniqueFiles;
     &#125;
 
@@ -1646,6 +2603,7 @@ function mergeWithDefaults&#40;partialConfig: Partial&lt;Config&gt;, cwd: string
         generateHtml: partialConfig.generateHtml ?? defaultConfig.generateHtml,
         generateMarkdown: partialConfig.generateMarkdown ?? defaultConfig.generateMarkdown,
         generateText: partialConfig.generateText ?? defaultConfig.generateText,
+        includeFilenames: partialConfig.includeFilenames ?? defaultConfig.includeFilenames,
         ignorePatterns: partialConfig.ignorePatterns ?? defaultConfig.ignorePatterns,
         maxBase64BlockKB: partialConfig.maxBase64BlockKB ?? defaultConfig.maxBase64BlockKB,
         maxFileSizeKB: partialConfig.maxFileSizeKB ?? defaultConfig.maxFileSizeKB,
@@ -2029,6 +2987,7 @@ program.parse&#40;process.argv&#41;;</pre>
 &#47;**
  * CLI commands implementation
  *&#47;
+import type &#123; FileHandle &#125; from &#39;node:fs&#47;promises&#39;;
 import path from &#39;node:path&#39;;
 import chalk from &#39;chalk&#39;;
 import clipboardy from &#39;clipboardy&#39;;
@@ -2260,6 +3219,9 @@ export async function runFusionCommand&#40;options: &#123;
             &#125;
             
             &#47;&#47; Check all files atomically to prevent race conditions
+            &#47;&#47; NOTE: TOCTOU risk exists between this check and actual file generation.
+            &#47;&#47; This is acceptable as it&#39;s a user-facing safety check, not a security boundary.
+            &#47;&#47; If files are created between check and write, the write operation will handle it.
             const existingFiles &#61; &#91;&#93;;
             const fileChecks &#61; await Promise.allSettled&#40;
                 outputFiles.map&#40;async &#40;file&#41; &#61;&gt; &#123;
@@ -2305,21 +3267,29 @@ export async function runFusionCommand&#40;options: &#123;
                 &#125;
 
                 &#47;&#47; Copy fusion content to clipboard if enabled &#40;skip in CI&#47;non-interactive environments and large files&#41;
+                &#47;&#47; SECURITY: Use file handle to avoid TOCTOU race condition between stat and read
                 const isNonInteractive &#61; process.env&#91;&#39;CI&#39;&#93; &#61;&#61;&#61; &#39;true&#39; || &#33;process.stdout.isTTY;
                 if &#40;config.copyToClipboard &#61;&#61;&#61; true &amp;&amp; result.fusionFilePath &amp;&amp; &#33;isNonInteractive&#41; &#123;
+                    let fileHandle: FileHandle | null &#61; null;
                     try &#123;
-                        &#47;&#47; Read file and check size atomically to prevent race condition
-                        const fusionContent &#61; await fs.readFile&#40;result.fusionFilePath, &#39;utf8&#39;&#41;;
-                        const fileSizeMB &#61; Buffer.byteLength&#40;fusionContent, &#39;utf8&#39;&#41; &#47; &#40;1024 * 1024&#41;;
-                        
+                        &#47;&#47; Open file handle for atomic stat&#43;read &#40;prevents TOCTOU&#41;
+                        const fsPromises &#61; await import&#40;&#39;node:fs&#47;promises&#39;&#41;;
+                        fileHandle &#61; await fsPromises.open&#40;result.fusionFilePath, &#39;r&#39;&#41;;
+                        const fileStats &#61; await fileHandle.stat&#40;&#41;;
+                        const fileSizeMB &#61; fileStats.size &#47; &#40;1024 * 1024&#41;;
+
                         if &#40;fileSizeMB &gt; 5&#41; &#123;
                             console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;file size: &#36;&#123;fileSizeMB.toFixed&#40;1&#41;&#125; MB &gt; 5 MB limit&#41;&#96;&#41;&#41;;
                         &#125; else &#123;
+                            &#47;&#47; Read from same file handle &#40;no race condition&#41;
+                            const fusionContent &#61; await fileHandle.readFile&#40;&#39;utf8&#39;&#41;;
                             await clipboardy.write&#40;fusionContent&#41;;
                             console.log&#40;chalk.blue&#40;&#96;Fusion content copied to clipboard&#96;&#41;&#41;;
                         &#125;
                     &#125; catch &#40;clipboardError&#41; &#123;
                         console.warn&#40;chalk.yellow&#40;&#96;⚠️ Could not copy to clipboard: &#36;&#123;String&#40;clipboardError&#41;&#125;&#96;&#41;&#41;;
+                    &#125; finally &#123;
+                        await fileHandle?.close&#40;&#41;;
                     &#125;
                 &#125; else if &#40;config.copyToClipboard &#61;&#61;&#61; true &amp;&amp; isNonInteractive&#41; &#123;
                     console.log&#40;chalk.gray&#40;&#96;Clipboard copy skipped &#40;non-interactive environment&#41;&#96;&#41;&#41;;
@@ -2428,8 +3398,9 @@ export async function runConfigCheckCommand&#40;&#41;: Promise&lt;void&gt; &#123
                 console.log&#40;chalk.red&#40;&#96;      Error: &#36;&#123;issue.message&#125;&#96;&#41;&#41;;
                 console.log&#40;chalk.red&#40;&#96;      Current value: &#36;&#123;chalk.cyan&#40;JSON.stringify&#40;value&#41;&#41;&#125;&#96;&#41;&#41;;
                 if &#40;issue.code &#61;&#61;&#61; &#39;invalid_type&#39;&#41; &#123;
-                     
-                    console.log&#40;chalk.red&#40;&#96;      Expected: &#36;&#123;chalk.green&#40;String&#40;&#40;issue as unknown as Record&lt;string, unknown&gt;&#41;&#91;&#39;expected&#39;&#93;&#41;&#41;&#125;, received: &#36;&#123;chalk.magenta&#40;String&#40;&#40;issue as unknown as Record&lt;string, unknown&gt;&#41;&#91;&#39;received&#39;&#93;&#41;&#41;&#125;&#96;&#41;&#41;;
+                    &#47;&#47; Use Zod&#39;s typed error properties safely
+                    const invalidTypeIssue &#61; issue as &#123; expected?: string; received?: string &#125;;
+                    console.log&#40;chalk.red&#40;&#96;      Expected: &#36;&#123;chalk.green&#40;String&#40;invalidTypeIssue.expected ?? &#39;unknown&#39;&#41;&#41;&#125;, received: &#36;&#123;chalk.magenta&#40;String&#40;invalidTypeIssue.received ?? &#39;unknown&#39;&#41;&#41;&#125;&#96;&#41;&#41;;
                 &#125;
             &#125;
             
@@ -2868,6 +3839,239 @@ export class ProjectFusionBuilder &#123;
 export function projectFusion&#40;&#41;: ProjectFusionBuilder &#123;
     return new ProjectFusionBuilder&#40;&#41;;
 &#125;</pre>
+<h2 id="srcfusion-loggingts">src&#47;fusion-logging.ts</h2>
+<pre>&#47;&#47; SPDX-License-Identifier: MIT
+&#47;&#47; Copyright &#40;c&#41; 2025 the99studio
+&#47;**
+ * Logging helpers for fusion process
+ *&#47;
+import type &#123; Config &#125; from &#39;.&#47;types.js&#39;;
+import &#123; formatTimestamp &#125; from &#39;.&#47;utils.js&#39;;
+
+&#47;**
+ * Processing statistics for enhanced logging
+ *&#47;
+export interface ProcessingStats &#123;
+    binaryFilesSkipped: string&#91;&#93;;
+    secretsDetected: &#123; file: string; types: string&#91;&#93; &#125;&#91;&#93;;
+    minifiedFilesDetected: string&#91;&#93;;
+    validationWarnings: &#123; file: string; warning: string &#125;&#91;&#93;;
+    validationErrors: &#123; file: string; error: string &#125;&#91;&#93;;
+    errorPlaceholders: string&#91;&#93;;
+&#125;
+
+&#47;**
+ * Output file info for logging
+ *&#47;
+export interface OutputFileInfo &#123;
+    name: string;
+    path: string;
+    sizeKB: number;
+&#125;
+
+&#47;**
+ * Performance metrics for logging
+ *&#47;
+export interface PerformanceMetricsInfo &#123;
+    duration: string;
+    startTime: Date;
+    metrics: &#123; memoryUsed: number; throughputMBps: number; filesProcessed: number; duration: number &#125;;
+    filesCount: number;
+    totalSizeBytes: number;
+    outputFormats: string;
+    outputFilesCount: number;
+&#125;
+
+&#47;**
+ * Write performance metrics to log
+ *&#47;
+export async function writePerformanceMetrics&#40;
+    writeLog: &#40;content: string&#41; &#61;&gt; Promise&lt;void&gt;,
+    info: PerformanceMetricsInfo
+&#41;: Promise&lt;void&gt; &#123;
+    await writeLog&#40;&#96;\n--- PERFORMANCE METRICS ---&#96;&#41;;
+    await writeLog&#40;&#96;Duration breakdown:&#96;&#41;;
+    await writeLog&#40;&#96;  Total execution: &#36;&#123;info.duration&#125;s&#96;&#41;;
+    await writeLog&#40;&#96;  File discovery: &#36;&#123;&#40;&#40;Date.now&#40;&#41; - info.startTime.getTime&#40;&#41;&#41; &#47; 1000 &#47; Number.parseFloat&#40;info.duration&#41; * 100&#41;.toFixed&#40;1&#41;&#125;&#37; of total&#96;&#41;;
+
+    await writeLog&#40;&#96;Memory usage:&#96;&#41;;
+    await writeLog&#40;&#96;  Peak memory: &#36;&#123;info.metrics.memoryUsed.toFixed&#40;2&#41;&#125; MB&#96;&#41;;
+    await writeLog&#40;&#96;  Memory per file: &#36;&#123;info.filesCount &gt; 0 ? &#40;info.metrics.memoryUsed &#47; info.filesCount * 1024&#41;.toFixed&#40;2&#41; : &#39;0&#39;&#125; KB&#96;&#41;;
+
+    await writeLog&#40;&#96;Processing speed:&#96;&#41;;
+    await writeLog&#40;&#96;  Data throughput: &#36;&#123;info.metrics.throughputMBps.toFixed&#40;2&#41;&#125; MB&#47;s&#96;&#41;;
+    await writeLog&#40;&#96;  File processing rate: &#36;&#123;&#40;info.metrics.filesProcessed &#47; info.metrics.duration&#41;.toFixed&#40;2&#41;&#125; files&#47;s&#96;&#41;;
+    await writeLog&#40;&#96;  Average file size: &#36;&#123;info.filesCount &gt; 0 ? &#40;info.totalSizeBytes &#47; info.filesCount &#47; 1024&#41;.toFixed&#40;2&#41; : &#39;0&#39;&#125; KB&#96;&#41;;
+
+    await writeLog&#40;&#96;Output generation:&#96;&#41;;
+    await writeLog&#40;&#96;  Generated formats: &#36;&#123;info.outputFormats&#125;&#96;&#41;;
+    await writeLog&#40;&#96;  Number of output files: &#36;&#123;info.outputFilesCount&#125;&#96;&#41;;
+&#125;
+
+&#47;**
+ * Write initial session and configuration info to log
+ *&#47;
+export async function writeSessionHeader&#40;
+    writeLog: &#40;content: string&#41; &#61;&gt; Promise&lt;void&gt;,
+    config: Config,
+    startTime: Date,
+    extensionGroupsFilter?: readonly string&#91;&#93;
+&#41;: Promise&lt;void&gt; &#123;
+    await writeLog&#40;&#96;&#61;&#61;&#61; PROJECT FUSION SESSION START &#61;&#61;&#61;&#96;&#41;;
+    await writeLog&#40;&#96;Session ID: &#36;&#123;Date.now&#40;&#41;.toString&#40;36&#41;&#125;-&#36;&#123;Math.random&#40;&#41;.toString&#40;36&#41;.slice&#40;2, 11&#41;&#125;&#96;&#41;;
+    await writeLog&#40;&#96;Start time: &#36;&#123;formatTimestamp&#40;startTime&#41;&#125;&#96;&#41;;
+    await writeLog&#40;&#96;Working directory: &#36;&#123;config.rootDirectory&#125;&#96;&#41;;
+    await writeLog&#40;&#96;Generated file name: &#36;&#123;config.generatedFileName&#125;&#96;&#41;;
+
+    await writeLog&#40;&#96;\n--- CONFIGURATION ---&#96;&#41;;
+    await writeLog&#40;&#96;Output formats:&#96;&#41;;
+    await writeLog&#40;&#96;  - Text &#40;.txt&#41;: &#36;&#123;config.generateText&#125;&#96;&#41;;
+    await writeLog&#40;&#96;  - Markdown &#40;.md&#41;: &#36;&#123;config.generateMarkdown&#125;&#96;&#41;;
+    await writeLog&#40;&#96;  - HTML &#40;.html&#41;: &#36;&#123;config.generateHtml&#125;&#96;&#41;;
+
+    await writeLog&#40;&#96;Processing limits:&#96;&#41;;
+    await writeLog&#40;&#96;  - Max file size: &#36;&#123;config.maxFileSizeKB&#125; KB&#96;&#41;;
+    await writeLog&#40;&#96;  - Max files: &#36;&#123;config.maxFiles&#125;&#96;&#41;;
+    await writeLog&#40;&#96;  - Max total size: &#36;&#123;config.maxTotalSizeMB&#125; MB&#96;&#41;;
+
+    await writeLog&#40;&#96;Directory scanning:&#96;&#41;;
+    await writeLog&#40;&#96;  - Parse subdirectories: &#36;&#123;config.parseSubDirectories&#125;&#96;&#41;;
+    await writeLog&#40;&#96;  - Use .gitignore: &#36;&#123;config.useGitIgnoreForExcludes&#125;&#96;&#41;;
+    await writeLog&#40;&#96;  - Allow symlinks: &#36;&#123;config.allowSymlinks&#125;&#96;&#41;;
+
+    if &#40;config.ignorePatterns.length &gt; 0&#41; &#123;
+        await writeLog&#40;&#96;Ignore patterns: &#36;&#123;config.ignorePatterns.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;;
+    &#125;
+
+    await writeLog&#40;&#96;Auto-ignoring generated files: &#36;&#123;config.generatedFileName&#125;.txt, &#36;&#123;config.generatedFileName&#125;.md, &#36;&#123;config.generatedFileName&#125;.html, &#36;&#123;config.generatedFileName&#125;.log, performance-report.json&#96;&#41;;
+
+    if &#40;extensionGroupsFilter&#41; &#123;
+        await writeLog&#40;&#96;Extension groups filter: &#36;&#123;extensionGroupsFilter.join&#40;&#39;, &#39;&#41;&#125;&#96;&#41;;
+    &#125;
+&#125;
+
+&#47;**
+ * Write enhanced statistics to the log file
+ *&#47;
+export async function writeEnhancedStatistics&#40;
+    writeLog: &#40;content: string&#41; &#61;&gt; Promise&lt;void&gt;,
+    processingStats: ProcessingStats,
+    includeFilenamesMatched: &#123; pattern: string; files: string&#91;&#93; &#125;&#91;&#93;,
+    outputFilesInfo: OutputFileInfo&#91;&#93;
+&#41;: Promise&lt;void&gt; &#123;
+    &#47;&#47; Content Analysis section
+    const hasContentAnalysisInfo &#61; processingStats.binaryFilesSkipped.length &gt; 0 ||
+        processingStats.minifiedFilesDetected.length &gt; 0 ||
+        processingStats.validationWarnings.length &gt; 0 ||
+        processingStats.validationErrors.length &gt; 0 ||
+        processingStats.errorPlaceholders.length &gt; 0;
+
+    if &#40;hasContentAnalysisInfo&#41; &#123;
+        await writeLog&#40;&#96;\n--- CONTENT ANALYSIS ---&#96;&#41;;
+
+        if &#40;processingStats.binaryFilesSkipped.length &gt; 0&#41; &#123;
+            await writeLog&#40;&#96;Binary files skipped: &#36;&#123;processingStats.binaryFilesSkipped.length&#125;&#96;&#41;;
+            for &#40;const file of processingStats.binaryFilesSkipped.slice&#40;0, 5&#41;&#41; &#123;
+                await writeLog&#40;&#96;  - &#36;&#123;file&#125;&#96;&#41;;
+            &#125;
+            if &#40;processingStats.binaryFilesSkipped.length &gt; 5&#41; &#123;
+                await writeLog&#40;&#96;  ... and &#36;&#123;processingStats.binaryFilesSkipped.length - 5&#125; more&#96;&#41;;
+            &#125;
+        &#125;
+
+        if &#40;processingStats.minifiedFilesDetected.length &gt; 0&#41; &#123;
+            await writeLog&#40;&#96;Minified files detected: &#36;&#123;processingStats.minifiedFilesDetected.length&#125;&#96;&#41;;
+            for &#40;const file of processingStats.minifiedFilesDetected.slice&#40;0, 5&#41;&#41; &#123;
+                await writeLog&#40;&#96;  - &#36;&#123;file&#125;&#96;&#41;;
+            &#125;
+            if &#40;processingStats.minifiedFilesDetected.length &gt; 5&#41; &#123;
+                await writeLog&#40;&#96;  ... and &#36;&#123;processingStats.minifiedFilesDetected.length - 5&#125; more&#96;&#41;;
+            &#125;
+        &#125;
+
+        if &#40;processingStats.validationWarnings.length &gt; 0&#41; &#123;
+            await writeLog&#40;&#96;Content validation warnings: &#36;&#123;processingStats.validationWarnings.length&#125;&#96;&#41;;
+        &#125;
+
+        if &#40;processingStats.validationErrors.length &gt; 0&#41; &#123;
+            await writeLog&#40;&#96;Content validation errors: &#36;&#123;processingStats.validationErrors.length&#125;&#96;&#41;;
+        &#125;
+
+        if &#40;processingStats.errorPlaceholders.length &gt; 0&#41; &#123;
+            await writeLog&#40;&#96;Files replaced with error placeholders: &#36;&#123;processingStats.errorPlaceholders.length&#125;&#96;&#41;;
+            for &#40;const file of processingStats.errorPlaceholders.slice&#40;0, 5&#41;&#41; &#123;
+                await writeLog&#40;&#96;  - &#36;&#123;file&#125;&#96;&#41;;
+            &#125;
+            if &#40;processingStats.errorPlaceholders.length &gt; 5&#41; &#123;
+                await writeLog&#40;&#96;  ... and &#36;&#123;processingStats.errorPlaceholders.length - 5&#125; more&#96;&#41;;
+            &#125;
+        &#125;
+    &#125;
+
+    &#47;&#47; Security section
+    if &#40;processingStats.secretsDetected.length &gt; 0&#41; &#123;
+        await writeLog&#40;&#96;\n--- SECURITY ---&#96;&#41;;
+        await writeLog&#40;&#96;Files with secrets redacted: &#36;&#123;processingStats.secretsDetected.length&#125;&#96;&#41;;
+
+        &#47;&#47; Count secret types
+        const secretTypeCounts &#61; new Map&lt;string, number&gt;&#40;&#41;;
+        for &#40;const &#123; types &#125; of processingStats.secretsDetected&#41; &#123;
+            for &#40;const type of types&#41; &#123;
+                secretTypeCounts.set&#40;type, &#40;secretTypeCounts.get&#40;type&#41; ?? 0&#41; &#43; 1&#41;;
+            &#125;
+        &#125;
+
+        if &#40;secretTypeCounts.size &gt; 0&#41; &#123;
+            await writeLog&#40;&#96;Secret types found:&#96;&#41;;
+            const sortedTypes &#61; &#91;...secretTypeCounts.entries&#40;&#41;&#93;.sort&#40;&#40;&#91;,a&#93;, &#91;,b&#93;&#41; &#61;&gt; b - a&#41;;
+            for &#40;const &#91;type, count&#93; of sortedTypes&#41; &#123;
+                await writeLog&#40;&#96;  - &#36;&#123;type&#125;: &#36;&#123;count&#125; occurrence&#40;s&#41;&#96;&#41;;
+            &#125;
+        &#125;
+
+        await writeLog&#40;&#96;Files affected:&#96;&#41;;
+        for &#40;const &#123; file &#125; of processingStats.secretsDetected.slice&#40;0, 10&#41;&#41; &#123;
+            await writeLog&#40;&#96;  - &#36;&#123;file&#125;&#96;&#41;;
+        &#125;
+        if &#40;processingStats.secretsDetected.length &gt; 10&#41; &#123;
+            await writeLog&#40;&#96;  ... and &#36;&#123;processingStats.secretsDetected.length - 10&#125; more&#96;&#41;;
+        &#125;
+    &#125;
+
+    &#47;&#47; Special files section &#40;includeFilenames matches&#41;
+    if &#40;includeFilenamesMatched.length &gt; 0&#41; &#123;
+        await writeLog&#40;&#96;\n--- SPECIAL FILES &#40;includeFilenames&#41; ---&#96;&#41;;
+        let totalMatched &#61; 0;
+        for &#40;const &#123; pattern, files &#125; of includeFilenamesMatched&#41; &#123;
+            totalMatched &#43;&#61; files.length;
+            await writeLog&#40;&#96;Pattern &quot;&#36;&#123;pattern&#125;&quot;: &#36;&#123;files.length&#125; file&#40;s&#41;&#96;&#41;;
+            for &#40;const file of files.slice&#40;0, 3&#41;&#41; &#123;
+                await writeLog&#40;&#96;  - &#36;&#123;file&#125;&#96;&#41;;
+            &#125;
+            if &#40;files.length &gt; 3&#41; &#123;
+                await writeLog&#40;&#96;  ... and &#36;&#123;files.length - 3&#125; more&#96;&#41;;
+            &#125;
+        &#125;
+        await writeLog&#40;&#96;Total special files matched: &#36;&#123;totalMatched&#125;&#96;&#41;;
+    &#125;
+
+    &#47;&#47; Output files with sizes
+    if &#40;outputFilesInfo.length &gt; 0&#41; &#123;
+        const totalOutputSizeKB &#61; outputFilesInfo.reduce&#40;&#40;sum, f&#41; &#61;&gt; sum &#43; f.sizeKB, 0&#41;;
+        await writeLog&#40;&#96;\n--- OUTPUT FILES ---&#96;&#41;;
+        for &#40;const file of outputFilesInfo&#41; &#123;
+            const sizeStr &#61; file.sizeKB &gt; 1024
+                ? &#96;&#36;&#123;&#40;file.sizeKB &#47; 1024&#41;.toFixed&#40;2&#41;&#125; MB&#96;
+                : &#96;&#36;&#123;file.sizeKB.toFixed&#40;2&#41;&#125; KB&#96;;
+            await writeLog&#40;&#96;  &#36;&#123;file.path&#125; &#40;&#36;&#123;sizeStr&#125;&#41;&#96;&#41;;
+        &#125;
+        const totalStr &#61; totalOutputSizeKB &gt; 1024
+            ? &#96;&#36;&#123;&#40;totalOutputSizeKB &#47; 1024&#41;.toFixed&#40;2&#41;&#125; MB&#96;
+            : &#96;&#36;&#123;totalOutputSizeKB.toFixed&#40;2&#41;&#125; KB&#96;;
+        await writeLog&#40;&#96;Total output size: &#36;&#123;totalStr&#125;&#96;&#41;;
+    &#125;
+&#125;
+</pre>
 <h2 id="srcfusionts">src&#47;fusion.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -2879,9 +4083,16 @@ import ignoreLib from &#39;ignore&#39;;
 import &#123; DefaultFileSystemAdapter &#125; from &#39;.&#47;adapters&#47;file-system.js&#39;;
 import type &#123; FusionProgress, CancellationToken &#125; from &#39;.&#47;api.js&#39;;
 import &#123; BenchmarkTracker &#125; from &#39;.&#47;benchmark.js&#39;;
+import &#123;
+    type OutputFileInfo,
+    type ProcessingStats,
+    writeEnhancedStatistics,
+    writePerformanceMetrics,
+    writeSessionHeader
+&#125; from &#39;.&#47;fusion-logging.js&#39;;
 import &#123; PluginManager &#125; from &#39;.&#47;plugins&#47;plugin-system.js&#39;;
-import &#123; 
-    type FileInfo, 
+import &#123;
+    type FileInfo,
     type OutputContext,
     OutputStrategyManager
 &#125; from &#39;.&#47;strategies&#47;output-strategy.js&#39;;
@@ -2911,6 +4122,91 @@ Reason: &#36;&#123;errorDetails&#125;
 
 To include this file anyway, adjust validation limits in your config.
 ---&#96;;
+&#125;
+
+&#47;**
+ * Determines if a file should be skipped based on minification status and validation results.
+ * Extracted for clarity and maintainability.
+ *
+ * &#64;returns Object containing processing decision:
+ *   - shouldSkip: true if file should be entirely skipped
+ *   - shouldCreatePlaceholder: true if error placeholder should be created
+ *&#47;
+function determineMinifiedFileHandling&#40;
+    isMinified: boolean,
+    validationResult: &#123; valid: boolean; issues: &#123; hasLargeBase64?: boolean; hasLongTokens?: boolean; hasLongLines?: boolean &#125;; errors: string&#91;&#93; &#125;
+&#41;: &#123; shouldSkip: boolean; shouldCreatePlaceholder: boolean; errorDetails?: string &#125; &#123;
+    &#47;&#47; If validation passed, no special handling needed
+    if &#40;validationResult.valid&#41; &#123;
+        return &#123; shouldSkip: false, shouldCreatePlaceholder: false &#125;;
+    &#125;
+
+    const &#123; hasLargeBase64, hasLongTokens, hasLongLines &#125; &#61; validationResult.issues;
+    const hasOnlyLongLineIssues &#61; hasLongLines &amp;&amp; &#33;hasLargeBase64 &amp;&amp; &#33;hasLongTokens;
+
+    &#47;&#47; For minified content with ONLY long line issues &#40;no base64 or token problems&#41;:
+    &#47;&#47; Skip entirely - this is pure minification, not problematic content
+    if &#40;isMinified &amp;&amp; hasOnlyLongLineIssues&#41; &#123;
+        return &#123; shouldSkip: true, shouldCreatePlaceholder: false &#125;;
+    &#125;
+
+    &#47;&#47; For all other validation failures &#40;base64 issues, token issues, or non-minified with long lines&#41;:
+    &#47;&#47; Create an error placeholder to inform the user
+    return &#123;
+        shouldSkip: false,
+        shouldCreatePlaceholder: true,
+        errorDetails: validationResult.errors.join&#40;&#39;\n&#39;&#41;
+    &#125;;
+&#125;
+
+&#47;**
+ * Result of globbing include filenames
+ *&#47;
+interface GlobIncludeFilenamesResult &#123;
+    filePaths: FilePath&#91;&#93;;
+    matchedFiles: &#123; pattern: string; files: string&#91;&#93; &#125;&#91;&#93;;
+&#125;
+
+&#47;**
+ * Glob for special filenames without extensions &#40;Dockerfile, Makefile, etc.&#41;
+ *&#47;
+async function globIncludeFilenames&#40;
+    config: Config,
+    rootDir: string,
+    fsAdapter: &#123; glob: &#40;pattern: string, options?: &#123; nodir?: boolean; follow?: boolean; dot?: boolean &#125;&#41; &#61;&gt; Promise&lt;FilePath&#91;&#93;&gt; &#125;,
+    existingFilePaths: FilePath&#91;&#93;
+&#41;: Promise&lt;GlobIncludeFilenamesResult&gt; &#123;
+    const matchedFiles: &#123; pattern: string; files: string&#91;&#93; &#125;&#91;&#93; &#61; &#91;&#93;;
+
+    if &#40;&#33;config.includeFilenames || config.includeFilenames.length &#61;&#61;&#61; 0&#41; &#123;
+        return &#123; filePaths: existingFilePaths, matchedFiles &#125;;
+    &#125;
+
+    const filePaths &#61; &#91;...existingFilePaths&#93;;
+    const existingSet &#61; new Set&lt;string&gt;&#40;filePaths&#41;;
+
+    for &#40;const filenamePattern of config.includeFilenames&#41; &#123;
+        const filenameGlob &#61; config.parseSubDirectories
+            ? &#96;&#36;&#123;rootDir&#125;&#47;**&#47;&#36;&#123;filenamePattern&#125;&#96;
+            : &#96;&#36;&#123;rootDir&#125;&#47;&#36;&#123;filenamePattern&#125;&#96;;
+        const additionalFiles &#61; await fsAdapter.glob&#40;filenameGlob, &#123;
+            nodir: true,
+            follow: false
+        &#125;&#41;;
+        const newlyMatched: string&#91;&#93; &#61; &#91;&#93;;
+        for &#40;const file of additionalFiles&#41; &#123;
+            if &#40;&#33;existingSet.has&#40;file&#41;&#41; &#123;
+                filePaths.push&#40;file&#41;;
+                existingSet.add&#40;file&#41;;
+                newlyMatched.push&#40;path.relative&#40;rootDir, file&#41;&#41;;
+            &#125;
+        &#125;
+        if &#40;newlyMatched.length &gt; 0&#41; &#123;
+            matchedFiles.push&#40;&#123; pattern: filenamePattern, files: newlyMatched &#125;&#41;;
+        &#125;
+    &#125;
+
+    return &#123; filePaths, matchedFiles &#125;;
 &#125;
 
 export async function processFusion&#40;
@@ -3036,39 +4332,16 @@ export async function processFusion&#40;
 
         await fs.ensureDir&#40;path.dirname&#40;logFilePath&#41;&#41;;
         await fs.writeFile&#40;logFilePath, &#39;&#39;&#41;;
-        
-        &#47;&#47; Log initial configuration and session info
-        await writeLogWithFs&#40;logFilePath, &#96;&#61;&#61;&#61; PROJECT FUSION SESSION START &#61;&#61;&#61;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;Session ID: &#36;&#123;Date.now&#40;&#41;.toString&#40;36&#41;&#125;-&#36;&#123;Math.random&#40;&#41;.toString&#40;36&#41;.slice&#40;2, 11&#41;&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;Start time: &#36;&#123;formatTimestamp&#40;startTime&#41;&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;Working directory: &#36;&#123;config.rootDirectory&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;Generated file name: &#36;&#123;config.generatedFileName&#125;&#96;, true&#41;;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;\n--- CONFIGURATION ---&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;Output formats:&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Text &#40;.txt&#41;: &#36;&#123;config.generateText&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Markdown &#40;.md&#41;: &#36;&#123;config.generateMarkdown&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - HTML &#40;.html&#41;: &#36;&#123;config.generateHtml&#125;&#96;, true&#41;;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;Processing limits:&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Max file size: &#36;&#123;config.maxFileSizeKB&#125; KB&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Max files: &#36;&#123;config.maxFiles&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Max total size: &#36;&#123;config.maxTotalSizeMB&#125; MB&#96;, true&#41;;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;Directory scanning:&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Parse subdirectories: &#36;&#123;config.parseSubDirectories&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Use .gitignore: &#36;&#123;config.useGitIgnoreForExcludes&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  - Allow symlinks: &#36;&#123;config.allowSymlinks&#125;&#96;, true&#41;;
-        
-        if &#40;config.ignorePatterns.length &gt; 0&#41; &#123;
-            await writeLogWithFs&#40;logFilePath, &#96;Ignore patterns: &#36;&#123;config.ignorePatterns.join&#40;&#39;, &#39;&#41;&#125;&#96;, true&#41;;
-        &#125;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;Auto-ignoring generated files: &#36;&#123;config.generatedFileName&#125;.txt, &#36;&#123;config.generatedFileName&#125;.md, &#36;&#123;config.generatedFileName&#125;.html, &#36;&#123;config.generatedFileName&#125;.log, performance-report.json&#96;, true&#41;;
-        
-        if &#40;options.extensionGroups&#41; &#123;
-            await writeLogWithFs&#40;logFilePath, &#96;Extension groups filter: &#36;&#123;options.extensionGroups.join&#40;&#39;, &#39;&#41;&#125;&#96;, true&#41;;
-        &#125;
+
+        &#47;&#47; Write session header using helper function
+        &#47;&#47; NOTE: TOCTOU &#40;Time-of-Check-Time-of-Use&#41; considerations:
+        &#47;&#47; File system operations are inherently subject to race conditions. Files may change
+        &#47;&#47; between validation and processing. This is mitigated by:
+        &#47;&#47; 1. Using file handles where possible &#40;isBinaryFile uses open&#40;&#41; to avoid TOCTOU&#41;
+        &#47;&#47; 2. Accepting that in concurrent environments, some edge cases may occur
+        &#47;&#47; 3. Focusing security controls on path validation &#40;which is checked at access time&#41;
+        const writeLog &#61; &#40;content: string&#41;: Promise&lt;void&gt; &#61;&gt; writeLogWithFs&#40;logFilePath, content, true&#41;;
+        await writeSessionHeader&#40;writeLog, config, startTime, options.extensionGroups&#41;;
 
         if &#40;options.pluginsDir&#41; &#123;
             await pluginManager.loadPluginsFromDirectory&#40;options.pluginsDir, config&#41;;
@@ -3172,11 +4445,16 @@ export async function processFusion&#40;
 
         checkCancellation&#40;&#41;;
         reportProgress&#40;&#39;scanning&#39;, &#39;Scanning for files...&#39;, 0, 0, undefined, true&#41;;
-        
-        let filePaths &#61; await fs.glob&#40;pattern, &#123; 
+
+        let filePaths &#61; await fs.glob&#40;pattern, &#123;
             nodir: true,
             follow: false
         &#125;&#41;;
+
+        &#47;&#47; Also glob for special filenames without extensions &#40;Dockerfile, Makefile, etc.&#41;
+        const includeFilenamesResult &#61; await globIncludeFilenames&#40;config, rootDir, fs, filePaths&#41;;
+        filePaths &#61; includeFilenamesResult.filePaths;
+        const includeFilenamesMatched &#61; includeFilenamesResult.matchedFiles;
 
         const originalFileCount &#61; filePaths.length;
         filePaths &#61; filePaths.filter&#40;file &#61;&gt; &#123;
@@ -3246,6 +4524,16 @@ export async function processFusion&#40;
         let skippedCount &#61; 0;
         let totalSizeBytes &#61; 0;
 
+        &#47;&#47; Enhanced tracking for detailed logging
+        const processingStats: ProcessingStats &#61; &#123;
+            binaryFilesSkipped: &#91;&#93;,
+            secretsDetected: &#91;&#93;,
+            minifiedFilesDetected: &#91;&#93;,
+            validationWarnings: &#91;&#93;,
+            validationErrors: &#91;&#93;,
+            errorPlaceholders: &#91;&#93;
+        &#125;;
+
         reportProgress&#40;&#39;processing&#39;, &#39;Processing files...&#39;, 0, filePaths.length, undefined, true&#41;;
         
         for &#40;let i &#61; 0; i &lt; filePaths.length; i&#43;&#43;&#41; &#123;
@@ -3308,6 +4596,7 @@ export async function processFusion&#40;
                     &#93;&#41;;
                     
                     if &#40;isBinary&#41; &#123;
+                        processingStats.binaryFilesSkipped.push&#40;relativePath&#41;;
                         await writeLogWithFs&#40;logFilePath, &#96;Skipping binary file: &#36;&#123;relativePath&#125;&#96;, true&#41;;
                         logger.consoleWarn&#40;&#96;Binary file skipped: &#36;&#123;relativePath&#125;&#96;&#41;;
                         continue;
@@ -3321,6 +4610,10 @@ export async function processFusion&#40;
                         const &#123; redactedContent, detectedSecrets &#125; &#61; redactSecrets&#40;content&#41;;
                         if &#40;detectedSecrets.length &gt; 0&#41; &#123;
                             content &#61; redactedContent;
+                            processingStats.secretsDetected.push&#40;&#123;
+                                file: relativePath,
+                                types: detectedSecrets
+                            &#125;&#41;;
                         &#125;
                     &#125;
                     
@@ -3328,48 +4621,40 @@ export async function processFusion&#40;
                     
                     &#47;&#47; Log warnings and errors
                     for &#40;const warning of validationResult.warnings&#41; &#123;
+                        processingStats.validationWarnings.push&#40;&#123; file: relativePath, warning &#125;&#41;;
                         await writeLogWithFs&#40;logFilePath, &#96;Content validation warning: &#36;&#123;warning&#125;&#96;, true&#41;;
                         logger.consoleWarn&#40;warning&#41;;
                     &#125;
-                    
+
                     for &#40;const error of validationResult.errors&#41; &#123;
+                        processingStats.validationErrors.push&#40;&#123; file: relativePath, error &#125;&#41;;
                         await writeLogWithFs&#40;logFilePath, &#96;Content validation error: &#36;&#123;error&#125;&#96;, true&#41;;
                         console.error&#40;&#96;❌ &#36;&#123;error&#125;&#96;&#41;;
                     &#125;
                     
-                    &#47;&#47; Check for minified content first
+                    &#47;&#47; Check for minified content and determine handling strategy
                     const isMinified &#61; isMinifiedContent&#40;content, relativePath&#41;;
                     if &#40;isMinified&#41; &#123;
+                        processingStats.minifiedFilesDetected.push&#40;relativePath&#41;;
                         await writeLogWithFs&#40;logFilePath, &#96;Detected minified content in: &#36;&#123;relativePath&#125;&#96;, true&#41;;
-                        &#47;&#47; Only skip minified files that have ONLY long line issues &#40;not tokens or base64&#41;
-                        const hasBase64Issues &#61; validationResult.issues.hasLargeBase64;
-                        const hasTokenIssues &#61; validationResult.issues.hasLongTokens;
-                        const hasOnlyLongLineIssues &#61; validationResult.issues.hasLongLines &amp;&amp; &#33;hasBase64Issues &amp;&amp; &#33;hasTokenIssues;
-                        if &#40;&#33;validationResult.valid &amp;&amp; hasOnlyLongLineIssues&#41; &#123;
-                            await writeLogWithFs&#40;logFilePath, &#96;Rejecting minified file: &#36;&#123;relativePath&#125;&#96;, true&#41;;
-                            &#47;&#47; Skip this file entirely - don&#39;t add to filesToProcess
-                            continue;
-                        &#125;
                     &#125;
-                    
-                    &#47;&#47; If validation failed, create error placeholder
-                    &#47;&#47; BUT: don&#39;t create placeholders for minified content that we want to skip
+
+                    &#47;&#47; Use extracted function for clearer minification handling logic
+                    const handling &#61; determineMinifiedFileHandling&#40;isMinified, validationResult&#41;;
+
+                    if &#40;handling.shouldSkip&#41; &#123;
+                        await writeLogWithFs&#40;logFilePath, &#96;Rejecting minified file: &#36;&#123;relativePath&#125;&#96;, true&#41;;
+                        continue;
+                    &#125;
+
                     let processedFileContent &#61; content;
                     let isErrorPlaceholder &#61; false;
-                    
-                    if &#40;&#33;validationResult.valid&#41; &#123;
-                        &#47;&#47; Always create error placeholders for files with base64 or token issues
-                        &#47;&#47; Only skip if minified AND has only long line issues &#40;pure minification&#41;
-                        const hasBase64Issues &#61; validationResult.issues.hasLargeBase64;
-                        const hasTokenIssues &#61; validationResult.issues.hasLongTokens;
-                        const hasOnlyLongLineIssues &#61; validationResult.issues.hasLongLines &amp;&amp; &#33;hasBase64Issues &amp;&amp; &#33;hasTokenIssues;
-                        
-                        if &#40;&#33;isMinified || &#33;hasOnlyLongLineIssues&#41; &#123;
-                            await writeLogWithFs&#40;logFilePath, &#96;Content validation failed for: &#36;&#123;relativePath&#125;&#96;, true&#41;;
-                            const errorDetails &#61; validationResult.errors.join&#40;&#39;\n&#39;&#41;;
-                            processedFileContent &#61; createErrorPlaceholder&#40;relativePath, errorDetails&#41;;
-                            isErrorPlaceholder &#61; true;
-                        &#125;
+
+                    if &#40;handling.shouldCreatePlaceholder&#41; &#123;
+                        processingStats.errorPlaceholders.push&#40;relativePath&#41;;
+                        await writeLogWithFs&#40;logFilePath, &#96;Content validation failed for: &#36;&#123;relativePath&#125;&#96;, true&#41;;
+                        processedFileContent &#61; createErrorPlaceholder&#40;relativePath, handling.errorDetails ?? &#39;Unknown error&#39;&#41;;
+                        isErrorPlaceholder &#61; true;
                     &#125;
                     
                     let fileInfo: FileInfo &#61; &#123;
@@ -3498,21 +4783,22 @@ export async function processFusion&#40;
         
         const enabledStrategies &#61; outputManager.getEnabledStrategies&#40;finalConfig&#41;;
         const generatedPaths: FilePath&#91;&#93; &#61; &#91;&#93;;
+        const outputFilesInfo: OutputFileInfo&#91;&#93; &#61; &#91;&#93;;
 
         for &#40;const strategy of enabledStrategies&#41; &#123;
             checkCancellation&#40;&#41;;
             reportProgress&#40;&#39;generating&#39;, &#96;Generating &#36;&#123;strategy.name&#125; output...&#96;, 0, finalFilesToProcess.length, undefined, true&#41;;
-            
+
             try &#123;
                 &#47;&#47; Use the streaming version with progress callback
                 const outputPath &#61; await outputManager.generateOutput&#40;
-                    strategy, 
-                    outputContext, 
+                    strategy,
+                    outputContext,
                     fs,
                     &#40;fileInfo, index, total&#41; &#61;&gt; &#123;
                         checkCancellation&#40;&#41;;
                         reportProgress&#40;
-                            &#39;generating&#39;, 
+                            &#39;generating&#39;,
                             &#96;Generating &#36;&#123;strategy.name&#125; output - processing &#36;&#123;fileInfo.relativePath&#125;&#96;,
                             index &#43; 1,
                             total,
@@ -3523,6 +4809,24 @@ export async function processFusion&#40;
                     options.cancellationToken
                 &#41;;
                 generatedPaths.push&#40;outputPath&#41;;
+
+                &#47;&#47; Track output file size
+                try &#123;
+                    const outputStats &#61; await fs.stat&#40;outputPath&#41;;
+                    outputFilesInfo.push&#40;&#123;
+                        name: strategy.name,
+                        path: path.basename&#40;outputPath&#41;,
+                        sizeKB: outputStats.size &#47; 1024
+                    &#125;&#41;;
+                &#125; catch &#123;
+                    &#47;&#47; If we can&#39;t get the size, still track the file without size
+                    outputFilesInfo.push&#40;&#123;
+                        name: strategy.name,
+                        path: path.basename&#40;outputPath&#41;,
+                        sizeKB: 0
+                    &#125;&#41;;
+                &#125;
+
                 benchmark.markFileProcessed&#40;0&#41;;
             &#125; catch &#40;error&#41; &#123;
                 await writeLogWithFs&#40;logFilePath, &#96;Error generating &#36;&#123;strategy.name&#125; output: &#36;&#123;String&#40;error&#41;&#125;&#96;, true&#41;;
@@ -3588,27 +4892,22 @@ export async function processFusion&#40;
                 await writeLogWithFs&#40;logFilePath, &#96;  ... and &#36;&#123;skippedFiles.length - 10&#125; more&#96;, true&#41;;
             &#125;
         &#125;
-        
+
+        &#47;&#47; Write enhanced statistics &#40;content analysis, security, special files, output files&#41;
+        await writeEnhancedStatistics&#40;writeLog, processingStats, includeFilenamesMatched, outputFilesInfo&#41;;
+
+        &#47;&#47; Write performance metrics
         const metrics &#61; benchmark.getMetrics&#40;&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;\n--- PERFORMANCE METRICS ---&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;Duration breakdown:&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Total execution: &#36;&#123;duration&#125;s&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  File discovery: &#36;&#123;&#40;&#40;Date.now&#40;&#41; - startTime.getTime&#40;&#41;&#41; &#47; 1000 &#47; Number.parseFloat&#40;duration&#41; * 100&#41;.toFixed&#40;1&#41;&#125;&#37; of total&#96;, true&#41;;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;Memory usage:&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Peak memory: &#36;&#123;metrics.memoryUsed.toFixed&#40;2&#41;&#125; MB&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Memory per file: &#36;&#123;finalFilesToProcess.length &gt; 0 ? &#40;metrics.memoryUsed &#47; finalFilesToProcess.length * 1024&#41;.toFixed&#40;2&#41; : &#39;0&#39;&#125; KB&#96;, true&#41;;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;Processing speed:&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Data throughput: &#36;&#123;metrics.throughputMBps.toFixed&#40;2&#41;&#125; MB&#47;s&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  File processing rate: &#36;&#123;&#40;metrics.filesProcessed &#47; metrics.duration&#41;.toFixed&#40;2&#41;&#125; files&#47;s&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Average file size: &#36;&#123;finalFilesToProcess.length &gt; 0 ? &#40;totalSizeBytes &#47; finalFilesToProcess.length &#47; 1024&#41;.toFixed&#40;2&#41; : &#39;0&#39;&#125; KB&#96;, true&#41;;
-        
-        await writeLogWithFs&#40;logFilePath, &#96;Output generation:&#96;, true&#41;;
-        const outputFormats &#61; enabledStrategies.map&#40;s &#61;&gt; s.name&#41;.join&#40;&#39;, &#39;&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Generated formats: &#36;&#123;outputFormats&#125;&#96;, true&#41;;
-        await writeLogWithFs&#40;logFilePath, &#96;  Number of output files: &#36;&#123;enabledStrategies.length&#125;&#96;, true&#41;;
-        
+        await writePerformanceMetrics&#40;writeLog, &#123;
+            duration,
+            startTime,
+            metrics,
+            filesCount: finalFilesToProcess.length,
+            totalSizeBytes,
+            outputFormats: enabledStrategies.map&#40;s &#61;&gt; s.name&#41;.join&#40;&#39;, &#39;&#41;,
+            outputFilesCount: enabledStrategies.length
+        &#125;&#41;;
+
         const generatedFormats &#61; enabledStrategies.map&#40;s &#61;&gt; s.extension&#41;;
         
         const result &#61; &#123;
@@ -3719,6 +5018,47 @@ import type &#123; FileInfo, OutputStrategy &#125; from &#39;..&#47;strategies&#
 import &#123; type Config, createFilePath, FusionError &#125; from &#39;..&#47;types.js&#39;;
 import &#123; logger &#125; from &#39;..&#47;utils&#47;logger.js&#39;;
 
+&#47;**
+ * Type guard to validate that an object conforms to the Plugin interface
+ *&#47;
+function isValidPlugin&#40;obj: unknown&#41;: obj is Plugin &#123;
+    if &#40;typeof obj &#33;&#61;&#61; &#39;object&#39; || obj &#61;&#61;&#61; null&#41; &#123;
+        return false;
+    &#125;
+
+    const candidate &#61; obj as Record&lt;string, unknown&gt;;
+
+    &#47;&#47; Check required metadata
+    if &#40;typeof candidate&#91;&#39;metadata&#39;&#93; &#33;&#61;&#61; &#39;object&#39; || candidate&#91;&#39;metadata&#39;&#93; &#61;&#61;&#61; null&#41; &#123;
+        return false;
+    &#125;
+
+    const metadata &#61; candidate&#91;&#39;metadata&#39;&#93; as Record&lt;string, unknown&gt;;
+    if &#40;typeof metadata&#91;&#39;name&#39;&#93; &#33;&#61;&#61; &#39;string&#39; || metadata&#91;&#39;name&#39;&#93;.length &#61;&#61;&#61; 0&#41; &#123;
+        return false;
+    &#125;
+    if &#40;typeof metadata&#91;&#39;version&#39;&#93; &#33;&#61;&#61; &#39;string&#39;&#41; &#123;
+        return false;
+    &#125;
+    if &#40;typeof metadata&#91;&#39;description&#39;&#93; &#33;&#61;&#61; &#39;string&#39;&#41; &#123;
+        return false;
+    &#125;
+
+    &#47;&#47; Validate optional hooks are functions if present
+    const optionalFunctions &#61; &#91;
+        &#39;initialize&#39;, &#39;cleanup&#39;, &#39;beforeFileProcessing&#39;, &#39;afterFileProcessing&#39;,
+        &#39;beforeFusion&#39;, &#39;afterFusion&#39;, &#39;registerOutputStrategies&#39;, &#39;registerFileExtensions&#39;
+    &#93;;
+
+    for &#40;const fn of optionalFunctions&#41; &#123;
+        if &#40;candidate&#91;fn&#93; &#33;&#61;&#61; undefined &amp;&amp; typeof candidate&#91;fn&#93; &#33;&#61;&#61; &#39;function&#39;&#41; &#123;
+            return false;
+        &#125;
+    &#125;
+
+    return true;
+&#125;
+
 export interface PluginMetadata &#123;
     name: string;
     version: string;
@@ -3764,19 +5104,21 @@ export class PluginManager &#123;
      * &#64;throws FusionError if the path is not allowed
      *&#47;
     private validatePluginPath&#40;pluginPath: string, config: Config&#41;: void &#123;
-        &#47;&#47; Resolve paths for comparison
-        const resolvedPluginPath &#61; path.resolve&#40;pluginPath&#41;;
-        const resolvedRootDir &#61; path.resolve&#40;config.rootDirectory&#41;;
-        
-        const relativePath &#61; path.relative&#40;resolvedRootDir, resolvedPluginPath&#41;;
+        &#47;&#47; Resolve paths for comparison and normalize separators for cross-platform compatibility
+        const resolvedPluginPath &#61; path.resolve&#40;pluginPath&#41;.split&#40;path.sep&#41;.join&#40;&#39;&#47;&#39;&#41;;
+        const resolvedRootDir &#61; path.resolve&#40;config.rootDirectory&#41;.split&#40;path.sep&#41;.join&#40;&#39;&#47;&#39;&#41;;
+
+        &#47;&#47; Use normalized paths for relative path calculation
+        const relativePath &#61; path.relative&#40;resolvedRootDir, resolvedPluginPath&#41;.split&#40;path.sep&#41;.join&#40;&#39;&#47;&#39;&#41;;
         const isExternalPlugin &#61; relativePath.startsWith&#40;&#39;..&#39;&#41; || path.isAbsolute&#40;relativePath&#41;;
         
         if &#40;isExternalPlugin&#41; &#123;
             if &#40;config.allowedExternalPluginPaths &amp;&amp; config.allowedExternalPluginPaths.length &gt; 0&#41; &#123;
                 const isAllowed &#61; config.allowedExternalPluginPaths.some&#40;allowedPath &#61;&gt; &#123;
-                    const resolvedAllowedPath &#61; path.resolve&#40;allowedPath&#41;;
-                    return resolvedPluginPath &#61;&#61;&#61; resolvedAllowedPath || 
-                           resolvedPluginPath.startsWith&#40;resolvedAllowedPath &#43; path.sep&#41;;
+                    &#47;&#47; Normalize allowlist paths the same way as plugin path for cross-platform comparison
+                    const resolvedAllowedPath &#61; path.resolve&#40;allowedPath&#41;.split&#40;path.sep&#41;.join&#40;&#39;&#47;&#39;&#41;;
+                    return resolvedPluginPath &#61;&#61;&#61; resolvedAllowedPath ||
+                           resolvedPluginPath.startsWith&#40;&#96;&#36;&#123;resolvedAllowedPath&#125;&#47;&#96;&#41;;
                 &#125;&#41;;
                 
                 if &#40;isAllowed&#41; &#123;
@@ -3800,16 +5142,23 @@ export class PluginManager &#123;
 
     async loadPlugin&#40;pluginPath: string, config?: Config&#41;: Promise&lt;void&gt; &#123;
         try &#123;
+            &#47;&#47; SECURITY: Validate plugin path BEFORE importing to prevent loading malicious code
             if &#40;config&#41; &#123;
                 this.validatePluginPath&#40;pluginPath, config&#41;;
             &#125;
-            
-            const pluginModule &#61; await import&#40;pluginPath&#41; as &#123; default?: Plugin; plugin?: Plugin &#125;;
-            const plugin: Plugin &#61; pluginModule.default ?? pluginModule.plugin ?? pluginModule as Plugin;
-            
-            if &#40;&#33;plugin.metadata&#41; &#123;
-                throw new Error&#40;&#96;Plugin at &#36;&#123;pluginPath&#125; is missing metadata&#96;&#41;;
+
+            &#47;&#47; Only import after validation passes
+            const pluginModule &#61; await import&#40;pluginPath&#41; as &#123; default?: unknown; plugin?: unknown &#125;;
+            const candidate &#61; pluginModule.default ?? pluginModule.plugin ?? pluginModule;
+
+            if &#40;&#33;isValidPlugin&#40;candidate&#41;&#41; &#123;
+                throw new Error&#40;
+                    &#96;Plugin at &#36;&#123;pluginPath&#125; does not conform to Plugin interface. &#96; &#43;
+                    &#96;Required: metadata.name &#40;string&#41;, metadata.version &#40;string&#41;, metadata.description &#40;string&#41;&#96;
+                &#41;;
             &#125;
+
+            const plugin &#61; candidate;
             
             this.plugins.set&#40;plugin.metadata.name, plugin&#41;;
             this.invalidateCache&#40;&#41;;
@@ -4073,11 +5422,11 @@ import &#123; z &#125; from &#39;zod&#39;;
  *&#47;
 const ParsedFileExtensionsSchema &#61; z.object&#40;&#123;
     backend: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93;&#41;,
-    config: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.json&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;&#41;,
+    config: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.json&quot;, &quot;.snap&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;&#41;,
     cpp: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.c&quot;, &quot;.cc&quot;, &quot;.cpp&quot;, &quot;.h&quot;, &quot;.hpp&quot;&#93;&#41;,
     doc: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.adoc&quot;, &quot;.md&quot;, &quot;.rst&quot;&#93;&#41;,
     godot: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.cfg&quot;, &quot;.cs&quot;, &quot;.gd&quot;, &quot;.import&quot;, &quot;.tres&quot;, &quot;.tscn&quot;&#93;&#41;,
-    scripts: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.bat&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93;&#41;,
+    scripts: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.bash&quot;, &quot;.bat&quot;, &quot;.bats&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93;&#41;,
     web: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;&quot;.css&quot;, &quot;.html&quot;, &quot;.js&quot;, &quot;.jsx&quot;, &quot;.svelte&quot;, &quot;.ts&quot;, &quot;.tsx&quot;, &quot;.vue&quot;&#93;&#41;,
 &#125;&#41;.and&#40;z.record&#40;z.string&#40;&#41;, z.array&#40;z.string&#40;&#41;&#41;&#41;&#41;;
 
@@ -4098,6 +5447,19 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
     generateHtml: z.boolean&#40;&#41;.default&#40;true&#41;,
     generateMarkdown: z.boolean&#40;&#41;.default&#40;true&#41;,
     generateText: z.boolean&#40;&#41;.default&#40;true&#41;,
+    includeFilenames: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;
+        &quot;.gitignore&quot;,
+        &quot;CODEOWNERS&quot;,
+        &quot;Dockerfile&quot;,
+        &quot;Dockerfile.*&quot;,
+        &quot;Dockerfile-*&quot;,
+        &quot;Gemfile&quot;,
+        &quot;Jenkinsfile&quot;,
+        &quot;LICENSE&quot;,
+        &quot;Makefile&quot;,
+        &quot;Rakefile&quot;,
+        &quot;Vagrantfile&quot;
+    &#93;&#41;,
     ignorePatterns: z.array&#40;z.string&#40;&#41;&#41;.default&#40;&#91;
         &quot;*.7z&quot;,
         &quot;*.a&quot;,
@@ -4120,6 +5482,7 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
         &quot;*.jpeg&quot;,
         &quot;*.jpg&quot;,
         &quot;*.key&quot;,
+        &quot;*.keystore&quot;,
         &quot;*.log&quot;,
         &quot;*.min.css&quot;,
         &quot;*.min.js&quot;,
@@ -4128,6 +5491,7 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
         &quot;*.mp4&quot;,
         &quot;*.o&quot;,
         &quot;*.obj&quot;,
+        &quot;*.p12&quot;,
         &quot;*.pdf&quot;,
         &quot;*.pem&quot;,
         &quot;*.png&quot;,
@@ -4153,13 +5517,19 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
         &quot;*.zip&quot;,
         &quot;**&#47;credentials&#47;*&quot;,
         &quot;**&#47;secrets&#47;*&quot;,
+        &quot;.*history&quot;,
+        &quot;.aws&#47;&quot;,
+        &quot;.azure&#47;&quot;,
         &quot;.DS_Store&quot;,
         &quot;.env&quot;,
         &quot;.env.*&quot;,
+        &quot;.gcloud&#47;&quot;,
         &quot;.idea&#47;&quot;,
-        &quot;.vscode&#47;&quot;,
+        &quot;.npmrc&quot;,
+        &quot;.ssh&#47;&quot;,
         &quot;build&#47;&quot;,
         &quot;dist&#47;&quot;,
+        &quot;dist&#47;**&#47;*.map&quot;,
         &quot;logs&#47;&quot;,
         &quot;node_modules&#47;&quot;,
         &quot;package-lock.json&quot;,
@@ -4182,11 +5552,11 @@ export const ConfigSchemaV1 &#61; z.object&#40;&#123;
     overwriteFiles: z.boolean&#40;&#41;.default&#40;false&#41;,
     parsedFileExtensions: ParsedFileExtensionsSchema.default&#40;&#123;
         backend: &#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93;,
-        config: &#91;&quot;.json&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;,
+        config: &#91;&quot;.json&quot;, &quot;.snap&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93;,
         cpp: &#91;&quot;.c&quot;, &quot;.cc&quot;, &quot;.cpp&quot;, &quot;.h&quot;, &quot;.hpp&quot;&#93;,
         doc: &#91;&quot;.adoc&quot;, &quot;.md&quot;, &quot;.rst&quot;&#93;,
         godot: &#91;&quot;.cfg&quot;, &quot;.cs&quot;, &quot;.gd&quot;, &quot;.import&quot;, &quot;.tres&quot;, &quot;.tscn&quot;&#93;,
-        scripts: &#91;&quot;.bat&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93;,
+        scripts: &#91;&quot;.bash&quot;, &quot;.bat&quot;, &quot;.bats&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93;,
         web: &#91;&quot;.css&quot;, &quot;.html&quot;, &quot;.js&quot;, &quot;.jsx&quot;, &quot;.svelte&quot;, &quot;.ts&quot;, &quot;.tsx&quot;, &quot;.vue&quot;&#93;
     &#125;&#41;,
     parseSubDirectories: z.boolean&#40;&#41;.default&#40;true&#41;,
@@ -4320,18 +5690,18 @@ function escapeMarkdown&#40;text: string&#41;: string &#123;
 
 function sanitizeMarkdownContent&#40;content: string&#41;: string &#123;
     &#47;&#47; Detect and neutralize dangerous protocols in markdown content - optimized to prevent ReDoS
-    const dangerousProtocols &#61; &#47;\b&#40;?:javascript|data|vbscript&#41;:&#47;gi;
-    
-    &#47;&#47; Use split&#47;join approach to avoid potential ReDoS with global regex
-    if &#40;dangerousProtocols.test&#40;content&#41;&#41; &#123;
-        &#47;&#47; Reset regex lastIndex to avoid state issues
-        dangerousProtocols.lastIndex &#61; 0;
-        return content.replaceAll&#40;dangerousProtocols, &#40;match&#41; &#61;&gt; &#123;
+    &#47;&#47; Use non-global regex for testing and create fresh global regex for replacement
+    &#47;&#47; This avoids lastIndex state issues with global regexes
+    const testRegex &#61; &#47;\b&#40;?:javascript|data|vbscript&#41;:&#47;i;
+
+    if &#40;testRegex.test&#40;content&#41;&#41; &#123;
+        &#47;&#47; Create fresh global regex for replacement - avoids lastIndex state pollution
+        return content.replaceAll&#40;&#47;\b&#40;?:javascript|data|vbscript&#41;:&#47;gi, &#40;match&#41; &#61;&gt; &#123;
             const protocol &#61; match.toLowerCase&#40;&#41;.slice&#40;0, -1&#41;;
             return &#96;&#91;BLOCKED-&#36;&#123;protocol.toUpperCase&#40;&#41;&#125;&#93;:&#96;;
         &#125;&#41;;
     &#125;
-    
+
     return content;
 &#125;
 
@@ -4345,10 +5715,10 @@ function validateHtmlHref&#40;href: string&#41;: string &#123;
         const validSlugPattern &#61; &#47;^&#91;\w-&#93;&#43;&#36;&#47;;
         
         if &#40;&#33;validSlugPattern.test&#40;slug&#41;&#41; &#123;
-            &#47;&#47; Replace invalid characters with safe alternatives - avoid greedy patterns
+            &#47;&#47; Replace invalid characters with safe alternatives
             const sanitizedSlug &#61; slug
-                .replaceAll&#40;&#47;&#91;^\w-&#93;&#47;g, &#39;-&#39;&#41;      &#47;&#47; Non-global to prevent ReDoS
-                .replaceAll&#40;&#47;-&#43;&#47;g, &#39;-&#39;&#41;          &#47;&#47; Simplified pattern
+                .replaceAll&#40;&#47;&#91;^\w-&#93;&#47;g, &#39;-&#39;&#41;      &#47;&#47; Simple character class - ReDoS safe
+                .replaceAll&#40;&#47;-&#43;&#47;g, &#39;-&#39;&#41;          &#47;&#47; Collapse consecutive dashes
                 .replace&#40;&#47;^-&#43;&#47;, &#39;&#39;&#41;              &#47;&#47; Remove leading dashes
                 .replace&#40;&#47;-&#43;&#36;&#47;, &#39;&#39;&#41;;             &#47;&#47; Remove trailing dashes
             
@@ -4891,7 +6261,7 @@ export const EXTENSION_GROUPS &#61; &#123;
     cpp: &#91;&#39;.c&#39;, &#39;.cc&#39;, &#39;.cpp&#39;, &#39;.h&#39;, &#39;.hpp&#39;&#93;,
     doc: &#91;&#39;.adoc&#39;, &#39;.md&#39;, &#39;.rst&#39;&#93;,
     godot: &#91;&#39;.gd&#39;, &#39;.import&#39;, &#39;.tres&#39;, &#39;.tscn&#39;&#93;,
-    scripts: &#91;&#39;.bat&#39;, &#39;.cmd&#39;, &#39;.ps1&#39;, &#39;.sh&#39;&#93;,
+    scripts: &#91;&#39;.bash&#39;, &#39;.bat&#39;, &#39;.bats&#39;, &#39;.cmd&#39;, &#39;.ps1&#39;, &#39;.sh&#39;&#93;,
     web: &#91;&#39;.css&#39;, &#39;.html&#39;, &#39;.js&#39;, &#39;.jsx&#39;, &#39;.svelte&#39;, &#39;.ts&#39;, &#39;.tsx&#39;, &#39;.vue&#39;&#93;
 &#125; as const;
 
@@ -4951,6 +6321,8 @@ export interface Config &#123;
     generateHtml: boolean;
     generateMarkdown: boolean;
     generateText: boolean;
+    &#47;** Filename patterns to include regardless of extension &#40;e.g., Dockerfile, Makefile&#41; *&#47;
+    includeFilenames: readonly string&#91;&#93;;
     ignorePatterns: readonly string&#91;&#93;;
     &#47;** Maximum size for base64 blocks in KB before warning&#47;rejection *&#47;
     maxBase64BlockKB: number;
@@ -5046,6 +6418,19 @@ export const defaultConfig &#61; &#123;
     generateHtml: true,
     generateMarkdown: true,
     generateText: true,
+    includeFilenames: &#91;
+        &quot;.gitignore&quot;,
+        &quot;CODEOWNERS&quot;,
+        &quot;Dockerfile&quot;,
+        &quot;Dockerfile.*&quot;,
+        &quot;Dockerfile-*&quot;,
+        &quot;Gemfile&quot;,
+        &quot;Jenkinsfile&quot;,
+        &quot;LICENSE&quot;,
+        &quot;Makefile&quot;,
+        &quot;Rakefile&quot;,
+        &quot;Vagrantfile&quot;
+    &#93; as const,
     ignorePatterns: &#91;
         &#47;&#47; Binary files and archives
         &quot;*.7z&quot;,
@@ -5114,7 +6499,6 @@ export const defaultConfig &#61; &#123;
         &quot;.idea&#47;&quot;,
         &quot;.npmrc&quot;,
         &quot;.ssh&#47;&quot;,
-        &quot;.vscode&#47;&quot;,
         &quot;build&#47;&quot;,
         &quot;dist&#47;&quot;,
         &quot;dist&#47;**&#47;*.map&quot;,
@@ -5139,11 +6523,11 @@ export const defaultConfig &#61; &#123;
     overwriteFiles: false,
     parsedFileExtensions: &#123;
         backend: &#91;&quot;.cs&quot;, &quot;.go&quot;, &quot;.java&quot;, &quot;.php&quot;, &quot;.py&quot;, &quot;.rb&quot;, &quot;.rs&quot;&#93; as const,
-        config: &#91;&quot;.json&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93; as const,
+        config: &#91;&quot;.json&quot;, &quot;.snap&quot;, &quot;.toml&quot;, &quot;.xml&quot;, &quot;.yaml&quot;, &quot;.yml&quot;&#93; as const,
         cpp: &#91;&quot;.c&quot;, &quot;.cc&quot;, &quot;.cpp&quot;, &quot;.h&quot;, &quot;.hpp&quot;&#93; as const,
         doc: &#91;&quot;.adoc&quot;, &quot;.md&quot;, &quot;.rst&quot;&#93; as const,
         godot: &#91;&quot;.cfg&quot;, &quot;.cs&quot;, &quot;.gd&quot;, &quot;.import&quot;, &quot;.tres&quot;, &quot;.tscn&quot;&#93; as const,
-        scripts: &#91;&quot;.bat&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93; as const,
+        scripts: &#91;&quot;.bash&quot;, &quot;.bat&quot;, &quot;.bats&quot;, &quot;.cmd&quot;, &quot;.ps1&quot;, &quot;.sh&quot;&#93; as const,
         web: &#91;&quot;.css&quot;, &quot;.html&quot;, &quot;.js&quot;, &quot;.jsx&quot;, &quot;.svelte&quot;, &quot;.ts&quot;, &quot;.tsx&quot;, &quot;.vue&quot;&#93; as const
     &#125;,
     parseSubDirectories: true,
@@ -5190,8 +6574,9 @@ export async function loadConfig&#40;&#41;: Promise&lt;Config&gt; &#123;
                     console.error&#40;&#96;     Error: &#36;&#123;issue.message&#125;&#96;&#41;;
                     console.error&#40;&#96;     Current value: &#36;&#123;JSON.stringify&#40;value&#41;&#125;&#96;&#41;;
                     if &#40;issue.code &#61;&#61;&#61; &#39;invalid_type&#39;&#41; &#123;
-                         
-                        console.error&#40;&#96;     Expected type: &#36;&#123;String&#40;&#40;issue as unknown as Record&lt;string, unknown&gt;&#41;&#91;&#39;expected&#39;&#93;&#41;&#125;, received: &#36;&#123;String&#40;&#40;issue as unknown as Record&lt;string, unknown&gt;&#41;&#91;&#39;received&#39;&#93;&#41;&#125;&#96;&#41;;
+                        &#47;&#47; Use Zod&#39;s typed error properties safely
+                        const invalidTypeIssue &#61; issue as &#123; expected?: string; received?: string &#125;;
+                        console.error&#40;&#96;     Expected type: &#36;&#123;String&#40;invalidTypeIssue.expected ?? &#39;unknown&#39;&#41;&#125;, received: &#36;&#123;String&#40;invalidTypeIssue.received ?? &#39;unknown&#39;&#41;&#125;&#96;&#41;;
                     &#125;
                 &#125;
             &#125; else &#123;
@@ -5572,7 +6957,7 @@ export async function isBinaryFile&#40;filePath: string, sampleSize &#61; 1024&#
         try &#123;
             const stats &#61; await fileHandle.stat&#40;&#41;;
             if &#40;stats.size &#61;&#61;&#61; 0&#41; &#123;
-                binaryFileCache.set&#40;filePath, false&#41;;
+                setBinaryCache&#40;filePath, false&#41;;
                 return false; &#47;&#47; Empty file is not binary
             &#125;
             
@@ -5585,7 +6970,7 @@ export async function isBinaryFile&#40;filePath: string, sampleSize &#61; 1024&#
             &#47;&#47; Early exit for null bytes - most efficient binary detection
             const nullByteIndex &#61; buffer.subarray&#40;0, actualBytesToCheck&#41;.indexOf&#40;0&#41;;
             if &#40;nullByteIndex &#33;&#61;&#61; -1&#41; &#123;
-                binaryFileCache.set&#40;filePath, true&#41;;
+                setBinaryCache&#40;filePath, true&#41;;
                 return true;
             &#125;
             
@@ -5603,21 +6988,21 @@ export async function isBinaryFile&#40;filePath: string, sampleSize &#61; 1024&#
                     nonPrintable&#43;&#43;;
                     &#47;&#47; Early exit if threshold already exceeded
                     if &#40;nonPrintable &gt; threshold&#41; &#123;
-                        binaryFileCache.set&#40;filePath, true&#41;;
+                        setBinaryCache&#40;filePath, true&#41;;
                         return true;
                     &#125;
                 &#125;
             &#125;
-            
+
             &#47;&#47; File is text-based
-            binaryFileCache.set&#40;filePath, false&#41;;
+            setBinaryCache&#40;filePath, false&#41;;
             return false;
         &#125; finally &#123;
             await fileHandle.close&#40;&#41;;
         &#125;
     &#125; catch &#123;
         &#47;&#47; If we can&#39;t read the file, assume it&#39;s not binary
-        binaryFileCache.set&#40;filePath, false&#41;;
+        setBinaryCache&#40;filePath, false&#41;;
         return false;
     &#125;
 &#125;
@@ -5627,6 +7012,7 @@ const LANGUAGE_MAP &#61; new Map&lt;string, string&gt;&#40;&#91;
     &#47;&#47; Extensions &#40;alphabetized&#41;
     &#91;&#39;.bash&#39;, &#39;bash&#39;&#93;,
     &#91;&#39;.bat&#39;, &#39;batch&#39;&#93;,
+    &#91;&#39;.bats&#39;, &#39;bash&#39;&#93;,
     &#91;&#39;.c&#39;, &#39;c&#39;&#93;,
     &#91;&#39;.cc&#39;, &#39;cpp&#39;&#93;,
     &#91;&#39;.cfg&#39;, &#39;ini&#39;&#93;,
@@ -5720,7 +7106,23 @@ const LANGUAGE_MAP &#61; new Map&lt;string, string&gt;&#40;&#91;
 export function getMarkdownLanguage&#40;extensionOrBasename: string&#41;: string &#123;
     &#47;&#47; Case-insensitive lookup with fallback to &#39;text&#39;
     const lang &#61; LANGUAGE_MAP.get&#40;extensionOrBasename.toLowerCase&#40;&#41;&#41; ?? LANGUAGE_MAP.get&#40;extensionOrBasename&#41;;
-    return lang ?? &#39;text&#39;;
+    if &#40;lang&#41; &#123;
+        return lang;
+    &#125;
+
+    &#47;&#47; Handle special patterns for files without extensions
+    const lowerBasename &#61; extensionOrBasename.toLowerCase&#40;&#41;;
+    if &#40;lowerBasename.startsWith&#40;&#39;dockerfile&#39;&#41;&#41; &#123;
+        return &#39;dockerfile&#39;;
+    &#125;
+    if &#40;lowerBasename.startsWith&#40;&#39;makefile&#39;&#41;&#41; &#123;
+        return &#39;makefile&#39;;
+    &#125;
+    if &#40;lowerBasename &#61;&#61;&#61; &#39;codeowners&#39;&#41; &#123;
+        return &#39;text&#39;;
+    &#125;
+
+    return &#39;text&#39;;
 &#125;
 
 &#47;**
@@ -5820,7 +7222,28 @@ export async function logMemoryUsageIfNeeded&#40;
 &#125;
 
 &#47;&#47; Simple cache for binary file detection to avoid repeated checks
+&#47;&#47; Bounded to prevent memory exhaustion in long-running processes
+const BINARY_CACHE_MAX_SIZE &#61; 10_000;
 const binaryFileCache &#61; new Map&lt;string, boolean&gt;&#40;&#41;;
+
+&#47;**
+ * Add entry to binary file cache with size limit enforcement
+ * Uses LRU-like eviction: removes oldest entries when limit exceeded
+ *&#47;
+function setBinaryCache&#40;filePath: string, isBinary: boolean&#41;: void &#123;
+    &#47;&#47; If cache is at limit, remove the oldest 10&#37; of entries
+    if &#40;binaryFileCache.size &gt;&#61; BINARY_CACHE_MAX_SIZE&#41; &#123;
+        const entriesToRemove &#61; Math.ceil&#40;BINARY_CACHE_MAX_SIZE * 0.1&#41;;
+        const keys &#61; binaryFileCache.keys&#40;&#41;;
+        for &#40;let i &#61; 0; i &lt; entriesToRemove; i&#43;&#43;&#41; &#123;
+            const key &#61; keys.next&#40;&#41;.value;
+            if &#40;key&#41; &#123;
+                binaryFileCache.delete&#40;key&#41;;
+            &#125;
+        &#125;
+    &#125;
+    binaryFileCache.set&#40;filePath, isBinary&#41;;
+&#125;
 
 &#47;**
  * Content validation result
@@ -5867,12 +7290,28 @@ export const SECRET_PATTERNS &#61; &#91;
     &#123; name: &#39;Password Field&#39;, regex: &#47;&#40;password&#91;_-&#93;?&#91;:&#61;&#93;\s*&#91;&quot;&#39;&#93;?&#91;^\s&quot;&#39;&#93;&#123;8,&#125;&#91;&quot;&#39;&#93;?&#41;&#47;i &#125;
 &#93;;
 
-&#47;&#47; Pre-compile global regexes for better performance
-const GLOBAL_SECRET_PATTERNS &#61; SECRET_PATTERNS.map&#40;pattern &#61;&gt; &#40;&#123;
-    name: pattern.name,
+&#47;&#47; Create non-global regexes for testing and pre-compiled global regexes for replacement
+&#47;&#47; Pre-compile once to avoid security&#47;detect-non-literal-regexp and for performance
+const SECRET_PATTERN_PAIRS &#61; SECRET_PATTERNS.map&#40;pattern &#61;&gt; &#123;
+    &#47;&#47; Pre-compile the global regex once &#40;source is from trusted literal patterns above&#41;
+    const flags &#61; pattern.regex.flags.includes&#40;&#39;g&#39;&#41; ? pattern.regex.flags : &#96;&#36;&#123;pattern.regex.flags&#125;g&#96;;
     &#47;&#47; eslint-disable-next-line security&#47;detect-non-literal-regexp
-    regex: new RegExp&#40;pattern.regex.source, pattern.regex.global ? pattern.regex.flags : &#96;&#36;&#123;pattern.regex.flags&#125;g&#96;&#41;
-&#125;&#41;&#41;;
+    const globalRegex &#61; new RegExp&#40;pattern.regex.source, flags&#41;;
+
+    return &#123;
+        name: pattern.name,
+        &#47;&#47; Non-global regex for testing &#40;no lastIndex issues&#41;
+        testRegex: pattern.regex,
+        &#47;&#47; Pre-compiled global regex - we clone it by creating new instance for each use
+        globalRegexSource: pattern.regex.source,
+        globalRegexFlags: flags,
+        &#47;&#47; Function returns a fresh regex to avoid lastIndex state pollution between calls
+        getGlobalRegex: &#40;&#41;: RegExp &#61;&gt; &#123;
+            globalRegex.lastIndex &#61; 0;
+            return globalRegex;
+        &#125;
+    &#125;;
+&#125;&#41;;
 
 &#47;**
  * Redact secrets from content by replacing them with &#91;REDACTED&#93;
@@ -5883,22 +7322,20 @@ export function redactSecrets&#40;content: string&#41;: &#123; redactedContent: 
     let redactedContent &#61; content;
     const detectedSecrets: string&#91;&#93; &#61; &#91;&#93;;
     const seenTypes &#61; new Set&lt;string&gt;&#40;&#41;;
-    
-    &#47;&#47; Use pre-compiled global regexes for better performance
-    for &#40;const pattern of GLOBAL_SECRET_PATTERNS&#41; &#123;
-        if &#40;pattern.regex.test&#40;redactedContent&#41;&#41; &#123;
+
+    &#47;&#47; Use non-global regex for testing &#40;no lastIndex state issues&#41;
+    &#47;&#47; Then create fresh global regex for replacement to avoid state pollution
+    for &#40;const pattern of SECRET_PATTERN_PAIRS&#41; &#123;
+        if &#40;pattern.testRegex.test&#40;redactedContent&#41;&#41; &#123;
             if &#40;&#33;seenTypes.has&#40;pattern.name&#41;&#41; &#123;
                 detectedSecrets.push&#40;pattern.name&#41;;
                 seenTypes.add&#40;pattern.name&#41;;
             &#125;
-            &#47;&#47; Reset regex lastIndex since we&#39;re reusing compiled regexes
-            pattern.regex.lastIndex &#61; 0;
-            redactedContent &#61; redactedContent.replace&#40;pattern.regex, &#39;&#91;REDACTED&#93;&#39;&#41;;
-            &#47;&#47; Reset again for next potential use
-            pattern.regex.lastIndex &#61; 0;
+            &#47;&#47; Create fresh global regex for replacement - avoids lastIndex state issues
+            redactedContent &#61; redactedContent.replace&#40;pattern.getGlobalRegex&#40;&#41;, &#39;&#91;REDACTED&#93;&#39;&#41;;
         &#125;
     &#125;
-    
+
     return &#123; redactedContent, detectedSecrets &#125;;
 &#125;
 
@@ -6366,6 +7803,495 @@ export function getVersionSync&#40;&#41;: string &#123;
 
 &#47;&#47; Initialize version at module load time
 initializeVersion&#40;&#41;;</pre>
+<h2 id="tests__snapshots__snapshotstesttssnap">tests&#47;__snapshots__&#47;snapshots.test.ts.snap</h2>
+<pre>&#47;&#47; Vitest Snapshot v1, https:&#47;&#47;vitest.dev&#47;guide&#47;snapshot.html
+
+exports&#91;&#96;Format Snapshot Tests &gt; HTML Format Snapshots &gt; should generate HTML with proper table of contents structure &gt; html-with-toc.html 1&#96;&#93; &#61; &#96;
+&quot;&lt;&#33;DOCTYPE html&gt;
+&lt;html lang&#61;&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+&lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot; content&#61;&quot;default-src &#39;none&#39;; style-src &#39;unsafe-inline&#39;; font-src &#39;self&#39;; base-uri &#39;none&#39;&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Content-Type-Options&quot; content&#61;&quot;nosniff&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Frame-Options&quot; content&#61;&quot;DENY&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Referrer-Policy&quot; content&#61;&quot;no-referrer&quot;&gt;
+&lt;title&gt;snapshot-test - Project Fusion&lt;&#47;title&gt;
+&lt;style&gt;
+body&#123;font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff&#125;
+pre&#123;background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre&#125;
+h1,h2&#123;margin-top:20px&#125;
+ul&#123;padding-left:20px&#125;
+a&#123;color:#00e;text-decoration:underline&#125;
+.error&#123;background:#fee;border:1px solid #c00;padding:10px&#125;
+&lt;&#47;style&gt;
+&lt;&#47;head&gt;
+&lt;body&gt;
+&lt;h1&gt;Project Fusion Output&lt;&#47;h1&gt;
+&lt;p&gt;&lt;strong&gt;Project:&lt;&#47;strong&gt; snapshot-test&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Generated:&lt;&#47;strong&gt; TIMESTAMP&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Files:&lt;&#47;strong&gt; 5&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Created with:&lt;&#47;strong&gt; &lt;a href&#61;&quot;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&quot; target&#61;&quot;_blank&quot; rel&#61;&quot;noopener noreferrer&quot;&gt;project-fusion v1.1.4&lt;&#47;a&gt;&lt;&#47;p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Table of Contents&lt;&#47;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#apipostsjs&quot;&gt;api&#47;posts.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#apiusersjs&quot;&gt;api&#47;users.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#componentsfooterjs&quot;&gt;components&#47;Footer.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#componentsheaderjs&quot;&gt;components&#47;Header.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#utilsdatabasejs&quot;&gt;utils&#47;database.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;&#47;ul&gt;
+&lt;hr&gt;
+&lt;h2 id&#61;&quot;apipostsjs&quot;&gt;api&#47;posts.js&lt;&#47;h2&gt;
+&lt;pre&gt;const posts &amp;#61; &amp;#91;&amp;#93;;&lt;&#47;pre&gt;
+&lt;h2 id&#61;&quot;apiusersjs&quot;&gt;api&#47;users.js&lt;&#47;h2&gt;
+&lt;pre&gt;const users &amp;#61; &amp;#91;&amp;#93;;&lt;&#47;pre&gt;
+&lt;h2 id&#61;&quot;componentsfooterjs&quot;&gt;components&#47;Footer.js&lt;&#47;h2&gt;
+&lt;pre&gt;export default function Footer&amp;#40;&amp;#41; &amp;#123;&amp;#125;&lt;&#47;pre&gt;
+&lt;h2 id&#61;&quot;componentsheaderjs&quot;&gt;components&#47;Header.js&lt;&#47;h2&gt;
+&lt;pre&gt;export default function Header&amp;#40;&amp;#41; &amp;#123;&amp;#125;&lt;&#47;pre&gt;
+&lt;h2 id&#61;&quot;utilsdatabasejs&quot;&gt;utils&#47;database.js&lt;&#47;h2&gt;
+&lt;pre&gt;class Database &amp;#123;&amp;#125;&lt;&#47;pre&gt;
+&lt;&#47;body&gt;
+&lt;&#47;html&gt;&quot;
+&#96;;
+
+exports&#91;&#96;Format Snapshot Tests &gt; HTML Format Snapshots &gt; should generate consistent HTML format for JavaScript files &gt; javascript-files.html 1&#96;&#93; &#61; &#96;
+&quot;&lt;&#33;DOCTYPE html&gt;
+&lt;html lang&#61;&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+&lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot; content&#61;&quot;default-src &#39;none&#39;; style-src &#39;unsafe-inline&#39;; font-src &#39;self&#39;; base-uri &#39;none&#39;&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Content-Type-Options&quot; content&#61;&quot;nosniff&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Frame-Options&quot; content&#61;&quot;DENY&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Referrer-Policy&quot; content&#61;&quot;no-referrer&quot;&gt;
+&lt;title&gt;snapshot-test - Project Fusion&lt;&#47;title&gt;
+&lt;style&gt;
+body&#123;font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff&#125;
+pre&#123;background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre&#125;
+h1,h2&#123;margin-top:20px&#125;
+ul&#123;padding-left:20px&#125;
+a&#123;color:#00e;text-decoration:underline&#125;
+.error&#123;background:#fee;border:1px solid #c00;padding:10px&#125;
+&lt;&#47;style&gt;
+&lt;&#47;head&gt;
+&lt;body&gt;
+&lt;h1&gt;Project Fusion Output&lt;&#47;h1&gt;
+&lt;p&gt;&lt;strong&gt;Project:&lt;&#47;strong&gt; snapshot-test&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Generated:&lt;&#47;strong&gt; TIMESTAMP&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Files:&lt;&#47;strong&gt; 2&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Created with:&lt;&#47;strong&gt; &lt;a href&#61;&quot;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&quot; target&#61;&quot;_blank&quot; rel&#61;&quot;noopener noreferrer&quot;&gt;project-fusion v1.1.4&lt;&#47;a&gt;&lt;&#47;p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Table of Contents&lt;&#47;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#appjs&quot;&gt;app.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#helpersjs&quot;&gt;helpers.js&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;&#47;ul&gt;
+&lt;hr&gt;
+&lt;h2 id&#61;&quot;appjs&quot;&gt;app.js&lt;&#47;h2&gt;
+&lt;pre&gt;&amp;#47;&amp;#47; Simple Express application
+const express &amp;#61; require&amp;#40;&amp;#39;express&amp;#39;&amp;#41;;
+const path &amp;#61; require&amp;#40;&amp;#39;path&amp;#39;&amp;#41;;
+
+const app &amp;#61; express&amp;#40;&amp;#41;;
+const PORT &amp;#61; process.env.PORT || 3000;
+
+&amp;#47;&amp;#47; Middleware
+app.use&amp;#40;express.json&amp;#40;&amp;#41;&amp;#41;;
+app.use&amp;#40;express.static&amp;#40;&amp;#39;public&amp;#39;&amp;#41;&amp;#41;;
+
+&amp;#47;&amp;#47; Routes
+app.get&amp;#40;&amp;#39;&amp;#47;&amp;#39;, &amp;#40;req, res&amp;#41; &amp;#61;&amp;gt; &amp;#123;
+    res.sendFile&amp;#40;path.join&amp;#40;__dirname, &amp;#39;index.html&amp;#39;&amp;#41;&amp;#41;;
+&amp;#125;&amp;#41;;
+
+app.get&amp;#40;&amp;#39;&amp;#47;api&amp;#47;health&amp;#39;, &amp;#40;req, res&amp;#41; &amp;#61;&amp;gt; &amp;#123;
+    res.json&amp;#40;&amp;#123; status: &amp;#39;ok&amp;#39;, timestamp: new Date&amp;#40;&amp;#41;.toISOString&amp;#40;&amp;#41; &amp;#125;&amp;#41;;
+&amp;#125;&amp;#41;;
+
+&amp;#47;&amp;#47; Start server
+app.listen&amp;#40;PORT, &amp;#40;&amp;#41; &amp;#61;&amp;gt; &amp;#123;
+    console.log&amp;#40;&amp;#96;Server running on http:&amp;#47;&amp;#47;localhost:&amp;#36;&amp;#123;PORT&amp;#125;&amp;#96;&amp;#41;;
+&amp;#125;&amp;#41;;&lt;&#47;pre&gt;
+&lt;h2 id&#61;&quot;helpersjs&quot;&gt;helpers.js&lt;&#47;h2&gt;
+&lt;pre&gt;&amp;#47;&amp;#47; Helper functions
+const crypto &amp;#61; require&amp;#40;&amp;#39;crypto&amp;#39;&amp;#41;;
+
+&amp;#47;**
+ * Generate a random ID
+ * &amp;#64;param &amp;#123;number&amp;#125; length - Length of the ID
+ * &amp;#64;returns &amp;#123;string&amp;#125; Random ID
+ *&amp;#47;
+function generateId&amp;#40;length &amp;#61; 8&amp;#41; &amp;#123;
+    return crypto.randomBytes&amp;#40;length&amp;#41;.toString&amp;#40;&amp;#39;hex&amp;#39;&amp;#41;;
+&amp;#125;
+
+&amp;#47;**
+ * Validate email format
+ * &amp;#64;param &amp;#123;string&amp;#125; email - Email to validate
+ * &amp;#64;returns &amp;#123;boolean&amp;#125; True if valid
+ *&amp;#47;
+function isValidEmail&amp;#40;email&amp;#41; &amp;#123;
+    const regex &amp;#61; &amp;#47;^&amp;#91;^&#47;s&amp;#64;&amp;#93;&amp;#43;&amp;#64;&amp;#91;^&#47;s&amp;#64;&amp;#93;&amp;#43;&#47;.&amp;#91;^&#47;s&amp;#64;&amp;#93;&amp;#43;&amp;#36;&amp;#47;;
+    return regex.test&amp;#40;email&amp;#41;;
+&amp;#125;
+
+module.exports &amp;#61; &amp;#123;
+    generateId,
+    isValidEmail
+&amp;#125;;&lt;&#47;pre&gt;
+&lt;&#47;body&gt;
+&lt;&#47;html&gt;&quot;
+&#96;;
+
+exports&#91;&#96;Format Snapshot Tests &gt; HTML Format Snapshots &gt; should generate consistent HTML format with proper escaping &gt; html-with-escaping.html 1&#96;&#93; &#61; &#96;
+&quot;&lt;&#33;DOCTYPE html&gt;
+&lt;html lang&#61;&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+&lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Content-Security-Policy&quot; content&#61;&quot;default-src &#39;none&#39;; style-src &#39;unsafe-inline&#39;; font-src &#39;self&#39;; base-uri &#39;none&#39;&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Content-Type-Options&quot; content&#61;&quot;nosniff&quot;&gt;
+&lt;meta http-equiv&#61;&quot;X-Frame-Options&quot; content&#61;&quot;DENY&quot;&gt;
+&lt;meta http-equiv&#61;&quot;Referrer-Policy&quot; content&#61;&quot;no-referrer&quot;&gt;
+&lt;title&gt;snapshot-test - Project Fusion&lt;&#47;title&gt;
+&lt;style&gt;
+body&#123;font-family:monospace;margin:20px;line-height:1.6;color:#000;background:#fff&#125;
+pre&#123;background:#f5f5f5;border:1px solid #ccc;padding:10px;overflow-x:auto;white-space:pre&#125;
+h1,h2&#123;margin-top:20px&#125;
+ul&#123;padding-left:20px&#125;
+a&#123;color:#00e;text-decoration:underline&#125;
+.error&#123;background:#fee;border:1px solid #c00;padding:10px&#125;
+&lt;&#47;style&gt;
+&lt;&#47;head&gt;
+&lt;body&gt;
+&lt;h1&gt;Project Fusion Output&lt;&#47;h1&gt;
+&lt;p&gt;&lt;strong&gt;Project:&lt;&#47;strong&gt; snapshot-test&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Generated:&lt;&#47;strong&gt; TIMESTAMP&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Files:&lt;&#47;strong&gt; 2&lt;&#47;p&gt;
+&lt;p&gt;&lt;strong&gt;Created with:&lt;&#47;strong&gt; &lt;a href&#61;&quot;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&quot; target&#61;&quot;_blank&quot; rel&#61;&quot;noopener noreferrer&quot;&gt;project-fusion v1.1.4&lt;&#47;a&gt;&lt;&#47;p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Table of Contents&lt;&#47;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#stylescss&quot;&gt;styles.css&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;li&gt;&lt;a href&#61;&quot;#templatehtml&quot;&gt;template.html&lt;&#47;a&gt;&lt;&#47;li&gt;
+&lt;&#47;ul&gt;
+&lt;hr&gt;
+&lt;h2 id&#61;&quot;stylescss&quot;&gt;styles.css&lt;&#47;h2&gt;
+&lt;pre&gt;&amp;#47;* Global styles *&amp;#47;
+* &amp;#123;
+    box-sizing: border-box;
+&amp;#125;
+
+body &amp;#123;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, &amp;#39;Segoe UI&amp;#39;, sans-serif;
+    line-height: 1.6;
+    color: #333;
+&amp;#125;
+
+.container &amp;#123;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+&amp;#125;
+
+&amp;#47;* Button styles *&amp;#47;
+.btn &amp;#123;
+    display: inline-block;
+    padding: 12px 24px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+&amp;#125;
+
+.btn:hover &amp;#123;
+    background: #0056b3;
+&amp;#125;
+
+&amp;#47;* Responsive design *&amp;#47;
+&amp;#64;media &amp;#40;max-width: 768px&amp;#41; &amp;#123;
+    .container &amp;#123;
+        padding: 0 10px;
+    &amp;#125;
+    
+    .btn &amp;#123;
+        display: block;
+        text-align: center;
+        margin: 10px 0;
+    &amp;#125;
+&amp;#125;&lt;&#47;pre&gt;
+&lt;h2 id&#61;&quot;templatehtml&quot;&gt;template.html&lt;&#47;h2&gt;
+&lt;pre&gt;&amp;lt;&amp;#33;DOCTYPE html&amp;gt;
+&amp;lt;html lang&amp;#61;&amp;quot;en&amp;quot;&amp;gt;
+&amp;lt;head&amp;gt;
+    &amp;lt;meta charset&amp;#61;&amp;quot;UTF-8&amp;quot;&amp;gt;
+    &amp;lt;meta name&amp;#61;&amp;quot;viewport&amp;quot; content&amp;#61;&amp;quot;width&amp;#61;device-width, initial-scale&amp;#61;1.0&amp;quot;&amp;gt;
+    &amp;lt;title&amp;gt;Test Template&amp;lt;&amp;#47;title&amp;gt;
+    &amp;lt;style&amp;gt;
+        body &amp;#123;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        &amp;#125;
+        .container &amp;#123;
+            max-width: 800px;
+            margin: 0 auto;
+        &amp;#125;
+        .header &amp;#123;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+        &amp;#125;
+    &amp;lt;&amp;#47;style&amp;gt;
+&amp;lt;&amp;#47;head&amp;gt;
+&amp;lt;body&amp;gt;
+    &amp;lt;div class&amp;#61;&amp;quot;container&amp;quot;&amp;gt;
+        &amp;lt;div class&amp;#61;&amp;quot;header&amp;quot;&amp;gt;
+            &amp;lt;h1&amp;gt;Welcome to Test App&amp;lt;&amp;#47;h1&amp;gt;
+            &amp;lt;p&amp;gt;This is a &amp;lt;strong&amp;gt;test&amp;lt;&amp;#47;strong&amp;gt; application with &amp;lt;em&amp;gt;HTML&amp;lt;&amp;#47;em&amp;gt; content.&amp;lt;&amp;#47;p&amp;gt;
+        &amp;lt;&amp;#47;div&amp;gt;
+        
+        &amp;lt;main&amp;gt;
+            &amp;lt;h2&amp;gt;Features &amp;amp; Benefits&amp;lt;&amp;#47;h2&amp;gt;
+            &amp;lt;ul&amp;gt;
+                &amp;lt;li&amp;gt;Fast &amp;amp; reliable&amp;lt;&amp;#47;li&amp;gt;
+                &amp;lt;li&amp;gt;Secure by design&amp;lt;&amp;#47;li&amp;gt;
+                &amp;lt;li&amp;gt;Easy to use&amp;lt;&amp;#47;li&amp;gt;
+            &amp;lt;&amp;#47;ul&amp;gt;
+            
+            &amp;lt;p&amp;gt;Contact us at: &amp;lt;a href&amp;#61;&amp;quot;mailto:test&amp;#64;example.com&amp;quot;&amp;gt;test&amp;#64;example.com&amp;lt;&amp;#47;a&amp;gt;&amp;lt;&amp;#47;p&amp;gt;
+        &amp;lt;&amp;#47;main&amp;gt;
+    &amp;lt;&amp;#47;div&amp;gt;
+    
+    &amp;lt;script&amp;gt;
+        console.log&amp;#40;&amp;#39;Page loaded successfully&amp;#33;&amp;#39;&amp;#41;;
+        document.addEventListener&amp;#40;&amp;#39;DOMContentLoaded&amp;#39;, &amp;#40;&amp;#41; &amp;#61;&amp;gt; &amp;#123;
+            console.log&amp;#40;&amp;#39;DOM ready&amp;#39;&amp;#41;;
+        &amp;#125;&amp;#41;;
+    &amp;lt;&amp;#47;script&amp;gt;
+&amp;lt;&amp;#47;body&amp;gt;
+&amp;lt;&amp;#47;html&amp;gt;&lt;&#47;pre&gt;
+&lt;&#47;body&gt;
+&lt;&#47;html&gt;&quot;
+&#96;;
+
+exports&#91;&#96;Format Snapshot Tests &gt; Markdown Format Snapshots &gt; should generate consistent markdown format for JavaScript files &gt; javascript-files.md 1&#96;&#93; &#61; &#96;
+&quot;# Generated Project Fusion File
+
+**Project:** snapshot-test
+
+**Generated:** &#91;TIMESTAMP&#93;
+
+**Files:** 2
+
+**Generated by:** &#91;project-fusion v1.1.4&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#41;
+
+---
+
+## Table of Contents
+
+- &#91;index.js&#93;&#40;#indexjs&#41;
+- &#91;utils.js&#93;&#40;#utilsjs&#41;
+
+---
+
+## index.js &#123;#indexjs&#125;
+
+\&#96;\&#96;\&#96;javascript
+&#47;&#47; Main application entry point
+const express &#61; require&#40;&#39;express&#39;&#41;;
+const app &#61; express&#40;&#41;;
+
+app.get&#40;&#39;&#47;&#39;, &#40;req, res&#41; &#61;&gt; &#123;
+    res.send&#40;&#39;Hello, World&#33;&#39;&#41;;
+&#125;&#41;;
+
+app.listen&#40;3000, &#40;&#41; &#61;&gt; &#123;
+    console.log&#40;&#39;Server running on port 3000&#39;&#41;;
+&#125;&#41;;
+\&#96;\&#96;\&#96;
+
+## utils.js &#123;#utilsjs&#125;
+
+\&#96;\&#96;\&#96;javascript
+&#47;&#47; Utility functions
+function formatDate&#40;date&#41; &#123;
+    return date.toISOString&#40;&#41;.split&#40;&#39;T&#39;&#41;&#91;0&#93;;
+&#125;
+
+function capitalize&#40;str&#41; &#123;
+    return str.charAt&#40;0&#41;.toUpperCase&#40;&#41; &#43; str.slice&#40;1&#41;;
+&#125;
+
+module.exports &#61; &#123; formatDate, capitalize &#125;;
+\&#96;\&#96;\&#96;
+
+&quot;
+&#96;;
+
+exports&#91;&#96;Format Snapshot Tests &gt; Markdown Format Snapshots &gt; should generate consistent markdown format for TypeScript files &gt; typescript-files.md 1&#96;&#93; &#61; &#96;
+&quot;# Generated Project Fusion File
+
+**Project:** snapshot-test
+
+**Generated:** &#91;TIMESTAMP&#93;
+
+**Files:** 2
+
+**Generated by:** &#91;project-fusion v1.1.4&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#41;
+
+---
+
+## Table of Contents
+
+- &#91;service.ts&#93;&#40;#servicets&#41;
+- &#91;types.ts&#93;&#40;#typests&#41;
+
+---
+
+## service.ts &#123;#servicets&#125;
+
+\&#96;\&#96;\&#96;typescript
+&#47;&#47; User service
+import &#123; User, CreateUserRequest, UserRole &#125; from &#39;.&#47;types.js&#39;;
+
+export class UserService &#123;
+    private users: User&#91;&#93; &#61; &#91;&#93;;
+    private nextId &#61; 1;
+
+    createUser&#40;request: CreateUserRequest&#41;: User &#123;
+        const user: User &#61; &#123;
+            id: this.nextId&#43;&#43;,
+            name: request.name,
+            email: request.email,
+            createdAt: new Date&#40;&#41;
+        &#125;;
+        
+        this.users.push&#40;user&#41;;
+        return user;
+    &#125;
+
+    findUser&#40;id: number&#41;: User | undefined &#123;
+        return this.users.find&#40;user &#61;&gt; user.id &#61;&#61;&#61; id&#41;;
+    &#125;
+&#125;
+\&#96;\&#96;\&#96;
+
+## types.ts &#123;#typests&#125;
+
+\&#96;\&#96;\&#96;typescript
+&#47;&#47; Type definitions
+export interface User &#123;
+    id: number;
+    name: string;
+    email: string;
+    createdAt: Date;
+&#125;
+
+export type UserRole &#61; &#39;admin&#39; | &#39;user&#39; | &#39;moderator&#39;;
+
+export interface CreateUserRequest &#123;
+    name: string;
+    email: string;
+    role?: UserRole;
+&#125;
+\&#96;\&#96;\&#96;
+
+&quot;
+&#96;;
+
+exports&#91;&#96;Format Snapshot Tests &gt; Markdown Format Snapshots &gt; should generate consistent markdown format for mixed file types &gt; mixed-files.md 1&#96;&#93; &#61; &#96;
+&quot;# Generated Project Fusion File
+
+**Project:** snapshot-test
+
+**Generated:** &#91;TIMESTAMP&#93;
+
+**Files:** 3
+
+**Generated by:** &#91;project-fusion v1.1.4&#93;&#40;https:&#47;&#47;github.com&#47;the99studio&#47;project-fusion&#41;
+
+---
+
+## Table of Contents
+
+- &#91;config.json&#93;&#40;#configjson&#41;
+- &#91;README.md&#93;&#40;#readmemd&#41;
+- &#91;script.sh&#93;&#40;#scriptsh&#41;
+
+---
+
+## config.json &#123;#configjson&#125;
+
+\&#96;\&#96;\&#96;json
+&#123;
+  &quot;name&quot;: &quot;test-project&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;dependencies&quot;: &#123;
+    &quot;express&quot;: &quot;^4.18.0&quot;,
+    &quot;typescript&quot;: &quot;^5.0.0&quot;
+  &#125;,
+  &quot;scripts&quot;: &#123;
+    &quot;start&quot;: &quot;node index.js&quot;,
+    &quot;build&quot;: &quot;tsc&quot;
+  &#125;
+&#125;
+\&#96;\&#96;\&#96;
+
+## README.md &#123;#readmemd&#125;
+
+\&#96;\&#96;\&#96;markdown
+# Test Project
+
+This is a test project for snapshot testing.
+
+## Features
+
+- **Fast**: Built with performance in mind
+- **Secure**: Follows security best practices
+- **Reliable**: Comprehensive test coverage
+
+## Installation
+
+\&#96;\&#96;\&#96;bash
+npm install
+npm start
+\&#96;\&#96;\&#96;
+
+## License
+
+MIT License
+\&#96;\&#96;\&#96;
+
+## script.sh &#123;#scriptsh&#125;
+
+\&#96;\&#96;\&#96;bash
+#&#33;&#47;bin&#47;bash
+# Deployment script
+
+echo &quot;Starting deployment...&quot;
+
+# Build the project
+npm run build
+
+# Run tests
+npm test
+
+# Deploy to production
+echo &quot;Deploying to production...&quot;
+rsync -av dist&#47; user&#64;server:&#47;var&#47;www&#47;app&#47;
+
+echo &quot;Deployment complete&#33;&quot;
+\&#96;\&#96;\&#96;
+
+&quot;
+&#96;;
+</pre>
 <h2 id="testsaggressive-sanitizationtestts">tests&#47;aggressive-sanitization.test.ts</h2>
 <pre>&#47;&#47; SPDX-License-Identifier: MIT
 &#47;&#47; Copyright &#40;c&#41; 2025 the99studio
@@ -11931,7 +13857,8 @@ describe&#40;&#39;Integration Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
         parseSubDirectories: false,
         parsedFileExtensions: &#123;
           web: &#91;&#39;.js&#39;, &#39;.ts&#39;&#93;
-        &#125;
+        &#125;,
+        includeFilenames: &#91;&#93; &#47;&#47; Disable Dockerfile matching for this test
       &#125;;
 
       const result &#61; await processFusion&#40;testConfig&#41;;
@@ -12070,7 +13997,8 @@ describe&#40;&#39;Integration Tests - Optimized&#39;, &#40;&#41; &#61;&gt; &#123
         useGitIgnoreForExcludes: true,
         parsedFileExtensions: &#123;
           web: &#91;&#39;.js&#39;&#93;
-        &#125;
+        &#125;,
+        includeFilenames: &#91;&#93; &#47;&#47; Disable includeFilenames to test only .js files
       &#125;;
 
       const result &#61; await processFusion&#40;testConfig&#41;;
@@ -14310,11 +16238,11 @@ describe&#40;&#39;Plugin System Coverage Tests&#39;, &#40;&#41; &#61;&gt; &#123;
             const mockImport &#61; vi.fn&#40;&#41;.mockResolvedValue&#40;&#123;
                 default: &#123; someProperty: &quot;value&quot; &#125; &#47;&#47; Missing metadata property
             &#125;&#41;;
-            
+
             &#47;&#47; Mock the import function for this test
             vi.doMock&#40;&#39;&#47;mock&#47;plugin.js&#39;, &#40;&#41; &#61;&gt; mockImport&#40;&#41;, &#123; virtual: true &#125;&#41;;
 
-            await expect&#40;pluginManager.loadPlugin&#40;&#39;&#47;mock&#47;plugin.js&#39;&#41;&#41;.rejects.toThrow&#40;&#39;missing metadata&#39;&#41;;
+            await expect&#40;pluginManager.loadPlugin&#40;&#39;&#47;mock&#47;plugin.js&#39;&#41;&#41;.rejects.toThrow&#40;&#39;does not conform to Plugin interface&#39;&#41;;
         &#125;&#41;;
 
         it&#40;&#39;should handle loadPluginsFromDirectory errors&#39;, async &#40;&#41; &#61;&gt; &#123;
@@ -14755,8 +16683,9 @@ export default &#123;
 
             try &#123;
                 &#47;&#47; Should allow loading from within current directory
+                &#47;&#47; Use absolute path since dynamic import resolves relative to the importing file
                 await expect&#40;
-                    pluginManager.loadPlugin&#40;&#39;.&#47;temp-plugin.js&#39;, config&#41;
+                    pluginManager.loadPlugin&#40;localPluginPath, config&#41;
                 &#41;.resolves.not.toThrow&#40;&#41;;
             &#125; finally &#123;
                 &#47;&#47; Clean up
