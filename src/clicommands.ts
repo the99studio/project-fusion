@@ -3,6 +3,7 @@
 /**
  * CLI commands implementation
  */
+import type { FileHandle } from 'node:fs/promises';
 import path from 'node:path';
 import chalk from 'chalk';
 import clipboardy from 'clipboardy';
@@ -282,24 +283,29 @@ export async function runFusionCommand(options: {
                 }
 
                 // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments and large files)
-                // SECURITY: File content is read into memory for clipboard - ensure size limits are respected
+                // SECURITY: Use file handle to avoid TOCTOU race condition between stat and read
                 const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
                 if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
+                    let fileHandle: FileHandle | null = null;
                     try {
-                        // Check file size first before reading to prevent memory issues
-                        const fileStats = await fs.stat(result.fusionFilePath);
+                        // Open file handle for atomic stat+read (prevents TOCTOU)
+                        const fsPromises = await import('node:fs/promises');
+                        fileHandle = await fsPromises.open(result.fusionFilePath, 'r');
+                        const fileStats = await fileHandle.stat();
                         const fileSizeMB = fileStats.size / (1024 * 1024);
 
                         if (fileSizeMB > 5) {
                             console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
-                            // Read file content for clipboard (size already validated)
-                            const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
+                            // Read from same file handle (no race condition)
+                            const fusionContent = await fileHandle.readFile('utf8');
                             await clipboardy.write(fusionContent);
                             console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }
                     } catch (clipboardError) {
                         console.warn(chalk.yellow(`⚠️ Could not copy to clipboard: ${String(clipboardError)}`));
+                    } finally {
+                        await fileHandle?.close();
                     }
                 } else if (config.copyToClipboard === true && isNonInteractive) {
                     console.log(chalk.gray(`Clipboard copy skipped (non-interactive environment)`));
