@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized `npm audit --audit-level=high` across all CI workflows
 
 ### Fixed
+- Fixed release workflow: removed `prepublishOnly` hook that conflicted with CI artifact caching
 - Fixed clipboard TOCTOU vulnerability: use file handle for atomic stat+read (CodeQL)
 - Fixed plugin security: validation now explicitly happens before dynamic import
 - Fixed Windows path comparison in plugin system using normalized separators
