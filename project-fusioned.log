@@ -1,6 +1,6 @@
 === PROJECT FUSION SESSION START ===
-Session ID: mez37nqp-oi6310a9b
-Start time: 2025-08-31T02:44:35.183Z
+Session ID: mifmcmzy-y33bkm61i
+Start time: 2025-11-26T06:23:46.029Z
 Working directory: .
 Generated file name: project-fusioned
 
@@ -17,41 +17,77 @@ Directory scanning:
   - Parse subdirectories: true
   - Use .gitignore: true
   - Allow symlinks: false
-Ignore patterns: *.7z, *.a, *.avi, *.blend, *.bmp, *.class, *.dll, *.doc, *.docx, *.dylib, *.exe, *.fbx, *.flac, *.flv, *.gif, *.gz, *.ico, *.jar, *.jpeg, *.jpg, *.key, *.keystore, *.log, *.min.css, *.min.js, *.mov, *.mp3, *.mp4, *.o, *.obj, *.p12, *.pdf, *.pem, *.png, *.ppt, *.pptx, *.pyc, *.pyo, *.rar, *.so, *.svg, *.swo, *.swp, *.tar, *.tgz, *.uasset, *.unitypackage, *.war, *.wav, *.webp, *.wmv, *.xls, *.xlsx, *.zip, **/credentials/*, **/secrets/*, .*history, .aws/, .azure/, .DS_Store, .env, .env.*, .gcloud/, .idea/, .npmrc, .ssh/, .vscode/, build/, dist/, dist/**/*.map, logs/, node_modules/, package-lock.json, pnpm-lock.yaml, project-fusion.json, project-fusion.log, project-fusioned.*, Thumbs.db, yarn.lock
+Ignore patterns: *.7z, *.a, *.avi, *.blend, *.bmp, *.class, *.dll, *.doc, *.docx, *.dylib, *.exe, *.fbx, *.flac, *.flv, *.gif, *.gz, *.ico, *.jar, *.jpeg, *.jpg, *.key, *.keystore, *.log, *.min.css, *.min.js, *.mov, *.mp3, *.mp4, *.o, *.obj, *.p12, *.pdf, *.pem, *.png, *.ppt, *.pptx, *.pyc, *.pyo, *.rar, *.so, *.svg, *.swo, *.swp, *.tar, *.tgz, *.uasset, *.unitypackage, *.war, *.wav, *.webp, *.wmv, *.xls, *.xlsx, *.zip, **/credentials/*, **/secrets/*, .*history, .aws/, .azure/, .DS_Store, .env, .env.*, .gcloud/, .idea/, .npmrc, .ssh/, build/, dist/, dist/**/*.map, logs/, node_modules/, package-lock.json, pnpm-lock.yaml, project-fusion.json, project-fusion.log, project-fusioned.*, Thumbs.db, yarn.lock
 Auto-ignoring generated files: project-fusioned.txt, project-fusioned.md, project-fusioned.html, project-fusioned.log, performance-report.json
 
 --- PROCESSING ---
-File extensions to process: 38
+File extensions to process: 41
 Available extension categories: 7
 Status: Fusion completed successfully
-Start time: 2025-08-31T02:44:35.183Z
-End time: 2025-08-31T02:44:35.372Z
-Duration: 0.19s
-Total data processed: 0.77 MB
+Start time: 2025-11-26T06:23:46.029Z
+End time: 2025-11-26T06:23:47.124Z
+Duration: 1.09s
+Total data processed: 0.82 MB
 
 --- FILE TYPE STATISTICS ---
-Files found: 11210
-Files processed successfully: 75
+Files found: 11419
+Files processed successfully: 90
 Files skipped (too large): 0
-Files filtered out: 11135
+Files filtered out: 11329
 
 File types processed:
-  .ts: 66 files (740.75 KB)
-  .md: 5 files (29.87 KB)
-  .json: 3 files (3.92 KB)
+  .ts: 67 files (757.35 KB)
+  .json: 7 files (14.20 KB)
+  .yml: 7 files (10.81 KB)
+  .md: 4 files (33.23 KB)
+  no extension: 3 files (1.67 KB)
   .js: 1 files (9.15 KB)
+  .snap: 1 files (13.15 KB)
+
+--- SECURITY ---
+Files with secrets redacted: 2
+Secret types found:
+  - PGP Private Key: 1 occurrence(s)
+  - AWS Access Key: 1 occurrence(s)
+  - RSA Private Key: 1 occurrence(s)
+  - Slack Token: 1 occurrence(s)
+  - Google API Key: 1 occurrence(s)
+  - GitHub Token: 1 occurrence(s)
+  - Stripe Key: 1 occurrence(s)
+  - JWT Token: 1 occurrence(s)
+Files affected:
+  - src/utils.ts
+  - tests/secret-detection.test.ts
+
+--- SPECIAL FILES (includeFilenames) ---
+Pattern ".gitignore": 1 file(s)
+  - .gitignore
+Pattern "CODEOWNERS": 1 file(s)
+  - .github/CODEOWNERS
+Pattern "LICENSE": 331 file(s)
+  - LICENSE
+  - node_modules/zod/LICENSE
+  - node_modules/yoctocolors/license
+  ... and 328 more
+Total special files matched: 333
+
+--- OUTPUT FILES ---
+  project-fusioned.txt (857.55 KB)
+  project-fusioned.md (850.49 KB)
+  project-fusioned.html (1.10 MB)
+Total output size: 2.77 MB
 
 --- PERFORMANCE METRICS ---
 Duration breakdown:
-  Total execution: 0.19s
-  File discovery: 100.0% of total
+  Total execution: 1.09s
+  File discovery: 101.1% of total
 Memory usage:
-  Peak memory: 10.04 MB
-  Memory per file: 137.13 KB
+  Peak memory: 18.26 MB
+  Memory per file: 207.78 KB
 Processing speed:
-  Data throughput: 3.94 MB/s
-  File processing rate: 89.47 files/s
-  Average file size: 10.45 KB
+  Data throughput: 0.73 MB/s
+  File processing rate: 18.15 files/s
+  Average file size: 9.33 KB
 Output generation:
   Generated formats: text, markdown, html
   Number of output files: 3

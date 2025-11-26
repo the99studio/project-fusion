@@ -8,9 +8,16 @@ import ignoreLib from 'ignore';
 import { DefaultFileSystemAdapter } from './adapters/file-system.js';
 import type { FusionProgress, CancellationToken } from './api.js';
 import { BenchmarkTracker } from './benchmark.js';
+import {
+    type OutputFileInfo,
+    type ProcessingStats,
+    writeEnhancedStatistics,
+    writePerformanceMetrics,
+    writeSessionHeader
+} from './fusion-logging.js';
 import { PluginManager } from './plugins/plugin-system.js';
-import { 
-    type FileInfo, 
+import {
+    type FileInfo,
     type OutputContext,
     OutputStrategyManager
 } from './strategies/output-strategy.js';
@@ -40,6 +47,91 @@ Reason: ${errorDetails}
 
 To include this file anyway, adjust validation limits in your config.
 ---`;
+}
+
+/**
+ * Determines if a file should be skipped based on minification status and validation results.
+ * Extracted for clarity and maintainability.
+ *
+ * @returns Object containing processing decision:
+ *   - shouldSkip: true if file should be entirely skipped
+ *   - shouldCreatePlaceholder: true if error placeholder should be created
+ */
+function determineMinifiedFileHandling(
+    isMinified: boolean,
+    validationResult: { valid: boolean; issues: { hasLargeBase64?: boolean; hasLongTokens?: boolean; hasLongLines?: boolean }; errors: string[] }
+): { shouldSkip: boolean; shouldCreatePlaceholder: boolean; errorDetails?: string } {
+    // If validation passed, no special handling needed
+    if (validationResult.valid) {
+        return { shouldSkip: false, shouldCreatePlaceholder: false };
+    }
+
+    const { hasLargeBase64, hasLongTokens, hasLongLines } = validationResult.issues;
+    const hasOnlyLongLineIssues = hasLongLines && !hasLargeBase64 && !hasLongTokens;
+
+    // For minified content with ONLY long line issues (no base64 or token problems):
+    // Skip entirely - this is pure minification, not problematic content
+    if (isMinified && hasOnlyLongLineIssues) {
+        return { shouldSkip: true, shouldCreatePlaceholder: false };
+    }
+
+    // For all other validation failures (base64 issues, token issues, or non-minified with long lines):
+    // Create an error placeholder to inform the user
+    return {
+        shouldSkip: false,
+        shouldCreatePlaceholder: true,
+        errorDetails: validationResult.errors.join('\n')
+    };
+}
+
+/**
+ * Result of globbing include filenames
+ */
+interface GlobIncludeFilenamesResult {
+    filePaths: FilePath[];
+    matchedFiles: { pattern: string; files: string[] }[];
+}
+
+/**
+ * Glob for special filenames without extensions (Dockerfile, Makefile, etc.)
+ */
+async function globIncludeFilenames(
+    config: Config,
+    rootDir: string,
+    fsAdapter: { glob: (pattern: string, options?: { nodir?: boolean; follow?: boolean; dot?: boolean }) => Promise<FilePath[]> },
+    existingFilePaths: FilePath[]
+): Promise<GlobIncludeFilenamesResult> {
+    const matchedFiles: { pattern: string; files: string[] }[] = [];
+
+    if (!config.includeFilenames || config.includeFilenames.length === 0) {
+        return { filePaths: existingFilePaths, matchedFiles };
+    }
+
+    const filePaths = [...existingFilePaths];
+    const existingSet = new Set<string>(filePaths);
+
+    for (const filenamePattern of config.includeFilenames) {
+        const filenameGlob = config.parseSubDirectories
+            ? `${rootDir}/**/${filenamePattern}`
+            : `${rootDir}/${filenamePattern}`;
+        const additionalFiles = await fsAdapter.glob(filenameGlob, {
+            nodir: true,
+            follow: false
+        });
+        const newlyMatched: string[] = [];
+        for (const file of additionalFiles) {
+            if (!existingSet.has(file)) {
+                filePaths.push(file);
+                existingSet.add(file);
+                newlyMatched.push(path.relative(rootDir, file));
+            }
+        }
+        if (newlyMatched.length > 0) {
+            matchedFiles.push({ pattern: filenamePattern, files: newlyMatched });
+        }
+    }
+
+    return { filePaths, matchedFiles };
 }
 
 export async function processFusion(
@@ -165,39 +257,16 @@ export async function processFusion(
 
         await fs.ensureDir(path.dirname(logFilePath));
         await fs.writeFile(logFilePath, '');
-        
-        // Log initial configuration and session info
-        await writeLogWithFs(logFilePath, `=== PROJECT FUSION SESSION START ===`, true);
-        await writeLogWithFs(logFilePath, `Session ID: ${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`, true);
-        await writeLogWithFs(logFilePath, `Start time: ${formatTimestamp(startTime)}`, true);
-        await writeLogWithFs(logFilePath, `Working directory: ${config.rootDirectory}`, true);
-        await writeLogWithFs(logFilePath, `Generated file name: ${config.generatedFileName}`, true);
-        
-        await writeLogWithFs(logFilePath, `\n--- CONFIGURATION ---`, true);
-        await writeLogWithFs(logFilePath, `Output formats:`, true);
-        await writeLogWithFs(logFilePath, `  - Text (.txt): ${config.generateText}`, true);
-        await writeLogWithFs(logFilePath, `  - Markdown (.md): ${config.generateMarkdown}`, true);
-        await writeLogWithFs(logFilePath, `  - HTML (.html): ${config.generateHtml}`, true);
-        
-        await writeLogWithFs(logFilePath, `Processing limits:`, true);
-        await writeLogWithFs(logFilePath, `  - Max file size: ${config.maxFileSizeKB} KB`, true);
-        await writeLogWithFs(logFilePath, `  - Max files: ${config.maxFiles}`, true);
-        await writeLogWithFs(logFilePath, `  - Max total size: ${config.maxTotalSizeMB} MB`, true);
-        
-        await writeLogWithFs(logFilePath, `Directory scanning:`, true);
-        await writeLogWithFs(logFilePath, `  - Parse subdirectories: ${config.parseSubDirectories}`, true);
-        await writeLogWithFs(logFilePath, `  - Use .gitignore: ${config.useGitIgnoreForExcludes}`, true);
-        await writeLogWithFs(logFilePath, `  - Allow symlinks: ${config.allowSymlinks}`, true);
-        
-        if (config.ignorePatterns.length > 0) {
-            await writeLogWithFs(logFilePath, `Ignore patterns: ${config.ignorePatterns.join(', ')}`, true);
-        }
-        
-        await writeLogWithFs(logFilePath, `Auto-ignoring generated files: ${config.generatedFileName}.txt, ${config.generatedFileName}.md, ${config.generatedFileName}.html, ${config.generatedFileName}.log, performance-report.json`, true);
-        
-        if (options.extensionGroups) {
-            await writeLogWithFs(logFilePath, `Extension groups filter: ${options.extensionGroups.join(', ')}`, true);
-        }
+
+        // Write session header using helper function
+        // NOTE: TOCTOU (Time-of-Check-Time-of-Use) considerations:
+        // File system operations are inherently subject to race conditions. Files may change
+        // between validation and processing. This is mitigated by:
+        // 1. Using file handles where possible (isBinaryFile uses open() to avoid TOCTOU)
+        // 2. Accepting that in concurrent environments, some edge cases may occur
+        // 3. Focusing security controls on path validation (which is checked at access time)
+        const writeLog = (content: string): Promise<void> => writeLogWithFs(logFilePath, content, true);
+        await writeSessionHeader(writeLog, config, startTime, options.extensionGroups);
 
         if (options.pluginsDir) {
             await pluginManager.loadPluginsFromDirectory(options.pluginsDir, config);
@@ -301,11 +370,16 @@ export async function processFusion(
 
         checkCancellation();
         reportProgress('scanning', 'Scanning for files...', 0, 0, undefined, true);
-        
-        let filePaths = await fs.glob(pattern, { 
+
+        let filePaths = await fs.glob(pattern, {
             nodir: true,
             follow: false
         });
+
+        // Also glob for special filenames without extensions (Dockerfile, Makefile, etc.)
+        const includeFilenamesResult = await globIncludeFilenames(config, rootDir, fs, filePaths);
+        filePaths = includeFilenamesResult.filePaths;
+        const includeFilenamesMatched = includeFilenamesResult.matchedFiles;
 
         const originalFileCount = filePaths.length;
         filePaths = filePaths.filter(file => {
@@ -375,6 +449,16 @@ export async function processFusion(
         let skippedCount = 0;
         let totalSizeBytes = 0;
 
+        // Enhanced tracking for detailed logging
+        const processingStats: ProcessingStats = {
+            binaryFilesSkipped: [],
+            secretsDetected: [],
+            minifiedFilesDetected: [],
+            validationWarnings: [],
+            validationErrors: [],
+            errorPlaceholders: []
+        };
+
         reportProgress('processing', 'Processing files...', 0, filePaths.length, undefined, true);
         
         for (let i = 0; i < filePaths.length; i++) {
@@ -437,6 +521,7 @@ export async function processFusion(
                     ]);
                     
                     if (isBinary) {
+                        processingStats.binaryFilesSkipped.push(relativePath);
                         await writeLogWithFs(logFilePath, `Skipping binary file: ${relativePath}`, true);
                         logger.consoleWarn(`Binary file skipped: ${relativePath}`);
                         continue;
@@ -450,6 +535,10 @@ export async function processFusion(
                         const { redactedContent, detectedSecrets } = redactSecrets(content);
                         if (detectedSecrets.length > 0) {
                             content = redactedContent;
+                            processingStats.secretsDetected.push({
+                                file: relativePath,
+                                types: detectedSecrets
+                            });
                         }
                     }
                     
@@ -457,48 +546,40 @@ export async function processFusion(
                     
                     // Log warnings and errors
                     for (const warning of validationResult.warnings) {
+                        processingStats.validationWarnings.push({ file: relativePath, warning });
                         await writeLogWithFs(logFilePath, `Content validation warning: ${warning}`, true);
                         logger.consoleWarn(warning);
                     }
-                    
+
                     for (const error of validationResult.errors) {
+                        processingStats.validationErrors.push({ file: relativePath, error });
                         await writeLogWithFs(logFilePath, `Content validation error: ${error}`, true);
                         console.error(`❌ ${error}`);
                     }
                     
-                    // Check for minified content first
+                    // Check for minified content and determine handling strategy
                     const isMinified = isMinifiedContent(content, relativePath);
                     if (isMinified) {
+                        processingStats.minifiedFilesDetected.push(relativePath);
                         await writeLogWithFs(logFilePath, `Detected minified content in: ${relativePath}`, true);
-                        // Only skip minified files that have ONLY long line issues (not tokens or base64)
-                        const hasBase64Issues = validationResult.issues.hasLargeBase64;
-                        const hasTokenIssues = validationResult.issues.hasLongTokens;
-                        const hasOnlyLongLineIssues = validationResult.issues.hasLongLines && !hasBase64Issues && !hasTokenIssues;
-                        if (!validationResult.valid && hasOnlyLongLineIssues) {
-                            await writeLogWithFs(logFilePath, `Rejecting minified file: ${relativePath}`, true);
-                            // Skip this file entirely - don't add to filesToProcess
-                            continue;
-                        }
                     }
-                    
-                    // If validation failed, create error placeholder
-                    // BUT: don't create placeholders for minified content that we want to skip
+
+                    // Use extracted function for clearer minification handling logic
+                    const handling = determineMinifiedFileHandling(isMinified, validationResult);
+
+                    if (handling.shouldSkip) {
+                        await writeLogWithFs(logFilePath, `Rejecting minified file: ${relativePath}`, true);
+                        continue;
+                    }
+
                     let processedFileContent = content;
                     let isErrorPlaceholder = false;
-                    
-                    if (!validationResult.valid) {
-                        // Always create error placeholders for files with base64 or token issues
-                        // Only skip if minified AND has only long line issues (pure minification)
-                        const hasBase64Issues = validationResult.issues.hasLargeBase64;
-                        const hasTokenIssues = validationResult.issues.hasLongTokens;
-                        const hasOnlyLongLineIssues = validationResult.issues.hasLongLines && !hasBase64Issues && !hasTokenIssues;
-                        
-                        if (!isMinified || !hasOnlyLongLineIssues) {
-                            await writeLogWithFs(logFilePath, `Content validation failed for: ${relativePath}`, true);
-                            const errorDetails = validationResult.errors.join('\n');
-                            processedFileContent = createErrorPlaceholder(relativePath, errorDetails);
-                            isErrorPlaceholder = true;
-                        }
+
+                    if (handling.shouldCreatePlaceholder) {
+                        processingStats.errorPlaceholders.push(relativePath);
+                        await writeLogWithFs(logFilePath, `Content validation failed for: ${relativePath}`, true);
+                        processedFileContent = createErrorPlaceholder(relativePath, handling.errorDetails ?? 'Unknown error');
+                        isErrorPlaceholder = true;
                     }
                     
                     let fileInfo: FileInfo = {
@@ -627,21 +708,22 @@ export async function processFusion(
         
         const enabledStrategies = outputManager.getEnabledStrategies(finalConfig);
         const generatedPaths: FilePath[] = [];
+        const outputFilesInfo: OutputFileInfo[] = [];
 
         for (const strategy of enabledStrategies) {
             checkCancellation();
             reportProgress('generating', `Generating ${strategy.name} output...`, 0, finalFilesToProcess.length, undefined, true);
-            
+
             try {
                 // Use the streaming version with progress callback
                 const outputPath = await outputManager.generateOutput(
-                    strategy, 
-                    outputContext, 
+                    strategy,
+                    outputContext,
                     fs,
                     (fileInfo, index, total) => {
                         checkCancellation();
                         reportProgress(
-                            'generating', 
+                            'generating',
                             `Generating ${strategy.name} output - processing ${fileInfo.relativePath}`,
                             index + 1,
                             total,
@@ -652,6 +734,24 @@ export async function processFusion(
                     options.cancellationToken
                 );
                 generatedPaths.push(outputPath);
+
+                // Track output file size
+                try {
+                    const outputStats = await fs.stat(outputPath);
+                    outputFilesInfo.push({
+                        name: strategy.name,
+                        path: path.basename(outputPath),
+                        sizeKB: outputStats.size / 1024
+                    });
+                } catch {
+                    // If we can't get the size, still track the file without size
+                    outputFilesInfo.push({
+                        name: strategy.name,
+                        path: path.basename(outputPath),
+                        sizeKB: 0
+                    });
+                }
+
                 benchmark.markFileProcessed(0);
             } catch (error) {
                 await writeLogWithFs(logFilePath, `Error generating ${strategy.name} output: ${String(error)}`, true);
@@ -717,27 +817,22 @@ export async function processFusion(
                 await writeLogWithFs(logFilePath, `  ... and ${skippedFiles.length - 10} more`, true);
             }
         }
-        
+
+        // Write enhanced statistics (content analysis, security, special files, output files)
+        await writeEnhancedStatistics(writeLog, processingStats, includeFilenamesMatched, outputFilesInfo);
+
+        // Write performance metrics
         const metrics = benchmark.getMetrics();
-        await writeLogWithFs(logFilePath, `\n--- PERFORMANCE METRICS ---`, true);
-        await writeLogWithFs(logFilePath, `Duration breakdown:`, true);
-        await writeLogWithFs(logFilePath, `  Total execution: ${duration}s`, true);
-        await writeLogWithFs(logFilePath, `  File discovery: ${((Date.now() - startTime.getTime()) / 1000 / Number.parseFloat(duration) * 100).toFixed(1)}% of total`, true);
-        
-        await writeLogWithFs(logFilePath, `Memory usage:`, true);
-        await writeLogWithFs(logFilePath, `  Peak memory: ${metrics.memoryUsed.toFixed(2)} MB`, true);
-        await writeLogWithFs(logFilePath, `  Memory per file: ${finalFilesToProcess.length > 0 ? (metrics.memoryUsed / finalFilesToProcess.length * 1024).toFixed(2) : '0'} KB`, true);
-        
-        await writeLogWithFs(logFilePath, `Processing speed:`, true);
-        await writeLogWithFs(logFilePath, `  Data throughput: ${metrics.throughputMBps.toFixed(2)} MB/s`, true);
-        await writeLogWithFs(logFilePath, `  File processing rate: ${(metrics.filesProcessed / metrics.duration).toFixed(2)} files/s`, true);
-        await writeLogWithFs(logFilePath, `  Average file size: ${finalFilesToProcess.length > 0 ? (totalSizeBytes / finalFilesToProcess.length / 1024).toFixed(2) : '0'} KB`, true);
-        
-        await writeLogWithFs(logFilePath, `Output generation:`, true);
-        const outputFormats = enabledStrategies.map(s => s.name).join(', ');
-        await writeLogWithFs(logFilePath, `  Generated formats: ${outputFormats}`, true);
-        await writeLogWithFs(logFilePath, `  Number of output files: ${enabledStrategies.length}`, true);
-        
+        await writePerformanceMetrics(writeLog, {
+            duration,
+            startTime,
+            metrics,
+            filesCount: finalFilesToProcess.length,
+            totalSizeBytes,
+            outputFormats: enabledStrategies.map(s => s.name).join(', '),
+            outputFilesCount: enabledStrategies.length
+        });
+
         const generatedFormats = enabledStrategies.map(s => s.extension);
         
         const result = {

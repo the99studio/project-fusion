@@ -234,6 +234,9 @@ export async function runFusionCommand(options: {
             }
             
             // Check all files atomically to prevent race conditions
+            // NOTE: TOCTOU risk exists between this check and actual file generation.
+            // This is acceptable as it's a user-facing safety check, not a security boundary.
+            // If files are created between check and write, the write operation will handle it.
             const existingFiles = [];
             const fileChecks = await Promise.allSettled(
                 outputFiles.map(async (file) => {
@@ -279,16 +282,19 @@ export async function runFusionCommand(options: {
                 }
 
                 // Copy fusion content to clipboard if enabled (skip in CI/non-interactive environments and large files)
+                // SECURITY: File content is read into memory for clipboard - ensure size limits are respected
                 const isNonInteractive = process.env['CI'] === 'true' || !process.stdout.isTTY;
                 if (config.copyToClipboard === true && result.fusionFilePath && !isNonInteractive) {
                     try {
-                        // Read file and check size atomically to prevent race condition
-                        const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
-                        const fileSizeMB = Buffer.byteLength(fusionContent, 'utf8') / (1024 * 1024);
-                        
+                        // Check file size first before reading to prevent memory issues
+                        const fileStats = await fs.stat(result.fusionFilePath);
+                        const fileSizeMB = fileStats.size / (1024 * 1024);
+
                         if (fileSizeMB > 5) {
                             console.log(chalk.gray(`Clipboard copy skipped (file size: ${fileSizeMB.toFixed(1)} MB > 5 MB limit)`));
                         } else {
+                            // Read file content for clipboard (size already validated)
+                            const fusionContent = await fs.readFile(result.fusionFilePath, 'utf8');
                             await clipboardy.write(fusionContent);
                             console.log(chalk.blue(`Fusion content copied to clipboard`));
                         }
@@ -402,8 +408,9 @@ export async function runConfigCheckCommand(): Promise<void> {
                 console.log(chalk.red(`      Error: ${issue.message}`));
                 console.log(chalk.red(`      Current value: ${chalk.cyan(JSON.stringify(value))}`));
                 if (issue.code === 'invalid_type') {
-                     
-                    console.log(chalk.red(`      Expected: ${chalk.green(String((issue as unknown as Record<string, unknown>)['expected']))}, received: ${chalk.magenta(String((issue as unknown as Record<string, unknown>)['received']))}`));
+                    // Use Zod's typed error properties safely
+                    const invalidTypeIssue = issue as { expected?: string; received?: string };
+                    console.log(chalk.red(`      Expected: ${chalk.green(String(invalidTypeIssue.expected ?? 'unknown'))}, received: ${chalk.magenta(String(invalidTypeIssue.received ?? 'unknown'))}`));
                 }
             }
             

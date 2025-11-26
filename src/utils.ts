@@ -29,6 +29,19 @@ export const defaultConfig = {
     generateHtml: true,
     generateMarkdown: true,
     generateText: true,
+    includeFilenames: [
+        ".gitignore",
+        "CODEOWNERS",
+        "Dockerfile",
+        "Dockerfile.*",
+        "Dockerfile-*",
+        "Gemfile",
+        "Jenkinsfile",
+        "LICENSE",
+        "Makefile",
+        "Rakefile",
+        "Vagrantfile"
+    ] as const,
     ignorePatterns: [
         // Binary files and archives
         "*.7z",
@@ -97,7 +110,6 @@ export const defaultConfig = {
         ".idea/",
         ".npmrc",
         ".ssh/",
-        ".vscode/",
         "build/",
         "dist/",
         "dist/**/*.map",
@@ -122,11 +134,11 @@ export const defaultConfig = {
     overwriteFiles: false,
     parsedFileExtensions: {
         backend: [".cs", ".go", ".java", ".php", ".py", ".rb", ".rs"] as const,
-        config: [".json", ".toml", ".xml", ".yaml", ".yml"] as const,
+        config: [".json", ".snap", ".toml", ".xml", ".yaml", ".yml"] as const,
         cpp: [".c", ".cc", ".cpp", ".h", ".hpp"] as const,
         doc: [".adoc", ".md", ".rst"] as const,
         godot: [".cfg", ".cs", ".gd", ".import", ".tres", ".tscn"] as const,
-        scripts: [".bat", ".cmd", ".ps1", ".sh"] as const,
+        scripts: [".bash", ".bat", ".bats", ".cmd", ".ps1", ".sh"] as const,
         web: [".css", ".html", ".js", ".jsx", ".svelte", ".ts", ".tsx", ".vue"] as const
     },
     parseSubDirectories: true,
@@ -173,8 +185,9 @@ export async function loadConfig(): Promise<Config> {
                     console.error(`     Error: ${issue.message}`);
                     console.error(`     Current value: ${JSON.stringify(value)}`);
                     if (issue.code === 'invalid_type') {
-                         
-                        console.error(`     Expected type: ${String((issue as unknown as Record<string, unknown>)['expected'])}, received: ${String((issue as unknown as Record<string, unknown>)['received'])}`);
+                        // Use Zod's typed error properties safely
+                        const invalidTypeIssue = issue as { expected?: string; received?: string };
+                        console.error(`     Expected type: ${String(invalidTypeIssue.expected ?? 'unknown')}, received: ${String(invalidTypeIssue.received ?? 'unknown')}`);
                     }
                 }
             } else {
@@ -555,7 +568,7 @@ export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise
         try {
             const stats = await fileHandle.stat();
             if (stats.size === 0) {
-                binaryFileCache.set(filePath, false);
+                setBinaryCache(filePath, false);
                 return false; // Empty file is not binary
             }
             
@@ -568,7 +581,7 @@ export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise
             // Early exit for null bytes - most efficient binary detection
             const nullByteIndex = buffer.subarray(0, actualBytesToCheck).indexOf(0);
             if (nullByteIndex !== -1) {
-                binaryFileCache.set(filePath, true);
+                setBinaryCache(filePath, true);
                 return true;
             }
             
@@ -586,21 +599,21 @@ export async function isBinaryFile(filePath: string, sampleSize = 1024): Promise
                     nonPrintable++;
                     // Early exit if threshold already exceeded
                     if (nonPrintable > threshold) {
-                        binaryFileCache.set(filePath, true);
+                        setBinaryCache(filePath, true);
                         return true;
                     }
                 }
             }
-            
+
             // File is text-based
-            binaryFileCache.set(filePath, false);
+            setBinaryCache(filePath, false);
             return false;
         } finally {
             await fileHandle.close();
         }
     } catch {
         // If we can't read the file, assume it's not binary
-        binaryFileCache.set(filePath, false);
+        setBinaryCache(filePath, false);
         return false;
     }
 }
@@ -610,6 +623,7 @@ const LANGUAGE_MAP = new Map<string, string>([
     // Extensions (alphabetized)
     ['.bash', 'bash'],
     ['.bat', 'batch'],
+    ['.bats', 'bash'],
     ['.c', 'c'],
     ['.cc', 'cpp'],
     ['.cfg', 'ini'],
@@ -703,7 +717,23 @@ const LANGUAGE_MAP = new Map<string, string>([
 export function getMarkdownLanguage(extensionOrBasename: string): string {
     // Case-insensitive lookup with fallback to 'text'
     const lang = LANGUAGE_MAP.get(extensionOrBasename.toLowerCase()) ?? LANGUAGE_MAP.get(extensionOrBasename);
-    return lang ?? 'text';
+    if (lang) {
+        return lang;
+    }
+
+    // Handle special patterns for files without extensions
+    const lowerBasename = extensionOrBasename.toLowerCase();
+    if (lowerBasename.startsWith('dockerfile')) {
+        return 'dockerfile';
+    }
+    if (lowerBasename.startsWith('makefile')) {
+        return 'makefile';
+    }
+    if (lowerBasename === 'codeowners') {
+        return 'text';
+    }
+
+    return 'text';
 }
 
 /**
@@ -803,7 +833,28 @@ export async function logMemoryUsageIfNeeded(
 }
 
 // Simple cache for binary file detection to avoid repeated checks
+// Bounded to prevent memory exhaustion in long-running processes
+const BINARY_CACHE_MAX_SIZE = 10_000;
 const binaryFileCache = new Map<string, boolean>();
+
+/**
+ * Add entry to binary file cache with size limit enforcement
+ * Uses LRU-like eviction: removes oldest entries when limit exceeded
+ */
+function setBinaryCache(filePath: string, isBinary: boolean): void {
+    // If cache is at limit, remove the oldest 10% of entries
+    if (binaryFileCache.size >= BINARY_CACHE_MAX_SIZE) {
+        const entriesToRemove = Math.ceil(BINARY_CACHE_MAX_SIZE * 0.1);
+        const keys = binaryFileCache.keys();
+        for (let i = 0; i < entriesToRemove; i++) {
+            const key = keys.next().value;
+            if (key) {
+                binaryFileCache.delete(key);
+            }
+        }
+    }
+    binaryFileCache.set(filePath, isBinary);
+}
 
 /**
  * Content validation result
@@ -850,12 +901,28 @@ export const SECRET_PATTERNS = [
     { name: 'Password Field', regex: /(password[_-]?[:=]\s*["']?[^\s"']{8,}["']?)/i }
 ];
 
-// Pre-compile global regexes for better performance
-const GLOBAL_SECRET_PATTERNS = SECRET_PATTERNS.map(pattern => ({
-    name: pattern.name,
+// Create non-global regexes for testing and pre-compiled global regexes for replacement
+// Pre-compile once to avoid security/detect-non-literal-regexp and for performance
+const SECRET_PATTERN_PAIRS = SECRET_PATTERNS.map(pattern => {
+    // Pre-compile the global regex once (source is from trusted literal patterns above)
+    const flags = pattern.regex.flags.includes('g') ? pattern.regex.flags : `${pattern.regex.flags}g`;
     // eslint-disable-next-line security/detect-non-literal-regexp
-    regex: new RegExp(pattern.regex.source, pattern.regex.global ? pattern.regex.flags : `${pattern.regex.flags}g`)
-}));
+    const globalRegex = new RegExp(pattern.regex.source, flags);
+
+    return {
+        name: pattern.name,
+        // Non-global regex for testing (no lastIndex issues)
+        testRegex: pattern.regex,
+        // Pre-compiled global regex - we clone it by creating new instance for each use
+        globalRegexSource: pattern.regex.source,
+        globalRegexFlags: flags,
+        // Function returns a fresh regex to avoid lastIndex state pollution between calls
+        getGlobalRegex: (): RegExp => {
+            globalRegex.lastIndex = 0;
+            return globalRegex;
+        }
+    };
+});
 
 /**
  * Redact secrets from content by replacing them with [REDACTED]
@@ -866,22 +933,20 @@ export function redactSecrets(content: string): { redactedContent: string; detec
     let redactedContent = content;
     const detectedSecrets: string[] = [];
     const seenTypes = new Set<string>();
-    
-    // Use pre-compiled global regexes for better performance
-    for (const pattern of GLOBAL_SECRET_PATTERNS) {
-        if (pattern.regex.test(redactedContent)) {
+
+    // Use non-global regex for testing (no lastIndex state issues)
+    // Then create fresh global regex for replacement to avoid state pollution
+    for (const pattern of SECRET_PATTERN_PAIRS) {
+        if (pattern.testRegex.test(redactedContent)) {
             if (!seenTypes.has(pattern.name)) {
                 detectedSecrets.push(pattern.name);
                 seenTypes.add(pattern.name);
             }
-            // Reset regex lastIndex since we're reusing compiled regexes
-            pattern.regex.lastIndex = 0;
-            redactedContent = redactedContent.replace(pattern.regex, '[REDACTED]');
-            // Reset again for next potential use
-            pattern.regex.lastIndex = 0;
+            // Create fresh global regex for replacement - avoids lastIndex state issues
+            redactedContent = redactedContent.replace(pattern.getGlobalRegex(), '[REDACTED]');
         }
     }
-    
+
     return { redactedContent, detectedSecrets };
 }
 

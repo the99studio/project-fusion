@@ -21,32 +21,32 @@ permissions:
 jobs:
   test:
     uses: ./.github/workflows/build-test.yml
-    
+
   release:
     name: Create Release & Publish
     runs-on: ubuntu-latest
     needs: test
     # Only run on main repo, not forks
     if: github.repository == 'the99studio/project-fusion'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      
+
       - name: Verify version consistency
         run: |
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          
+
           if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
             echo "❌ Version mismatch!"
             echo "   Tag: v$TAG_VERSION"
             echo "   Package.json: $PACKAGE_VERSION"
             exit 1
           fi
-          
+
           echo "✅ Version $PACKAGE_VERSION ready for release"
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -55,22 +55,26 @@ jobs:
           scope: '@the99studio'
           cache: 'npm'
           always-auth: false
-      
+
       - name: Update npm to latest
         run: npm install -g npm@latest
-      
-      - name: Install and build
-        run: |
-          npm ci
-          npm run build:clean
-      
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+
       - name: Security audit
-        run: npm audit --audit-level=high || echo "::warning::Security vulnerabilities found"
-      
+        run: npm audit --audit-level=high --omit=dev || echo "::warning::Security vulnerabilities found"
+
       - name: Publish to NPM
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          
+
           # Publish with appropriate tag
           if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Publishing stable version $VERSION"
@@ -83,8 +87,9 @@ jobs:
             exit 1
           fi
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-      
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

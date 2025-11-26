@@ -22,7 +22,7 @@ npm run build
 - **Help** - Show help information
 - **Init (Force)** - Overwrite existing config file
 - **Init** - Create new config file
-- **Tests** - Run the full test suite
+- **Tests** - Run the full test suite (49 test files, 663 tests, 80% coverage threshold)
 
 ## Architecture
 

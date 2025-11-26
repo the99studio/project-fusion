@@ -8,6 +8,19 @@
     "generateHtml": true,
     "generateMarkdown": true,
     "generateText": true,
+    "includeFilenames": [
+        ".gitignore",
+        "CODEOWNERS",
+        "Dockerfile",
+        "Dockerfile.*",
+        "Dockerfile-*",
+        "Gemfile",
+        "Jenkinsfile",
+        "LICENSE",
+        "Makefile",
+        "Rakefile",
+        "Vagrantfile"
+    ],
     "ignorePatterns": [
         "*.7z",
         "*.a",
@@ -75,7 +88,6 @@
         ".idea/",
         ".npmrc",
         ".ssh/",
-        ".vscode/",
         "build/",
         "dist/",
         "dist/**/*.map",
@@ -110,6 +122,7 @@
         ],
         "config": [
             ".json",
+            ".snap",
             ".toml",
             ".xml",
             ".yaml",
@@ -136,7 +149,9 @@
             ".tscn"
         ],
         "scripts": [
+            ".bash",
             ".bat",
+            ".bats",
             ".cmd",
             ".ps1",
             ".sh"

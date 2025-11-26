@@ -123,18 +123,18 @@ function escapeMarkdown(text: string): string {
 
 function sanitizeMarkdownContent(content: string): string {
     // Detect and neutralize dangerous protocols in markdown content - optimized to prevent ReDoS
-    const dangerousProtocols = /\b(?:javascript|data|vbscript):/gi;
-    
-    // Use split/join approach to avoid potential ReDoS with global regex
-    if (dangerousProtocols.test(content)) {
-        // Reset regex lastIndex to avoid state issues
-        dangerousProtocols.lastIndex = 0;
-        return content.replaceAll(dangerousProtocols, (match) => {
+    // Use non-global regex for testing and create fresh global regex for replacement
+    // This avoids lastIndex state issues with global regexes
+    const testRegex = /\b(?:javascript|data|vbscript):/i;
+
+    if (testRegex.test(content)) {
+        // Create fresh global regex for replacement - avoids lastIndex state pollution
+        return content.replaceAll(/\b(?:javascript|data|vbscript):/gi, (match) => {
             const protocol = match.toLowerCase().slice(0, -1);
             return `[BLOCKED-${protocol.toUpperCase()}]:`;
         });
     }
-    
+
     return content;
 }
 
@@ -148,10 +148,10 @@ function validateHtmlHref(href: string): string {
         const validSlugPattern = /^[\w-]+$/;
         
         if (!validSlugPattern.test(slug)) {
-            // Replace invalid characters with safe alternatives - avoid greedy patterns
+            // Replace invalid characters with safe alternatives
             const sanitizedSlug = slug
-                .replaceAll(/[^\w-]/g, '-')      // Non-global to prevent ReDoS
-                .replaceAll(/-+/g, '-')          // Simplified pattern
+                .replaceAll(/[^\w-]/g, '-')      // Simple character class - ReDoS safe
+                .replaceAll(/-+/g, '-')          // Collapse consecutive dashes
                 .replace(/^-+/, '')              // Remove leading dashes
                 .replace(/-+$/, '');             // Remove trailing dashes
             

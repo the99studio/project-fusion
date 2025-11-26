@@ -33,7 +33,7 @@ export const EXTENSION_GROUPS = {
     cpp: ['.c', '.cc', '.cpp', '.h', '.hpp'],
     doc: ['.adoc', '.md', '.rst'],
     godot: ['.gd', '.import', '.tres', '.tscn'],
-    scripts: ['.bat', '.cmd', '.ps1', '.sh'],
+    scripts: ['.bash', '.bat', '.bats', '.cmd', '.ps1', '.sh'],
     web: ['.css', '.html', '.js', '.jsx', '.svelte', '.ts', '.tsx', '.vue']
 } as const;
 
@@ -93,6 +93,8 @@ export interface Config {
     generateHtml: boolean;
     generateMarkdown: boolean;
     generateText: boolean;
+    /** Filename patterns to include regardless of extension (e.g., Dockerfile, Makefile) */
+    includeFilenames: readonly string[];
     ignorePatterns: readonly string[];
     /** Maximum size for base64 blocks in KB before warning/rejection */
     maxBase64BlockKB: number;
