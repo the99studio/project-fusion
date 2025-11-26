@@ -2,7 +2,7 @@
 
 **Project:** project-fusion / @the99studio/project-fusion v1.1.4
 
-**Generated:** 26/11/2025 01:41:12 UTC−5
+**Generated:** 26/11/2025 08:57:49 UTC−5
 
 **Files:** 90
 
@@ -1053,6 +1053,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized `npm audit --audit-level=high` across all CI workflows
 
 ### Fixed
+- Fixed release workflow: removed `prepublishOnly` hook that conflicted with CI artifact caching
 - Fixed clipboard TOCTOU vulnerability: use file handle for atomic stat+read (CodeQL)
 - Fixed plugin security: validation now explicitly happens before dynamic import
 - Fixed Windows path comparison in plugin system using normalized separators
@@ -1968,7 +1969,6 @@ THE SOFTWARE.
         "build:clean": "npm run clean && npm run build",
         "clean": "node -e \"import('fs').then(fs => fs.rmSync('dist', {recursive: true, force: true}))\"",
         "lint": "npx eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
-        "prepublishOnly": "npm run test",
         "test": "npm run build:clean && vitest run --coverage"
     },
     "keywords": [

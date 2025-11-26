@@ -20,7 +20,7 @@ a{color:#00e;text-decoration:underline}
 <body>
 <h1>Project Fusion Output</h1>
 <p><strong>Project:</strong> project-fusion &#47; &#64;the99studio&#47;project-fusion v1.1.4</p>
-<p><strong>Generated:</strong> 26&#47;11&#47;2025 01:41:12 UTC−5</p>
+<p><strong>Generated:</strong> 26&#47;11&#47;2025 08:57:49 UTC−5</p>
 <p><strong>Files:</strong> 90</p>
 <p><strong>Created with:</strong> <a href="https://github.com/the99studio/project-fusion" target="_blank" rel="noopener noreferrer">project-fusion v1.1.4</a></p>
 <hr>
@@ -1012,6 +1012,7 @@ and this project adheres to &#91;Semantic Versioning&#93;&#40;https:&#47;&#47;se
 - Standardized &#96;npm audit --audit-level&#61;high&#96; across all CI workflows
 
 ### Fixed
+- Fixed release workflow: removed &#96;prepublishOnly&#96; hook that conflicted with CI artifact caching
 - Fixed clipboard TOCTOU vulnerability: use file handle for atomic stat&#43;read &#40;CodeQL&#41;
 - Fixed plugin security: validation now explicitly happens before dynamic import
 - Fixed Windows path comparison in plugin system using normalized separators
@@ -1907,7 +1908,6 @@ THE SOFTWARE.
         &quot;build:clean&quot;: &quot;npm run clean &amp;&amp; npm run build&quot;,
         &quot;clean&quot;: &quot;node -e \&quot;import&#40;&#39;fs&#39;&#41;.then&#40;fs &#61;&gt; fs.rmSync&#40;&#39;dist&#39;, &#123;recursive: true, force: true&#125;&#41;&#41;\&quot;&quot;,
         &quot;lint&quot;: &quot;npx eslint \&quot;src&#47;**&#47;*.ts\&quot; \&quot;tests&#47;**&#47;*.ts\&quot;&quot;,
-        &quot;prepublishOnly&quot;: &quot;npm run test&quot;,
         &quot;test&quot;: &quot;npm run build:clean &amp;&amp; vitest run --coverage&quot;
     &#125;,
     &quot;keywords&quot;: &#91;
